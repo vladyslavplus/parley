@@ -1,0 +1,10 @@
+{
+  "appName": "Parley",
+  "appDescription": "Parley web application.",
+  "actions": {
+    "signOut": "Sign out"
+  },
+  "organizationSwitcher": {
+    "label": "Organization"
+  }
+}

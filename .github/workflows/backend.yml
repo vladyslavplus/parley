@@ -1,0 +1,45 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+      - "global.json"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+      - "global.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+
+      - name: Restore
+        run: dotnet restore backend/Parley.slnx --locked-mode
+
+      - name: Build
+        run: dotnet build backend/Parley.slnx --no-restore --nologo -p:TreatWarningsAsErrors=true
+
+      - name: Unit tests
+        run: dotnet test backend/tests/Parley.UnitTests --no-restore --no-build --nologo
+
+      - name: Integration tests
+        run: dotnet test backend/tests/Parley.IntegrationTests --no-restore --no-build --nologo

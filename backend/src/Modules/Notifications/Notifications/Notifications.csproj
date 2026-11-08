@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Parley.Notifications</RootNamespace>
+    <AssemblyName>Parley.Notifications</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Notifications.Contracts\Notifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Parley.SharedKernel\Parley.SharedKernel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fluid.Core" />
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Template folders hold one subfolder per template; the manifest names stay flat
+         (Parley.Notifications.Templates.<file>) so the loader resolves them unchanged. -->
+    <EmbeddedResource Include="Templates\**\*.txt" LogicalName="Parley.Notifications.Templates.%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

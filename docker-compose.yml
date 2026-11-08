@@ -1,0 +1,40 @@
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg17@sha256:7d0a41464797aeb9862dfdc0bbf1526b82cfd324cdd8036df19e3545f4a9ccb8
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  mailpit:
+    image: axllent/mailpit:v1.27.8@sha256:6abc8e633df15eaf785cfcf38bae48e66f64beecdc03121e249d0f9ec15f0707
+
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:13.1@sha256:d3ed5afb812d4fcacf14e88d1bc70eb2102d4729c5e032c8b4ec21afe4352a07
+    environment:
+      DOTNET_RESMON__IS_GET_ULIMIT_SUPPORTED: "false"
+
+  redis:
+    profiles:
+      - redis
+    image: valkey/valkey:8-alpine@sha256:2602ace2be6569bc2bbb06f873776516ab9089821525be34f4305c67eb9db02a
+    command: ["valkey-server", "--appendonly", "yes", "--requirepass", "${VALKEY_PASSWORD:?Set VALKEY_PASSWORD in .env}"]
+    volumes:
+      - valkey-data:/data
+
+  # Profile `ml` is reserved for the FastAPI scoring service. Its service is
+  # added with the ML step so this file does not pull a placeholder image.
+  # Profile `app` is reserved for the deployment containers (API + web). The
+  # API and frontend run on the host in development.
+
+volumes:
+  pgdata:
+  valkey-data:

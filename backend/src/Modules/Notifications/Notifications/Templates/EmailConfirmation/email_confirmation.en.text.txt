@@ -1,0 +1,8 @@
+Confirm your email address
+
+Hello, {{ displayName }}!
+
+Confirm your email address using this link:
+{{ confirmationLink }}
+
+If you did not register an account, ignore this email.

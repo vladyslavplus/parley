@@ -1,0 +1,24 @@
+root = true
+
+[*.cs]
+dotnet_sort_system_directives_first = true
+dotnet_diagnostic.IDE0005.severity = warning
+
+# Namespaces mirror the folder path under the project's RootNamespace (IDE0130), and every
+# namespace uses the file-scoped form (IDE0161). Both are compiler-enforced under EnforceCodeStyleInBuild.
+dotnet_style_namespace_match_folder = true
+dotnet_diagnostic.IDE0130.severity = warning
+csharp_style_namespace_declarations = file_scoped:warning
+dotnet_diagnostic.IDE0161.severity = warning
+
+# GenerateDocumentationFile is required for IDE0005 to run during build. It would also
+# report CS1591 for every undocumented public member; that is disabled on purpose, the
+# XML documentation file is not published and missing summaries are not a build rule here.
+dotnet_diagnostic.CS1591.severity = none
+
+# EF Core generated migrations keep the block-scoped namespace and the unconditional
+# `using System;` emitted by dotnet ef. Only IDE0161 and IDE0005 are relaxed there; the
+# folder-match rule (IDE0130) still applies. Migrations are regenerated, never hand-edited.
+[src/Modules/Identity/Identity/Migrations/*.cs]
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.IDE0005.severity = none

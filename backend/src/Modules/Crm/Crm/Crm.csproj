@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Parley.Crm</RootNamespace>
+    <AssemblyName>Parley.Crm</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Crm.Contracts\Crm.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Parley.SharedKernel\Parley.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

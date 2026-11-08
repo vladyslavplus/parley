@@ -1,0 +1,13 @@
+{
+  "kinds": {
+    "validation": "Check the highlighted fields and try again.",
+    "unauthorized": "Your session has expired. Please sign in again.",
+    "forbidden": "You do not have permission to do this.",
+    "not_found": "We could not find what you were looking for.",
+    "conflict": "This conflicts with the current state. Refresh and try again.",
+    "rate_limited": "Too many attempts. Please wait a moment and try again.",
+    "server": "Something went wrong on our side. Please try again later.",
+    "network": "Cannot reach the server. Check your connection and try again.",
+    "unknown": "Something went wrong. Please try again."
+  }
+}

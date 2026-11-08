@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Parley.Insights</RootNamespace>
+    <AssemblyName>Parley.Insights</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Insights.Contracts\Insights.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Parley.SharedKernel\Parley.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>
