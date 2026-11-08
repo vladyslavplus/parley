@@ -39,7 +39,7 @@ jobs:
         run: dotnet build backend/Parley.slnx --no-restore --nologo -p:TreatWarningsAsErrors=true
 
       - name: Unit tests
-        run: dotnet test backend/tests/Parley.UnitTests --no-restore --no-build --nologo
+        run: dotnet test backend/tests/Parley.UnitTests --no-restore --no-build
 
       - name: Integration tests
-        run: dotnet test backend/tests/Parley.IntegrationTests --no-restore --no-build --nologo
+        run: dotnet test backend/tests/Parley.IntegrationTests --no-restore --no-build
