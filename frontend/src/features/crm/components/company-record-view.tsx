@@ -11,32 +11,101 @@ import {
   User,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
-import { AlertDialog } from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { InlineEdit } from "@/components/ui/inline-edit";
 import { Skeleton } from "@/components/ui/skeleton";
+import { APP_NAME } from "@/constants/app";
 import { PERMISSIONS } from "@/constants/permissions";
-import { ROUTES } from "@/constants/routes";
+import { contactRecordRoute, ROUTES } from "@/constants/routes";
 import { CrmCustomFieldsRender } from "@/features/crm/components/crm-custom-fields-render";
 import {
   DealsPlaceholder,
   TimelinePlaceholder,
 } from "@/features/crm/components/crm-placeholders";
+import { OwnerPicker } from "@/features/crm/components/owner-picker";
 import { RecordTabs } from "@/features/crm/components/record-tabs";
 import { useCompany } from "@/features/crm/hooks/use-company";
+import { useContacts } from "@/features/crm/hooks/use-contacts";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import { useCustomFields } from "@/features/crm/hooks/use-custom-fields";
 import { useSoftDeleteWithUndo } from "@/features/crm/hooks/use-soft-delete-with-undo";
 import { Can, useCan } from "@/features/session/components/can";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useMembers } from "@/lib/api/hooks/use-api";
 import { toApiError } from "@/lib/errors";
 import { formatDate } from "@/lib/formatters";
+import { showSuccessToast } from "@/lib/toasts";
 
 type TabKey = "overview" | "timeline" | "deals" | "contacts";
+
+function CompanyContactsTable({ companyId }: { companyId: string }) {
+  const t = useTranslations("crm.companies");
+  const tContacts = useTranslations("crm.contacts");
+  const contactsQuery = useContacts({ companyId, limit: 20 });
+  const contacts = contactsQuery.data?.items ?? [];
+
+  if (contactsQuery.isPending) {
+    return (
+      <div className="space-y-2 p-4">
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+      </div>
+    );
+  }
+
+  if (contacts.length === 0) {
+    return (
+      <div className="rounded-[var(--radius-card)] border border-dashed border-border p-8 text-center bg-card/40">
+        <p className="text-sm font-semibold text-foreground">
+          {t("record.placeholders.contacts.title")}
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("record.placeholders.contacts.description")}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-[var(--radius-card)] border border-border bg-card overflow-hidden">
+      <table className="w-full text-left text-xs">
+        <thead className="border-b border-border bg-muted/60 text-muted-foreground font-semibold">
+          <tr>
+            <th className="py-2.5 px-4">{tContacts("columns.name")}</th>
+            <th className="py-2.5 px-4">{tContacts("columns.email")}</th>
+            <th className="py-2.5 px-4">{tContacts("columns.phone")}</th>
+            <th className="py-2.5 px-4">{tContacts("columns.jobTitle")}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {contacts.map((c) => (
+            <tr key={c.id} className="hover:bg-muted/40 transition-colors">
+              <td className="py-2.5 px-4 font-medium">
+                <Link
+                  href={contactRecordRoute(c.id)}
+                  className="text-info hover:underline"
+                >
+                  {[c.firstName, c.lastName].filter(Boolean).join(" ")}
+                </Link>
+              </td>
+              <td className="py-2.5 px-4 text-muted-foreground">
+                {c.email ?? "—"}
+              </td>
+              <td className="py-2.5 px-4 text-muted-foreground">
+                {c.phone ?? "—"}
+              </td>
+              <td className="py-2.5 px-4 text-muted-foreground">
+                {c.jobTitle ?? "—"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export function CompanyRecordView({ id }: { id: string }) {
   const t = useTranslations("crm.companies");
@@ -51,9 +120,19 @@ export function CompanyRecordView({ id }: { id: string }) {
 
   const companyQuery = useCompany(id);
   const customFieldsQuery = useCustomFields("company");
-  const membersQuery = useMembers();
 
-  const { updateCompany, deleteCompany, restoreCompany } = useCrmMutations();
+  useEffect(() => {
+    if (companyQuery.data?.name) {
+      document.title = `${companyQuery.data.name} · ${APP_NAME}`;
+    }
+  }, [companyQuery.data?.name]);
+
+  const {
+    updateCompany,
+    deleteCompany,
+    restoreCompany,
+    bulkAssignCompanyOwner,
+  } = useCrmMutations();
 
   const { handleDelete } = useSoftDeleteWithUndo({
     deleteEntity: () => deleteCompany(id),
@@ -118,11 +197,12 @@ export function CompanyRecordView({ id }: { id: string }) {
 
   const company = companyQuery.data;
   const customFieldDefs = customFieldsQuery.data ?? [];
-  const members = membersQuery.data?.pages.flatMap((p) => p.items) ?? [];
-  const memberMap = new Map(members.map((m) => [m.userId, m]));
-  const currentOwner = company.ownerUserId
-    ? memberMap.get(company.ownerUserId)
-    : null;
+  const ownerLabel =
+    company.ownerDisplayName ??
+    company.ownerEmail ??
+    (company.ownerUserId
+      ? t("record.fields.assigned")
+      : t("record.fields.unassigned"));
 
   async function handleFieldSave(
     field: "name" | "domain" | "country" | "industry",
@@ -135,7 +215,7 @@ export function CompanyRecordView({ id }: { id: string }) {
       country: field === "country" ? value : company.country,
       industry: field === "industry" ? value : company.industry,
     });
-    toast.success(tCrm("customFields.updated"));
+    showSuccessToast(tCrm("customFields.updated"));
   }
 
   async function handleCustomFieldSave(key: string, value: unknown) {
@@ -156,7 +236,7 @@ export function CompanyRecordView({ id }: { id: string }) {
       industry: company.industry,
       customFields: nextCustomFields,
     });
-    toast.success(tCrm("customFields.updated"));
+    showSuccessToast(tCrm("customFields.updated"));
   }
 
   const websiteUrl = company.domain
@@ -196,16 +276,7 @@ export function CompanyRecordView({ id }: { id: string }) {
     {
       key: "contacts" as const,
       label: t("record.sections.contacts"),
-      content: (
-        <div className="rounded-[var(--radius-card)] border border-dashed border-border p-8 text-center bg-card/40">
-          <p className="text-sm font-semibold text-foreground">
-            {t("record.placeholders.contacts.title")}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("record.placeholders.contacts.description")}
-          </p>
-        </div>
-      ),
+      content: <CompanyContactsTable companyId={id} />,
     },
   ];
 
@@ -313,13 +384,22 @@ export function CompanyRecordView({ id }: { id: string }) {
               <User className="h-3.5 w-3.5" />
               <span>{t("record.fields.owner")}</span>
             </span>
-            <span className="text-xs text-foreground inline-block pt-1">
-              {currentOwner
-                ? (currentOwner.displayName ?? currentOwner.email)
-                : company.ownerUserId
-                  ? t("record.fields.assigned")
-                  : t("record.fields.unassigned")}
-            </span>
+            <div className="pt-0.5">
+              <OwnerPicker
+                variant="inline"
+                allowClear={false}
+                disabled={!canWrite}
+                value={company.ownerUserId}
+                valueDisplayName={ownerLabel}
+                valueEmail={company.ownerEmail}
+                placeholder={t("record.fields.unassigned")}
+                onChange={async (newOwnerId) => {
+                  if (!newOwnerId) return;
+                  await bulkAssignCompanyOwner([company.id], newOwnerId);
+                  showSuccessToast(tCrm("customFields.updated"));
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -342,7 +422,7 @@ export function CompanyRecordView({ id }: { id: string }) {
       />
 
       {/* Delete confirmation dialog */}
-      <AlertDialog
+      <ConfirmDialog
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
         title={t("record.deleteConfirm")}

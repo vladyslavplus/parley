@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import { InlineEdit } from "@/components/ui/inline-edit";
 import { Input } from "@/components/ui/input";
@@ -13,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { CustomFieldDefinition } from "@/features/crm/types";
+import { showErrorToast } from "@/lib/toasts";
 
 interface Props {
   definitions: CustomFieldDefinition[];
@@ -140,7 +140,7 @@ export function CrmCustomFieldsRender({
                     }
                     const num = Number(val);
                     if (!Number.isFinite(num)) {
-                      toast.error(t("invalidNumber"));
+                      showErrorToast(t("invalidNumber"));
                       return;
                     }
                     return onSave(def.key, num);

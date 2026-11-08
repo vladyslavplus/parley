@@ -5,6 +5,7 @@ using Parley.Crm.Domain.CustomFields;
 using Parley.Crm.Features.Companies.Shared;
 using Parley.Crm.Persistence;
 using Parley.Crm.Shared.CustomFields;
+using Parley.Crm.Shared.Owners;
 using Parley.Crm.Shared.Text;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Persistence.Concurrency;
@@ -15,7 +16,8 @@ namespace Parley.Crm.Features.Companies.Update;
 
 public sealed class UpdateCompanyCommandHandler(
     CrmDbContext dbContext,
-    IDataScope dataScope) : IRequestHandler<UpdateCompanyCommand, Result<CompanyView>>
+    IDataScope dataScope,
+    OwnerDirectory ownerDirectory) : IRequestHandler<UpdateCompanyCommand, Result<CompanyView>>
 {
     public async ValueTask<Result<CompanyView>> Handle(UpdateCompanyCommand command, CancellationToken cancellationToken)
     {
@@ -56,6 +58,6 @@ public sealed class UpdateCompanyCommandHandler(
         var row = await CompanyLookup.FindRowAsync(dbContext, company.Id, scope, cancellationToken);
         return row is null
             ? Result<CompanyView>.Failure(Error.NotFound(CrmErrorCodes.CompanyNotFound))
-            : Result<CompanyView>.Success(CompanyViews.ToView(row));
+            : Result<CompanyView>.Success(await CompanyViews.ToViewAsync(row, ownerDirectory, cancellationToken));
     }
 }

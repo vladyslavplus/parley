@@ -4,6 +4,7 @@ using Parley.Crm.Contracts.Errors;
 using Parley.Crm.Domain.Tags;
 using Parley.Crm.Features.Contacts.Shared;
 using Parley.Crm.Persistence;
+using Parley.Crm.Shared.Owners;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Persistence.Concurrency;
 using Parley.SharedKernel.Results;
@@ -14,22 +15,23 @@ namespace Parley.Crm.Features.Contacts.Tags;
 public sealed class AttachContactTagsCommandHandler(
     CrmDbContext dbContext,
     ITenantContext tenantContext,
-    IDataScope dataScope) : IRequestHandler<AttachContactTagsCommand, Result<ContactView>>
+    IDataScope dataScope,
+    OwnerDirectory ownerDirectory) : IRequestHandler<AttachContactTagsCommand, Result<ContactView>>
 {
     private const int MaximumAttachAttempts = 2;
 
     public async ValueTask<Result<ContactView>> Handle(AttachContactTagsCommand command, CancellationToken cancellationToken)
     {
         var scope = await dataScope.ForPermissionAsync(Permissions.ContactsWrite, cancellationToken);
-        var row = await ContactLookup.FindRowAsync(dbContext, command.ContactId, scope, cancellationToken);
+        var row = await ContactLookup.FindRowAsync(dbContext, dataScope, command.ContactId, scope, cancellationToken);
         if (row is null)
         {
             return Result<ContactView>.Failure(Error.NotFound(CrmErrorCodes.ContactNotFound));
         }
 
-        var tagIds = command.TagIds.Distinct().ToArray();
+        var tagIds = command.TagIds.Distinct().ToList();
         var existingTagCount = await dbContext.Tags.CountAsync(tag => tagIds.Contains(tag.Id), cancellationToken);
-        if (existingTagCount != tagIds.Length)
+        if (existingTagCount != tagIds.Count)
         {
             return Result<ContactView>.Failure(Error.NotFound(CrmErrorCodes.TagNotFound));
         }
@@ -37,7 +39,7 @@ public sealed class AttachContactTagsCommandHandler(
         var updated = await AttachMissingLinksAsync(command.ContactId, tagIds, scope, cancellationToken);
         return updated is null
             ? Result<ContactView>.Failure(Error.NotFound(CrmErrorCodes.ContactNotFound))
-            : Result<ContactView>.Success(ContactViews.ToView(updated));
+            : Result<ContactView>.Success(await ContactViews.ToViewAsync(updated, ownerDirectory, cancellationToken));
     }
 
     /// <summary>
@@ -54,7 +56,7 @@ public sealed class AttachContactTagsCommandHandler(
     {
         for (var attempt = 1; ; attempt++)
         {
-            var current = await ContactLookup.FindRowAsync(dbContext, contactId, scope, cancellationToken);
+            var current = await ContactLookup.FindRowAsync(dbContext, dataScope, contactId, scope, cancellationToken);
             if (current is null)
             {
                 return null;
@@ -69,7 +71,7 @@ public sealed class AttachContactTagsCommandHandler(
             try
             {
                 await dbContext.SaveChangesAsync(cancellationToken);
-                return await ContactLookup.FindRowAsync(dbContext, contactId, scope, cancellationToken);
+                return await ContactLookup.FindRowAsync(dbContext, dataScope, contactId, scope, cancellationToken);
             }
             catch (DbUpdateException exception)
                 when (attempt < MaximumAttachAttempts

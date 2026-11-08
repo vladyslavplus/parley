@@ -6,9 +6,9 @@ using Parley.Crm.Contracts.Search;
 using Parley.Crm.Features.Search.Shared;
 using Parley.Crm.Persistence;
 using Parley.Crm.Shared;
-using Parley.Crm.Shared.Search;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Results;
+using Parley.SharedKernel.Search;
 
 namespace Parley.Crm.Features.Search.Search;
 

@@ -22,11 +22,19 @@ public sealed class InvitationsController(IMediator mediator, ErrorTextLocalizer
 {
     [HttpGet(IdentityRoutes.Invitations)]
     [RequiresPermission(Permissions.UsersManage)]
-    [ProducesResponseType<CursorPage<InvitationView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<KeysetCursorPage<InvitationView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> List([FromQuery] Guid? after, [FromQuery] int? limit, CancellationToken cancellationToken)
+    public async Task<IActionResult> List(
+        [FromQuery] string? after,
+        [FromQuery] int? limit,
+        [FromQuery] string? q,
+        [FromQuery] string? roleCode,
+        [FromQuery] string? sort,
+        [FromQuery] string? order,
+        CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new ListInvitationsQuery(after, limit), cancellationToken);
+        var result = await mediator.Send(new ListInvitationsQuery(after, limit, q, roleCode, sort, order), cancellationToken);
         return FromResult(result, Ok);
     }
 

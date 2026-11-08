@@ -110,6 +110,10 @@ vi.mock("@/features/crm/hooks/use-companies", () => ({
   useCompanies: () => ({ data: { items: [] } }),
 }));
 
+vi.mock("@/features/crm/hooks/use-owners", () => ({
+  useOwners: () => ({ data: { items: [] }, isFetching: false }),
+}));
+
 vi.mock("@/features/crm/hooks/use-crm-mutations", () => ({
   useCrmMutations: () => ({
     updateContact: mockUpdateContact,
@@ -166,8 +170,8 @@ describe("ContactRecordView inline edit and soft delete", () => {
     const deleteBtn = screen.getByRole("button", { name: "record.delete" });
     fireEvent.click(deleteBtn);
 
-    // Alert dialog opens
-    const dialog = screen.getByRole("dialog");
+    // ConfirmDialog opens
+    const dialog = screen.getByRole("alertdialog");
     const confirmBtn = within(dialog).getByRole("button", {
       name: "record.delete",
     });

@@ -14,9 +14,21 @@ internal static class ContactLookup
         ContactScopeFilter.Apply(dbContext.Contacts.Where(contact => contact.Id == id), scope)
             .FirstOrDefaultAsync(cancellationToken);
 
-    /// <summary>A contact row the caller may read, or null when missing, deleted or out of scope.</summary>
-    public static Task<ContactRow?> FindRowAsync(CrmDbContext dbContext, Guid id, DataScope scope, CancellationToken cancellationToken) =>
-        ContactScopeFilter.Apply(dbContext.Contacts.AsNoTracking().Where(contact => contact.Id == id), scope)
-            .Select(ContactViews.RowProjection)
+    /// <summary>
+    /// A contact row the caller may read, or null when missing, deleted or out of scope. The company name is
+    /// limited to the companies the caller may read.
+    /// </summary>
+    public static async Task<ContactRow?> FindRowAsync(
+        CrmDbContext dbContext,
+        IDataScope dataScope,
+        Guid id,
+        DataScope scope,
+        CancellationToken cancellationToken)
+    {
+        var companyScope = await dataScope.ForPermissionAsync(Permissions.CompaniesRead, cancellationToken);
+        var visibleCompanies = CompanyScopeFilter.Apply(dbContext.Companies.AsNoTracking(), companyScope);
+        return await ContactScopeFilter.Apply(dbContext.Contacts.AsNoTracking().Where(contact => contact.Id == id), scope)
+            .Select(ContactViews.RowProjectionFor(visibleCompanies))
             .FirstOrDefaultAsync(cancellationToken);
+    }
 }

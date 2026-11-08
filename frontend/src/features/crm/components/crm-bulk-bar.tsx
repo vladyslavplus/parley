@@ -1,24 +1,17 @@
 "use client";
 
+import * as Dialog from "@radix-ui/react-dialog";
 import { Trash2, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Alert } from "@/components/ui/alert";
-import { AlertDialog } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { Permission } from "@/constants/permissions";
+import { OwnerPicker } from "@/features/crm/components/owner-picker";
 import { Can } from "@/features/session/components/can";
-import { useMembers } from "@/lib/api/hooks/use-api";
 import { describeError, toApiError } from "@/lib/errors";
-import * as Dialog from "@radix-ui/react-dialog";
 
 interface Props {
   selectedCount: number;
@@ -38,19 +31,14 @@ export function CrmBulkBar({
   clearSelection,
 }: Props) {
   const t = useTranslations("crm.bulk");
-  const tRoles = useTranslations("settings.roles");
   const tErrors = useTranslations("errors.kinds");
   const tCommon = useTranslations("common");
 
-  const membersQuery = useMembers();
   const [assignOpen, setAssignOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
-
-  const members = membersQuery.data?.pages.flatMap((p) => p.items) ?? [];
-  const activeMembers = members.filter((m) => m.status === "active");
 
   async function handleAssign() {
     if (!selectedOwner) return;
@@ -59,6 +47,7 @@ export function CrmBulkBar({
     try {
       await onAssignOwner(selectedOwner);
       setAssignOpen(false);
+      setSelectedOwner("");
       clearSelection();
     } catch (err) {
       const apiErr = toApiError(err);
@@ -88,6 +77,7 @@ export function CrmBulkBar({
           variant="secondary"
           onClick={() => {
             setAssignError(null);
+            setSelectedOwner("");
             setAssignOpen(true);
           }}
           className="h-8 gap-1.5 text-xs px-2.5"
@@ -109,8 +99,17 @@ export function CrmBulkBar({
         </Button>
       </Can>
 
-      {/* Assign Owner Dialog with Radix Dialog & Select */}
-      <Dialog.Root open={assignOpen} onOpenChange={setAssignOpen}>
+      {/* Assign Owner Dialog with shared OwnerPicker */}
+      <Dialog.Root
+        open={assignOpen}
+        onOpenChange={(nextOpen) => {
+          setAssignOpen(nextOpen);
+          if (!nextOpen) {
+            setAssignError(null);
+            setSelectedOwner("");
+          }
+        }}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-150" />
           <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-5 shadow-floating space-y-4 focus:outline-none">
@@ -123,26 +122,14 @@ export function CrmBulkBar({
 
             {assignError && <Alert tone="error">{assignError}</Alert>}
 
-            <Select value={selectedOwner} onValueChange={setSelectedOwner}>
-              <SelectTrigger className="h-9 text-xs bg-background">
-                <SelectValue placeholder={t("selectOwner")} />
-              </SelectTrigger>
-              <SelectContent>
-                {activeMembers.map((m) => {
-                  let roleLabel: string = m.roleCode;
-                  try {
-                    roleLabel = tRoles(m.roleCode as "admin");
-                  } catch {
-                    roleLabel = m.roleCode;
-                  }
-                  return (
-                    <SelectItem key={m.userId} value={m.userId}>
-                      {m.displayName ?? m.email} ({roleLabel})
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
+            <OwnerPicker
+              variant="control"
+              allowClear={false}
+              value={selectedOwner || null}
+              placeholder={t("selectOwner")}
+              ariaLabel={t("selectOwner")}
+              onChange={(nextOwnerId) => setSelectedOwner(nextOwnerId ?? "")}
+            />
 
             <div className="flex justify-end gap-2">
               <Button
@@ -166,8 +153,8 @@ export function CrmBulkBar({
         </Dialog.Portal>
       </Dialog.Root>
 
-      {/* Delete Confirmation Alert Dialog */}
-      <AlertDialog
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
         title={t("deleteConfirmTitle")}

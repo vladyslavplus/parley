@@ -14,8 +14,24 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    before?: string;
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
+                    after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
                     limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only events with this exact action code. */
+                    action?: string;
+                    /** @description Only events of this actor (GUID). */
+                    actorUserId?: string;
+                    /** @description First instant included, UTC, ISO 8601. A value without an offset is read as UTC. */
+                    from?: string;
+                    /** @description Instant excluded, UTC, ISO 8601. */
+                    to?: string;
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "occurredAt";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
                 };
                 header?: never;
                 path?: never;
@@ -29,9 +45,20 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["CursorPageOfAuditEventView"];
-                        "application/json": components["schemas"]["CursorPageOfAuditEventView"];
-                        "text/json": components["schemas"]["CursorPageOfAuditEventView"];
+                        "text/plain": components["schemas"]["KeysetCursorPageOfAuditEventView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfAuditEventView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfAuditEventView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Forbidden */
@@ -65,8 +92,18 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
                     after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
                     limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only rows with this role code. */
+                    roleCode?: string;
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "email" | "createdAt" | "expiresAt";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
                 };
                 header?: never;
                 path?: never;
@@ -80,9 +117,20 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["CursorPageOfInvitationView"];
-                        "application/json": components["schemas"]["CursorPageOfInvitationView"];
-                        "text/json": components["schemas"]["CursorPageOfInvitationView"];
+                        "text/plain": components["schemas"]["KeysetCursorPageOfInvitationView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfInvitationView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfInvitationView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Forbidden */
@@ -521,8 +569,22 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
                     after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
                     limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only rows with this role code. */
+                    roleCode?: string;
+                    /** @description Only members of this team (GUID). */
+                    teamId?: string;
+                    /** @description Membership status to list: active (default), deactivated or all. */
+                    status?: "active" | "deactivated" | "all";
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "name" | "email" | "role" | "joinedAt";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
                 };
                 header?: never;
                 path?: never;
@@ -536,9 +598,20 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["CursorPageOfMemberView"];
-                        "application/json": components["schemas"]["CursorPageOfMemberView"];
-                        "text/json": components["schemas"]["CursorPageOfMemberView"];
+                        "text/plain": components["schemas"]["KeysetCursorPageOfMemberView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfMemberView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfMemberView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Forbidden */
@@ -985,8 +1058,16 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
                     after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
                     limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "name" | "createdAt";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
                 };
                 header?: never;
                 path?: never;
@@ -1000,9 +1081,20 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["CursorPageOfTeamView"];
-                        "application/json": components["schemas"]["CursorPageOfTeamView"];
-                        "text/json": components["schemas"]["CursorPageOfTeamView"];
+                        "text/plain": components["schemas"]["KeysetCursorPageOfTeamView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfTeamView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfTeamView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Forbidden */
@@ -1271,12 +1363,17 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
                     after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
                     limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
                     q?: string;
                     ownerUserId?: string;
-                    sort?: string;
-                    order?: string;
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "name" | "created";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
                 };
                 header?: never;
                 path?: never;
@@ -1971,16 +2068,21 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
                     after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
                     limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
                     q?: string;
                     tagId?: string;
                     companyId?: string;
                     ownerUserId?: string;
                     createdFrom?: string;
                     createdTo?: string;
-                    sort?: string;
-                    order?: string;
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "name" | "created";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
                 };
                 header?: never;
                 path?: never;
@@ -2628,7 +2730,20 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    entityType?: string;
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
+                    after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
+                    limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only definitions of this record type. */
+                    entityType?: "contact" | "company";
+                    /** @description Only definitions of this field type. */
+                    fieldType?: "text" | "number" | "date" | "boolean" | "select";
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "name" | "createdAt" | "position";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
                 };
                 header?: never;
                 path?: never;
@@ -2642,9 +2757,20 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["CustomFieldDefinitionView"][];
-                        "application/json": components["schemas"]["CustomFieldDefinitionView"][];
-                        "text/json": components["schemas"]["CustomFieldDefinitionView"][];
+                        "text/plain": components["schemas"]["KeysetCursorPageOfCustomFieldDefinitionView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfCustomFieldDefinitionView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfCustomFieldDefinitionView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Forbidden */
@@ -2878,6 +3004,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/owners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
+                    limit?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["OwnerView"][];
+                        "application/json": components["schemas"]["OwnerView"][];
+                        "text/json": components["schemas"]["OwnerView"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/search": {
         parameters: {
             query?: never;
@@ -2949,8 +3139,12 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
                     after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
                     limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
                 };
                 header?: never;
                 path?: never;
@@ -3871,6 +4065,10 @@ export interface components {
              * @description Row version to send back on update.
              */
             version: number | string;
+            /** @description Owner display name, or null when the owner is unknown or has no name. */
+            ownerDisplayName: null | string;
+            /** @description Owner email, or null when the owner is unknown. */
+            ownerEmail: null | string;
         };
         /** @description Body of `confirm-email`. */
         ConfirmEmailRequest: {
@@ -3965,6 +4163,12 @@ export interface components {
              * @description Row version to send back on update.
              */
             version: number | string;
+            /** @description Owner display name, or null when unowned, unnamed or outside the organization. */
+            ownerDisplayName: null | string;
+            /** @description Owner email, or null under the same conditions. */
+            ownerEmail: null | string;
+            /** @description Company name, or null when unset or when the caller cannot read that company. */
+            companyName: null | string;
         };
         /** @description The organization the session acts for, as the signed-in user sees it. */
         CurrentOrganizationView: {
@@ -3988,58 +4192,6 @@ export interface components {
             /** Format: uuid */
             teamId: null | string;
             permissions: components["schemas"]["PermissionGrantView"][];
-        };
-        /**
-         * @description One page of a keyset-paged list. Guid? CursorPage&lt;TItem&gt;.NextCursor is the identifier of the
-         *     last item when more rows exist, and null on the last page.
-         */
-        CursorPageOfAuditEventView: {
-            /** @description Rows of this page, in list order. */
-            items: components["schemas"]["AuditEventView"][];
-            /**
-             * Format: uuid
-             * @description Cursor for the following page, or null when this is the last page.
-             */
-            nextCursor: null | string;
-        };
-        /**
-         * @description One page of a keyset-paged list. Guid? CursorPage&lt;TItem&gt;.NextCursor is the identifier of the
-         *     last item when more rows exist, and null on the last page.
-         */
-        CursorPageOfInvitationView: {
-            /** @description Rows of this page, in list order. */
-            items: components["schemas"]["InvitationView"][];
-            /**
-             * Format: uuid
-             * @description Cursor for the following page, or null when this is the last page.
-             */
-            nextCursor: null | string;
-        };
-        /**
-         * @description One page of a keyset-paged list. Guid? CursorPage&lt;TItem&gt;.NextCursor is the identifier of the
-         *     last item when more rows exist, and null on the last page.
-         */
-        CursorPageOfMemberView: {
-            /** @description Rows of this page, in list order. */
-            items: components["schemas"]["MemberView"][];
-            /**
-             * Format: uuid
-             * @description Cursor for the following page, or null when this is the last page.
-             */
-            nextCursor: null | string;
-        };
-        /**
-         * @description One page of a keyset-paged list. Guid? CursorPage&lt;TItem&gt;.NextCursor is the identifier of the
-         *     last item when more rows exist, and null on the last page.
-         */
-        CursorPageOfTeamView: {
-            /** @description Rows of this page, in list order. */
-            items: components["schemas"]["TeamView"][];
-            /**
-             * Format: uuid
-             * @description Cursor for the following page, or null when this is the last page.
-             */
-            nextCursor: null | string;
         };
         /** @description A custom field definition as the API returns it. */
         CustomFieldDefinitionView: {
@@ -4114,6 +4266,16 @@ export interface components {
          * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
          *     encodes the sort value and identifier of the last item, and is null on the last page.
          */
+        KeysetCursorPageOfAuditEventView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["AuditEventView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
         KeysetCursorPageOfCompanyView: {
             /** @description Rows of this page, in list order. */
             items: components["schemas"]["CompanyView"][];
@@ -4134,9 +4296,49 @@ export interface components {
          * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
          *     encodes the sort value and identifier of the last item, and is null on the last page.
          */
+        KeysetCursorPageOfCustomFieldDefinitionView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["CustomFieldDefinitionView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfInvitationView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["InvitationView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfMemberView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["MemberView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
         KeysetCursorPageOfTagView: {
             /** @description Rows of this page, in list order. */
             items: components["schemas"]["TagView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfTeamView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["TeamView"][];
             /** @description Opaque cursor for the following page, or null when this is the last page. */
             nextCursor: null | string;
         };
@@ -4178,6 +4380,20 @@ export interface components {
             timeZone: string;
             defaultLocale: string;
             currency: string;
+        };
+        /** @description A person who can own a record, as an owner picker shows them. */
+        OwnerView: {
+            /**
+             * Format: uuid
+             * @description User identifier, sent back as `ownerUserId`.
+             */
+            id: string;
+            /** @description Display name, or null when the user has none. */
+            displayName: null | string;
+            /** @description Email address, or null when unknown. */
+            email: null | string;
+            /** @description True while the membership in the organization is active. */
+            isActive: boolean;
         };
         /**
          * @description One permission of the current role with the record scope it applies to. A null scope

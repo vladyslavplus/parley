@@ -3,6 +3,7 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 let mockIsError = false;
+let mockIsFetching = false;
 const mockRefetch = vi.fn();
 
 vi.mock("next-intl", () => ({
@@ -48,6 +49,7 @@ const mockContacts = [
 vi.mock("@/features/crm/hooks/use-contacts", () => ({
   useContacts: () => ({
     isPending: false,
+    isFetching: mockIsFetching,
     isError: mockIsError,
     refetch: mockRefetch,
     data: mockIsError
@@ -63,6 +65,10 @@ vi.mock("@/features/crm/hooks/use-tags", () => ({
   useTags: () => ({ data: { items: [] } }),
 }));
 
+vi.mock("@/features/crm/hooks/use-custom-fields", () => ({
+  useCustomFields: () => ({ data: [] }),
+}));
+
 vi.mock("@/lib/api/hooks/use-api", () => ({
   useMe: () => ({ data: { user: { id: "u-1" } } }),
   useMembers: () => ({ data: { pages: [{ items: [] }] } }),
@@ -70,6 +76,10 @@ vi.mock("@/lib/api/hooks/use-api", () => ({
 
 vi.mock("@/features/crm/hooks/use-companies", () => ({
   useCompanies: () => ({ data: { items: [] } }),
+}));
+
+vi.mock("@/features/crm/hooks/use-owners", () => ({
+  useOwners: () => ({ data: { items: [] }, isFetching: false }),
 }));
 
 vi.mock("@/features/crm/hooks/use-crm-mutations", () => ({
@@ -85,6 +95,7 @@ const { ContactsListView } = await import("./contacts-list-view");
 afterEach(() => {
   cleanup();
   mockIsError = false;
+  mockIsFetching = false;
 });
 
 describe("ContactsListView", () => {
@@ -147,5 +158,20 @@ describe("ContactsListView", () => {
       </NuqsTestingAdapter>,
     );
     expect(screen.queryByRole("button", { name: /resetPaging/i })).toBeNull();
+  });
+
+  it("keeps rows visible while next page is fetching and does not swap to skeletons", () => {
+    mockIsFetching = true;
+
+    render(
+      <NuqsTestingAdapter>
+        <ContactsListView />
+      </NuqsTestingAdapter>,
+    );
+
+    // Existing rows remain rendered
+    expect(screen.getByText("Sarah Connor")).toBeInTheDocument();
+    // Table is not in skeleton loading state
+    expect(screen.queryByTestId("table-skeleton")).toBeNull();
   });
 });

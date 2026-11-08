@@ -34,20 +34,16 @@ vi.mock("@/features/session/components/can", () => ({
   }) => (activePermissions.includes(permission) ? children : null),
 }));
 
-vi.mock("@/lib/api/hooks/use-api", () => ({
-  useMembers: () => ({
+vi.mock("@/features/crm/hooks/use-owners", () => ({
+  useOwners: () => ({
+    isFetching: false,
     data: {
-      pages: [
+      items: [
         {
-          items: [
-            {
-              userId: "u-1",
-              displayName: "Alice",
-              email: "alice@test.local",
-              status: "active",
-              roleCode: "sales_rep",
-            },
-          ],
+          id: "u-1",
+          displayName: "Alice",
+          email: "alice@test.local",
+          isActive: true,
         },
       ],
     },
@@ -116,7 +112,7 @@ describe("CrmBulkBar permissions and actions", () => {
       screen.getByRole("heading", { name: "assignOwnerDialogTitle" }),
     ).toBeInTheDocument();
 
-    const trigger = screen.getByRole("combobox");
+    const trigger = screen.getByRole("button", { name: "selectOwner" });
     fireEvent.click(trigger);
 
     const option = await screen.findByText(/Alice/);
@@ -156,7 +152,7 @@ describe("CrmBulkBar permissions and actions", () => {
 
     fireEvent.click(screen.getByText("assignOwner"));
 
-    const trigger = screen.getByRole("combobox");
+    const trigger = screen.getByRole("button", { name: "selectOwner" });
     fireEvent.click(trigger);
     const option = await screen.findByText(/Alice/);
     fireEvent.click(option);

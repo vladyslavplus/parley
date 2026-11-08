@@ -51,6 +51,30 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/lib/toasts.ts", "src/components/providers.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "react",
+              importNames: ["useMemo", "useCallback", "memo"],
+              message:
+                "React Compiler memoizes automatically; compute values directly in render.",
+            },
+            {
+              name: "sonner",
+              message:
+                "Import toast helpers (showSuccessToast, showErrorToast, etc.) from '@/lib/toasts' instead of importing 'sonner' directly.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   globalIgnores([
     ".next/**",
     "out/**",

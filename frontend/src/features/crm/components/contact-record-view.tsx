@@ -13,10 +13,9 @@ import {
   User,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
-import { AlertDialog } from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { InlineEdit } from "@/components/ui/inline-edit";
 import { Input } from "@/components/ui/input";
@@ -28,9 +27,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { APP_NAME } from "@/constants/app";
 import { LIMITS } from "@/constants/limits";
 import { PERMISSIONS } from "@/constants/permissions";
-import { companyRecordRoute, ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes";
+import { CompanyPicker } from "@/features/crm/components/company-picker";
 import { CrmCustomFieldsRender } from "@/features/crm/components/crm-custom-fields-render";
 import {
   DealsPlaceholder,
@@ -40,8 +41,8 @@ import {
   TimelinePlaceholder,
 } from "@/features/crm/components/crm-placeholders";
 import { CrmTagBadge } from "@/features/crm/components/crm-tag-badge";
+import { OwnerPicker } from "@/features/crm/components/owner-picker";
 import { RecordTabs } from "@/features/crm/components/record-tabs";
-import { useCompanies } from "@/features/crm/hooks/use-companies";
 import { useContact } from "@/features/crm/hooks/use-contact";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import { useCustomFields } from "@/features/crm/hooks/use-custom-fields";
@@ -49,9 +50,9 @@ import { useSoftDeleteWithUndo } from "@/features/crm/hooks/use-soft-delete-with
 import { useTags } from "@/features/crm/hooks/use-tags";
 import { Can, useCan } from "@/features/session/components/can";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useMembers } from "@/lib/api/hooks/use-api";
 import { toApiError } from "@/lib/errors";
 import { formatDate } from "@/lib/formatters";
+import { showSuccessToast } from "@/lib/toasts";
 
 type TabKey = "overview" | "timeline" | "tasks" | "deals" | "orders" | "scores";
 
@@ -73,8 +74,18 @@ export function ContactRecordView({ id }: { id: string }) {
   const contactQuery = useContact(id);
   const customFieldsQuery = useCustomFields("contact");
   const tagsQuery = useTags();
-  const membersQuery = useMembers();
-  const companiesQuery = useCompanies({ limit: LIMITS.crmLookupLimit });
+
+  useEffect(() => {
+    const contactData = contactQuery.data;
+    if (contactData) {
+      const fullName = [contactData.firstName, contactData.lastName]
+        .filter(Boolean)
+        .join(" ");
+      if (fullName) {
+        document.title = `${fullName} · ${APP_NAME}`;
+      }
+    }
+  }, [contactQuery.data]);
 
   const {
     updateContact,
@@ -83,6 +94,7 @@ export function ContactRecordView({ id }: { id: string }) {
     attachContactTags,
     detachContactTag,
     createTag,
+    bulkAssignContactOwner,
   } = useCrmMutations();
 
   const { handleDelete } = useSoftDeleteWithUndo({
@@ -150,11 +162,6 @@ export function ContactRecordView({ id }: { id: string }) {
   const customFieldDefs = customFieldsQuery.data ?? [];
   const allTags = tagsQuery.data?.items ?? [];
   const tagMap = new Map(allTags.map((tg) => [tg.id, tg]));
-  const companies = companiesQuery.data?.items ?? [];
-  const companyMap = new Map(companies.map((c) => [c.id, c]));
-  const members = membersQuery.data?.pages.flatMap((p) => p.items) ?? [];
-  const memberMap = new Map(members.map((m) => [m.userId, m]));
-
   const contactTags = (contact.tagIds ?? [])
     .map((tagId) => tagMap.get(tagId))
     .filter(Boolean);
@@ -187,7 +194,7 @@ export function ContactRecordView({ id }: { id: string }) {
         city: field === "city" ? value : contact.city,
         companyId: field === "companyId" ? value : contact.companyId,
       });
-      toast.success(tCrm("customFields.updated"));
+      showSuccessToast(tCrm("customFields.updated"));
     } catch (err) {
       throw toApiError(err);
     }
@@ -216,7 +223,7 @@ export function ContactRecordView({ id }: { id: string }) {
         companyId: contact.companyId,
         customFields: nextCustomFields,
       });
-      toast.success(tCrm("customFields.updated"));
+      showSuccessToast(tCrm("customFields.updated"));
     } catch (err) {
       throw toApiError(err);
     }
@@ -227,7 +234,7 @@ export function ContactRecordView({ id }: { id: string }) {
     await attachContactTags(contact.id, [selectedTagId]);
     setSelectedTagId("");
     setAddTagOpen(false);
-    toast.success(tCrm("tags.attached"));
+    showSuccessToast(tCrm("tags.attached"));
   }
 
   async function handleCreateAndAttachTag() {
@@ -238,7 +245,7 @@ export function ContactRecordView({ id }: { id: string }) {
       await attachContactTags(contact.id, [created.id]);
       setNewTagName("");
       setAddTagOpen(false);
-      toast.success(tCrm("tags.attached"));
+      showSuccessToast(tCrm("tags.attached"));
     } catch {
       // error handled in mutation
     }
@@ -246,15 +253,15 @@ export function ContactRecordView({ id }: { id: string }) {
 
   async function handleDetachTag(tagId: string) {
     await detachContactTag(contact.id, tagId);
-    toast.success(tCrm("tags.detached"));
+    showSuccessToast(tCrm("tags.detached"));
   }
 
-  const currentCompany = contact.companyId
-    ? companyMap.get(contact.companyId)
-    : null;
-  const currentOwner = contact.ownerUserId
-    ? memberMap.get(contact.ownerUserId)
-    : null;
+  const ownerLabel =
+    contact.ownerDisplayName ??
+    contact.ownerEmail ??
+    (contact.ownerUserId
+      ? t("record.fields.assigned")
+      : t("record.fields.unassigned"));
 
   const tabItems = [
     {
@@ -399,22 +406,18 @@ export function ContactRecordView({ id }: { id: string }) {
               <Building2 className="h-3.5 w-3.5" />
               <span>{t("record.fields.company")}</span>
             </span>
-            {currentCompany ? (
-              <Link
-                href={companyRecordRoute(currentCompany.id)}
-                className="text-xs font-medium text-info hover:underline inline-block pt-1"
-              >
-                {currentCompany.name}
-              </Link>
-            ) : contact.companyId ? (
-              <span className="text-xs text-foreground inline-block pt-1">
-                {t("record.fields.linkedCompany")}
-              </span>
-            ) : (
-              <span className="text-xs text-muted-foreground/60 inline-block pt-1">
-                {t("record.fields.noCompany")}
-              </span>
-            )}
+            <div className="pt-0.5">
+              <CompanyPicker
+                variant="inline"
+                disabled={!canWrite}
+                value={contact.companyId}
+                valueName={contact.companyName}
+                placeholder={t("record.fields.noCompany")}
+                onChange={async (newCompanyId) => {
+                  await handleFieldSave("companyId", newCompanyId);
+                }}
+              />
+            </div>
           </div>
 
           {/* Owner */}
@@ -423,13 +426,22 @@ export function ContactRecordView({ id }: { id: string }) {
               <User className="h-3.5 w-3.5" />
               <span>{t("record.fields.owner")}</span>
             </span>
-            <span className="text-xs text-foreground inline-block pt-1">
-              {currentOwner
-                ? (currentOwner.displayName ?? currentOwner.email)
-                : contact.ownerUserId
-                  ? t("record.fields.assigned")
-                  : t("record.fields.unassigned")}
-            </span>
+            <div className="pt-0.5">
+              <OwnerPicker
+                variant="inline"
+                allowClear={false}
+                disabled={!canWrite}
+                value={contact.ownerUserId}
+                valueDisplayName={ownerLabel}
+                valueEmail={contact.ownerEmail}
+                placeholder={t("record.fields.unassigned")}
+                onChange={async (newOwnerId) => {
+                  if (!newOwnerId) return;
+                  await bulkAssignContactOwner([contact.id], newOwnerId);
+                  showSuccessToast(tCrm("customFields.updated"));
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -581,7 +593,7 @@ export function ContactRecordView({ id }: { id: string }) {
       />
 
       {/* Delete confirmation dialog */}
-      <AlertDialog
+      <ConfirmDialog
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
         title={t("record.deleteConfirm")}

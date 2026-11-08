@@ -10,11 +10,11 @@ using Parley.Crm.Features.Contacts.Shared;
 using Parley.Crm.Persistence;
 using Parley.Crm.Shared;
 using Parley.Crm.Shared.CustomFields;
+using Parley.Crm.Shared.Owners;
 using Parley.Crm.Shared.Text;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Outbox.Publishing;
 using Parley.SharedKernel.Persistence.Concurrency;
-using Parley.SharedKernel.Persistence.Conventions;
 using Parley.SharedKernel.Results;
 using Parley.SharedKernel.Tenancy.Abstractions;
 
@@ -25,6 +25,7 @@ public sealed class CreateContactCommandHandler(
     ITenantContext tenantContext,
     ICurrentUser currentUser,
     IDataScope dataScope,
+    OwnerDirectory ownerDirectory,
     IPermissionChecker permissionChecker,
     IModuleOutbox<CrmDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<CreateContactCommand, Result<ContactView>>
@@ -99,7 +100,11 @@ public sealed class CreateContactCommandHandler(
             return Result<ContactView>.Failure(Error.Conflict(CrmErrorCodes.ContactEmailTaken));
         }
 
-        var version = dbContext.Entry(contact).Property<uint>(PersistenceConstants.XminPropertyName).CurrentValue;
-        return Result<ContactView>.Success(ContactViews.FromEntity(contact, version, []));
+        // Read back through the read scope so the response carries the tags, the version and the names.
+        var readScope = await dataScope.ForPermissionAsync(Permissions.ContactsRead, cancellationToken);
+        var row = await ContactLookup.FindRowAsync(dbContext, dataScope, contact.Id, readScope, cancellationToken);
+        return row is null
+            ? Result<ContactView>.Failure(Error.NotFound(CrmErrorCodes.ContactNotFound))
+            : Result<ContactView>.Success(await ContactViews.ToViewAsync(row, ownerDirectory, cancellationToken));
     }
 }

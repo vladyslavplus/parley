@@ -55,6 +55,12 @@ public static class CrmLimits
 
     public const int BulkMaximumCount = 200;
 
+    /// <summary>Owners returned by a lookup when the request gives no limit.</summary>
+    public const int OwnerLookupDefaultLimit = 20;
+
+    /// <summary>Most owners one lookup returns.</summary>
+    public const int OwnerLookupMaximumLimit = 50;
+
     public const int CustomFieldKeyMaximumLength = 40;
 
     public const int CustomFieldEntityTypeMaximumLength = 32;

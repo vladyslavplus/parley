@@ -14,7 +14,7 @@ public sealed class DetachContactTagCommandHandler(CrmDbContext dbContext, IData
     public async ValueTask<Result> Handle(DetachContactTagCommand command, CancellationToken cancellationToken)
     {
         var scope = await dataScope.ForPermissionAsync(Permissions.ContactsWrite, cancellationToken);
-        var row = await ContactLookup.FindRowAsync(dbContext, command.ContactId, scope, cancellationToken);
+        var row = await ContactLookup.FindRowAsync(dbContext, dataScope, command.ContactId, scope, cancellationToken);
         if (row is null)
         {
             return Result.Failure(Error.NotFound(CrmErrorCodes.ContactNotFound));

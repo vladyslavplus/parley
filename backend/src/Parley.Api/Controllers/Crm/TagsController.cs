@@ -22,9 +22,13 @@ public sealed class TagsController(IMediator mediator, ErrorTextLocalizer errorT
     [ProducesResponseType<KeysetCursorPage<TagView>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> List([FromQuery] string? after, [FromQuery] int? limit, CancellationToken cancellationToken)
+    public async Task<IActionResult> List(
+        [FromQuery] string? after,
+        [FromQuery] int? limit,
+        [FromQuery] string? q,
+        CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new ListTagsQuery(after, limit), cancellationToken);
+        var result = await mediator.Send(new ListTagsQuery(after, limit, q), cancellationToken);
         return FromResult(result, Ok);
     }
 

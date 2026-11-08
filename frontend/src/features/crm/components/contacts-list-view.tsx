@@ -5,23 +5,16 @@ import { Download, Plus, RefreshCw, Search, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import {
   DataTable,
   DataTableColumnsMenu,
   DataTableDensityToggle,
+  useKeysetPaging,
 } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { LIMITS, SENTINELS } from "@/constants/limits";
+import { LIMITS } from "@/constants/limits";
 import { PERMISSIONS } from "@/constants/permissions";
 import { companyRecordRoute, contactRecordRoute } from "@/constants/routes";
 import { ContactExportDialog } from "@/features/crm/components/contact-export-dialog";
@@ -30,17 +23,16 @@ import { ContactQuickCreateDialog } from "@/features/crm/components/contact-quic
 import { CrmBulkBar } from "@/features/crm/components/crm-bulk-bar";
 import { CrmTagBadge } from "@/features/crm/components/crm-tag-badge";
 import { KeysetPagination } from "@/features/crm/components/keyset-pagination";
-import { useCompanies } from "@/features/crm/hooks/use-companies";
+import { OwnerPicker } from "@/features/crm/components/owner-picker";
+import { TagPicker } from "@/features/crm/components/tag-picker";
 import { useContacts } from "@/features/crm/hooks/use-contacts";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
-import { useKeysetPaging } from "@/features/crm/hooks/use-keyset-paging";
 import { useTags } from "@/features/crm/hooks/use-tags";
 import type { Contact } from "@/features/crm/types";
 import { Can } from "@/features/session/components/can";
 import { Link } from "@/i18n/navigation";
-import { useMembers } from "@/lib/api/hooks/use-api";
 import { formatDate } from "@/lib/formatters";
-import { useUndoToast } from "@/lib/toasts";
+import { showSuccessToast, useUndoToast } from "@/lib/toasts";
 
 export function ContactsListView() {
   const t = useTranslations("crm.contacts");
@@ -78,6 +70,8 @@ export function ContactsListView() {
   const {
     after,
     setAfter,
+    pageSize,
+    setPageSize,
     hasPreviousPage,
     handleNextPage,
     handlePreviousPage,
@@ -111,21 +105,15 @@ export function ContactsListView() {
     tagId: tagId || undefined,
     ownerUserId: ownerUserId || undefined,
     after: after || undefined,
-    limit: LIMITS.crmListDefaultLimit,
+    limit: pageSize,
   });
 
   const tagsQuery = useTags();
-  const membersQuery = useMembers();
-  const companiesQuery = useCompanies({ limit: LIMITS.crmLookupLimit });
   const { bulkAssignContactOwner, bulkDeleteContacts, restoreContact } =
     useCrmMutations();
 
   const tags = tagsQuery.data?.items ?? [];
   const tagMap = new Map(tags.map((tg) => [tg.id, tg]));
-  const members = membersQuery.data?.pages.flatMap((p) => p.items) ?? [];
-  const memberMap = new Map(members.map((m) => [m.userId, m]));
-  const companies = companiesQuery.data?.items ?? [];
-  const companyMap = new Map(companies.map((c) => [c.id, c]));
 
   const contacts = contactsQuery.data?.items ?? [];
   const nextCursor = contactsQuery.data?.nextCursor ?? null;
@@ -227,24 +215,24 @@ export function ContactsListView() {
       header: t("columns.company"),
       enableSorting: false,
       cell: ({ row }) => {
+        const companyName = row.original.companyName;
         const companyId = row.original.companyId;
-        if (!companyId)
+        if (!companyName && !companyId)
           return <span className="text-muted-foreground/40">—</span>;
-        const company = companyMap.get(companyId);
-        if (company) {
+        if (companyId) {
           return (
             <Link
-              href={companyRecordRoute(company.id)}
+              href={companyRecordRoute(companyId)}
               onClick={(e) => e.stopPropagation()}
               className="text-xs font-medium text-info hover:underline truncate"
             >
-              {company.name}
+              {companyName || t("record.fields.linkedCompany")}
             </Link>
           );
         }
         return (
           <span className="text-xs text-foreground truncate">
-            {t("record.fields.linkedCompany")}
+            {companyName}
           </span>
         );
       },
@@ -254,15 +242,13 @@ export function ContactsListView() {
       header: t("columns.owner"),
       enableSorting: false,
       cell: ({ row }) => {
-        const ownerId = row.original.ownerUserId;
-        if (!ownerId)
+        const ownerName =
+          row.original.ownerDisplayName ?? row.original.ownerEmail;
+        if (!ownerName)
           return <span className="text-muted-foreground/40">—</span>;
-        const owner = memberMap.get(ownerId);
         return (
           <span className="text-xs text-muted-foreground truncate">
-            {owner
-              ? (owner.displayName ?? owner.email)
-              : t("record.fields.assigned")}
+            {ownerName}
           </span>
         );
       },
@@ -312,12 +298,6 @@ export function ContactsListView() {
     },
   ];
 
-  const selectedOwnerMember = ownerUserId ? memberMap.get(ownerUserId) : null;
-  const ownerLabel =
-    (selectedOwnerMember
-      ? (selectedOwnerMember.displayName ?? selectedOwnerMember.email)
-      : null) ?? tFilters("allOwners");
-
   return (
     <div className="space-y-4">
       {/* Header with Title and Quick Create */}
@@ -346,7 +326,8 @@ export function ContactsListView() {
         data={contacts}
         columns={columns}
         getRowId={(row) => row.id}
-        loading={contactsQuery.isPending}
+        loading={contactsQuery.isPending && !contactsQuery.data}
+        isFetching={contactsQuery.isFetching}
         manualPagination
         manualSorting
         onRowClick={handleRowClick}
@@ -379,72 +360,36 @@ export function ContactsListView() {
               </div>
 
               {/* Tag filter */}
-              <div className="w-[140px]">
-                <Select
-                  value={tagId || SENTINELS.all}
-                  onValueChange={(val) => {
-                    void setTagId(val === SENTINELS.all ? "" : val);
-                    resetPaging();
-                  }}
-                >
-                  <SelectTrigger
-                    className="h-8 text-xs bg-background truncate"
-                    aria-label={tFilters("tag")}
-                  >
-                    <SelectValue className="truncate">
-                      {tagId && tagMap.get(tagId)
-                        ? tFilters("tagFilter", {
-                            tag: tagMap.get(tagId)!.name,
-                          })
-                        : tFilters("allTags")}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={SENTINELS.all}>
-                      {tFilters("allTags")}
-                    </SelectItem>
-                    {tags.map((tg) => (
-                      <SelectItem key={tg.id} value={tg.id}>
-                        {tg.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <TagPicker
+                value={tagId || null}
+                valueName={tagId ? (tagMap.get(tagId)?.name ?? null) : null}
+                onChange={(nextTagId) => {
+                  void setTagId(nextTagId ?? "");
+                  resetPaging();
+                }}
+              />
 
-              {/* Owner filter - single line trigger with truncate */}
-              <div className="w-auto min-w-[190px] max-w-[260px]">
-                <Select
-                  value={ownerUserId || SENTINELS.all}
-                  onValueChange={(val) => {
-                    void setOwnerUserId(val === SENTINELS.all ? "" : val);
-                    resetPaging();
-                  }}
-                >
-                  <SelectTrigger
-                    className="h-8 text-xs bg-background truncate"
-                    aria-label={tFilters("owner")}
-                  >
-                    <SelectValue className="truncate">
-                      {tFilters("ownerFilter", { owner: ownerLabel })}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={SENTINELS.all}>
-                      {tFilters("ownerFilter", {
-                        owner: tFilters("allOwners"),
-                      })}
-                    </SelectItem>
-                    {members
-                      .filter((m) => m.status === "active")
-                      .map((m) => (
-                        <SelectItem key={m.userId} value={m.userId}>
-                          {m.displayName ?? m.email}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Owner filter */}
+              <OwnerPicker
+                variant="filter"
+                value={ownerUserId || null}
+                valueDisplayName={
+                  ownerUserId
+                    ? (contacts.find((r) => r.ownerUserId === ownerUserId)
+                        ?.ownerDisplayName ?? null)
+                    : null
+                }
+                valueEmail={
+                  ownerUserId
+                    ? (contacts.find((r) => r.ownerUserId === ownerUserId)
+                        ?.ownerEmail ?? null)
+                    : null
+                }
+                onChange={(nextOwnerId) => {
+                  void setOwnerUserId(nextOwnerId ?? "");
+                  resetPaging();
+                }}
+              />
 
               {(q || tagId || ownerUserId || after) && (
                 <Button
@@ -543,17 +488,15 @@ export function ContactsListView() {
           )
         }
         paginationSlot={
-          <div className="flex w-full items-center justify-between">
-            <span className="text-xs text-muted-foreground">
-              {tCrm("table.pageCount", { count: contacts.length })}
-            </span>
-            <KeysetPagination
-              hasPreviousPage={hasPreviousPage}
-              hasNextPage={Boolean(nextCursor)}
-              onPreviousPage={handlePreviousPage}
-              onNextPage={() => handleNextPage(nextCursor)}
-            />
-          </div>
+          <KeysetPagination
+            hasPreviousPage={hasPreviousPage}
+            hasNextPage={Boolean(nextCursor)}
+            onPreviousPage={handlePreviousPage}
+            onNextPage={() => handleNextPage(nextCursor)}
+            pageSize={pageSize}
+            onPageSizeChange={setPageSize}
+            itemCount={contacts.length}
+          />
         }
         bulkActions={(selectedRows, clearSelection) => (
           <CrmBulkBar
@@ -563,7 +506,7 @@ export function ContactsListView() {
             onAssignOwner={async (ownerId) => {
               const ids = selectedRows.map((r) => r.id);
               await bulkAssignContactOwner(ids, ownerId);
-              toast.success(tCrm("bulk.assigned", { count: ids.length }));
+              showSuccessToast(tCrm("bulk.assigned", { count: ids.length }));
             }}
             onDelete={async () => {
               const ids = selectedRows.map((r) => r.id);

@@ -7,6 +7,7 @@ using Parley.Crm.Features.Contacts.Shared;
 using Parley.Crm.Persistence;
 using Parley.Crm.Shared;
 using Parley.Crm.Shared.CustomFields;
+using Parley.Crm.Shared.Owners;
 using Parley.Crm.Shared.Text;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Persistence.Concurrency;
@@ -17,7 +18,8 @@ namespace Parley.Crm.Features.Contacts.Update;
 
 public sealed class UpdateContactCommandHandler(
     CrmDbContext dbContext,
-    IDataScope dataScope) : IRequestHandler<UpdateContactCommand, Result<ContactView>>
+    IDataScope dataScope,
+    OwnerDirectory ownerDirectory) : IRequestHandler<UpdateContactCommand, Result<ContactView>>
 {
     public async ValueTask<Result<ContactView>> Handle(UpdateContactCommand command, CancellationToken cancellationToken)
     {
@@ -78,9 +80,9 @@ public sealed class UpdateContactCommandHandler(
             return Result<ContactView>.Failure(Error.Conflict(CrmErrorCodes.ContactEmailTaken));
         }
 
-        var row = await ContactLookup.FindRowAsync(dbContext, contact.Id, scope, cancellationToken);
+        var row = await ContactLookup.FindRowAsync(dbContext, dataScope, contact.Id, scope, cancellationToken);
         return row is null
             ? Result<ContactView>.Failure(Error.NotFound(CrmErrorCodes.ContactNotFound))
-            : Result<ContactView>.Success(ContactViews.ToView(row));
+            : Result<ContactView>.Success(await ContactViews.ToViewAsync(row, ownerDirectory, cancellationToken));
     }
 }

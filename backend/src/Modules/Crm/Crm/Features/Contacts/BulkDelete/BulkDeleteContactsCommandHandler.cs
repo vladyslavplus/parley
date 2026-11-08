@@ -24,10 +24,10 @@ public sealed class BulkDeleteContactsCommandHandler(
     public async ValueTask<Result> Handle(BulkDeleteContactsCommand command, CancellationToken cancellationToken)
     {
         var scope = await dataScope.ForPermissionAsync(Permissions.ContactsDelete, cancellationToken);
-        var ids = command.ContactIds.Distinct().ToArray();
+        var ids = command.ContactIds.Distinct().ToList();
         var contacts = await ContactScopeFilter.Apply(dbContext.Contacts.Where(contact => ids.Contains(contact.Id)), scope)
             .ToListAsync(cancellationToken);
-        if (contacts.Count != ids.Length)
+        if (contacts.Count != ids.Count)
         {
             return Result.Failure(Error.NotFound(CrmErrorCodes.ContactNotFound));
         }

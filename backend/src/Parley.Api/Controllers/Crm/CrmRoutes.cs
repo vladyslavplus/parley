@@ -39,6 +39,8 @@ public static class CrmRoutes
 
     public const string TagById = "tags/{id:guid}";
 
+    public const string Owners = "owners";
+
     public const string CustomFields = "custom-fields";
 
     public const string CustomFieldById = "custom-fields/{id:guid}";

@@ -21,6 +21,9 @@ namespace Parley.Crm.Features.Contacts.Shared;
 /// <param name="CreatedAt">Creation instant in UTC.</param>
 /// <param name="UpdatedAt">Last change instant in UTC.</param>
 /// <param name="Version">Row version to send back on update.</param>
+/// <param name="OwnerDisplayName">Owner display name, or null when unowned, unnamed or outside the organization.</param>
+/// <param name="OwnerEmail">Owner email, or null under the same conditions.</param>
+/// <param name="CompanyName">Company name, or null when unset or when the caller cannot read that company.</param>
 public sealed record ContactView(
     Guid Id,
     string FirstName,
@@ -36,4 +39,7 @@ public sealed record ContactView(
     IReadOnlyDictionary<string, JsonElement> CustomFields,
     DateTime CreatedAt,
     DateTime UpdatedAt,
-    uint Version);
+    uint Version,
+    string? OwnerDisplayName,
+    string? OwnerEmail,
+    string? CompanyName);

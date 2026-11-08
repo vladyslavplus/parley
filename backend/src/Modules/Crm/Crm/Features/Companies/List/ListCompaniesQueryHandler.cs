@@ -5,16 +5,17 @@ using Parley.Crm.Domain.Companies;
 using Parley.Crm.Features.Companies.Shared;
 using Parley.Crm.Persistence;
 using Parley.Crm.Shared;
-using Parley.Crm.Shared.Search;
+using Parley.Crm.Shared.Owners;
 using Parley.Crm.Shared.Sorting;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Errors;
 using Parley.SharedKernel.Paging;
 using Parley.SharedKernel.Results;
+using Parley.SharedKernel.Search;
 
 namespace Parley.Crm.Features.Companies.List;
 
-public sealed class ListCompaniesQueryHandler(CrmDbContext dbContext, IDataScope dataScope)
+public sealed class ListCompaniesQueryHandler(CrmDbContext dbContext, IDataScope dataScope, OwnerDirectory ownerDirectory)
     : IRequestHandler<ListCompaniesQuery, Result<KeysetCursorPage<CompanyView>>>
 {
     public async ValueTask<Result<KeysetCursorPage<CompanyView>>> Handle(ListCompaniesQuery query, CancellationToken cancellationToken)
@@ -42,10 +43,11 @@ public sealed class ListCompaniesQueryHandler(CrmDbContext dbContext, IDataScope
 
             var ordered = KeysetOrdering.Apply(companies, company => company.CreatedAt, company => company.Id, position, descending);
             var rows = await ordered.Select(CompanyViews.RowProjection).Take(limit + 1).ToListAsync(cancellationToken);
-            return ToResult(KeysetCursorPage<CompanyRow>.From(
+            return await ToResultAsync(KeysetCursorPage<CompanyRow>.From(
                 rows,
                 limit,
-                row => KeysetOrdering.CursorFor(ListSortFields.Created, KeysetOrdering.FormatTimestamp(row.CreatedAt), row.Id)));
+                row => KeysetOrdering.CursorFor(ListSortFields.Created, KeysetOrdering.FormatTimestamp(row.CreatedAt), row.Id)),
+                cancellationToken);
         }
 
         var namePosition = cursor is null ? null : KeysetOrdering.ReadPosition(cursor, ListSortFields.Name, ParseName);
@@ -56,10 +58,11 @@ public sealed class ListCompaniesQueryHandler(CrmDbContext dbContext, IDataScope
 
         var orderedByName = KeysetOrdering.Apply(companies, company => company.NameNormalized, company => company.Id, namePosition, descending);
         var nameRows = await orderedByName.Select(CompanyViews.RowProjection).Take(limit + 1).ToListAsync(cancellationToken);
-        return ToResult(KeysetCursorPage<CompanyRow>.From(
+        return await ToResultAsync(KeysetCursorPage<CompanyRow>.From(
             nameRows,
             limit,
-            row => KeysetOrdering.CursorFor(ListSortFields.Name, row.NameNormalized, row.Id)));
+            row => KeysetOrdering.CursorFor(ListSortFields.Name, row.NameNormalized, row.Id)),
+            cancellationToken);
     }
 
     private static IQueryable<Company> Filter(IQueryable<Company> companies, ListCompaniesQuery query)
@@ -84,9 +87,10 @@ public sealed class ListCompaniesQueryHandler(CrmDbContext dbContext, IDataScope
     private static Result<KeysetCursorPage<CompanyView>> Failure() =>
         Result<KeysetCursorPage<CompanyView>>.Failure(CrmErrors.Field(nameof(ListCompaniesQuery.After), ErrorCodes.ValidationFailed));
 
-    private static Result<KeysetCursorPage<CompanyView>> ToResult(KeysetCursorPage<CompanyRow> page)
+    private async Task<Result<KeysetCursorPage<CompanyView>>> ToResultAsync(KeysetCursorPage<CompanyRow> page, CancellationToken cancellationToken)
     {
-        var items = page.Items.Select(CompanyViews.ToView).ToArray();
+        var owners = await ownerDirectory.ReadAsync(page.Items.Select(row => row.OwnerUserId), cancellationToken);
+        var items = page.Items.Select(row => CompanyViews.ToView(row, owners)).ToArray();
         return Result<KeysetCursorPage<CompanyView>>.Success(new KeysetCursorPage<CompanyView>(items, page.NextCursor));
     }
 }

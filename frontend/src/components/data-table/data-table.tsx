@@ -27,6 +27,7 @@ import { DataTableProvider } from "./data-table-context";
 import { DataTableDensityToggle } from "./data-table-density-toggle";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { TableProgressBar } from "./table-progress-bar";
 import type { DataTableProps, TableDensity } from "./types";
 
 export function DataTable<TData>({
@@ -34,6 +35,7 @@ export function DataTable<TData>({
   data,
   getRowId,
   loading = false,
+  isFetching = false,
   emptyTitle,
   emptyDescription,
   emptyAction,
@@ -158,7 +160,7 @@ export function DataTable<TData>({
       : undefined;
 
   const densityPadding =
-    density === "compact" ? "py-1.5 px-3 text-xs" : "py-3 px-4 text-sm";
+    density === "compact" ? "py-2.5 px-4 text-xs" : "py-3.5 px-4 text-sm";
 
   const contextValue = {
     table,
@@ -177,8 +179,9 @@ export function DataTable<TData>({
         <div
           role="region"
           aria-label={t("ariaLabel")}
-          className="rounded-[var(--radius-card)] border border-border bg-card overflow-hidden"
+          className="rounded-[var(--radius-card)] border border-border bg-card overflow-hidden relative min-h-[240px]"
         >
+          <TableProgressBar active={Boolean(isFetching && !loading)} />
           <div className="overflow-x-auto max-h-[650px] relative">
             <table
               ref={tableRef}
@@ -189,7 +192,7 @@ export function DataTable<TData>({
               onKeyDown={handleKeyDown}
               className="w-full text-left border-collapse focus-visible:outline-2 focus-visible:outline-ring"
             >
-              <thead className="border-b border-border bg-muted/60 text-xs font-semibold text-muted-foreground sticky top-0 z-20 backdrop-blur-md bg-muted/90">
+              <thead className="border-b border-border bg-muted/50 text-xs font-semibold text-muted-foreground sticky top-0 z-20 backdrop-blur-md">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
@@ -246,7 +249,12 @@ export function DataTable<TData>({
                 ))}
               </thead>
 
-              <tbody className="divide-y divide-border bg-card">
+              <tbody
+                className={cn(
+                  "divide-y divide-border bg-card transition-opacity duration-150",
+                  isFetching && !loading && "opacity-60",
+                )}
+              >
                 {loading ? (
                   Array.from({ length: 6 }).map((_, i) => (
                     <tr key={i}>

@@ -14,11 +14,12 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("sonner", () => ({
-  toast: {
-    error: (...args: unknown[]) => mockToastError(...args),
-    success: vi.fn(),
-  },
+vi.mock("@/lib/toasts", () => ({
+  showErrorToast: (...args: unknown[]) => mockToastError(...args),
+  showSuccessToast: vi.fn(),
+  showInfoToast: vi.fn(),
+  showWarningToast: vi.fn(),
+  useUndoToast: () => vi.fn(),
 }));
 
 const mockBackendJson = vi.fn();

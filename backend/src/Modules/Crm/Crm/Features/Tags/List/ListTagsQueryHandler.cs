@@ -6,6 +6,7 @@ using Parley.Crm.Shared;
 using Parley.SharedKernel.Errors;
 using Parley.SharedKernel.Paging;
 using Parley.SharedKernel.Results;
+using Parley.SharedKernel.Search;
 
 namespace Parley.Crm.Features.Tags.List;
 
@@ -21,6 +22,12 @@ public sealed class ListTagsQueryHandler(CrmDbContext dbContext) : IRequestHandl
         }
 
         var tags = dbContext.Tags.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(query.Q))
+        {
+            var pattern = LikePattern.Contains(query.Q);
+            tags = tags.Where(tag => EF.Functions.ILike(tag.NameNormalized, pattern));
+        }
+
         tags = cursor is null
             ? tags.OrderBy(tag => tag.NameNormalized).ThenBy(tag => tag.Id)
             : tags

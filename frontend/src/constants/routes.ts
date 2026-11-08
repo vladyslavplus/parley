@@ -35,6 +35,14 @@ export const API_ROUTES = {
   backend: "/api/backend",
 } as const;
 
+export const BACKEND_PATHS = {
+  me: "/me",
+  contacts: "/contacts",
+  companies: "/companies",
+  tags: "/tags",
+  customFields: "/custom-fields",
+} as const;
+
 export const ROUTE_PARAMS = {
   returnUrl: "returnUrl",
   email: "email",

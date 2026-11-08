@@ -1,7 +1,6 @@
 import {
   Building2,
   Contact,
-  LayoutDashboard,
   Palette,
   Settings,
   type LucideIcon,
@@ -20,13 +19,6 @@ export interface NavItemConfig {
 }
 
 export const MAIN_NAV_ITEMS: NavItemConfig[] = [
-  {
-    id: "dashboard",
-    href: ROUTES.app,
-    titleKey: "sidebar.items.dashboard",
-    icon: LayoutDashboard,
-    section: "main",
-  },
   {
     id: "contacts",
     href: ROUTES.contacts,

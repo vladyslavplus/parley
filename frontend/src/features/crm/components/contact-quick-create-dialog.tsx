@@ -1,29 +1,21 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
 import { useApiForm } from "@/components/forms/use-api-form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ERROR_CODES } from "@/constants/error-codes";
-import { LIMITS, SENTINELS } from "@/constants/limits";
+import { CompanyPicker } from "@/features/crm/components/company-picker";
 import { QuickCreateDialogShell } from "@/features/crm/components/quick-create-dialog-shell";
-import { useCompanies } from "@/features/crm/hooks/use-companies";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import {
   createContactQuickSchema,
   type ContactQuickValues,
 } from "@/features/crm/schemas/contact-schema";
 import { useMe } from "@/lib/api/hooks/use-api";
+import { showSuccessToast } from "@/lib/toasts";
 
 interface Props {
   open: boolean;
@@ -39,10 +31,8 @@ export function ContactQuickCreateDialog({
   const t = useTranslations("crm.contacts.quickCreate");
   const tValidation = useTranslations("validation");
   const { data: me } = useMe();
-  const companiesQuery = useCompanies({ limit: LIMITS.crmLookupLimit });
   const { createContact } = useCrmMutations();
 
-  const companies = companiesQuery.data?.items ?? [];
   const schema = createContactQuickSchema((k, v) => tValidation(k, v));
 
   const { form, onSubmit, formError, alertRef } =
@@ -65,13 +55,10 @@ export function ContactQuickCreateDialog({
           lastName: values.lastName || null,
           email: values.email || null,
           phone: values.phone || null,
-          companyId:
-            values.companyId && values.companyId !== SENTINELS.all
-              ? values.companyId
-              : null,
+          companyId: values.companyId || null,
           ownerUserId: me?.user.id ?? null,
         });
-        toast.success(t("success"));
+        showSuccessToast(t("success"));
         form.reset();
         onOpenChange(false);
         onCreated?.(created.id);
@@ -132,24 +119,16 @@ export function ContactQuickCreateDialog({
 
         {/* Field 5: Company */}
         <FormField label={t("company")} error={errors.companyId?.message}>
-          <Select
-            value={form.watch("companyId") || SENTINELS.all}
-            onValueChange={(val) =>
-              form.setValue("companyId", val === SENTINELS.all ? "" : val)
-            }
-          >
-            <SelectTrigger className="h-8 text-xs bg-background">
-              <SelectValue placeholder={t("noCompany")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={SENTINELS.all}>{t("noCompany")}</SelectItem>
-              {companies.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CompanyPicker
+            value={form.watch("companyId")}
+            placeholder={t("noCompany")}
+            onChange={(selectedId) => {
+              form.setValue("companyId", selectedId ?? "", {
+                shouldValidate: true,
+                shouldDirty: true,
+              });
+            }}
+          />
         </FormField>
       </ApiForm>
     </QuickCreateDialogShell>

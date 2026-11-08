@@ -2,7 +2,6 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import { LIMITS } from "@/constants/limits";
 import { contactExportDownloadRoute } from "@/constants/routes";
@@ -10,6 +9,7 @@ import { HEADERS } from "@/constants/session";
 import { backendJson } from "@/lib/api/bff-client";
 import { describeError, toApiError } from "@/lib/errors";
 import type { Schemas } from "@/lib/api/schemas";
+import { showErrorToast } from "@/lib/toasts";
 
 export type ExportStatus =
   | "idle"
@@ -201,7 +201,7 @@ export function useContactExport() {
       if (gen !== generationRef.current) return;
       const apiErr = toApiError(err);
       const msg = describeError(apiErr, (k) => tErrors(k));
-      toast.error(msg);
+      showErrorToast(msg);
       setState({
         status: "failed",
         exportId: null,

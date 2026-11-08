@@ -20,11 +20,18 @@ public sealed class TeamsController(IMediator mediator, ErrorTextLocalizer error
 {
     [HttpGet(IdentityRoutes.Teams)]
     [RequiresPermission(Permissions.TeamsManage)]
-    [ProducesResponseType<CursorPage<TeamView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<KeysetCursorPage<TeamView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> List([FromQuery] Guid? after, [FromQuery] int? limit, CancellationToken cancellationToken)
+    public async Task<IActionResult> List(
+        [FromQuery] string? after,
+        [FromQuery] int? limit,
+        [FromQuery] string? q,
+        [FromQuery] string? sort,
+        [FromQuery] string? order,
+        CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new ListTeamsQuery(after, limit), cancellationToken);
+        var result = await mediator.Send(new ListTeamsQuery(after, limit, q, sort, order), cancellationToken);
         return FromResult(result, Ok);
     }
 

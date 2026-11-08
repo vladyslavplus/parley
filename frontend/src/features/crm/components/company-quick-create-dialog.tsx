@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
@@ -14,6 +13,7 @@ import {
   type CompanyQuickValues,
 } from "@/features/crm/schemas/company-schema";
 import { useMe } from "@/lib/api/hooks/use-api";
+import { showSuccessToast } from "@/lib/toasts";
 
 interface Props {
   open: boolean;
@@ -51,7 +51,7 @@ export function CompanyQuickCreateDialog({
           industry: values.industry || null,
           ownerUserId: me?.user.id ?? null,
         });
-        toast.success(t("success"));
+        showSuccessToast(t("success"));
         form.reset();
         onOpenChange(false);
         onCreated?.(created.id);
@@ -86,7 +86,7 @@ export function CompanyQuickCreateDialog({
         {/* Field 2: Domain */}
         <FormField label={t("domain")} error={errors.domain?.message}>
           <Input
-            placeholder="example.com"
+            placeholder={t("domainPlaceholder")}
             {...form.register("domain")}
             className="bg-background"
           />
@@ -95,7 +95,7 @@ export function CompanyQuickCreateDialog({
         {/* Field 3: Country */}
         <FormField label={t("country")} error={errors.country?.message}>
           <Input
-            placeholder="UA"
+            placeholder={t("countryPlaceholder")}
             maxLength={2}
             {...form.register("country")}
             className="bg-background"

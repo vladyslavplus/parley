@@ -2,7 +2,6 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import { ERROR_CODES } from "@/constants/error-codes";
 import { queryKeys } from "@/constants/query-keys";
@@ -10,6 +9,7 @@ import { backendJson, backendVoid } from "@/lib/api/bff-client";
 import { describeError, toApiError, type ApiError } from "@/lib/errors";
 import type { Company, Contact, Tag } from "@/features/crm/types";
 import type { Schemas } from "@/lib/api/schemas";
+import { showErrorToast } from "@/lib/toasts";
 
 export interface CreateContactInput {
   firstName: string;
@@ -62,7 +62,7 @@ export function useCrmMutations() {
   const tErrors = useTranslations("errors.kinds");
 
   function handleConflict(entityId: string, queryKey: readonly unknown[]) {
-    toast.error(tCrm("conflict.title"), {
+    showErrorToast(tCrm("conflict.title"), {
       description: tCrm("conflict.description"),
       action: {
         label: tCrm("conflict.reload"),
@@ -132,7 +132,7 @@ export function useCrmMutations() {
       if (apiErr.code === ERROR_CODES.concurrencyConflict) {
         handleConflict(id, queryKeys.contact(id));
       } else {
-        toast.error(describeError(apiErr, (k) => tErrors(k)));
+        showErrorToast(describeError(apiErr, (k) => tErrors(k)));
       }
       throw apiErr;
     }
@@ -274,7 +274,7 @@ export function useCrmMutations() {
       if (apiErr.code === ERROR_CODES.concurrencyConflict) {
         handleConflict(id, queryKeys.company(id));
       } else {
-        toast.error(describeError(apiErr, (k) => tErrors(k)));
+        showErrorToast(describeError(apiErr, (k) => tErrors(k)));
       }
       throw apiErr;
     }

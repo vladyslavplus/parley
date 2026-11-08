@@ -1,14 +1,16 @@
 namespace Parley.SharedKernel.Paging;
 
 /// <summary>
-/// Page size rules for list endpoints. Every list is keyset-paged; the caller
-/// passes the last identifier of the previous page as the cursor.
+/// Page size rules for list endpoints. Every list is keyset-paged: the caller passes the opaque cursor
+/// of the previous page. Requested sizes are clamped to the allowed range.
 /// </summary>
 public static class PageLimits
 {
-    private const int DefaultSize = 50;
+    /// <summary>Page size when the request gives none.</summary>
+    public const int DefaultSize = 20;
 
-    private const int MaximumSize = 200;
+    /// <summary>Largest page one request returns.</summary>
+    public const int MaximumSize = 100;
 
     /// <summary>Returns the requested size clamped to the allowed range, or the default when none is given.</summary>
     public static int Resolve(int? requested) => requested switch

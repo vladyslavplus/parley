@@ -1,16 +1,23 @@
 "use client";
 
+import * as Dialog from "@radix-ui/react-dialog";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Archive, Edit2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useState } from "react";
-import { toast } from "sonner";
 
+import {
+  DataTable,
+  DataTableSearchFilterBar,
+  useServerTableState,
+} from "@/components/data-table";
 import { FormField } from "@/components/forms/form-field";
 import { useApiForm } from "@/components/forms/use-api-form";
 import { Alert } from "@/components/ui/alert";
-import { AlertDialog } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Input, Select as NativeSelect } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -19,18 +26,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PERMISSIONS } from "@/constants/permissions";
+import { KeysetPagination } from "@/features/crm/components/keyset-pagination";
 import { useCustomFieldMutations } from "@/features/crm/hooks/use-custom-field-mutations";
-import { useCustomFields } from "@/features/crm/hooks/use-custom-fields";
+import {
+  type CustomFieldsPageParams,
+  useCustomFieldsPage,
+} from "@/features/crm/hooks/use-custom-fields";
 import {
   createCustomFieldSchema,
   updateCustomFieldSchema,
   type CreateCustomFieldValues,
   type UpdateCustomFieldValues,
 } from "@/features/crm/schemas/custom-field-schema";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { CustomFieldDefinition } from "@/features/crm/types";
 import { Can, useCanStatus } from "@/features/session/components/can";
-import * as Dialog from "@radix-ui/react-dialog";
+import { showSuccessToast } from "@/lib/toasts";
+import { cn } from "@/lib/utils";
+
+const FIELD_TYPES = ["text", "number", "boolean", "select", "date"] as const;
 
 export function CustomFieldsSettingsPanel() {
   const t = useTranslations("settings.customFields");
@@ -39,22 +52,47 @@ export function CustomFieldsSettingsPanel() {
 
   const canManageStatus = useCanStatus(PERMISSIONS.customFieldsManage);
 
-  const [activeEntityType, setActiveEntityType] = useState<
-    "contact" | "company"
-  >("contact");
+  const [entityType, setEntityType] = useQueryState(
+    "entityType",
+    parseAsStringLiteral(["contact", "company"] as const).withDefault(
+      "contact",
+    ),
+  );
+  const [fieldType, setFieldType] = useQueryState(
+    "fieldType",
+    parseAsString.withDefault(""),
+  );
+
+  const tableState = useServerTableState({
+    defaultSort: "name",
+    defaultOrder: "asc",
+    allowedSorts: ["name", "position", "createdAt"] as const,
+  });
+
   const [createOpen, setCreateOpen] = useState(false);
   const [editingField, setEditingField] =
     useState<CustomFieldDefinition | null>(null);
   const [archivingField, setArchivingField] =
     useState<CustomFieldDefinition | null>(null);
 
-  const customFieldsQuery = useCustomFields(activeEntityType);
+  const customFieldsQuery = useCustomFieldsPage(
+    {
+      after: tableState.after,
+      limit: tableState.pageSize,
+      q: tableState.q || undefined,
+      entityType,
+      fieldType:
+        (fieldType as CustomFieldsPageParams["fieldType"]) || undefined,
+      sort: tableState.sort,
+      order: tableState.order,
+    },
+    canManageStatus !== "denied",
+  );
   const { createCustomField, updateCustomField, archiveCustomField } =
     useCustomFieldMutations();
 
-  const definitions = customFieldsQuery.data ?? [];
-  const activeFields = definitions.filter((d) => !d.archivedAt);
-  const archivedFields = definitions.filter((d) => Boolean(d.archivedAt));
+  const definitions = customFieldsQuery.data?.items ?? [];
+  const activeCount = definitions.filter((d) => !d.archivedAt).length;
 
   const createSchema = createCustomFieldSchema((k, v) => tValidation(k, v));
   const updateSchema = updateCustomFieldSchema((k, v) => tValidation(k, v));
@@ -70,7 +108,7 @@ export function CustomFieldsSettingsPanel() {
     defaultValues: {
       key: "",
       label: "",
-      entityType: activeEntityType,
+      entityType,
       fieldType: "text",
       options: "",
       isRequired: false,
@@ -104,7 +142,7 @@ export function CustomFieldsSettingsPanel() {
         position: values.position,
       });
 
-      toast.success(t("saved"));
+      showSuccessToast(t("saved"));
       createForm.reset();
       setCreateOpen(false);
     },
@@ -143,31 +181,10 @@ export function CustomFieldsSettingsPanel() {
         position: values.position,
       });
 
-      toast.success(t("saved"));
+      showSuccessToast(t("saved"));
       setEditingField(null);
     },
   });
-
-  if (canManageStatus === "pending") {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-72" />
-          </div>
-          <Skeleton className="h-8 w-32" />
-        </div>
-        <Skeleton className="h-9 w-40" />
-        <div className="rounded-[var(--radius-card)] border border-border bg-card p-4 space-y-3">
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      </div>
-    );
-  }
 
   if (canManageStatus === "denied") {
     return (
@@ -190,14 +207,130 @@ export function CustomFieldsSettingsPanel() {
   async function handleArchive() {
     if (!archivingField) return;
     await archiveCustomField(archivingField.id);
-    toast.success(t("archivedSuccess"));
+    showSuccessToast(t("archivedSuccess"));
     setArchivingField(null);
   }
 
   const selectedFieldType = createForm.watch("fieldType");
 
+  const columns: ColumnDef<CustomFieldDefinition, unknown>[] = [
+    {
+      id: "name",
+      accessorKey: "label",
+      header: t("fields.label"),
+      enableSorting: true,
+      cell: ({ row }) => {
+        const field = row.original;
+        const archived = Boolean(field.archivedAt);
+        return (
+          <span
+            className={cn(
+              "font-medium text-xs",
+              archived
+                ? "line-through text-muted-foreground"
+                : "text-foreground",
+            )}
+          >
+            {field.label}
+          </span>
+        );
+      },
+    },
+    {
+      id: "key",
+      accessorKey: "key",
+      header: t("fields.key"),
+      enableSorting: false,
+      cell: ({ row }) => (
+        <span className="font-mono text-[11px] text-muted-foreground">
+          {row.original.key}
+        </span>
+      ),
+    },
+    {
+      id: "fieldType",
+      accessorKey: "fieldType",
+      header: t("fields.fieldType"),
+      enableSorting: false,
+      cell: ({ row }) => (
+        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground uppercase">
+          {t(`types.${row.original.fieldType}`)}
+        </span>
+      ),
+    },
+    {
+      id: "isRequired",
+      accessorKey: "isRequired",
+      header: t("fields.isRequired"),
+      enableSorting: false,
+      cell: ({ row }) =>
+        row.original.isRequired ? (
+          <span className="text-primary font-medium">✓</span>
+        ) : (
+          <span className="text-muted-foreground/40">—</span>
+        ),
+    },
+    {
+      id: "position",
+      accessorKey: "position",
+      header: t("fields.position"),
+      enableSorting: true,
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground">
+          {row.original.position}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: () => <span className="block text-right">{t("actions")}</span>,
+      enableSorting: false,
+      cell: ({ row }) => {
+        const field = row.original;
+        const archived = Boolean(field.archivedAt);
+        if (archived) {
+          return (
+            <div className="flex justify-end">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                {t("archived")}
+              </span>
+            </div>
+          );
+        }
+        return (
+          <div className="flex items-center justify-end gap-1">
+            <Can permission={PERMISSIONS.customFieldsManage}>
+              <Button
+                variant="secondary"
+                onClick={() => startEdit(field)}
+                className="h-6 w-6 p-0"
+                title={t("editField", { label: field.label })}
+                aria-label={t("editField", { label: field.label })}
+              >
+                <Edit2 className="h-3 w-3 text-muted-foreground" />
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setArchivingField(field)}
+                className="h-6 w-6 p-0 text-destructive hover:bg-destructive/10"
+                title={t("archiveField", { label: field.label })}
+                aria-label={t("archiveField", { label: field.label })}
+              >
+                <Archive className="h-3 w-3" />
+              </Button>
+            </Can>
+          </div>
+        );
+      },
+    },
+  ];
+
+  const hasActiveFilters = Boolean(
+    tableState.q || tableState.after || fieldType,
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
@@ -210,15 +343,15 @@ export function CustomFieldsSettingsPanel() {
               createForm.reset({
                 key: "",
                 label: "",
-                entityType: activeEntityType,
+                entityType,
                 fieldType: "text",
                 options: "",
                 isRequired: false,
-                position: activeFields.length,
+                position: activeCount,
               });
               setCreateOpen(true);
             }}
-            className="h-8 gap-1.5 text-xs px-3 self-start sm:self-auto"
+            className="h-8 gap-1.5 text-xs px-3 self-start sm:self-auto whitespace-nowrap"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>{t("create")}</span>
@@ -230,138 +363,123 @@ export function CustomFieldsSettingsPanel() {
       <div className="inline-flex rounded-[var(--radius-control)] border border-border p-1 bg-card">
         <button
           type="button"
-          onClick={() => setActiveEntityType("contact")}
-          className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer ${
-            activeEntityType === "contact"
+          onClick={() => {
+            if (entityType !== "contact") {
+              void setEntityType("contact");
+              tableState.resetPaging();
+            }
+          }}
+          className={cn(
+            "px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer",
+            entityType === "contact"
               ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+              : "text-muted-foreground hover:text-foreground",
+          )}
         >
           {t("entityType.contact")}
         </button>
         <button
           type="button"
-          onClick={() => setActiveEntityType("company")}
-          className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer ${
-            activeEntityType === "company"
+          onClick={() => {
+            if (entityType !== "company") {
+              void setEntityType("company");
+              tableState.resetPaging();
+            }
+          }}
+          className={cn(
+            "px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer",
+            entityType === "company"
               ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+              : "text-muted-foreground hover:text-foreground",
+          )}
         >
           {t("entityType.company")}
         </button>
       </div>
 
-      {/* Custom Fields List */}
-      <div className="rounded-[var(--radius-card)] border border-border bg-card overflow-hidden">
-        {activeFields.length === 0 && archivedFields.length === 0 ? (
-          <div className="p-8 text-center text-xs text-muted-foreground">
-            {t("empty", { entityType: t(`entityType.${activeEntityType}`) })}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="border-b border-border bg-muted/50 font-semibold text-muted-foreground">
-                <tr>
-                  <th className="py-2.5 px-4">{t("fields.label")}</th>
-                  <th className="py-2.5 px-4">{t("fields.key")}</th>
-                  <th className="py-2.5 px-4">{t("fields.fieldType")}</th>
-                  <th className="py-2.5 px-4">{t("fields.isRequired")}</th>
-                  <th className="py-2.5 px-4">{t("fields.position")}</th>
-                  <th className="py-2.5 px-4 text-right">{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {activeFields.map((field) => (
-                  <tr
-                    key={field.id}
-                    className="hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="py-2.5 px-4 font-medium text-foreground">
-                      {field.label}
-                    </td>
-                    <td className="py-2.5 px-4 font-mono text-[11px] text-muted-foreground">
-                      {field.key}
-                    </td>
-                    <td className="py-2.5 px-4">
-                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground uppercase">
-                        {t(`types.${field.fieldType}`)}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-4">
-                      {field.isRequired ? (
-                        <span className="text-primary font-medium">✓</span>
-                      ) : (
-                        <span className="text-muted-foreground/40">—</span>
-                      )}
-                    </td>
-                    <td className="py-2.5 px-4 text-muted-foreground">
-                      {field.position}
-                    </td>
-                    <td className="py-2.5 px-4 text-right">
-                      <div className="inline-flex items-center gap-1">
-                        <Can permission={PERMISSIONS.customFieldsManage}>
-                          <Button
-                            variant="secondary"
-                            onClick={() => startEdit(field)}
-                            className="h-6 w-6 p-0"
-                            aria-label={t("editField", { label: field.label })}
-                          >
-                            <Edit2 className="h-3 w-3 text-muted-foreground" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() => setArchivingField(field)}
-                            className="h-6 w-6 p-0 text-destructive hover:bg-destructive/10"
-                            aria-label={t("archiveField", {
-                              label: field.label,
-                            })}
-                          >
-                            <Archive className="h-3 w-3" />
-                          </Button>
-                        </Can>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-
-                {archivedFields.map((field) => (
-                  <tr
-                    key={field.id}
-                    className="bg-muted/30 text-muted-foreground"
-                  >
-                    <td className="py-2.5 px-4 line-through">{field.label}</td>
-                    <td className="py-2.5 px-4 font-mono text-[11px]">
-                      {field.key}
-                    </td>
-                    <td className="py-2.5 px-4">
-                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground uppercase">
-                        {t(`types.${field.fieldType}`)}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-4">
-                      {field.isRequired ? (
-                        <span className="font-medium">✓</span>
-                      ) : (
-                        <span className="opacity-40">—</span>
-                      )}
-                    </td>
-                    <td className="py-2.5 px-4">{field.position}</td>
-                    <td className="py-2.5 px-4 text-right">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                        {t("archived")}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* Custom Fields Table */}
+      <DataTable
+        data={definitions}
+        columns={columns}
+        getRowId={(row) => row.id}
+        loading={
+          (canManageStatus === "pending" || customFieldsQuery.isPending) &&
+          !customFieldsQuery.data
+        }
+        isFetching={customFieldsQuery.isFetching}
+        manualPagination
+        manualSorting
+        sorting={tableState.sorting}
+        onSortingChange={tableState.onSortingChange}
+        emptyTitle={t("empty", {
+          entityType: t(`entityType.${entityType}`),
+        })}
+        toolbar={
+          <DataTableSearchFilterBar
+            searchInput={tableState.searchInput}
+            onSearchInputChange={tableState.setSearchInput}
+            onClearSearch={tableState.clearSearch}
+            searchPlaceholder={t("searchPlaceholder")}
+            hasActiveFilters={hasActiveFilters}
+            onResetFilters={() =>
+              tableState.resetAll(() => {
+                void setFieldType("");
+              })
+            }
+          >
+            <NativeSelect
+              aria-label={t("fields.fieldType")}
+              value={fieldType}
+              onChange={(e) => {
+                void setFieldType(e.target.value);
+                tableState.resetPaging();
+              }}
+              className="h-8 w-auto min-w-[140px] text-xs bg-background py-1"
+            >
+              <option value="">{t("filters.allTypes")}</option>
+              {FIELD_TYPES.map((ft) => (
+                <option key={ft} value={ft}>
+                  {t(`types.${ft}`)}
+                </option>
+              ))}
+            </NativeSelect>
+          </DataTableSearchFilterBar>
+        }
+        paginationSlot={
+          <KeysetPagination
+            hasPreviousPage={tableState.hasPreviousPage}
+            hasNextPage={Boolean(customFieldsQuery.data?.nextCursor)}
+            onPreviousPage={tableState.handlePreviousPage}
+            onNextPage={() =>
+              tableState.handleNextPage(
+                customFieldsQuery.data?.nextCursor ?? null,
+              )
+            }
+            pageSize={tableState.pageSize}
+            onPageSizeChange={tableState.setPageSize}
+            itemCount={definitions.length}
+          />
+        }
+      />
 
       {/* Create Dialog */}
-      <Dialog.Root open={createOpen} onOpenChange={setCreateOpen}>
+      <Dialog.Root
+        open={createOpen}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            createForm.reset({
+              key: "",
+              label: "",
+              entityType,
+              fieldType: "text",
+              options: "",
+              isRequired: false,
+              position: activeCount,
+            });
+          }
+          setCreateOpen(nextOpen);
+        }}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-150" />
           <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-floating focus:outline-none">
@@ -384,7 +502,7 @@ export function CustomFieldsSettingsPanel() {
               >
                 <Input
                   {...createForm.register("label")}
-                  placeholder="e.g. Lead Source"
+                  placeholder={t("fields.labelPlaceholder")}
                   className="h-8 text-xs bg-background"
                 />
               </FormField>
@@ -397,7 +515,7 @@ export function CustomFieldsSettingsPanel() {
               >
                 <Input
                   {...createForm.register("key")}
-                  placeholder="e.g. lead_source"
+                  placeholder={t("fields.keyPlaceholder")}
                   className="h-8 font-mono text-xs bg-background"
                 />
               </FormField>
@@ -420,9 +538,7 @@ export function CustomFieldsSettingsPanel() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {(
-                      ["text", "number", "boolean", "select", "date"] as const
-                    ).map((ft) => (
+                    {FIELD_TYPES.map((ft) => (
                       <SelectItem key={ft} value={ft}>
                         {t(`types.${ft}`)}
                       </SelectItem>
@@ -439,7 +555,7 @@ export function CustomFieldsSettingsPanel() {
                 >
                   <Input
                     {...createForm.register("options")}
-                    placeholder="Web, Partner, Referral, Event"
+                    placeholder={t("fields.optionsPlaceholder")}
                     className="h-8 text-xs bg-background"
                   />
                 </FormField>
@@ -576,7 +692,10 @@ export function CustomFieldsSettingsPanel() {
                 <Button
                   type="submit"
                   variant="primary"
-                  disabled={editForm.formState.isSubmitting}
+                  disabled={
+                    editForm.formState.isSubmitting ||
+                    !editForm.formState.isDirty
+                  }
                   className="h-8 px-3 text-xs"
                 >
                   {tCommon("save")}
@@ -588,7 +707,7 @@ export function CustomFieldsSettingsPanel() {
       </Dialog.Root>
 
       {/* Archive confirmation dialog */}
-      <AlertDialog
+      <ConfirmDialog
         open={Boolean(archivingField)}
         onOpenChange={(open) => !open && setArchivingField(null)}
         title={t("archiveConfirm")}

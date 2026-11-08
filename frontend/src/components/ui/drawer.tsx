@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 export interface DrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  caption?: string;
   title: string;
   description?: string;
   children: ReactNode;
@@ -23,6 +24,7 @@ export interface DrawerProps {
 export function Drawer({
   open,
   onOpenChange,
+  caption,
   title,
   description,
   children,
@@ -57,8 +59,13 @@ export function Drawer({
         >
           {/* Header */}
           <div className="flex items-start justify-between border-b border-border p-5">
-            <div className="space-y-1">
-              <VaulDrawer.Title className="text-base font-semibold text-foreground">
+            <div className="space-y-1 min-w-0">
+              {caption && (
+                <span className="block text-[11px] font-medium text-muted-foreground">
+                  {caption}
+                </span>
+              )}
+              <VaulDrawer.Title className="text-base font-semibold text-foreground truncate">
                 {title}
               </VaulDrawer.Title>
               {description && (

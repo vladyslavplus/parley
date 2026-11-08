@@ -9,9 +9,11 @@
     "customFields": "Custom fields"
   },
   "roles": {
+    "owner": "Owner",
     "admin": "Administrator",
     "sales_manager": "Sales manager",
     "sales_rep": "Sales representative",
+    "member": "Member",
     "marketer": "Marketer",
     "viewer": "Viewer"
   },
@@ -45,10 +47,26 @@
   },
   "members": {
     "title": "Members",
+    "subtitle": "Manage organization members, roles, team assignments, and pending invitations",
+    "searchPlaceholder": "Search by name or email...",
+    "empty": "No members found.",
     "noTeam": "No team",
     "inTeam": "In a team",
+    "tabs": {
+      "active": "Active members",
+      "pending": "Pending invitations"
+    },
+    "filters": {
+      "role": "Role",
+      "allRoles": "All roles",
+      "team": "Team",
+      "allTeams": "All teams",
+      "status": "Status",
+      "allStatuses": "All statuses"
+    },
     "invite": {
-      "title": "Invite a member",
+      "title": "Invite member",
+      "description": "Send an email invitation to join your organization with a specific role and team.",
       "email": "Email",
       "role": "Role",
       "team": "Team",
@@ -61,24 +79,52 @@
       "role": "Role",
       "team": "Team",
       "status": "Status",
+      "joinedAt": "Joined",
       "actions": "Actions"
     },
     "status": {
       "active": "Active",
       "deactivated": "Deactivated"
     },
+    "editMember": "Edit {name}",
+    "deactivateMember": "Deactivate {name}",
+    "editModal": {
+      "title": "Edit member",
+      "saved": "Member updated."
+    },
     "deactivate": "Deactivate",
     "deactivateConfirm": "Deactivate this member? They will lose access immediately.",
+    "deactivateModal": {
+      "title": "Deactivate member",
+      "description": "Are you sure you want to deactivate {name}? They will immediately lose access to the organization.",
+      "deactivated": "Member deactivated."
+    },
     "loadMore": "Load more",
     "loadFailed": "Members could not be loaded.",
     "pending": {
       "title": "Pending invitations",
+      "searchPlaceholder": "Search invited email...",
       "empty": "No pending invitations.",
-      "revoke": "Revoke"
+      "revoke": "Revoke",
+      "revokeFor": "Revoke invitation for {email}",
+      "resendFor": "Resend invitation for {email}",
+      "revoked": "Invitation revoked.",
+      "columns": {
+        "email": "Email",
+        "role": "Role",
+        "team": "Team",
+        "expiresAt": "Expires"
+      },
+      "revokeModal": {
+        "title": "Revoke invitation",
+        "description": "Are you sure you want to revoke the pending invitation for {email}? The invitation link will stop working immediately."
+      }
     }
   },
   "teams": {
     "title": "Teams",
+    "subtitle": "Organize members into teams for assignment and reporting",
+    "searchPlaceholder": "Search teams...",
     "name": "Team name",
     "create": "Create team",
     "rename": "Rename",
@@ -86,18 +132,71 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "deleteConfirm": "Delete this team?",
+    "editTeam": "Edit {name}",
+    "deleteTeam": "Delete {name}",
+    "columns": {
+      "name": "Team",
+      "id": "ID",
+      "actions": "Actions"
+    },
+    "createModal": {
+      "title": "Create team",
+      "description": "Add a team to group members within your organization.",
+      "created": "Team created."
+    },
+    "editModal": {
+      "title": "Edit team",
+      "description": "Update the team name.",
+      "saved": "Team updated."
+    },
+    "deleteModal": {
+      "title": "Delete team",
+      "description": "Are you sure you want to delete {name}? Members in this team will become unassigned from the team.",
+      "deleted": "Team deleted."
+    },
     "empty": "No teams yet.",
     "loadMore": "Load more",
     "loadFailed": "Teams could not be loaded."
   },
   "audit": {
     "title": "Audit log",
+    "subtitle": "Read-only security and administration event history for your organization",
+    "searchPlaceholder": "Search by action or target...",
+    "filters": {
+      "action": "Action",
+      "allActions": "All actions",
+      "actor": "Actor",
+      "allActors": "All actors",
+      "from": "From date",
+      "to": "To date"
+    },
     "columns": {
       "time": "Time",
       "action": "Action",
       "target": "Target",
       "actor": "Actor"
     },
+    "actions": {
+      "identity_member_role_changed": "Member role changed",
+      "identity_member_team_changed": "Member team changed",
+      "identity_member_deactivated": "Member deactivated",
+      "identity_member_reactivated": "Member reactivated",
+      "identity_invitation_created": "Invitation created",
+      "identity_invitation_accepted": "Invitation accepted",
+      "identity_invitation_revoked": "Invitation revoked",
+      "identity_team_created": "Team created",
+      "identity_team_renamed": "Team renamed",
+      "identity_team_deleted": "Team deleted",
+      "identity_organization_settings_changed": "Organization settings changed",
+      "identity_session_sign_in_failed": "Sign-in failed",
+      "identity_session_account_locked": "Account locked",
+      "crm_contact_deleted": "Contact deleted",
+      "crm_contact_restored": "Contact restored",
+      "crm_company_deleted": "Company deleted",
+      "crm_company_restored": "Company restored",
+      "crm_contacts_exported": "Contacts exported"
+    },
+    "invalidDateRange": "The start date must not be after the end date.",
     "empty": "No events yet.",
     "loadMore": "Load more",
     "loadFailed": "The audit log could not be loaded."
@@ -105,6 +204,10 @@
   "customFields": {
     "title": "Custom Fields",
     "subtitle": "Configure custom attributes for contacts and companies",
+    "searchPlaceholder": "Search by label or key...",
+    "filters": {
+      "allTypes": "All types"
+    },
     "create": "New custom field",
     "edit": "Edit custom field",
     "editField": "Edit {label}",
@@ -120,10 +223,13 @@
     "empty": "No custom fields defined for {entityType}.",
     "fields": {
       "label": "Label",
+      "labelPlaceholder": "e.g. Lead Source",
       "key": "Key",
+      "keyPlaceholder": "e.g. lead_source",
       "keyHelp": "Unique machine identifier (e.g. lead_source)",
       "fieldType": "Field type",
       "options": "Options",
+      "optionsPlaceholder": "Web, Partner, Referral, Event",
       "optionsHelp": "Comma-separated list of choices",
       "isRequired": "Required",
       "position": "Display position"

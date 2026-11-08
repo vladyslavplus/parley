@@ -20,4 +20,5 @@ public sealed record ContactRow(
     DateTime UpdatedAt,
     uint Version,
     IReadOnlyList<Guid> TagIds,
-    string NameNormalized);
+    string NameNormalized,
+    string? CompanyName);

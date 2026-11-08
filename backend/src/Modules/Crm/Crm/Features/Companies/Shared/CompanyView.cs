@@ -16,6 +16,8 @@ namespace Parley.Crm.Features.Companies.Shared;
 /// <param name="CreatedAt">Creation instant in UTC.</param>
 /// <param name="UpdatedAt">Last change instant in UTC.</param>
 /// <param name="Version">Row version to send back on update.</param>
+/// <param name="OwnerDisplayName">Owner display name, or null when the owner is unknown or has no name.</param>
+/// <param name="OwnerEmail">Owner email, or null when the owner is unknown.</param>
 public sealed record CompanyView(
     Guid Id,
     string Name,
@@ -26,4 +28,6 @@ public sealed record CompanyView(
     IReadOnlyDictionary<string, JsonElement> CustomFields,
     DateTime CreatedAt,
     DateTime UpdatedAt,
-    uint Version);
+    uint Version,
+    string? OwnerDisplayName,
+    string? OwnerEmail);

@@ -5,6 +5,7 @@ using Parley.Crm.Contracts.Audit;
 using Parley.Crm.Contracts.Errors;
 using Parley.Crm.Features.Companies.Shared;
 using Parley.Crm.Persistence;
+using Parley.Crm.Shared.Owners;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Outbox.Audit;
 using Parley.SharedKernel.Outbox.Publishing;
@@ -18,6 +19,7 @@ public sealed class RestoreCompanyCommandHandler(
     ITenantContext tenantContext,
     ICurrentUser currentUser,
     IDataScope dataScope,
+    OwnerDirectory ownerDirectory,
     IModuleOutbox<CrmDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<RestoreCompanyCommand, Result<CompanyView>>
 {
@@ -45,6 +47,6 @@ public sealed class RestoreCompanyCommandHandler(
         var row = await CompanyLookup.FindRowAsync(dbContext, company.Id, scope, cancellationToken);
         return row is null
             ? Result<CompanyView>.Failure(Error.NotFound(CrmErrorCodes.CompanyNotFound))
-            : Result<CompanyView>.Success(CompanyViews.ToView(row));
+            : Result<CompanyView>.Success(await CompanyViews.ToViewAsync(row, ownerDirectory, cancellationToken));
     }
 }

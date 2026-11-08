@@ -36,11 +36,12 @@ vi.mock("@/features/crm/hooks/use-crm-mutations", () => ({
   }),
 }));
 
-vi.mock("sonner", () => ({
-  toast: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
+vi.mock("@/lib/toasts", () => ({
+  showSuccessToast: vi.fn(),
+  showErrorToast: vi.fn(),
+  showInfoToast: vi.fn(),
+  showWarningToast: vi.fn(),
+  useUndoToast: () => vi.fn(),
 }));
 
 afterEach(() => {

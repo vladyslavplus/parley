@@ -7,9 +7,9 @@ using Parley.Crm.Features.Companies.Shared;
 using Parley.Crm.Persistence;
 using Parley.Crm.Shared;
 using Parley.Crm.Shared.CustomFields;
+using Parley.Crm.Shared.Owners;
 using Parley.Crm.Shared.Text;
 using Parley.Identity.Contracts.Authorization;
-using Parley.SharedKernel.Persistence.Conventions;
 using Parley.SharedKernel.Results;
 using Parley.SharedKernel.Tenancy.Abstractions;
 
@@ -20,6 +20,7 @@ public sealed class CreateCompanyCommandHandler(
     ITenantContext tenantContext,
     ICurrentUser currentUser,
     IDataScope dataScope,
+    OwnerDirectory ownerDirectory,
     IPermissionChecker permissionChecker) : IRequestHandler<CreateCompanyCommand, Result<CompanyView>>
 {
     public async ValueTask<Result<CompanyView>> Handle(CreateCompanyCommand command, CancellationToken cancellationToken)
@@ -53,7 +54,10 @@ public sealed class CreateCompanyCommandHandler(
         dbContext.Companies.Add(company);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var version = dbContext.Entry(company).Property<uint>(PersistenceConstants.XminPropertyName).CurrentValue;
-        return Result<CompanyView>.Success(CompanyViews.FromEntity(company, version));
+        var readScope = await dataScope.ForPermissionAsync(Permissions.CompaniesRead, cancellationToken);
+        var row = await CompanyLookup.FindRowAsync(dbContext, company.Id, readScope, cancellationToken);
+        return row is null
+            ? Result<CompanyView>.Failure(Error.NotFound(CrmErrorCodes.CompanyNotFound))
+            : Result<CompanyView>.Success(await CompanyViews.ToViewAsync(row, ownerDirectory, cancellationToken));
     }
 }

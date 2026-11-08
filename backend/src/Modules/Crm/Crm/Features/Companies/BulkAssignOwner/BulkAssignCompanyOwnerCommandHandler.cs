@@ -24,10 +24,10 @@ public sealed class BulkAssignCompanyOwnerCommandHandler(
             return Result.Failure(CrmErrors.Field(nameof(BulkAssignCompanyOwnerCommand.OwnerUserId), CrmErrorCodes.CompanyOwnerNotAllowed));
         }
 
-        var ids = command.CompanyIds.Distinct().ToArray();
+        var ids = command.CompanyIds.Distinct().ToList();
         var companies = await CompanyScopeFilter.Apply(dbContext.Companies.Where(company => ids.Contains(company.Id)), scope)
             .ToListAsync(cancellationToken);
-        if (companies.Count != ids.Length)
+        if (companies.Count != ids.Count)
         {
             return Result.Failure(Error.NotFound(CrmErrorCodes.CompanyNotFound));
         }

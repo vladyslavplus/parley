@@ -1,10 +1,21 @@
 "use client";
 
+import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { LocaleToggle } from "@/components/layout/locale-toggle";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/constants/routes";
+import { Link } from "@/i18n/navigation";
+import {
+  showErrorToast,
+  showInfoToast,
+  showSuccessToast,
+  showWarningToast,
+  useUndoToast,
+} from "@/lib/toasts";
 import {
   COLOR_TOKENS,
   computeContrastRatio,
@@ -21,6 +32,7 @@ interface ComputedColorState {
 
 export function TokensClient() {
   const t = useTranslations("dev.tokens");
+  const undoToast = useUndoToast();
   const [computed, setComputed] = useState<ComputedColorState>({
     values: {},
     contrasts: {},
@@ -87,6 +99,15 @@ export function TokensClient() {
     <div className="mx-auto max-w-6xl px-6 py-10 space-y-12">
       <header className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          <div className="mb-2">
+            <Link
+              href={ROUTES.app}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>{t("backToApp")}</span>
+            </Link>
+          </div>
           <h1 className="text-2xl font-semibold tracking-tight font-display text-foreground">
             {t("title")}
           </h1>
@@ -107,8 +128,7 @@ export function TokensClient() {
             {t("sections.colors")}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Graphite neutrals with single blue accent family. Minimum WCAG AA
-            4.5:1 text, 3:1 UI.
+            {t("sections.colorsDescription")}
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -128,10 +148,10 @@ export function TokensClient() {
               <div className="flex gap-2 text-xs">
                 <div className="flex-1 rounded-[var(--radius-control)] border border-border p-2 bg-background">
                   <div className="text-[10px] text-muted-foreground">
-                    Runtime Value
+                    {t("labels.runtimeValue")}
                   </div>
                   <div className="font-mono text-foreground font-medium">
-                    {computed.values[token.cssVar] || "computing..."}
+                    {computed.values[token.cssVar] || t("labels.computing")}
                   </div>
                 </div>
               </div>
@@ -155,8 +175,7 @@ export function TokensClient() {
             {t("sections.stages")}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Five-step cool slate-blue ramp (light to saturated), never a
-            rainbow.
+            {t("sections.stagesDescription")}
           </p>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
@@ -190,8 +209,7 @@ export function TokensClient() {
             {t("sections.tags")}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Pastel fills with ink text, high contrast (&gt;11:1 in light,
-            &gt;12:1 in dark).
+            {t("sections.tagsDescription")}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -204,7 +222,9 @@ export function TokensClient() {
                 color: `var(--tag-${tag}-foreground)`,
               }}
             >
-              <span>Tag #{tag}</span>
+              <span>
+                {t("labels.tagPrefix")} #{tag}
+              </span>
               <span className="font-mono text-[10px] opacity-75">
                 {computed.contrasts[`--tag-${tag}`] || ">11:1"}
               </span>
@@ -220,46 +240,44 @@ export function TokensClient() {
             {t("sections.typography")}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Onest (UI, --font-sans), Source Serif 4 (Headings, --font-display),
-            JetBrains Mono (Technical/IDs, --font-mono).
+            {t("sections.typographyDescription")}
           </p>
         </div>
 
         <div className="space-y-4 rounded-[var(--radius-card)] border border-border bg-card p-6">
           <div className="space-y-1">
             <span className="font-mono text-xs text-muted-foreground">
-              Display / Landing Heading (Source Serif 4)
+              {t("labels.displayHeading")}
             </span>
             <div className="text-3xl font-display font-medium text-foreground">
-              Intelligent Customer Relationships for Modern Teams
+              {t("labels.displayHeadingSample")}
             </div>
           </div>
 
           <div className="space-y-1">
             <span className="font-mono text-xs text-muted-foreground">
-              Heading 1 (Onest 24px)
+              {t("labels.heading1")}
             </span>
             <div className="text-2xl font-semibold text-foreground">
-              Organization Members & Access Control
+              {t("labels.heading1Sample")}
             </div>
           </div>
 
           <div className="space-y-1">
             <span className="font-mono text-xs text-muted-foreground">
-              Heading 2 (Onest 18px)
+              {t("labels.heading2")}
             </span>
             <div className="text-lg font-semibold text-foreground">
-              Pipeline Performance and Conversion Velocity
+              {t("labels.heading2Sample")}
             </div>
           </div>
 
           <div className="space-y-1">
             <span className="font-mono text-xs text-muted-foreground">
-              Body Text (Onest 14px)
+              {t("labels.bodyText")}
             </span>
             <div className="text-sm text-foreground">
-              Clean graphite typography with high information density, designed
-              for everyday focus without visual fatigue.
+              {t("labels.bodyTextSample")}
             </div>
           </div>
 
@@ -282,7 +300,7 @@ export function TokensClient() {
             {t("sections.radius")}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Controls: 6px, Cards/Popovers: 10px, Large blocks: 16px - 24px.
+            {t("sections.radiusDescription")}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -309,8 +327,7 @@ export function TokensClient() {
             {t("sections.motion")}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Restrained, purposeful motion. All animations honor
-            prefers-reduced-motion.
+            {t("sections.motionDescription")}
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -329,6 +346,55 @@ export function TokensClient() {
               <div className="text-xs text-muted-foreground">{m.use}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Toast Notifications Showcase */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            {t("sections.toasts")}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {t("sections.toastsDescription")}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="secondary"
+            onClick={() => showSuccessToast(t("toasts.successMessage"))}
+          >
+            {t("toasts.triggerSuccess")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => showErrorToast(t("toasts.errorMessage"))}
+          >
+            {t("toasts.triggerError")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => showInfoToast(t("toasts.infoMessage"))}
+          >
+            {t("toasts.triggerInfo")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => showWarningToast(t("toasts.warningMessage"))}
+          >
+            {t("toasts.triggerWarning")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() =>
+              undoToast({
+                message: t("toasts.undoMessage"),
+                onUndo: () => {},
+              })
+            }
+          >
+            {t("toasts.triggerUndo")}
+          </Button>
         </div>
       </section>
     </div>

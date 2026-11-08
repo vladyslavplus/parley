@@ -2,13 +2,13 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import { queryKeys } from "@/constants/query-keys";
 import { backendJson, backendVoid } from "@/lib/api/bff-client";
 import { describeError, toApiError } from "@/lib/errors";
 import type { CustomFieldDefinition } from "@/features/crm/types";
 import type { Schemas } from "@/lib/api/schemas";
+import { showErrorToast } from "@/lib/toasts";
 
 export interface CreateCustomFieldInput {
   entityType: "contact" | "company";
@@ -61,7 +61,7 @@ export function useCustomFieldMutations() {
       return created;
     } catch (err) {
       const apiErr = toApiError(err);
-      toast.error(describeError(apiErr, (k) => tErrors(k)));
+      showErrorToast(describeError(apiErr, (k) => tErrors(k)));
       throw apiErr;
     }
   }
@@ -94,7 +94,7 @@ export function useCustomFieldMutations() {
       return updated;
     } catch (err) {
       const apiErr = toApiError(err);
-      toast.error(describeError(apiErr, (k) => tErrors(k)));
+      showErrorToast(describeError(apiErr, (k) => tErrors(k)));
       throw apiErr;
     }
   }
@@ -112,7 +112,7 @@ export function useCustomFieldMutations() {
       });
     } catch (err) {
       const apiErr = toApiError(err);
-      toast.error(describeError(apiErr, (k) => tErrors(k)));
+      showErrorToast(describeError(apiErr, (k) => tErrors(k)));
       throw apiErr;
     }
   }

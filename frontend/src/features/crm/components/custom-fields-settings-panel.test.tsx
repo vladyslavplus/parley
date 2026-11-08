@@ -1,4 +1,11 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const mockCreateCustomField = vi.fn();
@@ -51,9 +58,13 @@ const mockDefinitions = [
 ];
 
 vi.mock("@/features/crm/hooks/use-custom-fields", () => ({
-  useCustomFields: () => ({
-    data: mockDefinitions,
-    isPending: false,
+  useCustomFieldsPage: () => ({
+    data:
+      mockCanStatus === "pending"
+        ? undefined
+        : { items: mockDefinitions, nextCursor: null },
+    isPending: mockCanStatus === "pending",
+    isFetching: false,
     isError: false,
   }),
 }));
@@ -69,6 +80,14 @@ vi.mock("@/features/crm/hooks/use-custom-field-mutations", () => ({
 const { CustomFieldsSettingsPanel } =
   await import("./custom-fields-settings-panel");
 
+function renderPanel() {
+  return render(
+    <NuqsTestingAdapter>
+      <CustomFieldsSettingsPanel />
+    </NuqsTestingAdapter>,
+  );
+}
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
@@ -77,7 +96,7 @@ afterEach(() => {
 
 describe("CustomFieldsSettingsPanel", () => {
   it("renders active and archived custom fields", () => {
-    render(<CustomFieldsSettingsPanel />);
+    renderPanel();
 
     expect(screen.getByText("Lead Source")).toBeInTheDocument();
     expect(screen.getByText("lead_source")).toBeInTheDocument();
@@ -86,7 +105,8 @@ describe("CustomFieldsSettingsPanel", () => {
   });
 
   it("opens archive confirmation dialog and triggers archiveCustomField", async () => {
-    render(<CustomFieldsSettingsPanel />);
+    mockArchiveCustomField.mockResolvedValueOnce(undefined);
+    renderPanel();
 
     const archiveBtn = screen.getByRole("button", {
       name: "archiveField Lead Source",
@@ -98,12 +118,14 @@ describe("CustomFieldsSettingsPanel", () => {
     });
     fireEvent.click(confirmBtn);
 
-    expect(mockArchiveCustomField).toHaveBeenCalledWith("cf-1");
+    await waitFor(() => {
+      expect(mockArchiveCustomField).toHaveBeenCalledWith("cf-1");
+    });
   });
 
   it("renders forbidden message only when manage permission is denied", () => {
     mockCanStatus = "denied";
-    render(<CustomFieldsSettingsPanel />);
+    renderPanel();
 
     expect(screen.getByText("forbidden")).toBeInTheDocument();
     expect(screen.queryByText("Lead Source")).toBeNull();
@@ -111,7 +133,7 @@ describe("CustomFieldsSettingsPanel", () => {
 
   it("renders loading skeleton without forbidden flash while permission check is pending", () => {
     mockCanStatus = "pending";
-    const { container } = render(<CustomFieldsSettingsPanel />);
+    const { container } = renderPanel();
 
     expect(screen.queryByText("forbidden")).toBeNull();
     expect(screen.queryByText("Lead Source")).toBeNull();

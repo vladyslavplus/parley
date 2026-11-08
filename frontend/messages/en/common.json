@@ -8,6 +8,7 @@
   "toggleTheme": "Toggle theme",
   "steps": "Steps",
   "dev": "Development",
+  "loading": "Loading",
   "cancel": "Cancel",
   "save": "Save",
   "edit": "Edit",
@@ -17,5 +18,9 @@
   },
   "organizationSwitcher": {
     "label": "Organization"
+  },
+  "toast": {
+    "close": "Close notification",
+    "regionLabel": "Notifications"
   }
 }

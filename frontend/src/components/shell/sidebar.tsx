@@ -1,12 +1,16 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/constants/routes";
 import { SHELL_SHORTCUTS } from "@/constants/shortcuts";
+import { companyListQueryOptions } from "@/features/crm/hooks/use-companies";
+import { contactListQueryOptions } from "@/features/crm/hooks/use-contacts";
 import { Can } from "@/features/session/components/can";
 import { Link, usePathname } from "@/i18n/navigation";
 import { shortcutRegistry } from "@/lib/shortcuts/registry";
@@ -34,6 +38,8 @@ export function Sidebar({
   const tCommon = useTranslations("common");
   const tShell = useTranslations("shell");
   const pathname = usePathname();
+  const locale = useLocale();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const unregister = shortcutRegistry.register({
@@ -44,31 +50,52 @@ export function Sidebar({
     return unregister;
   }, [collapsed, onCollapsedChange]);
 
+  function handlePrefetch(item: NavItemConfig) {
+    if (item.id === "contacts") {
+      void queryClient
+        .query(contactListQueryOptions({}, locale))
+        .catch(() => {});
+    } else if (item.id === "companies") {
+      void queryClient
+        .query(companyListQueryOptions({}, locale))
+        .catch(() => {});
+    }
+  }
+
   function renderItem(item: NavItemConfig) {
     const Icon = item.icon;
     const active =
       pathname === item.href ||
       (item.id === "settings" && pathname.startsWith("/app/settings"));
 
-    const label = tShell(item.titleKey as "sidebar.items.dashboard");
+    const label = tShell(item.titleKey as Parameters<typeof tShell>[0]);
 
     const link = (
       <Link
         key={item.id}
         href={item.href}
+        prefetch={true}
+        onMouseEnter={() => handlePrefetch(item)}
+        onFocus={() => handlePrefetch(item)}
         onClick={() => onMobileOpenChange(false)}
         aria-current={active ? "page" : undefined}
         title={collapsed ? label : undefined}
         className={cn(
-          "flex items-center gap-3 rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring",
+          "flex items-center gap-3 rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring overflow-hidden",
           active
             ? "bg-muted text-foreground font-semibold"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
-          collapsed && "justify-center px-2",
         )}
       >
         <Icon className="h-4 w-4 shrink-0" />
-        {!collapsed && <span className="truncate">{label}</span>}
+        <span
+          className={cn(
+            "truncate whitespace-nowrap transition-opacity duration-150",
+            collapsed ? "opacity-0 pointer-events-none md:w-0" : "opacity-100",
+          )}
+        >
+          {label}
+        </span>
       </Link>
     );
 
@@ -83,24 +110,27 @@ export function Sidebar({
   }
 
   const sidebarContent = (
-    <div className="flex h-full flex-col justify-between p-3">
+    <div className="flex h-full w-56 flex-col justify-between p-3 select-none shrink-0">
       <div className="space-y-6">
-        {/* Brand Monogram */}
-        <div
-          className={cn(
-            "flex items-center gap-2 px-2 py-1.5",
-            collapsed && "justify-center px-0",
-          )}
+        {/* Brand Monogram pointing to /app */}
+        <Link
+          href={ROUTES.app}
+          className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-control)] hover:opacity-80 transition-opacity"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground font-semibold text-xs tracking-tight">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground font-semibold text-xs tracking-tight shrink-0">
             P
           </div>
-          {!collapsed && (
-            <span className="font-semibold text-sm tracking-tight text-foreground">
-              {tCommon("appName")}
-            </span>
-          )}
-        </div>
+          <span
+            className={cn(
+              "font-semibold text-sm tracking-tight text-foreground whitespace-nowrap transition-opacity duration-150",
+              collapsed
+                ? "opacity-0 pointer-events-none md:w-0"
+                : "opacity-100",
+            )}
+          >
+            {tCommon("appName")}
+          </span>
+        </Link>
 
         {/* Main Section */}
         <nav aria-label={tShell("sidebar.navigation")} className="space-y-1">
@@ -115,11 +145,16 @@ export function Sidebar({
         {/* Development Section (dev only) */}
         {process.env.NODE_ENV !== "production" && (
           <div className="space-y-1">
-            {!collapsed && (
-              <h3 className="px-3 text-xs font-medium text-muted-foreground">
-                {tShell("sidebar.development")}
-              </h3>
-            )}
+            <h3
+              className={cn(
+                "px-3 text-xs font-medium text-muted-foreground whitespace-nowrap transition-opacity duration-150",
+                collapsed
+                  ? "opacity-0 pointer-events-none md:w-0"
+                  : "opacity-100",
+              )}
+            >
+              {tShell("sidebar.development")}
+            </h3>
             <nav
               aria-label={tShell("sidebar.development")}
               className="space-y-1"
@@ -136,18 +171,27 @@ export function Sidebar({
           variant="secondary"
           onClick={() => onCollapsedChange(!collapsed)}
           className={cn(
-            "w-full h-8 text-xs text-muted-foreground hover:text-foreground",
-            collapsed ? "p-0 justify-center" : "justify-between px-3",
+            "h-8 text-xs text-muted-foreground hover:text-foreground overflow-hidden",
+            collapsed
+              ? "w-10 p-0 justify-center"
+              : "w-full justify-between px-3",
           )}
           aria-label={
             collapsed ? tShell("sidebar.expand") : tShell("sidebar.collapse")
           }
         >
-          {!collapsed && <span>{tShell("sidebar.collapse")}</span>}
+          <span
+            className={cn(
+              "whitespace-nowrap transition-opacity duration-150",
+              collapsed ? "opacity-0 pointer-events-none w-0" : "opacity-100",
+            )}
+          >
+            {tShell("sidebar.collapse")}
+          </span>
           {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 shrink-0" />
           ) : (
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4 shrink-0" />
           )}
         </Button>
       </div>
@@ -159,7 +203,7 @@ export function Sidebar({
       {/* Desktop & Tablet Sidebar */}
       <aside
         className={cn(
-          "hidden md:flex flex-col sticky top-0 h-dvh border-r border-border bg-card transition-all duration-200 shrink-0",
+          "hidden md:flex flex-col sticky top-0 h-dvh border-r border-border bg-card overflow-hidden transition-[width] duration-200 motion-reduce:transition-none shrink-0",
           collapsed ? "w-16" : "w-56",
         )}
       >

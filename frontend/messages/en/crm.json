@@ -1,6 +1,7 @@
 {
   "contacts": {
     "title": "Contacts",
+    "recordTitle": "Contact",
     "subtitle": "Work and manage your sales contacts",
     "create": "New Contact",
     "searchPlaceholder": "Search by name, email or phone...",
@@ -82,7 +83,17 @@
     "preview": {
       "title": "Contact Preview",
       "openRecord": "Open contact record",
-      "viewCompany": "View company"
+      "viewCompany": "View company",
+      "delete": "Delete",
+      "back": "Back",
+      "groups": {
+        "contactDetails": "Contact details",
+        "ownership": "Ownership",
+        "details": "Details"
+      },
+      "fields": {
+        "location": "Location"
+      }
     },
     "quickCreate": {
       "title": "New Contact",
@@ -92,13 +103,14 @@
       "email": "Email",
       "phone": "Phone",
       "company": "Company",
-      "noCompany": "None",
+      "noCompany": "No company",
       "submit": "Create Contact",
       "success": "Contact created successfully."
     }
   },
   "companies": {
     "title": "Companies",
+    "recordTitle": "Company",
     "subtitle": "Track client organizations and accounts",
     "create": "New Company",
     "searchPlaceholder": "Search by name or domain...",
@@ -133,7 +145,8 @@
         "industry": "Industry",
         "owner": "Owner",
         "unassigned": "Unassigned",
-        "assigned": "Assigned"
+        "assigned": "Assigned",
+        "noCompany": "No company"
       },
       "sections": {
         "overview": "Overview",
@@ -160,17 +173,36 @@
     "preview": {
       "title": "Company Preview",
       "openRecord": "Open company record",
-      "visitWebsite": "Visit website"
+      "visitWebsite": "Visit website",
+      "delete": "Delete",
+      "back": "Back",
+      "groups": {
+        "companyDetails": "Company details",
+        "ownership": "Ownership",
+        "details": "Details"
+      }
     },
     "quickCreate": {
       "title": "New Company",
       "description": "Add a company record with basic information.",
       "name": "Company name",
       "domain": "Domain / Website",
+      "domainPlaceholder": "example.com",
       "country": "Country code (e.g. UA)",
+      "countryPlaceholder": "UA",
       "industry": "Industry",
       "submit": "Create Company",
       "success": "Company created successfully."
+    },
+    "picker": {
+      "title": "Companies",
+      "placeholder": "Select company...",
+      "noCompany": "No company",
+      "searchPlaceholder": "Search companies...",
+      "clear": "Clear",
+      "empty": "No companies found",
+      "loading": "Loading companies...",
+      "resultsCount": "{count, plural, one {# company found} other {# companies found}}"
     }
   },
   "bulk": {
@@ -229,7 +261,23 @@
     "clearSearch": "Clear search",
     "filterBy": "Filter",
     "ownerFilter": "Owner: {owner}",
-    "tagFilter": "Tag: {tag}"
+    "tagFilter": "Tag: {tag}",
+    "ownerPicker": {
+      "searchPlaceholder": "Search owners...",
+      "loading": "Loading owners...",
+      "empty": "No owners found",
+      "selectedFallback": "Selected owner",
+      "resultsCount": "{count, plural, one {# owner found} other {# owners found}}"
+    },
+    "tagPicker": {
+      "searchPlaceholder": "Search tags...",
+      "loading": "Loading tags...",
+      "empty": "No tags created yet",
+      "emptySearch": "No tags match your search",
+      "selectedFallback": "Selected tag",
+      "resultsCount": "{count, plural, one {# tag found} other {# tags found}}",
+      "help": "Tags are free-form labels (such as VIP or Lead) attached to contacts for segmentation."
+    }
   },
   "pagination": {
     "previous": "Previous",

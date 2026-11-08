@@ -26,7 +26,6 @@
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
     "items": {
-      "dashboard": "Overview",
       "contacts": "Contacts",
       "companies": "Companies",
       "settings": "Settings",

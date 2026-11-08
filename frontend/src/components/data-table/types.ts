@@ -14,6 +14,7 @@ export interface DataTableProps<TData> {
   data: TData[];
   getRowId: (row: TData) => string;
   loading?: boolean;
+  isFetching?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyAction?: ReactNode;

@@ -10,6 +10,7 @@ using Parley.Crm.Features.CustomFields.Shared;
 using Parley.Crm.Features.CustomFields.Update;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Authorization;
+using Parley.SharedKernel.Paging;
 
 namespace Parley.Api.Controllers.Crm;
 
@@ -18,11 +19,20 @@ public sealed class CustomFieldsController(IMediator mediator, ErrorTextLocalize
 {
     [HttpGet(CrmRoutes.CustomFields)]
     [RequiresPermission(Permissions.ContactsRead)]
-    [ProducesResponseType<IReadOnlyList<CustomFieldDefinitionView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<KeysetCursorPage<CustomFieldDefinitionView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> List([FromQuery] string? entityType, CancellationToken cancellationToken)
+    public async Task<IActionResult> List(
+        [FromQuery] string? after,
+        [FromQuery] int? limit,
+        [FromQuery] string? q,
+        [FromQuery] string? entityType,
+        [FromQuery] string? fieldType,
+        [FromQuery] string? sort,
+        [FromQuery] string? order,
+        CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new ListCustomFieldsQuery(entityType), cancellationToken);
+        var result = await mediator.Send(new ListCustomFieldsQuery(after, limit, q, entityType, fieldType, sort, order), cancellationToken);
         return FromResult(result, Ok);
     }
 

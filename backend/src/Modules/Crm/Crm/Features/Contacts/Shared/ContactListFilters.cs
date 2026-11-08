@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Parley.Crm.Domain.Contacts;
-using Parley.Crm.Shared.Search;
+using Parley.SharedKernel.Search;
 
 namespace Parley.Crm.Features.Contacts.Shared;
 

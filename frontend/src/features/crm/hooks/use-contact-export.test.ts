@@ -18,11 +18,12 @@ vi.mock("@/lib/api/bff-client", () => ({
   backendJson: (...args: unknown[]) => mockBackendJson(...args),
 }));
 
-vi.mock("sonner", () => ({
-  toast: {
-    error: vi.fn(),
-    success: vi.fn(),
-  },
+vi.mock("@/lib/toasts", () => ({
+  showErrorToast: vi.fn(),
+  showSuccessToast: vi.fn(),
+  showInfoToast: vi.fn(),
+  showWarningToast: vi.fn(),
+  useUndoToast: () => vi.fn(),
 }));
 
 const { useContactExport } = await import("./use-contact-export");

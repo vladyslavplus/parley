@@ -1,6 +1,7 @@
 {
   "contacts": {
     "title": "Контакти",
+    "recordTitle": "Контакт",
     "subtitle": "Робота та керування контактами з продажу",
     "create": "Новий контакт",
     "searchPlaceholder": "Пошук за ім'ям, email або тел...",
@@ -82,7 +83,17 @@
     "preview": {
       "title": "Попередній перегляд контакту",
       "openRecord": "Відкрити картку контакту",
-      "viewCompany": "Переглянути компанію"
+      "viewCompany": "Переглянути компанію",
+      "delete": "Видалити",
+      "back": "Назад",
+      "groups": {
+        "contactDetails": "Контактні дані",
+        "ownership": "Відповідальність",
+        "details": "Деталі"
+      },
+      "fields": {
+        "location": "Локація"
+      }
     },
     "quickCreate": {
       "title": "Новий контакт",
@@ -92,13 +103,14 @@
       "email": "Email",
       "phone": "Телефон",
       "company": "Компанія",
-      "noCompany": "Немає",
+      "noCompany": "Без компанії",
       "submit": "Створити контакт",
       "success": "Контакт успішно створено."
     }
   },
   "companies": {
     "title": "Компанії",
+    "recordTitle": "Компанія",
     "subtitle": "Облік організацій клієнтів та акаунтів",
     "create": "Нова компанія",
     "searchPlaceholder": "Пошук за назвою або доменом...",
@@ -133,7 +145,8 @@
         "industry": "Галузь",
         "owner": "Відповідальний",
         "unassigned": "Не призначено",
-        "assigned": "Призначено"
+        "assigned": "Призначено",
+        "noCompany": "Без компанії"
       },
       "sections": {
         "overview": "Загальне",
@@ -160,17 +173,36 @@
     "preview": {
       "title": "Попередній перегляд компанії",
       "openRecord": "Відкрити картку компанії",
-      "visitWebsite": "Перейти на сайт"
+      "visitWebsite": "Перейти на сайт",
+      "delete": "Видалити",
+      "back": "Назад",
+      "groups": {
+        "companyDetails": "Дані компанії",
+        "ownership": "Відповідальність",
+        "details": "Деталі"
+      }
     },
     "quickCreate": {
       "title": "Нова компанія",
       "description": "Створіть запис компанії з базовою інформацією.",
       "name": "Назва компанії",
       "domain": "Домен / Вебсайт",
+      "domainPlaceholder": "example.com",
       "country": "Код країни (напр. UA)",
+      "countryPlaceholder": "UA",
       "industry": "Галузь",
       "submit": "Створити компанію",
       "success": "Компанію успішно створено."
+    },
+    "picker": {
+      "title": "Компанії",
+      "placeholder": "Оберіть компанію...",
+      "noCompany": "Без компанії",
+      "searchPlaceholder": "Пошук компаній...",
+      "clear": "Очистити",
+      "empty": "Компаній не знайдено",
+      "loading": "Завантаження компаній...",
+      "resultsCount": "{count, plural, one {# компанія знайдена} few {# компанії знайдено} other {# компаній знайдено}}"
     }
   },
   "bulk": {
@@ -229,7 +261,23 @@
     "clearSearch": "Очистити пошук",
     "filterBy": "Фільтр",
     "ownerFilter": "Відповідальний: {owner}",
-    "tagFilter": "Тег: {tag}"
+    "tagFilter": "Тег: {tag}",
+    "ownerPicker": {
+      "searchPlaceholder": "Пошук відповідальних...",
+      "loading": "Завантаження відповідальних...",
+      "empty": "Відповідальних не знайдено",
+      "selectedFallback": "Обраний відповідальний",
+      "resultsCount": "{count, plural, one {# відповідальний знайдений} few {# відповідальні знайдені} other {# відповідальних знайдено}}"
+    },
+    "tagPicker": {
+      "searchPlaceholder": "Пошук тегів...",
+      "loading": "Завантаження тегів...",
+      "empty": "Тегів ще не створено",
+      "emptySearch": "За вашим запитом тегів не знайдено",
+      "selectedFallback": "Обраний тег",
+      "resultsCount": "{count, plural, one {# тег знайдено} few {# теги знайдено} other {# тегів знайдено}}",
+      "help": "Теги — це довільні мітки (наприклад, VIP або Lead), які прикріплюються до контактів для сегментації."
+    }
   },
   "pagination": {
     "previous": "Попередня",

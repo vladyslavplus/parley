@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
+import { TableProgressBar } from "@/components/data-table/table-progress-bar";
 import { PALETTE_GROUPS } from "@/constants/palette-groups";
 import { SHELL_SHORTCUTS } from "@/constants/shortcuts";
 import { Can } from "@/features/session/components/can";
@@ -118,7 +119,8 @@ export function CommandPalette({
       label={t("search.placeholder")}
       className="fixed inset-0 z-50 flex items-start justify-center pt-20 sm:pt-28 bg-foreground/30 backdrop-blur-sm p-4"
     >
-      <div className="w-full max-w-xl rounded-[var(--radius-card)] border border-border bg-card shadow-floating overflow-hidden">
+      <div className="w-full max-w-xl rounded-[var(--radius-card)] border border-border bg-card shadow-floating overflow-hidden relative">
+        <TableProgressBar active={isSearching} />
         <div className="flex items-center border-b border-border px-3 py-2">
           {isSearching ? (
             <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin text-muted-foreground" />

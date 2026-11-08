@@ -6,6 +6,7 @@ using Parley.Crm.Contracts.Errors;
 using Parley.Crm.Contracts.Events;
 using Parley.Crm.Features.Contacts.Shared;
 using Parley.Crm.Persistence;
+using Parley.Crm.Shared.Owners;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Outbox.Audit;
 using Parley.SharedKernel.Outbox.Publishing;
@@ -20,6 +21,7 @@ public sealed class RestoreContactCommandHandler(
     ITenantContext tenantContext,
     ICurrentUser currentUser,
     IDataScope dataScope,
+    OwnerDirectory ownerDirectory,
     IModuleOutbox<CrmDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<RestoreContactCommand, Result<ContactView>>
 {
@@ -60,9 +62,9 @@ public sealed class RestoreContactCommandHandler(
             return Result<ContactView>.Failure(Error.Conflict(CrmErrorCodes.ContactEmailTaken));
         }
 
-        var row = await ContactLookup.FindRowAsync(dbContext, contact.Id, scope, cancellationToken);
+        var row = await ContactLookup.FindRowAsync(dbContext, dataScope, contact.Id, scope, cancellationToken);
         return row is null
             ? Result<ContactView>.Failure(Error.NotFound(CrmErrorCodes.ContactNotFound))
-            : Result<ContactView>.Success(ContactViews.ToView(row));
+            : Result<ContactView>.Success(await ContactViews.ToViewAsync(row, ownerDirectory, cancellationToken));
     }
 }
