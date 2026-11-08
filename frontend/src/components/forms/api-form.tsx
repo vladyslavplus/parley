@@ -1,4 +1,4 @@
-import type { FormEventHandler, ReactNode, Ref } from "react";
+import type { ComponentProps, ReactNode, Ref } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ export function ApiForm({
   submitLabel,
   children,
 }: {
-  onSubmit: FormEventHandler<HTMLFormElement>;
+  onSubmit: ComponentProps<"form">["onSubmit"];
   formError: string | null;
   alertRef: Ref<HTMLDivElement>;
   pending: boolean;

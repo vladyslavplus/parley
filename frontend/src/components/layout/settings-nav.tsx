@@ -37,10 +37,10 @@ function NavItem({ href, label }: { href: string; label: string }) {
         href={href}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "block rounded-md px-3 py-2 text-sm",
+          "block rounded-[var(--radius-control)] px-3 py-2 text-sm transition-colors",
           active
-            ? "bg-neutral-900 text-white"
-            : "text-neutral-700 hover:bg-neutral-100",
+            ? "bg-muted text-foreground font-semibold"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         {label}

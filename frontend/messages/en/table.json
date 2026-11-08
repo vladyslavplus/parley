@@ -1,0 +1,29 @@
+{
+  "ariaLabel": "Data table",
+  "totalRecords": "{count, plural, one {# record total} other {# records total}}",
+  "search": "Filter records...",
+  "columns": "Columns",
+  "density": {
+    "label": "Density",
+    "compact": "Compact",
+    "comfortable": "Comfortable"
+  },
+  "selection": {
+    "selected": "{count} of {total} selected",
+    "deleteSelected": "Delete selected",
+    "exportSelected": "Export"
+  },
+  "pagination": {
+    "page": "Page {page} of {pages}",
+    "rowsPerPage": "Rows per page",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "empty": {
+    "title": "No records found",
+    "description": "Try adjusting your search filters or create a new entry."
+  },
+  "shortcuts": {
+    "nav": "Use ↑ and ↓ arrows to navigate, Enter to open, Space to select"
+  }
+}

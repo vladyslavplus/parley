@@ -1,13 +1,18 @@
+import { notFound } from "next/navigation";
 import { IntlErrorCode } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
+import { locale as rootLocale } from "next/root-params";
 
 import { loadMessages } from "./messages";
-import { isAppLocale, routing } from "./routing";
+import { isAppLocale } from "./routing";
 import { reportMissingMessage, messageFallback } from "./missing";
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  const requested = await requestLocale;
-  const locale = isAppLocale(requested) ? requested : routing.defaultLocale;
+export default getRequestConfig(async ({ locale: explicitLocale }) => {
+  let locale = explicitLocale;
+  if (!locale) {
+    const v = await rootLocale();
+    locale = isAppLocale(v) ? v : notFound();
+  }
 
   return {
     locale,

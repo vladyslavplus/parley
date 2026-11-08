@@ -5,7 +5,7 @@ export function LoadingBlock({ className }: { className?: string }) {
     <div
       aria-busy="true"
       className={cn(
-        "h-40 animate-pulse rounded-md bg-neutral-100 motion-reduce:animate-none",
+        "h-40 animate-pulse rounded-lg bg-muted motion-reduce:animate-none",
         className,
       )}
     />

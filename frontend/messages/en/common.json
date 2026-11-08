@@ -1,6 +1,16 @@
 {
   "appName": "Parley",
   "appDescription": "Parley web application.",
+  "close": "Close",
+  "undo": "Undo",
+  "undoFailed": "Failed to undo action",
+  "theme": "Theme",
+  "toggleTheme": "Toggle theme",
+  "steps": "Steps",
+  "dev": "Development",
+  "cancel": "Cancel",
+  "save": "Save",
+  "edit": "Edit",
   "actions": {
     "signOut": "Sign out"
   },

@@ -1,4 +1,4 @@
-import type { Ref } from "react";
+import type { Ref, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -7,7 +7,7 @@ export function Alert({
   tone = "error",
   ref,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   tone?: "error" | "info";
   ref?: Ref<HTMLDivElement>;
 }) {
@@ -17,10 +17,10 @@ export function Alert({
       role={tone === "error" ? "alert" : "status"}
       tabIndex={-1}
       className={cn(
-        "rounded-md border px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-900",
+        "rounded-md border px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring",
         tone === "error"
-          ? "border-red-300 bg-red-50 text-red-900"
-          : "border-neutral-300 bg-neutral-50 text-neutral-900",
+          ? "border-destructive/40 bg-destructive/10 text-destructive dark:text-destructive-foreground"
+          : "border-info/40 bg-info/10 text-info dark:text-info-foreground",
       )}
     >
       {children}

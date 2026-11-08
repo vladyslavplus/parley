@@ -19,14 +19,14 @@ export function AuditPanel() {
   if (events.isError) return <Alert>{t("loadFailed")}</Alert>;
   const rows = events.data.pages.flatMap((page) => page.items);
   if (rows.length === 0)
-    return <p className="text-sm text-neutral-600">{t("empty")}</p>;
+    return <p className="text-sm text-muted-foreground">{t("empty")}</p>;
 
   return (
     <div className="flex flex-col gap-3">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-neutral-200">
+            <tr className="border-b border-border">
               <th scope="col" className="py-2 pr-3">
                 {t("columns.time")}
               </th>
@@ -43,7 +43,7 @@ export function AuditPanel() {
           </thead>
           <tbody>
             {rows.map((event) => (
-              <tr key={event.id} className="border-b border-neutral-100">
+              <tr key={event.id} className="border-b border-border/40">
                 <td className="py-2 pr-3">
                   {format.dateTime(parseUtc(event.occurredAt), {
                     dateStyle: "medium",

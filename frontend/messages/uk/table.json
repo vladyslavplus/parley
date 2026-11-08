@@ -1,0 +1,29 @@
+{
+  "ariaLabel": "Таблиця даних",
+  "totalRecords": "{count, plural, one {# запис загалом} few {# записи загалом} many {# записів загалом} other {# записів загалом}}",
+  "search": "Фільтрувати записи...",
+  "columns": "Колонки",
+  "density": {
+    "label": "Щільність",
+    "compact": "Компактна",
+    "comfortable": "Зручна"
+  },
+  "selection": {
+    "selected": "Вибрано {count} із {total}",
+    "deleteSelected": "Видалити вибрані",
+    "exportSelected": "Експорт"
+  },
+  "pagination": {
+    "page": "Сторінка {page} із {pages}",
+    "rowsPerPage": "Рядків на сторінці",
+    "previous": "Попередня",
+    "next": "Наступна"
+  },
+  "empty": {
+    "title": "Записів не знайдено",
+    "description": "Спробуйте змінити фільтри або створіть новий запис."
+  },
+  "shortcuts": {
+    "nav": "Стрілки ↑ та ↓ для навігації, Enter для відкриття, Пробіл для вибору"
+  }
+}
