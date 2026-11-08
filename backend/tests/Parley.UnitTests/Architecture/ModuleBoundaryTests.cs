@@ -125,7 +125,7 @@ public sealed class ModuleBoundaryTests
         return document.Descendants("ProjectReference")
             .Select(element => element.Attribute("Include")?.Value)
             .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Select(value => Path.GetFileNameWithoutExtension(value!.Replace('/', Path.DirectorySeparatorChar)))
+            .Select(value => Path.GetFileNameWithoutExtension(value!.Replace('\\', '/')))
             .ToArray();
     }
 }
