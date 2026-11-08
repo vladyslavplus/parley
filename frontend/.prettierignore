@@ -1,0 +1,10 @@
+.next
+out
+build
+node_modules
+coverage
+test-results
+playwright-report
+pnpm-lock.yaml
+src/lib/api/schema.d.ts
+next-env.d.ts

@@ -1,0 +1,57 @@
+{
+  "name": "parley-web",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.4.2",
+  "engines": {
+    "node": "24",
+    "pnpm": ">=12"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write \"src\" \"scripts\" \"*.{ts,mts,mjs,json,yaml,yml}\" \"README.md\"",
+    "format:check": "prettier --check \"src\" \"scripts\" \"*.{ts,mts,mjs,json,yaml,yml}\" \"README.md\"",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run format:check",
+    "test": "vitest run",
+    "api:generate": "node scripts/generate-api-schema.mjs"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "7.0.3",
+    "@tanstack/react-query": "5.107.0",
+    "clsx": "2.1.1",
+    "next": "16.4.5",
+    "next-intl": "4.14.9",
+    "openapi-fetch": "0.17.0",
+    "openapi-react-query": "0.5.4",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "react-hook-form": "7.91.0",
+    "tailwind-merge": "3.7.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@tailwindcss/postcss": "4.3.5",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "24.19.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "@vitejs/plugin-react": "6.2.1",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.5",
+    "globals": "17.14.0",
+    "jsdom": "31.0.0",
+    "openapi-typescript": "7.13.0",
+    "postcss": "8.5.32",
+    "prettier": "3.9.10",
+    "tailwindcss": "4.3.5",
+    "typescript": "5.9.3",
+    "vite": "8.3.6",
+    "vitest": "5.1.0"
+  }
+}

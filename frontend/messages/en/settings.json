@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "label": "Settings",
+    "profile": "Profile",
+    "organization": "Organization",
+    "members": "Members",
+    "teams": "Teams",
+    "audit": "Audit log"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "sales_manager": "Sales manager",
+    "sales_rep": "Sales representative",
+    "marketer": "Marketer",
+    "viewer": "Viewer"
+  },
+  "profile": {
+    "title": "Profile",
+    "displayName": "Display name",
+    "locale": "Language",
+    "timeZone": "Time zone",
+    "theme": "Theme",
+    "submit": "Save changes",
+    "saved": "Profile saved.",
+    "locales": {
+      "uk": "Ukrainian",
+      "en": "English"
+    },
+    "themes": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    }
+  },
+  "organization": {
+    "title": "Organization",
+    "name": "Name",
+    "timeZone": "Time zone",
+    "defaultLocale": "Default language",
+    "currency": "Currency code",
+    "submit": "Save changes",
+    "saved": "Organization saved.",
+    "readOnly": "Only administrators can change these settings."
+  },
+  "members": {
+    "title": "Members",
+    "noTeam": "No team",
+    "inTeam": "In a team",
+    "invite": {
+      "title": "Invite a member",
+      "email": "Email",
+      "role": "Role",
+      "team": "Team",
+      "submit": "Send invitation",
+      "sent": "Invitation sent.",
+      "refreshed": "This address already had a pending invitation. A new link was sent and the older link no longer works."
+    },
+    "columns": {
+      "member": "Member",
+      "role": "Role",
+      "team": "Team",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "deactivated": "Deactivated"
+    },
+    "deactivate": "Deactivate",
+    "deactivateConfirm": "Deactivate this member? They will lose access immediately.",
+    "loadMore": "Load more",
+    "loadFailed": "Members could not be loaded.",
+    "pending": {
+      "title": "Pending invitations",
+      "empty": "No pending invitations.",
+      "revoke": "Revoke"
+    }
+  },
+  "teams": {
+    "title": "Teams",
+    "name": "Team name",
+    "create": "Create team",
+    "rename": "Rename",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this team?",
+    "empty": "No teams yet.",
+    "loadMore": "Load more",
+    "loadFailed": "Teams could not be loaded."
+  },
+  "audit": {
+    "title": "Audit log",
+    "columns": {
+      "time": "Time",
+      "action": "Action",
+      "target": "Target",
+      "actor": "Actor"
+    },
+    "empty": "No events yet.",
+    "loadMore": "Load more",
+    "loadFailed": "The audit log could not be loaded."
+  }
+}

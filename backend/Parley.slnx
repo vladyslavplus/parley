@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="global.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="src\Parley.Api\Parley.Api.csproj" />
+  <Project Path="src\Parley.SharedKernel\Parley.SharedKernel.csproj" />
+  <Project Path="src\Modules\Identity\Identity\Identity.csproj" />
+  <Project Path="src\Modules\Identity\Identity.Contracts\Identity.Contracts.csproj" />
+  <Project Path="src\Modules\Crm\Crm\Crm.csproj" />
+  <Project Path="src\Modules\Crm\Crm.Contracts\Crm.Contracts.csproj" />
+  <Project Path="src\Modules\Campaigns\Campaigns\Campaigns.csproj" />
+  <Project Path="src\Modules\Campaigns\Campaigns.Contracts\Campaigns.Contracts.csproj" />
+  <Project Path="src\Modules\Insights\Insights\Insights.csproj" />
+  <Project Path="src\Modules\Insights\Insights.Contracts\Insights.Contracts.csproj" />
+  <Project Path="src\Modules\Notifications\Notifications\Notifications.csproj" />
+  <Project Path="src\Modules\Notifications\Notifications.Contracts\Notifications.Contracts.csproj" />
+  <Project Path="tests\Parley.UnitTests\Parley.UnitTests.csproj" />
+  <Project Path="tests\Parley.IntegrationTests\Parley.IntegrationTests.csproj" />
+</Solution>

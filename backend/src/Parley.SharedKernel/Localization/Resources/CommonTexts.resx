@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="common.validation.failed" xml:space="preserve">
+    <value>Validation failed.</value>
+  </data>
+  <data name="common.concurrency.conflict" xml:space="preserve">
+    <value>The record was changed by someone else. Refresh and try again.</value>
+  </data>
+  <data name="common.request.not_found" xml:space="preserve">
+    <value>The requested record was not found.</value>
+  </data>
+  <data name="common.internal.unexpected" xml:space="preserve">
+    <value>An unexpected error occurred.</value>
+  </data>
+  <data name="common.idempotency.key_reused" xml:space="preserve">
+    <value>This idempotency key was already used with a different request. Use a new key or resend the original request.</value>
+  </data>
+  <data name="common.idempotency.in_progress" xml:space="preserve">
+    <value>A request with this idempotency key is still processing. Retry shortly.</value>
+  </data>
+  <data name="common.idempotency.body_too_large" xml:space="preserve">
+    <value>The request body exceeds the maximum size for idempotent requests. Send a smaller body.</value>
+  </data>
+  <data name="common.idempotency.key_too_long" xml:space="preserve">
+    <value>The idempotency key is too long. Use a shorter key.</value>
+  </data>
+  <data name="notifications.email.invalid_recipient" xml:space="preserve">
+    <value>The recipient email address is invalid.</value>
+  </data>
+  <data name="notifications.email.template_not_found" xml:space="preserve">
+    <value>The email template was not found.</value>
+  </data>
+  <data name="notifications.email.invalid_template_variables" xml:space="preserve">
+    <value>The email template variables are invalid.</value>
+  </data>
+  <data name="notifications.email.template_render_failed" xml:space="preserve">
+    <value>The email template could not be rendered.</value>
+  </data>
+  <data name="notifications.email.smtp_failed" xml:space="preserve">
+    <value>The email could not be sent.</value>
+  </data>
+  <data name="identity.user.email_taken" xml:space="preserve">
+    <value>An account with this email address already exists.</value>
+  </data>
+  <data name="identity.user.not_found" xml:space="preserve">
+    <value>The requested account was not found.</value>
+  </data>
+  <data name="identity.user.password_invalid" xml:space="preserve">
+    <value>The password does not meet the requirements.</value>
+  </data>
+  <data name="identity.auth.invalid_credentials" xml:space="preserve">
+    <value>The email address or password is incorrect.</value>
+  </data>
+  <data name="identity.auth.email_not_confirmed" xml:space="preserve">
+    <value>Confirm your email address before signing in.</value>
+  </data>
+  <data name="identity.auth.token_invalid" xml:space="preserve">
+    <value>The link is invalid or has expired. Request a new one.</value>
+  </data>
+  <data name="identity.auth.refresh_token_invalid" xml:space="preserve">
+    <value>Your session has ended. Sign in again.</value>
+  </data>
+  <data name="identity.auth.refresh_token_reused" xml:space="preserve">
+    <value>This session was already refreshed. Sign in again.</value>
+  </data>
+  <data name="identity.auth.rate_limited" xml:space="preserve">
+    <value>Too many attempts. Try again later.</value>
+  </data>
+  <data name="identity.permission.denied" xml:space="preserve">
+    <value>You do not have permission to do this.</value>
+  </data>
+  <data name="identity.member.not_found" xml:space="preserve">
+    <value>The member was not found.</value>
+  </data>
+  <data name="identity.member.last_admin" xml:space="preserve">
+    <value>The last active administrator cannot be demoted or deactivated.</value>
+  </data>
+  <data name="identity.member.self_deactivation" xml:space="preserve">
+    <value>You cannot deactivate your own account.</value>
+  </data>
+  <data name="identity.member.already_member" xml:space="preserve">
+    <value>This person is already a member of the organization.</value>
+  </data>
+  <data name="identity.member.role_invalid" xml:space="preserve">
+    <value>The selected role does not exist.</value>
+  </data>
+  <data name="identity.invitation.not_found" xml:space="preserve">
+    <value>The invitation was not found.</value>
+  </data>
+  <data name="identity.invitation.token_invalid" xml:space="preserve">
+    <value>The invitation link is invalid or has expired. Ask for a new invitation.</value>
+  </data>
+  <data name="identity.invitation.already_pending" xml:space="preserve">
+    <value>A pending invitation for this address already exists.</value>
+  </data>
+  <data name="identity.invitation.not_pending" xml:space="preserve">
+    <value>This invitation was already accepted or revoked.</value>
+  </data>
+  <data name="identity.team.not_found" xml:space="preserve">
+    <value>The team was not found.</value>
+  </data>
+  <data name="identity.team.name_taken" xml:space="preserve">
+    <value>A team with this name already exists.</value>
+  </data>
+  <data name="identity.organization.not_found" xml:space="preserve">
+    <value>The organization was not found.</value>
+  </data>
+</root>

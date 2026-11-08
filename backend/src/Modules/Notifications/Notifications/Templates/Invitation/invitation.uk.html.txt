@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <title>Запрошення до Parley</title>
+</head>
+<body>
+  <h1>Запрошення до Parley</h1>
+  <p>Вас запросили приєднатися до організації {{ organizationName }}.</p>
+  <p><a href="{{ invitationLink }}">Прийняти запрошення</a></p>
+  <p>Посилання дійсне обмежений час і працює один раз. Якщо ви не очікували цього запрошення, проігноруйте цей лист.</p>
+  <p>Посилання для запрошення: {{ invitationLink }}</p>
+</body>
+</html>

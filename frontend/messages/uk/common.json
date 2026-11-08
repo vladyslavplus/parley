@@ -1,0 +1,10 @@
+{
+  "appName": "Parley",
+  "appDescription": "Вебзастосунок Parley.",
+  "actions": {
+    "signOut": "Вийти"
+  },
+  "organizationSwitcher": {
+    "label": "Організація"
+  }
+}

@@ -1,0 +1,23 @@
+# Local development overrides. Copy to docker-compose.override.yml; Compose merges it
+# with docker-compose.yml automatically. Publishes the services on 127.0.0.1 only.
+services:
+  db:
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  mailpit:
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+
+  aspire-dashboard:
+    environment:
+      # Unsecured is acceptable only because the dashboard is bound to localhost.
+      DASHBOARD__FRONTEND__AUTHMODE: Unsecured
+    ports:
+      - "127.0.0.1:4317:18889"
+      - "127.0.0.1:18888:18888"
+
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"

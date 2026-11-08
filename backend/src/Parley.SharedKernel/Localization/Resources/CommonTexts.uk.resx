@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="common.validation.failed" xml:space="preserve">
+    <value>Перевірка не пройшла.</value>
+  </data>
+  <data name="common.concurrency.conflict" xml:space="preserve">
+    <value>Запис змінено іншим користувачем. Оновіть і спробуйте знову.</value>
+  </data>
+  <data name="common.request.not_found" xml:space="preserve">
+    <value>Запитуваний запис не знайдено.</value>
+  </data>
+  <data name="common.internal.unexpected" xml:space="preserve">
+    <value>Сталася неочікувана помилка.</value>
+  </data>
+  <data name="common.idempotency.key_reused" xml:space="preserve">
+    <value>Цей ключ ідемпотентності вже використано з іншим запитом. Використайте новий ключ або надішліть початковий запит повторно.</value>
+  </data>
+  <data name="common.idempotency.in_progress" xml:space="preserve">
+    <value>Запит із цим ключем ідемпотентності ще обробляється. Повторіть спробу незабаром.</value>
+  </data>
+  <data name="common.idempotency.body_too_large" xml:space="preserve">
+    <value>Тіло запиту перевищує максимальний розмір для запитів із ключем ідемпотентності. Надішліть менше тіло.</value>
+  </data>
+  <data name="common.idempotency.key_too_long" xml:space="preserve">
+    <value>Ключ ідемпотентності занадто довгий. Використайте коротший ключ.</value>
+  </data>
+  <data name="notifications.email.invalid_recipient" xml:space="preserve">
+    <value>Адресу електронної пошти одержувача вказано неправильно.</value>
+  </data>
+  <data name="notifications.email.template_not_found" xml:space="preserve">
+    <value>Шаблон електронного листа не знайдено.</value>
+  </data>
+  <data name="notifications.email.invalid_template_variables" xml:space="preserve">
+    <value>Змінні шаблону електронного листа вказано неправильно.</value>
+  </data>
+  <data name="notifications.email.template_render_failed" xml:space="preserve">
+    <value>Не вдалося сформувати електронний лист.</value>
+  </data>
+  <data name="notifications.email.smtp_failed" xml:space="preserve">
+    <value>Не вдалося надіслати електронний лист.</value>
+  </data>
+  <data name="identity.user.email_taken" xml:space="preserve">
+    <value>Обліковий запис із цією адресою електронної пошти вже існує.</value>
+  </data>
+  <data name="identity.user.not_found" xml:space="preserve">
+    <value>Запитуваний обліковий запис не знайдено.</value>
+  </data>
+  <data name="identity.user.password_invalid" xml:space="preserve">
+    <value>Пароль не відповідає вимогам.</value>
+  </data>
+  <data name="identity.auth.invalid_credentials" xml:space="preserve">
+    <value>Адресу електронної пошти або пароль вказано неправильно.</value>
+  </data>
+  <data name="identity.auth.email_not_confirmed" xml:space="preserve">
+    <value>Підтвердіть адресу електронної пошти, перш ніж увійти.</value>
+  </data>
+  <data name="identity.auth.token_invalid" xml:space="preserve">
+    <value>Посилання недійсне або прострочене. Запросіть нове.</value>
+  </data>
+  <data name="identity.auth.refresh_token_invalid" xml:space="preserve">
+    <value>Сеанс завершено. Увійдіть знову.</value>
+  </data>
+  <data name="identity.auth.refresh_token_reused" xml:space="preserve">
+    <value>Цей сеанс уже оновлено. Увійдіть знову.</value>
+  </data>
+  <data name="identity.auth.rate_limited" xml:space="preserve">
+    <value>Забагато спроб. Спробуйте пізніше.</value>
+  </data>
+  <data name="identity.permission.denied" xml:space="preserve">
+    <value>Недостатньо прав для цієї дії.</value>
+  </data>
+  <data name="identity.member.not_found" xml:space="preserve">
+    <value>Учасника не знайдено.</value>
+  </data>
+  <data name="identity.member.last_admin" xml:space="preserve">
+    <value>Останнього активного адміністратора не можна понизити або деактивувати.</value>
+  </data>
+  <data name="identity.member.self_deactivation" xml:space="preserve">
+    <value>Не можна деактивувати власний обліковий запис.</value>
+  </data>
+  <data name="identity.member.already_member" xml:space="preserve">
+    <value>Ця людина вже є учасником організації.</value>
+  </data>
+  <data name="identity.member.role_invalid" xml:space="preserve">
+    <value>Обрана роль не існує.</value>
+  </data>
+  <data name="identity.invitation.not_found" xml:space="preserve">
+    <value>Запрошення не знайдено.</value>
+  </data>
+  <data name="identity.invitation.token_invalid" xml:space="preserve">
+    <value>Посилання на запрошення недійсне або прострочене. Попросіть нове запрошення.</value>
+  </data>
+  <data name="identity.invitation.already_pending" xml:space="preserve">
+    <value>Для цієї адреси вже є чинне запрошення.</value>
+  </data>
+  <data name="identity.invitation.not_pending" xml:space="preserve">
+    <value>Це запрошення вже прийнято або відкликано.</value>
+  </data>
+  <data name="identity.team.not_found" xml:space="preserve">
+    <value>Команду не знайдено.</value>
+  </data>
+  <data name="identity.team.name_taken" xml:space="preserve">
+    <value>Команда з такою назвою вже існує.</value>
+  </data>
+  <data name="identity.organization.not_found" xml:space="preserve">
+    <value>Організацію не знайдено.</value>
+  </data>
+</root>

@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Parley.Api</RootNamespace>
+    <AssemblyName>Parley.Api</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Parley.SharedKernel\Parley.SharedKernel.csproj" />
+    <ProjectReference Include="..\Modules\Identity\Identity\Identity.csproj" />
+    <ProjectReference Include="..\Modules\Identity\Identity.Contracts\Identity.Contracts.csproj" />
+    <ProjectReference Include="..\Modules\Crm\Crm\Crm.csproj" />
+    <ProjectReference Include="..\Modules\Crm\Crm.Contracts\Crm.Contracts.csproj" />
+    <ProjectReference Include="..\Modules\Campaigns\Campaigns\Campaigns.csproj" />
+    <ProjectReference Include="..\Modules\Campaigns\Campaigns.Contracts\Campaigns.Contracts.csproj" />
+    <ProjectReference Include="..\Modules\Insights\Insights\Insights.csproj" />
+    <ProjectReference Include="..\Modules\Insights\Insights.Contracts\Insights.Contracts.csproj" />
+    <ProjectReference Include="..\Modules\Notifications\Notifications\Notifications.csproj" />
+    <ProjectReference Include="..\Modules\Notifications\Notifications.Contracts\Notifications.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.PostgreSql" />
+    <PackageReference Include="Mediator.Abstractions" />
+    <PackageReference Include="Mediator.SourceGenerator" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="OpenTelemetry" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Settings.Configuration" />
+  </ItemGroup>
+</Project>

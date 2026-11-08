@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>You are invited to Parley</title>
+</head>
+<body>
+  <h1>You are invited to Parley</h1>
+  <p>You have been invited to join the organization {{ organizationName }}.</p>
+  <p><a href="{{ invitationLink }}">Accept the invitation</a></p>
+  <p>The link is valid for a limited time and works once. If you did not expect this invitation, ignore this email.</p>
+  <p>Invitation link: {{ invitationLink }}</p>
+</body>
+</html>

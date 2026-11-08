@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Parley.UnitTests</RootNamespace>
+    <AssemblyName>Parley.UnitTests</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Parley.Api\Parley.Api.csproj" />
+    <ProjectReference Include="..\..\src\Parley.SharedKernel\Parley.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\Identity\Identity.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Crm\Crm\Crm.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Campaigns\Campaigns\Campaigns.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Insights\Insights\Insights.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Notifications\Notifications\Notifications.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Mediator.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Testing.Platform.MSBuild" />
+    <PackageReference Include="OpenTelemetry" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.v3.mtp-v2" />
+  </ItemGroup>
+</Project>
