@@ -31,3 +31,6 @@ Desktop.ini
 # Environment-specific settings: the tracked *.example.json files show the shape
 appsettings.*.json
 !appsettings.*.example.json
+
+# Local contact export files
+crm-exports/

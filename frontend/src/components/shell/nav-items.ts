@@ -1,11 +1,13 @@
 import {
+  Building2,
+  Contact,
   LayoutDashboard,
   Palette,
   Settings,
   type LucideIcon,
 } from "lucide-react";
 
-import type { Permission } from "@/constants/permissions";
+import { PERMISSIONS, type Permission } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
 
 export interface NavItemConfig {
@@ -23,6 +25,22 @@ export const MAIN_NAV_ITEMS: NavItemConfig[] = [
     href: ROUTES.app,
     titleKey: "sidebar.items.dashboard",
     icon: LayoutDashboard,
+    section: "main",
+  },
+  {
+    id: "contacts",
+    href: ROUTES.contacts,
+    titleKey: "sidebar.items.contacts",
+    icon: Contact,
+    permission: PERMISSIONS.contactsRead,
+    section: "main",
+  },
+  {
+    id: "companies",
+    href: ROUTES.companies,
+    titleKey: "sidebar.items.companies",
+    icon: Building2,
+    permission: PERMISSIONS.companiesRead,
     section: "main",
   },
 ];

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-export type QuickCreateKey = "contact" | "deal" | "task";
+export type QuickCreateKey = "contact" | "company" | "deal" | "task";
 
 export interface CreateTarget {
   id: string;

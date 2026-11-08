@@ -64,7 +64,7 @@ describe("NotFoundView", () => {
     expect(screen.queryByRole("link", { name: /workspace/i })).toBeNull();
   });
 
-  it("proves R2-P1-1: does not query /me or trigger QueryClient 401 redirect to login", () => {
+  it("does not query /me or trigger QueryClient 401 redirect to login", () => {
     // Simulate QueryClient configured with onError redirecting to /login on 401
     const queryClient = new QueryClient({
       queryCache: new QueryCache({

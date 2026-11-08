@@ -36,6 +36,7 @@ export function DataTable<TData>({
   loading = false,
   emptyTitle,
   emptyDescription,
+  emptyAction,
   onRowClick,
   bulkActions,
   initialPageSize = LIMITS.defaultTablePageSize,
@@ -307,6 +308,7 @@ export function DataTable<TData>({
                       <EmptyState
                         title={emptyTitle ?? t("empty.title")}
                         description={emptyDescription ?? t("empty.description")}
+                        action={emptyAction}
                       />
                     </td>
                   </tr>

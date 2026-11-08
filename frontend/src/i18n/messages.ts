@@ -10,6 +10,7 @@ export const MESSAGE_NAMESPACES = [
   "shell",
   "table",
   "forms",
+  "crm",
 ] as const;
 
 export type MessageNamespace = (typeof MESSAGE_NAMESPACES)[number];
@@ -36,6 +37,7 @@ import type dev from "../../messages/en/dev.json";
 import type shell from "../../messages/en/shell.json";
 import type table from "../../messages/en/table.json";
 import type forms from "../../messages/en/forms.json";
+import type crm from "../../messages/en/crm.json";
 
 export type Messages = {
   common: typeof common;
@@ -47,4 +49,5 @@ export type Messages = {
   shell: typeof shell;
   table: typeof table;
   forms: typeof forms;
+  crm: typeof crm;
 };

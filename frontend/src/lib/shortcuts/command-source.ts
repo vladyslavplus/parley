@@ -1,31 +1,45 @@
-import { useSyncExternalStore } from "react";
+"use client";
+
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 export interface CommandItem {
   id: string;
   title: string;
-  subtitle?: string;
-  group: "navigation" | "actions" | "settings" | "help";
+  subtitle?: string | null;
+  group: string;
   keywords?: string[];
   shortcut?: string;
   onSelect: () => void;
 }
 
 export type CommandSource = () => CommandItem[];
+export type SearchSource = (
+  query: string,
+  signal: AbortSignal,
+) => Promise<CommandItem[]>;
 
-const commandSources = new Set<CommandSource>();
+const staticSources = new Set<CommandSource>();
+const searchSources = new Set<SearchSource>();
 const listeners = new Set<() => void>();
-let cachedCommands: CommandItem[] = [];
+let cachedStaticCommands: CommandItem[] = [];
 
-function updateCache() {
+function updateStaticCache() {
   const items: CommandItem[] = [];
-  for (const source of commandSources) {
-    items.push(...source());
+  for (const source of staticSources) {
+    try {
+      const res = source();
+      if (Array.isArray(res)) {
+        items.push(...res);
+      }
+    } catch {
+      // Ignored for static collection
+    }
   }
-  cachedCommands = items;
+  cachedStaticCommands = items;
 }
 
 function notify() {
-  updateCache();
+  updateStaticCache();
   for (const listener of listeners) {
     listener();
   }
@@ -39,27 +53,94 @@ function subscribe(listener: () => void) {
 }
 
 export function registerCommandSource(source: CommandSource): () => void {
-  commandSources.add(source);
+  staticSources.add(source);
   notify();
   return () => {
-    commandSources.delete(source);
+    staticSources.delete(source);
     notify();
   };
 }
 
+export function registerSearchSource(source: SearchSource): () => void {
+  searchSources.add(source);
+  return () => {
+    searchSources.delete(source);
+  };
+}
+
 export function clearRegisteredCommandSources(): void {
-  commandSources.clear();
+  staticSources.clear();
+  searchSources.clear();
   notify();
 }
 
-export function getRegisteredCommands(): CommandItem[] {
-  return cachedCommands;
+export function getRegisteredStaticCommands(): CommandItem[] {
+  return cachedStaticCommands;
 }
 
-export function useRegisteredCommands(): CommandItem[] {
-  return useSyncExternalStore(
+export function useRegisteredCommands(query: string = ""): {
+  commands: CommandItem[];
+  loading: boolean;
+  isError: boolean;
+} {
+  const staticCommands = useSyncExternalStore(
     subscribe,
-    getRegisteredCommands,
-    getRegisteredCommands,
+    getRegisteredStaticCommands,
+    getRegisteredStaticCommands,
   );
+
+  const [dynamicCommands, setDynamicCommands] = useState<CommandItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const trimmedQuery = query.trim();
+
+  useEffect(() => {
+    if (!trimmedQuery || searchSources.size === 0) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let active = true;
+
+    queueMicrotask(() => {
+      if (active) {
+        setLoading(true);
+        setIsError(false);
+        setDynamicCommands([]);
+      }
+    });
+
+    const promises = Array.from(searchSources).map((source) =>
+      source(trimmedQuery, controller.signal),
+    );
+
+    Promise.all(promises)
+      .then((results) => {
+        if (!active) return;
+        setDynamicCommands(results.flat());
+        setLoading(false);
+        setIsError(false);
+      })
+      .catch(() => {
+        if (!active || controller.signal.aborted) return;
+        setLoading(false);
+        setIsError(true);
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [trimmedQuery]);
+
+  const allCommands = trimmedQuery
+    ? [...staticCommands, ...dynamicCommands]
+    : staticCommands;
+
+  return {
+    commands: allCommands,
+    loading: trimmedQuery ? loading : false,
+    isError: trimmedQuery ? isError : false,
+  };
 }

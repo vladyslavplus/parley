@@ -17,7 +17,7 @@ public sealed class CreateTeamCommandHandler(
     IdentityDbContext dbContext,
     ITenantContext tenantContext,
     ICurrentUser currentUser,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<CreateTeamCommand, Result<TeamView>>
 {
     public async ValueTask<Result<TeamView>> Handle(CreateTeamCommand command, CancellationToken cancellationToken)

@@ -180,4 +180,33 @@ describe("backend proxy session handling", () => {
       "backend=1",
     );
   });
+
+  it("streams raw binary bytes and preserves UTF-8 BOM unchanged", async () => {
+    const bomBytes = new Uint8Array([0xef, 0xbb, 0xbf, 0x61, 0x62, 0x63]);
+    fetchMock.mockResolvedValue(
+      new Response(bomBytes, {
+        status: 200,
+        headers: {
+          [HEADERS.contentType]: "text/csv; charset=utf-8",
+          [HEADERS.contentDisposition]: 'attachment; filename="contacts.csv"',
+          [HEADERS.contentLength]: String(bomBytes.length),
+        },
+      }),
+    );
+
+    const response = await call("GET", ["contacts", "exports", ID, "download"]);
+    expect(response.status).toBe(200);
+    expect(response.headers.get(HEADERS.contentDisposition)).toBe(
+      'attachment; filename="contacts.csv"',
+    );
+    expect(response.headers.get(HEADERS.contentLength)).toBe(
+      String(bomBytes.length),
+    );
+
+    const arrayBuffer = await response.arrayBuffer();
+    const resultBytes = new Uint8Array(arrayBuffer);
+    expect(Array.from(resultBytes)).toEqual([
+      0xef, 0xbb, 0xbf, 0x61, 0x62, 0x63,
+    ]);
+  });
 });

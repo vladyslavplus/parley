@@ -5,7 +5,8 @@
     "organization": "Organization",
     "members": "Members",
     "teams": "Teams",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "customFields": "Custom fields"
   },
   "roles": {
     "admin": "Administrator",
@@ -100,5 +101,42 @@
     "empty": "No events yet.",
     "loadMore": "Load more",
     "loadFailed": "The audit log could not be loaded."
+  },
+  "customFields": {
+    "title": "Custom Fields",
+    "subtitle": "Configure custom attributes for contacts and companies",
+    "create": "New custom field",
+    "edit": "Edit custom field",
+    "editField": "Edit {label}",
+    "archive": "Archive",
+    "archiveField": "Archive {label}",
+    "actions": "Actions",
+    "saved": "Custom field saved.",
+    "archivedSuccess": "Custom field archived.",
+    "entityType": {
+      "contact": "Contacts",
+      "company": "Companies"
+    },
+    "empty": "No custom fields defined for {entityType}.",
+    "fields": {
+      "label": "Label",
+      "key": "Key",
+      "keyHelp": "Unique machine identifier (e.g. lead_source)",
+      "fieldType": "Field type",
+      "options": "Options",
+      "optionsHelp": "Comma-separated list of choices",
+      "isRequired": "Required",
+      "position": "Display position"
+    },
+    "types": {
+      "text": "Text",
+      "number": "Number",
+      "boolean": "Boolean",
+      "select": "Dropdown",
+      "date": "Date"
+    },
+    "archived": "Archived",
+    "archiveConfirm": "Archive custom field",
+    "archiveConfirmDescription": "Existing data stored in this field will remain visible on existing records, but the field cannot be edited for new entries."
   }
 }

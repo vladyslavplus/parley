@@ -11,7 +11,9 @@
   "selection": {
     "selected": "{count} of {total} selected",
     "deleteSelected": "Delete selected",
-    "exportSelected": "Export"
+    "exportSelected": "Export",
+    "selectAll": "Select all rows",
+    "selectRow": "Select row"
   },
   "pagination": {
     "page": "Page {page} of {pages}",

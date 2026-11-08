@@ -27,6 +27,8 @@
     "expand": "Розгорнути панель",
     "items": {
       "dashboard": "Огляд",
+      "contacts": "Контакти",
+      "companies": "Компанії",
       "settings": "Налаштування",
       "profile": "Профіль",
       "organization": "Організація",
@@ -48,6 +50,7 @@
   "quickCreate": {
     "title": "Швидке створення",
     "contact": "Новий контакт",
+    "company": "Нова компанія",
     "deal": "Нова угода",
     "task": "Нове завдання"
   },
@@ -64,7 +67,12 @@
     "development": "Розробка",
     "settings": "Налаштування",
     "actions": "Дії",
-    "noResults": "Нічого не знайдено."
+    "noResults": "Нічого не знайдено.",
+    "searchFailed": "Помилка пошуку. Спробуйте ще раз.",
+    "goToContacts": "Перейти до контактів",
+    "goToCompanies": "Перейти до компаній",
+    "createContact": "Створити контакт",
+    "createCompany": "Створити компанію"
   },
   "user": {
     "defaultInitial": "U"

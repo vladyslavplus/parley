@@ -11,6 +11,7 @@
   "cancel": "Cancel",
   "save": "Save",
   "edit": "Edit",
+  "forbidden": "You do not have permission to view this section.",
   "actions": {
     "signOut": "Sign out"
   },

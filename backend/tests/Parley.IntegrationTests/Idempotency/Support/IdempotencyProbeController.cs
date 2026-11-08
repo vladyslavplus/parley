@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Parley.Api.Idempotency;
 using HeaderNames = Microsoft.Net.Http.Headers.HeaderNames;
 
 namespace Parley.IntegrationTests.Idempotency.Support;
@@ -16,7 +15,7 @@ public sealed class IdempotencyProbeController(IdempotencyProbeRecorder recorder
     public static readonly byte[] BinaryPayload = [0x00, 0xFF, 0x10, 0x80, 0xC3, 0x28];
 
     [HttpPost("status/{status:int}")]
-    [IdempotencyKey]
+    [IdempotencyProbeKey]
     public IActionResult Status(int status)
     {
         recorder.Increment();
@@ -24,7 +23,7 @@ public sealed class IdempotencyProbeController(IdempotencyProbeRecorder recorder
     }
 
     [HttpPost("resource")]
-    [IdempotencyKey]
+    [IdempotencyProbeKey]
     public IActionResult Resource()
     {
         recorder.Increment();
@@ -35,7 +34,7 @@ public sealed class IdempotencyProbeController(IdempotencyProbeRecorder recorder
     }
 
     [HttpPost("increment")]
-    [IdempotencyKey]
+    [IdempotencyProbeKey]
     public async Task<IActionResult> Increment(CancellationToken cancellationToken)
     {
         // The delay forces overlap for the concurrent-first-use test.

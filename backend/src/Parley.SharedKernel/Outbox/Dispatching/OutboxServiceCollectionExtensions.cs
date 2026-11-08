@@ -35,7 +35,7 @@ public static class OutboxServiceCollectionExtensions
                 .Validate(options => options.BaseBackoff >= TimeSpan.Zero, "Outbox base backoff must not be negative.")
                 .ValidateOnStart();
 
-            services.AddScoped<IOutbox>(provider => new DbContextOutbox<TDbContext>(
+            services.AddScoped<IModuleOutbox<TDbContext>>(provider => new DbContextOutbox<TDbContext>(
                 provider.GetRequiredService<TDbContext>(),
                 provider.GetRequiredService<ITenantContext>(),
                 provider.GetRequiredService<TimeProvider>()));

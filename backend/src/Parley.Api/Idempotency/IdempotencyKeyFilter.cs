@@ -2,8 +2,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using Parley.Api.Localization;
 using Parley.SharedKernel.Errors;
 using Parley.SharedKernel.Idempotency;
@@ -15,22 +15,19 @@ using Parley.SharedKernel.Tenancy.Abstractions;
 namespace Parley.Api.Idempotency;
 
 /// <summary>
-/// Implements <see cref="IdempotencyKeyAttribute"/>; resolved per request
+/// Implements the module attributes such as <see cref="CrmIdempotencyKeyAttribute"/>; resolved per request
 /// from DI by the attribute. Registered as a scoped service by the host
 /// together with the module's <see cref="IIdempotencyStore"/>.
 /// </summary>
-public sealed class IdempotencyKeyFilter(
-    IIdempotencyStore store,
+public sealed class IdempotencyKeyFilter<TDbContext>(
+    IModuleIdempotencyStore<TDbContext> store,
     IOptions<IdempotencyOptions> options,
     TimeProvider timeProvider,
     ICurrentUser currentUser,
     ErrorTextLocalizer errorTexts,
-    ILogger<IdempotencyKeyFilter> logger) : IAsyncActionFilter
+    ILogger<IdempotencyKeyFilter<TDbContext>> logger) : IAsyncActionFilter
+    where TDbContext : DbContext
 {
-    /// <summary>Response headers that round-trip through replay.</summary>
-    internal static readonly IReadOnlyList<string> AllowedResponseHeaderNames =
-        [HeaderNames.Location, HeaderNames.ETag];
-
     private const int BodyReadChunkSize = 8192;
 
     private static readonly byte[] HashSeparator = [0];

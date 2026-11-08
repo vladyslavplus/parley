@@ -1,0 +1,263 @@
+{
+  "contacts": {
+    "title": "Contacts",
+    "subtitle": "Work and manage your sales contacts",
+    "create": "New Contact",
+    "searchPlaceholder": "Search by name, email or phone...",
+    "loadError": "Failed to load contacts.",
+    "resetPaging": "Reset paging",
+    "retry": "Retry",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "jobTitle": "Job Title",
+      "company": "Company",
+      "owner": "Owner",
+      "tags": "Tags",
+      "created": "Created"
+    },
+    "empty": {
+      "title": "No contacts found",
+      "description": "Get started by adding your first contact or try a different filter.",
+      "action": "Add Contact"
+    },
+    "record": {
+      "back": "Back to contacts",
+      "delete": "Delete contact",
+      "deleteConfirm": "Delete contact",
+      "deleteConfirmDescription": "Are you sure you want to delete this contact? You can undo this action immediately after deletion.",
+      "deleted": "Contact moved to trash.",
+      "restored": "Contact restored.",
+      "restoreFailed": "Failed to restore contact.",
+      "fields": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "email": "Email",
+        "phone": "Phone",
+        "jobTitle": "Job title",
+        "company": "Company",
+        "owner": "Owner",
+        "city": "City",
+        "country": "Country",
+        "noCompany": "No company",
+        "unassigned": "Unassigned",
+        "assigned": "Assigned",
+        "linkedCompany": "Linked company",
+        "emailTaken": "This email is already in use by another contact."
+      },
+      "sections": {
+        "overview": "Overview",
+        "tags": "Tags",
+        "customFields": "Custom Fields",
+        "timeline": "Timeline",
+        "tasks": "Tasks",
+        "deals": "Deals",
+        "orders": "Orders",
+        "scores": "Scores & Insights"
+      },
+      "placeholders": {
+        "timeline": {
+          "title": "No activity yet",
+          "description": "Activities, notes and campaign events will appear in this timeline."
+        },
+        "tasks": {
+          "title": "No tasks scheduled",
+          "description": "Follow-ups and scheduled reminders for this contact will be listed here."
+        },
+        "deals": {
+          "title": "No active deals",
+          "description": "Pipeline opportunities associated with this contact will appear here."
+        },
+        "orders": {
+          "title": "No order history",
+          "description": "Past orders and transaction records will be tracked in this section."
+        },
+        "scores": {
+          "title": "No scores calculated",
+          "description": "Uplift and customer lifetime value insights will display here once scored."
+        }
+      }
+    },
+    "preview": {
+      "title": "Contact Preview",
+      "openRecord": "Open contact record",
+      "viewCompany": "View company"
+    },
+    "quickCreate": {
+      "title": "New Contact",
+      "description": "Add a contact with key details. You can complete the profile on the record page later.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "noCompany": "None",
+      "submit": "Create Contact",
+      "success": "Contact created successfully."
+    }
+  },
+  "companies": {
+    "title": "Companies",
+    "subtitle": "Track client organizations and accounts",
+    "create": "New Company",
+    "searchPlaceholder": "Search by name or domain...",
+    "loadError": "Failed to load companies.",
+    "resetPaging": "Reset paging",
+    "retry": "Retry",
+    "columns": {
+      "name": "Company Name",
+      "domain": "Domain",
+      "country": "Country",
+      "industry": "Industry",
+      "owner": "Owner",
+      "created": "Created"
+    },
+    "empty": {
+      "title": "No companies found",
+      "description": "Add your first company or adjust your search filters.",
+      "action": "Add Company"
+    },
+    "record": {
+      "back": "Back to companies",
+      "delete": "Delete company",
+      "deleteConfirm": "Delete company",
+      "deleteConfirmDescription": "Are you sure you want to delete this company? You can undo this action immediately after deletion.",
+      "deleted": "Company moved to trash.",
+      "restored": "Company restored.",
+      "restoreFailed": "Failed to restore company.",
+      "fields": {
+        "name": "Company name",
+        "domain": "Domain",
+        "country": "Country",
+        "industry": "Industry",
+        "owner": "Owner",
+        "unassigned": "Unassigned",
+        "assigned": "Assigned"
+      },
+      "sections": {
+        "overview": "Overview",
+        "customFields": "Custom Fields",
+        "timeline": "Timeline",
+        "deals": "Deals",
+        "contacts": "Contacts"
+      },
+      "placeholders": {
+        "timeline": {
+          "title": "No company activity",
+          "description": "Interactions and notes for this company will be recorded here."
+        },
+        "deals": {
+          "title": "No active deals",
+          "description": "Sales deals linked to this account will appear here."
+        },
+        "contacts": {
+          "title": "No associated contacts",
+          "description": "Contacts linked to this company will be listed here."
+        }
+      }
+    },
+    "preview": {
+      "title": "Company Preview",
+      "openRecord": "Open company record",
+      "visitWebsite": "Visit website"
+    },
+    "quickCreate": {
+      "title": "New Company",
+      "description": "Add a company record with basic information.",
+      "name": "Company name",
+      "domain": "Domain / Website",
+      "country": "Country code (e.g. UA)",
+      "industry": "Industry",
+      "submit": "Create Company",
+      "success": "Company created successfully."
+    }
+  },
+  "bulk": {
+    "assignOwner": "Assign owner",
+    "assignOwnerDialogTitle": "Assign owner to selected records",
+    "selectOwner": "Select team member",
+    "assign": "Assign",
+    "assigned": "Assigned owner to {count} record(s).",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete selected records?",
+    "deleteConfirmDescription": "This will soft-delete {count} record(s). You can restore them from the notification toast.",
+    "deleted": "{count} record(s) moved to trash."
+  },
+  "tags": {
+    "title": "Tags",
+    "add": "Add tag",
+    "select": "Select tag",
+    "create": "Create tag",
+    "name": "Tag name",
+    "color": "Color",
+    "noTags": "No tags available",
+    "attached": "Tag attached.",
+    "detached": "Tag detached.",
+    "created": "Tag created.",
+    "detach": "Remove tag"
+  },
+  "record": {
+    "notFound": "Record not found.",
+    "loadError": "Failed to load record.",
+    "retry": "Retry",
+    "createdWithDate": "Created: {date}"
+  },
+  "customFields": {
+    "title": "Custom Fields",
+    "empty": "No custom fields configured for this entity.",
+    "required": "Required",
+    "selectOption": "Select option",
+    "updated": "Field saved.",
+    "archived": "Archived",
+    "yes": "Yes",
+    "no": "No",
+    "invalidNumber": "Please enter a valid number."
+  },
+  "conflict": {
+    "title": "Conflict detected",
+    "description": "This record was updated by another user. Reload to view the latest data.",
+    "reload": "Reload"
+  },
+  "filters": {
+    "owner": "Owner",
+    "tag": "Tag",
+    "allOwners": "All owners",
+    "allTags": "All tags",
+    "dateRange": "Created date",
+    "reset": "Reset filters",
+    "clearSearch": "Clear search",
+    "filterBy": "Filter",
+    "ownerFilter": "Owner: {owner}",
+    "tagFilter": "Tag: {tag}"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page"
+  },
+  "table": {
+    "pageCount": "{count} on this page"
+  },
+  "export": {
+    "button": "Export",
+    "dialogTitle": "Export contacts",
+    "dialogDescription": "Export contacts matching current filters to a CSV file.",
+    "confirmExplanation": "The export will include all contacts matching your current search query, tag, and owner filters.",
+    "start": "Start export",
+    "close": "Close",
+    "download": "Download CSV",
+    "tryAgain": "Try again",
+    "inProgressHelp": "Generating CSV export. This might take a few moments...",
+    "readyToDownload": "Your CSV export file is ready to download.",
+    "tryAgainHelp": "Something went wrong while generating the export. Please try again.",
+    "status": {
+      "starting": "Preparing export...",
+      "queued": "Export queued...",
+      "running": "Generating CSV file...",
+      "completed": "{count, plural, one {Export completed (# row)} other {Export completed (# rows)}}",
+      "failed": "Export failed.",
+      "expired": "Export link has expired."
+    }
+  }
+}

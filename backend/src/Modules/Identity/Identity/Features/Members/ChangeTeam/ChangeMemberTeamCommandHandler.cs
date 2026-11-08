@@ -14,7 +14,7 @@ public sealed class ChangeMemberTeamCommandHandler(
     IdentityDbContext dbContext,
     ICurrentUser currentUser,
     ITenantContext tenantContext,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<ChangeMemberTeamCommand, Result>
 {
     public async ValueTask<Result> Handle(ChangeMemberTeamCommand command, CancellationToken cancellationToken)

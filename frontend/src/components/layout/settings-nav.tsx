@@ -26,6 +26,11 @@ const ITEMS = [
     key: "audit",
     permission: PERMISSIONS.auditRead,
   },
+  {
+    href: ROUTES.settingsCustomFields,
+    key: "customFields",
+    permission: PERMISSIONS.customFieldsManage,
+  },
 ] as const;
 
 function NavItem({ href, label }: { href: string; label: string }) {

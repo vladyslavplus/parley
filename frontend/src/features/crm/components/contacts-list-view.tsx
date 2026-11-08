@@ -1,0 +1,610 @@
+"use client";
+
+import type { ColumnDef } from "@tanstack/react-table";
+import { Download, Plus, RefreshCw, Search, X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+import {
+  DataTable,
+  DataTableColumnsMenu,
+  DataTableDensityToggle,
+} from "@/components/data-table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LIMITS, SENTINELS } from "@/constants/limits";
+import { PERMISSIONS } from "@/constants/permissions";
+import { companyRecordRoute, contactRecordRoute } from "@/constants/routes";
+import { ContactExportDialog } from "@/features/crm/components/contact-export-dialog";
+import { ContactPreviewDrawer } from "@/features/crm/components/contact-preview-drawer";
+import { ContactQuickCreateDialog } from "@/features/crm/components/contact-quick-create-dialog";
+import { CrmBulkBar } from "@/features/crm/components/crm-bulk-bar";
+import { CrmTagBadge } from "@/features/crm/components/crm-tag-badge";
+import { KeysetPagination } from "@/features/crm/components/keyset-pagination";
+import { useCompanies } from "@/features/crm/hooks/use-companies";
+import { useContacts } from "@/features/crm/hooks/use-contacts";
+import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
+import { useKeysetPaging } from "@/features/crm/hooks/use-keyset-paging";
+import { useTags } from "@/features/crm/hooks/use-tags";
+import type { Contact } from "@/features/crm/types";
+import { Can } from "@/features/session/components/can";
+import { Link } from "@/i18n/navigation";
+import { useMembers } from "@/lib/api/hooks/use-api";
+import { formatDate } from "@/lib/formatters";
+import { useUndoToast } from "@/lib/toasts";
+
+export function ContactsListView() {
+  const t = useTranslations("crm.contacts");
+  const tCrm = useTranslations("crm");
+  const tFilters = useTranslations("crm.filters");
+  const tTable = useTranslations("table");
+  const locale = useLocale();
+  const undoToast = useUndoToast();
+
+  const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
+  const [searchInput, setSearchInput] = useState(q);
+  const [prevQ, setPrevQ] = useState(q);
+  if (prevQ !== q) {
+    setPrevQ(q);
+    setSearchInput(q);
+  }
+
+  const [sort, setSort] = useQueryState(
+    "sort",
+    parseAsString.withDefault("name"),
+  );
+  const [order, setOrder] = useQueryState(
+    "order",
+    parseAsStringLiteral(["asc", "desc"] as const).withDefault("asc"),
+  );
+  const [tagId, setTagId] = useQueryState(
+    "tagId",
+    parseAsString.withDefault(""),
+  );
+  const [ownerUserId, setOwnerUserId] = useQueryState(
+    "ownerUserId",
+    parseAsString.withDefault(""),
+  );
+
+  const {
+    after,
+    setAfter,
+    hasPreviousPage,
+    handleNextPage,
+    handlePreviousPage,
+    resetPaging,
+  } = useKeysetPaging();
+
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+
+  // Debounce search input writes to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const trimmed = searchInput.trim();
+      const nextQ =
+        trimmed.length >= LIMITS.searchMinQueryLength ? trimmed : "";
+      if (nextQ !== q) {
+        void setQ(nextQ);
+        void setAfter("");
+      }
+    }, LIMITS.searchDebounceMs);
+
+    return () => clearTimeout(timer);
+  }, [searchInput, q, setQ, setAfter]);
+
+  const contactsQuery = useContacts({
+    q: q || undefined,
+    sort: sort || undefined,
+    order: order || undefined,
+    tagId: tagId || undefined,
+    ownerUserId: ownerUserId || undefined,
+    after: after || undefined,
+    limit: LIMITS.crmListDefaultLimit,
+  });
+
+  const tagsQuery = useTags();
+  const membersQuery = useMembers();
+  const companiesQuery = useCompanies({ limit: LIMITS.crmLookupLimit });
+  const { bulkAssignContactOwner, bulkDeleteContacts, restoreContact } =
+    useCrmMutations();
+
+  const tags = tagsQuery.data?.items ?? [];
+  const tagMap = new Map(tags.map((tg) => [tg.id, tg]));
+  const members = membersQuery.data?.pages.flatMap((p) => p.items) ?? [];
+  const memberMap = new Map(members.map((m) => [m.userId, m]));
+  const companies = companiesQuery.data?.items ?? [];
+  const companyMap = new Map(companies.map((c) => [c.id, c]));
+
+  const contacts = contactsQuery.data?.items ?? [];
+  const nextCursor = contactsQuery.data?.nextCursor ?? null;
+
+  function handleRowClick(row: Contact) {
+    setSelectedContact(row);
+    setPreviewOpen(true);
+  }
+
+  function handleFilterReset() {
+    setSearchInput("");
+    void setQ("");
+    void setTagId("");
+    void setOwnerUserId("");
+    resetPaging();
+  }
+
+  const columns: ColumnDef<Contact, unknown>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <input
+          type="checkbox"
+          checked={table.getIsAllPageRowsSelected()}
+          onChange={(e) => table.toggleAllPageRowsSelected(e.target.checked)}
+          aria-label={tTable("selection.selectAll")}
+          className="h-3.5 w-3.5 rounded border-input text-primary focus:ring-ring"
+        />
+      ),
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          checked={row.getIsSelected()}
+          onChange={(e) => row.toggleSelected(e.target.checked)}
+          aria-label={tTable("selection.selectRow")}
+          className="h-3.5 w-3.5 rounded border-input text-primary focus:ring-ring"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      id: "name",
+      accessorFn: (row) => `${row.firstName} ${row.lastName ?? ""}`.trim(),
+      header: t("columns.name"),
+      enableSorting: true,
+      cell: ({ row }) => {
+        const contact = row.original;
+        const fullName =
+          `${contact.firstName} ${contact.lastName ?? ""}`.trim();
+        return (
+          <div className="flex flex-col">
+            <Link
+              href={contactRecordRoute(contact.id)}
+              onClick={(e) => e.stopPropagation()}
+              className="font-medium text-foreground hover:underline text-xs"
+            >
+              {fullName}
+            </Link>
+            {contact.jobTitle && (
+              <span className="text-[11px] text-muted-foreground truncate">
+                {contact.jobTitle}
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      id: "email",
+      accessorKey: "email",
+      header: t("columns.email"),
+      enableSorting: false,
+      cell: ({ row }) =>
+        row.original.email ? (
+          <span className="text-xs font-mono text-muted-foreground truncate">
+            {row.original.email}
+          </span>
+        ) : (
+          <span className="text-muted-foreground/40">—</span>
+        ),
+    },
+    {
+      id: "phone",
+      accessorKey: "phone",
+      header: t("columns.phone"),
+      enableSorting: false,
+      cell: ({ row }) =>
+        row.original.phone ? (
+          <span className="text-xs font-mono text-muted-foreground truncate">
+            {row.original.phone}
+          </span>
+        ) : (
+          <span className="text-muted-foreground/40">—</span>
+        ),
+    },
+    {
+      id: "company",
+      header: t("columns.company"),
+      enableSorting: false,
+      cell: ({ row }) => {
+        const companyId = row.original.companyId;
+        if (!companyId)
+          return <span className="text-muted-foreground/40">—</span>;
+        const company = companyMap.get(companyId);
+        if (company) {
+          return (
+            <Link
+              href={companyRecordRoute(company.id)}
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs font-medium text-info hover:underline truncate"
+            >
+              {company.name}
+            </Link>
+          );
+        }
+        return (
+          <span className="text-xs text-foreground truncate">
+            {t("record.fields.linkedCompany")}
+          </span>
+        );
+      },
+    },
+    {
+      id: "owner",
+      header: t("columns.owner"),
+      enableSorting: false,
+      cell: ({ row }) => {
+        const ownerId = row.original.ownerUserId;
+        if (!ownerId)
+          return <span className="text-muted-foreground/40">—</span>;
+        const owner = memberMap.get(ownerId);
+        return (
+          <span className="text-xs text-muted-foreground truncate">
+            {owner
+              ? (owner.displayName ?? owner.email)
+              : t("record.fields.assigned")}
+          </span>
+        );
+      },
+    },
+    {
+      id: "tags",
+      header: t("columns.tags"),
+      enableSorting: false,
+      cell: ({ row }) => {
+        const tagIds = row.original.tagIds ?? [];
+        if (tagIds.length === 0)
+          return <span className="text-muted-foreground/40">—</span>;
+        const contactTags = tagIds
+          .map((id) => tagMap.get(id))
+          .filter(Boolean)
+          .slice(0, 3);
+        return (
+          <div className="flex flex-wrap items-center gap-1">
+            {contactTags.map((tg) =>
+              tg ? (
+                <CrmTagBadge
+                  key={tg.id}
+                  name={tg.name}
+                  colorIndex={tg.colorIndex}
+                />
+              ) : null,
+            )}
+            {tagIds.length > 3 && (
+              <span className="text-[10px] text-muted-foreground">
+                +{tagIds.length - 3}
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      id: "created",
+      accessorKey: "createdAt",
+      header: t("columns.created"),
+      enableSorting: true,
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {formatDate(row.original.createdAt ?? "", locale)}
+        </span>
+      ),
+    },
+  ];
+
+  const selectedOwnerMember = ownerUserId ? memberMap.get(ownerUserId) : null;
+  const ownerLabel =
+    (selectedOwnerMember
+      ? (selectedOwnerMember.displayName ?? selectedOwnerMember.email)
+      : null) ?? tFilters("allOwners");
+
+  return (
+    <div className="space-y-4">
+      {/* Header with Title and Quick Create */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">
+            {t("title")}
+          </h1>
+          <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+        </div>
+
+        <Can permission={PERMISSIONS.contactsWrite}>
+          <Button
+            variant="primary"
+            onClick={() => setQuickCreateOpen(true)}
+            className="h-8 gap-1.5 text-xs px-3 self-start sm:self-auto"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>{t("create")}</span>
+          </Button>
+        </Can>
+      </div>
+
+      {/* Main Data Table */}
+      <DataTable
+        data={contacts}
+        columns={columns}
+        getRowId={(row) => row.id}
+        loading={contactsQuery.isPending}
+        manualPagination
+        manualSorting
+        onRowClick={handleRowClick}
+        toolbar={
+          <div className="flex flex-wrap items-center justify-between gap-3 w-full">
+            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
+              {/* Search input with debounce */}
+              <div className="relative w-full max-w-xs">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder={t("searchPlaceholder")}
+                  className="h-8 pl-8 text-xs bg-background"
+                />
+                {searchInput && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchInput("");
+                      void setQ("");
+                      resetPaging();
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                    aria-label={tFilters("clearSearch")}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Tag filter */}
+              <div className="w-[140px]">
+                <Select
+                  value={tagId || SENTINELS.all}
+                  onValueChange={(val) => {
+                    void setTagId(val === SENTINELS.all ? "" : val);
+                    resetPaging();
+                  }}
+                >
+                  <SelectTrigger
+                    className="h-8 text-xs bg-background truncate"
+                    aria-label={tFilters("tag")}
+                  >
+                    <SelectValue className="truncate">
+                      {tagId && tagMap.get(tagId)
+                        ? tFilters("tagFilter", {
+                            tag: tagMap.get(tagId)!.name,
+                          })
+                        : tFilters("allTags")}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SENTINELS.all}>
+                      {tFilters("allTags")}
+                    </SelectItem>
+                    {tags.map((tg) => (
+                      <SelectItem key={tg.id} value={tg.id}>
+                        {tg.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Owner filter - single line trigger with truncate */}
+              <div className="w-auto min-w-[190px] max-w-[260px]">
+                <Select
+                  value={ownerUserId || SENTINELS.all}
+                  onValueChange={(val) => {
+                    void setOwnerUserId(val === SENTINELS.all ? "" : val);
+                    resetPaging();
+                  }}
+                >
+                  <SelectTrigger
+                    className="h-8 text-xs bg-background truncate"
+                    aria-label={tFilters("owner")}
+                  >
+                    <SelectValue className="truncate">
+                      {tFilters("ownerFilter", { owner: ownerLabel })}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SENTINELS.all}>
+                      {tFilters("ownerFilter", {
+                        owner: tFilters("allOwners"),
+                      })}
+                    </SelectItem>
+                    {members
+                      .filter((m) => m.status === "active")
+                      .map((m) => (
+                        <SelectItem key={m.userId} value={m.userId}>
+                          {m.displayName ?? m.email}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {(q || tagId || ownerUserId || after) && (
+                <Button
+                  variant="secondary"
+                  onClick={handleFilterReset}
+                  className="h-8 px-2.5 text-xs text-muted-foreground"
+                >
+                  {tFilters("reset")}
+                </Button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Can permission={PERMISSIONS.contactsExport}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setExportDialogOpen(true)}
+                  className="h-8 gap-1.5 text-xs px-2.5"
+                >
+                  <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{tCrm("export.button")}</span>
+                </Button>
+              </Can>
+              <DataTableDensityToggle />
+              <DataTableColumnsMenu />
+            </div>
+          </div>
+        }
+        sorting={
+          sort
+            ? [{ id: sort, desc: order === "desc" }]
+            : [{ id: "name", desc: false }]
+        }
+        onSortingChange={(updater) => {
+          const next =
+            typeof updater === "function"
+              ? updater(
+                  sort
+                    ? [{ id: sort, desc: order === "desc" }]
+                    : [{ id: "name", desc: false }],
+                )
+              : updater;
+          if (next.length > 0) {
+            void setSort(next[0].id === "created" ? "created" : "name");
+            void setOrder(next[0].desc ? "desc" : "asc");
+          } else {
+            void setSort("name");
+            void setOrder("asc");
+          }
+          resetPaging();
+        }}
+        emptyTitle={contactsQuery.isError ? t("loadError") : t("empty.title")}
+        emptyDescription={
+          contactsQuery.isError ? undefined : t("empty.description")
+        }
+        emptyAction={
+          contactsQuery.isError ? (
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => void contactsQuery.refetch()}
+                className="h-8 gap-1.5 text-xs px-3"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span>{t("retry")}</span>
+              </Button>
+              {after && (
+                <Button
+                  variant="secondary"
+                  onClick={resetPaging}
+                  className="h-8 gap-1.5 text-xs px-3"
+                >
+                  <span>{t("resetPaging")}</span>
+                </Button>
+              )}
+            </div>
+          ) : q || tagId || ownerUserId || after ? (
+            <Button
+              variant="secondary"
+              onClick={handleFilterReset}
+              className="h-8 px-3 text-xs"
+            >
+              {tFilters("reset")}
+            </Button>
+          ) : (
+            <Can permission={PERMISSIONS.contactsWrite}>
+              <Button
+                variant="primary"
+                onClick={() => setQuickCreateOpen(true)}
+                className="h-8 gap-1.5 text-xs px-3"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>{t("create")}</span>
+              </Button>
+            </Can>
+          )
+        }
+        paginationSlot={
+          <div className="flex w-full items-center justify-between">
+            <span className="text-xs text-muted-foreground">
+              {tCrm("table.pageCount", { count: contacts.length })}
+            </span>
+            <KeysetPagination
+              hasPreviousPage={hasPreviousPage}
+              hasNextPage={Boolean(nextCursor)}
+              onPreviousPage={handlePreviousPage}
+              onNextPage={() => handleNextPage(nextCursor)}
+            />
+          </div>
+        }
+        bulkActions={(selectedRows, clearSelection) => (
+          <CrmBulkBar
+            selectedCount={selectedRows.length}
+            writePermission={PERMISSIONS.contactsWrite}
+            deletePermission={PERMISSIONS.contactsDelete}
+            onAssignOwner={async (ownerId) => {
+              const ids = selectedRows.map((r) => r.id);
+              await bulkAssignContactOwner(ids, ownerId);
+              toast.success(tCrm("bulk.assigned", { count: ids.length }));
+            }}
+            onDelete={async () => {
+              const ids = selectedRows.map((r) => r.id);
+              await bulkDeleteContacts(ids);
+              undoToast({
+                message: tCrm("bulk.deleted", { count: ids.length }),
+                onUndo: async () => {
+                  for (const id of ids) {
+                    await restoreContact(id);
+                  }
+                },
+              });
+            }}
+            clearSelection={clearSelection}
+          />
+        )}
+      />
+
+      {/* Row Preview Drawer */}
+      <ContactPreviewDrawer
+        contact={selectedContact}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
+
+      {/* Quick Create Dialog */}
+      <ContactQuickCreateDialog
+        open={quickCreateOpen}
+        onOpenChange={setQuickCreateOpen}
+      />
+
+      {/* Contact Export Dialog */}
+      <ContactExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        filters={{
+          q: q || undefined,
+          tagId: tagId || undefined,
+          ownerUserId: ownerUserId || undefined,
+        }}
+      />
+    </div>
+  );
+}

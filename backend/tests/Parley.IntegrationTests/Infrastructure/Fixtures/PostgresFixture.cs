@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using Npgsql;
+using Parley.Crm.Persistence;
 using Parley.Identity.Persistence;
 using Parley.IntegrationTests.Access.Support;
 using Parley.IntegrationTests.Api.Support;
@@ -32,7 +33,7 @@ namespace Parley.IntegrationTests.Infrastructure.Fixtures;
 /// </summary>
 public sealed class PostgresFixture : IAsyncLifetime
 {
-    public static readonly DateTimeOffset StartInstant = new(2026, 11, 8, 12, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset StartInstant = new(2026, 11, 8, 12, 0, 0, TimeSpan.Zero);
 
     private const string ProbeTableName = "tenant_records";
 
@@ -91,6 +92,17 @@ public sealed class PostgresFixture : IAsyncLifetime
             await identityContext.Database.MigrateAsync();
         }
 
+        // The CRM schema is created by its own migrations, the same way.
+        await using (var crmContext = new CrmDbContext(
+            new DbContextOptionsBuilder<CrmDbContext>()
+                .UseNpgsql(ConnectionString)
+                .UseSnakeCaseNamingConvention()
+                .Options,
+            new JobTenantContext()))
+        {
+            await crmContext.Database.MigrateAsync();
+        }
+
         await RegistrationRollbackTrigger.InstallAsync(ConnectionString, CancellationToken.None);
 
         await using (var designConnection = new NpgsqlConnection(ConnectionString))
@@ -101,13 +113,14 @@ public sealed class PostgresFixture : IAsyncLifetime
             _respawner = await Respawner.CreateAsync(designConnection, new RespawnerOptions
             {
                 DbAdapter = DbAdapter.Postgres,
-                SchemasToInclude = [TenantTestDbContext.SchemaName, SecondSchemaDbContext.SchemaName, IdentityDbContext.SchemaName],
+                SchemasToInclude = [TenantTestDbContext.SchemaName, SecondSchemaDbContext.SchemaName, IdentityDbContext.SchemaName, CrmDbContext.SchemaName],
                 SchemasToExclude = [PersistenceConstants.HangfireSchema],
                 // Migration history lives in the default (public) schema and must survive resets,
                 // or the next host start re-runs Initial.
                 TablesToIgnore =
                 [
                     new Table(IdentityDbContext.SchemaName, PersistenceConstants.MigrationHistoryTable),
+                    new Table(CrmDbContext.SchemaName, PersistenceConstants.MigrationHistoryTable),
                     new Table(TestDatabaseSettings.PublicSchema, PersistenceConstants.MigrationHistoryTable),
                     // System roles and their grants are seeded by the migration; a reset would drop them.
                     new Table(IdentityDbContext.SchemaName, IdentityDbContext.RolesTableName),

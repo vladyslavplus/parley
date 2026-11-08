@@ -11,7 +11,9 @@
   "selection": {
     "selected": "Вибрано {count} із {total}",
     "deleteSelected": "Видалити вибрані",
-    "exportSelected": "Експорт"
+    "exportSelected": "Експорт",
+    "selectAll": "Вибрати всі рядки",
+    "selectRow": "Вибрати рядок"
   },
   "pagination": {
     "page": "Сторінка {page} із {pages}",

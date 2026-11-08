@@ -16,6 +16,7 @@ export interface DataTableProps<TData> {
   loading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyAction?: ReactNode;
   onRowClick?: (row: TData) => void;
   bulkActions?: (
     selectedRows: TData[],

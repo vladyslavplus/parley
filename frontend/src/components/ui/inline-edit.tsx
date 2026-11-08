@@ -14,6 +14,7 @@ export interface InlineEditProps {
   placeholder?: string;
   ariaLabel?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function InlineEdit({
@@ -22,6 +23,7 @@ export function InlineEdit({
   placeholder,
   ariaLabel,
   className,
+  disabled = false,
 }: InlineEditProps) {
   const t = useTranslations("forms.inlineEdit");
   const [isEditing, setIsEditing] = useState(false);
@@ -33,6 +35,7 @@ export function InlineEdit({
   const effectiveAriaLabel = ariaLabel ?? t("editField");
 
   function startEditing() {
+    if (disabled) return;
     isCancellingRef.current = false;
     setDraft(value);
     setIsEditing(true);
@@ -40,10 +43,17 @@ export function InlineEdit({
 
   async function handleSave() {
     if (isCancellingRef.current) return;
-    setIsEditing(false);
-    triggerRef.current?.focus();
     if (draft.trim() !== value.trim()) {
-      await onSave(draft.trim());
+      try {
+        await onSave(draft.trim());
+        setIsEditing(false);
+        triggerRef.current?.focus();
+      } catch {
+        // Keep in edit mode so the user can fix the typed text
+      }
+    } else {
+      setIsEditing(false);
+      triggerRef.current?.focus();
     }
   }
 
@@ -66,6 +76,23 @@ export function InlineEdit({
       e.stopPropagation();
       handleCancel();
     }
+  }
+
+  if (disabled) {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center text-xs text-foreground px-1 py-0.5",
+          className,
+        )}
+      >
+        <span
+          className={!value ? "text-muted-foreground/60 italic" : undefined}
+        >
+          {value || effectivePlaceholder}
+        </span>
+      </span>
+    );
   }
 
   if (isEditing) {
@@ -117,7 +144,13 @@ export function InlineEdit({
       )}
       aria-label={`${effectiveAriaLabel}: ${value || effectivePlaceholder}`}
     >
-      <span className={!value ? "text-muted-foreground italic" : undefined}>
+      <span
+        className={
+          !value
+            ? "text-muted-foreground/75 not-italic underline decoration-dashed decoration-muted-foreground/40 underline-offset-4"
+            : undefined
+        }
+      >
         {value || effectivePlaceholder}
       </span>
       <Edit2 className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />

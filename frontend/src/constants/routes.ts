@@ -8,11 +8,14 @@ export const ROUTES = {
   resetPassword: "/reset-password",
   acceptInvitation: "/accept-invitation",
   app: "/app",
+  contacts: "/app/contacts",
+  companies: "/app/companies",
   settingsProfile: "/app/settings/profile",
   settingsOrganization: "/app/settings/organization",
   settingsMembers: "/app/settings/members",
   settingsTeams: "/app/settings/teams",
   settingsAudit: "/app/settings/audit",
+  settingsCustomFields: "/app/settings/custom-fields",
   devTokens: "/dev/tokens",
 } as const;
 
@@ -40,3 +43,15 @@ export const ROUTE_PARAMS = {
 } as const;
 
 export const APP_AREA_SEGMENT = "app";
+
+export function contactRecordRoute(id: string): string {
+  return `${ROUTES.contacts}/${id}`;
+}
+
+export function companyRecordRoute(id: string): string {
+  return `${ROUTES.companies}/${id}`;
+}
+
+export function contactExportDownloadRoute(id: string): string {
+  return `${API_ROUTES.backend}/contacts/exports/${encodeURIComponent(id)}/download`;
+}
