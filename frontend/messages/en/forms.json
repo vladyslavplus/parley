@@ -1,0 +1,27 @@
+{
+  "dirtyGuard": {
+    "title": "Unsaved Changes",
+    "message": "You have unsaved changes. Are you sure you want to discard them?",
+    "confirm": "Discard changes",
+    "cancel": "Continue editing"
+  },
+  "stepper": {
+    "autosave": {
+      "saving": "Saving draft...",
+      "saved": "All changes saved"
+    },
+    "next": "Next",
+    "previous": "Back",
+    "finish": "Complete"
+  },
+  "alertDialog": {
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "inlineEdit": {
+    "clickToEdit": "Click to edit",
+    "editField": "Edit field",
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}

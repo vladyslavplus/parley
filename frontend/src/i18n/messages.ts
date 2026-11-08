@@ -6,6 +6,10 @@ export const MESSAGE_NAMESPACES = [
   "validation",
   "auth",
   "settings",
+  "dev",
+  "shell",
+  "table",
+  "forms",
 ] as const;
 
 export type MessageNamespace = (typeof MESSAGE_NAMESPACES)[number];
@@ -28,6 +32,10 @@ import type errors from "../../messages/en/errors.json";
 import type validation from "../../messages/en/validation.json";
 import type auth from "../../messages/en/auth.json";
 import type settings from "../../messages/en/settings.json";
+import type dev from "../../messages/en/dev.json";
+import type shell from "../../messages/en/shell.json";
+import type table from "../../messages/en/table.json";
+import type forms from "../../messages/en/forms.json";
 
 export type Messages = {
   common: typeof common;
@@ -35,4 +43,8 @@ export type Messages = {
   validation: typeof validation;
   auth: typeof auth;
   settings: typeof settings;
+  dev: typeof dev;
+  shell: typeof shell;
+  table: typeof table;
+  forms: typeof forms;
 };

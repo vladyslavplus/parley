@@ -1,0 +1,25 @@
+{
+  "tokens": {
+    "title": "Design System Tokens",
+    "description": "Visual foundation, semantic color tokens, typography scales, contrast verification, and motion rules.",
+    "themeSwitcher": "Theme",
+    "localeSwitcher": "Language",
+    "sections": {
+      "colors": "Semantic Colors",
+      "stages": "Pipeline Stages Ramp",
+      "tags": "Pastel Tags",
+      "typography": "Typography Scale & Fonts",
+      "radius": "Radius & Controls",
+      "motion": "Motion & Animation Timing",
+      "shadows": "Elevation & Shadows"
+    },
+    "labels": {
+      "light": "Light",
+      "dark": "Dark",
+      "contrast": "Contrast",
+      "cssVar": "Variable",
+      "sample": "Sample text in this scale",
+      "tabularTest": "Tabular numerals alignment test: 111,111.11 vs 888,888.88"
+    }
+  }
+}

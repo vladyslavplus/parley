@@ -7,11 +7,40 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { NextIntlClientProvider, useLocale, useMessages } from "next-intl";
+import { ThemeProvider, useTheme } from "next-themes";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { useState, type ReactNode } from "react";
+import { Toaster } from "sonner";
 
 import { ROUTES, ROUTE_PARAMS } from "@/constants/routes";
+import { THEME_STORAGE_KEY } from "@/constants/theme";
 import { messageFallback, reportMissingMessage } from "@/i18n/missing";
 import { ApiError } from "@/lib/errors";
+
+// Guard next-themes inline script warning patch so it installs exactly once across HMR
+declare global {
+  var __parleyConsoleErrorPatched: boolean | undefined;
+}
+
+if (
+  typeof window !== "undefined" &&
+  process.env.NODE_ENV === "development" &&
+  !globalThis.__parleyConsoleErrorPatched
+) {
+  globalThis.__parleyConsoleErrorPatched = true;
+  const originalConsoleError = console.error;
+  console.error = (...args: unknown[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes(
+        "Encountered a script tag while rendering React component",
+      )
+    ) {
+      return;
+    }
+    originalConsoleError.apply(console, args);
+  };
+}
 
 function redirectToLogin(locale: string) {
   const returnUrl = `${window.location.pathname}${window.location.search}`;
@@ -41,17 +70,39 @@ function QueryProvider({ children }: { children: ReactNode }) {
   );
 }
 
+function ThemedToaster() {
+  const { resolvedTheme } = useTheme();
+  return (
+    <Toaster
+      position="bottom-right"
+      theme={(resolvedTheme as "light" | "dark" | "system") || "system"}
+    />
+  );
+}
+
 export function Providers({ children }: { children: ReactNode }) {
   const locale = useLocale();
   const messages = useMessages();
   return (
-    <NextIntlClientProvider
-      locale={locale}
-      messages={messages}
-      onError={reportMissingMessage}
-      getMessageFallback={messageFallback}
+    <ThemeProvider
+      attribute="class"
+      storageKey={THEME_STORAGE_KEY}
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      enableColorScheme={false}
     >
-      <QueryProvider>{children}</QueryProvider>
-    </NextIntlClientProvider>
+      <NextIntlClientProvider
+        locale={locale}
+        messages={messages}
+        onError={reportMissingMessage}
+        getMessageFallback={messageFallback}
+      >
+        <NuqsAdapter>
+          <QueryProvider>{children}</QueryProvider>
+        </NuqsAdapter>
+        <ThemedToaster />
+      </NextIntlClientProvider>
+    </ThemeProvider>
   );
 }

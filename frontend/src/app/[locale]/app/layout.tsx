@@ -1,12 +1,7 @@
 import type { ReactNode } from "react";
 
-import { AppHeader } from "@/components/layout/app-header";
+import { AppShell } from "@/components/shell/app-shell";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <AppHeader />
-      <main className="flex-1 px-4 py-6">{children}</main>
-    </div>
-  );
+  return <AppShell>{children}</AppShell>;
 }

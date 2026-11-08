@@ -1,0 +1,72 @@
+{
+  "search": {
+    "placeholder": "Пошук або швидкий перехід...",
+    "trigger": "Пошук...",
+    "shortcut": "Ctrl+K"
+  },
+  "shortcuts": {
+    "palette": "Відкрити командну панель",
+    "search": "Відкрити палітру пошуку",
+    "help": "Довідка з гарячих клавіш",
+    "create": "Швидке створення",
+    "close": "Закрити шар / Скасувати",
+    "sidebarToggle": "Згорнути/розгорнути бічну панель"
+  },
+  "helpDialog": {
+    "title": "Гарячі клавіші",
+    "description": "Швидко переходьте та дійте у системі за допомогою клавіатури.",
+    "general": "Загальні",
+    "navigation": "Навігація",
+    "actions": "Дії"
+  },
+  "sidebar": {
+    "navigation": "Основна навігація",
+    "settings": "Налаштування",
+    "development": "Розробка",
+    "collapse": "Згорнути панель",
+    "expand": "Розгорнути панель",
+    "items": {
+      "dashboard": "Огляд",
+      "settings": "Налаштування",
+      "profile": "Профіль",
+      "organization": "Організація",
+      "members": "Учасники",
+      "teams": "Команди",
+      "audit": "Журнал аудиту",
+      "tokens": "Токени дизайну"
+    }
+  },
+  "userMenu": {
+    "profile": "Профіль",
+    "theme": "Тема",
+    "signOut": "Вийти"
+  },
+  "notifications": {
+    "label": "Сповіщення",
+    "empty": "Немає нових сповіщень"
+  },
+  "quickCreate": {
+    "title": "Швидке створення",
+    "contact": "Новий контакт",
+    "deal": "Нова угода",
+    "task": "Нове завдання"
+  },
+  "emptyState": {
+    "noResults": "Нічого не знайдено."
+  },
+  "commandPalette": {
+    "placeholder": "Пошук або швидкий перехід...",
+    "lightTheme": "Світла тема",
+    "darkTheme": "Темна тема",
+    "switchToLightTheme": "Увімкнути світлу тему",
+    "switchToDarkTheme": "Увімкнути темну тему",
+    "additionalCommands": "Додаткові команди",
+    "development": "Розробка",
+    "settings": "Налаштування",
+    "actions": "Дії",
+    "noResults": "Нічого не знайдено."
+  },
+  "user": {
+    "defaultInitial": "U"
+  }
+}

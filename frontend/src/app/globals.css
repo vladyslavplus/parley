@@ -1,1 +1,232 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-*: initial;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+
+  /* Pastel tags */
+  --color-tag-1: var(--tag-1);
+  --color-tag-1-foreground: var(--tag-1-foreground);
+  --color-tag-2: var(--tag-2);
+  --color-tag-2-foreground: var(--tag-2-foreground);
+  --color-tag-3: var(--tag-3);
+  --color-tag-3-foreground: var(--tag-3-foreground);
+  --color-tag-4: var(--tag-4);
+  --color-tag-4-foreground: var(--tag-4-foreground);
+  --color-tag-5: var(--tag-5);
+  --color-tag-5-foreground: var(--tag-5-foreground);
+
+  /* Pipeline stage ramp */
+  --color-stage-1: var(--stage-1);
+  --color-stage-1-foreground: var(--stage-1-foreground);
+  --color-stage-2: var(--stage-2);
+  --color-stage-2-foreground: var(--stage-2-foreground);
+  --color-stage-3: var(--stage-3);
+  --color-stage-3-foreground: var(--stage-3-foreground);
+  --color-stage-4: var(--stage-4);
+  --color-stage-4-foreground: var(--stage-4-foreground);
+  --color-stage-5: var(--stage-5);
+  --color-stage-5-foreground: var(--stage-5-foreground);
+
+  /* Radius tokens per 06: controls 6px, cards/popovers 10px */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-control: 6px;
+  --radius-card: 10px;
+
+  /* Transitions & Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+@theme inline {
+  --font-sans:
+    var(--font-onest), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  --font-display: var(--font-source-serif), Georgia, serif;
+  --font-mono:
+    var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, monospace;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    --background: #ffffff;
+    --foreground: #1c1d1f;
+    --card: #f3f4f6;
+    --card-foreground: #1c1d1f;
+    --popover: #ffffff;
+    --popover-foreground: #1c1d1f;
+    --primary: #202124;
+    --primary-foreground: #ffffff;
+    --secondary: #f3f4f6;
+    --secondary-foreground: #1c1d1f;
+    --muted: #f3f4f6;
+    --muted-foreground: #5b616b;
+    --accent: #f3f4f6;
+    --accent-foreground: #1c1d1f;
+    --destructive: #c4312f;
+    --destructive-foreground: #ffffff;
+    --border: #e4e7ec;
+    --input: #80878f;
+    --ring: #2f5fd0;
+    --success: #1f7a4d;
+    --success-foreground: #ffffff;
+    --warning: #9a5b00;
+    --warning-foreground: #ffffff;
+    --info: #2f5fd0;
+    --info-foreground: #ffffff;
+    --highlight: #9bb4e6;
+    --highlight-foreground: #101113;
+
+    --tag-1: #d6e2ea;
+    --tag-1-foreground: #1c1d1f;
+    --tag-2: #f1d5d9;
+    --tag-2-foreground: #1c1d1f;
+    --tag-3: #f6dfcb;
+    --tag-3-foreground: #1c1d1f;
+    --tag-4: #dad6ea;
+    --tag-4-foreground: #1c1d1f;
+    --tag-5: #d9e6dc;
+    --tag-5-foreground: #1c1d1f;
+
+    --stage-1: #e6ecf5;
+    --stage-1-foreground: #1c1d1f;
+    --stage-2: #c9d7eb;
+    --stage-2-foreground: #1c1d1f;
+    --stage-3: #93b2dc;
+    --stage-3-foreground: #1c1d1f;
+    --stage-4: #3866a0;
+    --stage-4-foreground: #ffffff;
+    --stage-5: #2453be;
+    --stage-5-foreground: #ffffff;
+
+    --shadow-floating:
+      0 10px 30px -5px rgb(0 0 0 / 0.08), 0 4px 6px -2px rgb(0 0 0 / 0.04);
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --background: #101113;
+    --foreground: #ecedef;
+    --card: #17191c;
+    --card-foreground: #ecedef;
+    --popover: #17191c;
+    --popover-foreground: #ecedef;
+    --primary: #ecedef;
+    --primary-foreground: #101113;
+    --secondary: #17191c;
+    --secondary-foreground: #ecedef;
+    --muted: #17191c;
+    --muted-foreground: #9ba1ab;
+    --accent: #17191c;
+    --accent-foreground: #ecedef;
+    --destructive: #f07067;
+    --destructive-foreground: #101113;
+    --border: #2a2d33;
+    --input: #737a84;
+    --ring: #8fb0ff;
+    --success: #5cc38b;
+    --success-foreground: #101113;
+    --warning: #e3a850;
+    --warning-foreground: #101113;
+    --info: #8fb0ff;
+    --info-foreground: #101113;
+    --highlight: #9bb4e6;
+    --highlight-foreground: #101113;
+
+    --tag-1: #1b2631;
+    --tag-1-foreground: #ecedef;
+    --tag-2: #311b22;
+    --tag-2-foreground: #ecedef;
+    --tag-3: #312318;
+    --tag-3-foreground: #ecedef;
+    --tag-4: #261c33;
+    --tag-4-foreground: #ecedef;
+    --tag-5: #1a2d23;
+    --tag-5-foreground: #ecedef;
+
+    --stage-1: #182230;
+    --stage-1-foreground: #ecedef;
+    --stage-2: #20334c;
+    --stage-2-foreground: #ecedef;
+    --stage-3: #2b4a73;
+    --stage-3-foreground: #ecedef;
+    --stage-4: #2e5485;
+    --stage-4-foreground: #ecedef;
+    --stage-5: #3d6ea8;
+    --stage-5-foreground: #ffffff;
+
+    --shadow-floating:
+      0 10px 30px -5px rgb(0 0 0 / 0.6), 0 4px 6px -2px rgb(0 0 0 / 0.4);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 150ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}

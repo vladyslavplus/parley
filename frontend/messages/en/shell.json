@@ -1,0 +1,72 @@
+{
+  "search": {
+    "placeholder": "Search or jump to...",
+    "trigger": "Search...",
+    "shortcut": "Ctrl+K"
+  },
+  "shortcuts": {
+    "palette": "Open command palette",
+    "search": "Open search palette",
+    "help": "Keyboard shortcuts help",
+    "create": "Quick create",
+    "close": "Close layer / Cancel",
+    "sidebarToggle": "Toggle sidebar"
+  },
+  "helpDialog": {
+    "title": "Keyboard Shortcuts",
+    "description": "Navigate and act faster across the entire application with these keyboard shortcuts.",
+    "general": "General",
+    "navigation": "Navigation",
+    "actions": "Actions"
+  },
+  "sidebar": {
+    "navigation": "Main navigation",
+    "settings": "Settings",
+    "development": "Development",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "items": {
+      "dashboard": "Overview",
+      "settings": "Settings",
+      "profile": "Profile",
+      "organization": "Organization",
+      "members": "Members",
+      "teams": "Teams",
+      "audit": "Audit log",
+      "tokens": "Design tokens"
+    }
+  },
+  "userMenu": {
+    "profile": "Profile",
+    "theme": "Theme",
+    "signOut": "Sign out"
+  },
+  "notifications": {
+    "label": "Notifications",
+    "empty": "No new notifications"
+  },
+  "quickCreate": {
+    "title": "Quick Create",
+    "contact": "New Contact",
+    "deal": "New Deal",
+    "task": "New Task"
+  },
+  "emptyState": {
+    "noResults": "No results found."
+  },
+  "commandPalette": {
+    "placeholder": "Search or jump to...",
+    "lightTheme": "Light theme",
+    "darkTheme": "Dark theme",
+    "switchToLightTheme": "Switch to light theme",
+    "switchToDarkTheme": "Switch to dark theme",
+    "additionalCommands": "Additional commands",
+    "development": "Development",
+    "settings": "Settings",
+    "actions": "Actions",
+    "noResults": "No results found."
+  },
+  "user": {
+    "defaultInitial": "U"
+  }
+}

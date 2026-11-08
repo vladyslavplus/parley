@@ -13,6 +13,7 @@ export const ROUTES = {
   settingsMembers: "/app/settings/members",
   settingsTeams: "/app/settings/teams",
   settingsAudit: "/app/settings/audit",
+  devTokens: "/dev/tokens",
 } as const;
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES];

@@ -9,5 +9,25 @@
     "server": "Something went wrong on our side. Please try again later.",
     "network": "Cannot reach the server. Check your connection and try again.",
     "unknown": "Something went wrong. Please try again."
+  },
+  "boundary": {
+    "title": "An error occurred",
+    "description": "An unexpected error occurred while loading this view.",
+    "retry": "Try again"
+  },
+  "notFound": {
+    "badge": "404",
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "inAppTitle": "Section not found",
+    "inAppDescription": "This section does not exist or may have been relocated.",
+    "returnApp": "Go to workspace",
+    "returnHome": "Return to sign in"
+  },
+  "global": {
+    "badge": "Error",
+    "title": "Application error",
+    "description": "A critical system error occurred. Please reload the application.",
+    "reload": "Reload application"
   }
 }

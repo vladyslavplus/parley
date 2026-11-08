@@ -95,7 +95,7 @@ function TeamRow({ team }: { team: Schemas["TeamView"] }) {
   };
 
   return (
-    <li className="flex flex-col gap-2 border-b border-neutral-100 py-2">
+    <li className="flex flex-col gap-2 border-b border-border/40 py-2">
       {error ? <Alert>{error}</Alert> : null}
       {editing ? (
         <TeamForm
@@ -143,7 +143,7 @@ export function TeamsPanel() {
           {t("title")}
         </h2>
         {rows.length === 0 ? (
-          <p className="text-sm text-neutral-600">{t("empty")}</p>
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
           <ul>
             {rows.map((team) => (

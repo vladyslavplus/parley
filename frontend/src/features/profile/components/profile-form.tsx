@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import { useState } from "react";
 
 import { ApiForm } from "@/components/forms/api-form";
@@ -17,6 +18,7 @@ import { useMe } from "@/lib/api/hooks/use-api";
 import { backendVoid } from "@/lib/api/bff-client";
 import type { Schemas } from "@/lib/api/schemas";
 import { timeZoneOptions } from "@/lib/time-zones";
+import { useMounted } from "@/lib/use-mounted";
 import {
   createProfileSchema,
   type ProfileValues,
@@ -31,6 +33,7 @@ function ProfileFormBody({ profile }: { profile: Schemas["UserProfileView"] }) {
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { setTheme } = useTheme();
   const [saved, setSaved] = useState(false);
   const schema = createProfileSchema(tValidation);
   const zones = timeZoneOptions(profile.timeZone);
@@ -48,6 +51,7 @@ function ProfileFormBody({ profile }: { profile: Schemas["UserProfileView"] }) {
       setSaved(false);
       await backendVoid("/me/profile", { method: "PUT", body: values, locale });
       await queryClient.invalidateQueries({ queryKey: queryKeys.me() });
+      setTheme(values.theme);
       setSaved(true);
       if (values.locale !== locale)
         router.replace(pathname, {
@@ -103,6 +107,10 @@ function ProfileFormBody({ profile }: { profile: Schemas["UserProfileView"] }) {
 }
 
 export function ProfileForm() {
+  const mounted = useMounted();
   const { data: me } = useMe();
-  return me ? <ProfileFormBody profile={me.user} /> : <LoadingBlock />;
+  if (!mounted || !me) {
+    return <LoadingBlock />;
+  }
+  return <ProfileFormBody profile={me.user} />;
 }

@@ -2,6 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import settingsEn from "../../../../messages/en/settings.json";
 import { displayTimeZone } from "@/lib/time-zones";
 
 const OCCURRED_AT = "2026-06-01T22:30:00Z";
@@ -39,7 +40,7 @@ function renderPanel() {
   render(
     <NextIntlClientProvider
       locale="en"
-      messages={{}}
+      messages={{ settings: settingsEn }}
       timeZone="Pacific/Auckland"
     >
       <AuditPanel />

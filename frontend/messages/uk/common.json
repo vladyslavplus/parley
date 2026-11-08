@@ -1,6 +1,16 @@
 {
   "appName": "Parley",
   "appDescription": "Вебзастосунок Parley.",
+  "close": "Закрити",
+  "undo": "Скасувати",
+  "undoFailed": "Не вдалося скасувати дію",
+  "theme": "Тема",
+  "toggleTheme": "Перемкнути тему",
+  "steps": "Кроки",
+  "dev": "Розробка",
+  "cancel": "Скасувати",
+  "save": "Зберегти",
+  "edit": "Редагувати",
   "actions": {
     "signOut": "Вийти"
   },

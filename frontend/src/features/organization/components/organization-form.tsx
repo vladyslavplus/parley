@@ -14,6 +14,7 @@ import { LIMITS } from "@/constants/limits";
 import { PERMISSIONS } from "@/constants/permissions";
 import { queryKeys } from "@/constants/query-keys";
 import { useMe } from "@/lib/api/hooks/use-api";
+import { useMounted } from "@/lib/use-mounted";
 import { useApiForm } from "@/components/forms/use-api-form";
 import { LOCALES } from "@/i18n/routing";
 import { backendVoid } from "@/lib/api/bff-client";
@@ -112,10 +113,10 @@ function OrganizationFormBody({
 }
 
 export function OrganizationForm() {
+  const mounted = useMounted();
   const { data: me } = useMe();
-  return me ? (
-    <OrganizationFormBody organization={me.organization} />
-  ) : (
-    <LoadingBlock />
-  );
+  if (!mounted || !me) {
+    return <LoadingBlock />;
+  }
+  return <OrganizationFormBody organization={me.organization} />;
 }

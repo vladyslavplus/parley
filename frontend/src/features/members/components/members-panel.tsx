@@ -187,7 +187,7 @@ export function MembersPanel() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-neutral-200">
+              <tr className="border-b border-border">
                 <th scope="col" className="py-2 pr-3">
                   {t("columns.member")}
                 </th>
@@ -212,11 +212,13 @@ export function MembersPanel() {
                   member.displayName ?? member.email ?? member.userId;
                 const self = member.userId === me?.user.id;
                 return (
-                  <tr key={member.id} className="border-b border-neutral-100">
+                  <tr key={member.id} className="border-b border-border/40">
                     <td className="py-2 pr-3">
                       <div>{label}</div>
                       {member.email && member.email !== label ? (
-                        <div className="text-neutral-600">{member.email}</div>
+                        <div className="text-muted-foreground">
+                          {member.email}
+                        </div>
                       ) : null}
                     </td>
                     <td className="py-2 pr-3">
@@ -295,7 +297,7 @@ export function MembersPanel() {
           {t("pending.title")}
         </h2>
         {invitationRows.length === 0 ? (
-          <p className="text-sm text-neutral-600">{t("pending.empty")}</p>
+          <p className="text-sm text-muted-foreground">{t("pending.empty")}</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {invitationRows.map((invitation) => (

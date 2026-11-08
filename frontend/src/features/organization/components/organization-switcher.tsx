@@ -40,6 +40,15 @@ export function OrganizationSwitcher({
     }
   }
 
+  if (options.length < 2) {
+    const currentOrg = options.find((o) => o.id === current) ?? options[0];
+    return (
+      <span className="text-xs font-medium text-foreground px-2 py-1 truncate max-w-48">
+        {currentOrg ? currentOrg.name : ""}
+      </span>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className="sr-only">
@@ -48,8 +57,9 @@ export function OrganizationSwitcher({
       <Select
         id={id}
         value={current}
-        disabled={pending || options.length < 2}
+        disabled={pending}
         onChange={(event) => void switchTo(event.target.value)}
+        className="h-8 text-xs bg-background"
       >
         {options.map((option) => (
           <option key={option.id} value={option.id}>
@@ -58,7 +68,7 @@ export function OrganizationSwitcher({
         ))}
       </Select>
       {error ? (
-        <p role="alert" className="text-sm text-red-800">
+        <p role="alert" className="text-xs text-destructive">
           {error}
         </p>
       ) : null}
