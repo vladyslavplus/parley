@@ -1,6 +1,12 @@
-import { ROUTES } from "@/constants/routes";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+import { BACKEND_PATHS } from "@/constants/routes";
+import { SESSION_COOKIES } from "@/constants/session";
+import { resolveAppIndexRoute } from "@/features/session/app-index-route";
 import type { AppLocale } from "@/i18n/routing";
+import type { Schemas } from "@/lib/api/schemas";
+import { backendFetch } from "@/lib/bff/server";
 
 export default async function AppIndexPage({
   params,
@@ -8,7 +14,26 @@ export default async function AppIndexPage({
   params: Promise<{ locale: AppLocale }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}${ROUTES.settingsProfile}`);
-}
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(SESSION_COOKIES.access)?.value;
 
-export const dynamic = "force-dynamic";
+  let user: Schemas["CurrentUserView"] | null = null;
+  if (accessToken) {
+    try {
+      const res = await backendFetch({
+        method: "GET",
+        path: BACKEND_PATHS.me,
+        accessToken,
+        acceptLanguage: locale,
+      });
+
+      if (res.ok) {
+        user = (await res.json()) as Schemas["CurrentUserView"];
+      }
+    } catch {
+      // fallback to profile if /me is unreachable
+    }
+  }
+
+  redirect(resolveAppIndexRoute(user?.permissions, locale));
+}

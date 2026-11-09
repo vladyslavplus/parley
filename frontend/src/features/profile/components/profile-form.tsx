@@ -3,30 +3,35 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { useState } from "react";
 
+import { TableProgressBar } from "@/components/data-table/table-progress-bar";
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
-import { LoadingBlock } from "@/components/layout/loading-block";
-import { Alert } from "@/components/ui/alert";
-import { Select, Input } from "@/components/ui/input";
-import { queryKeys } from "@/constants/query-keys";
-import { LOCALES } from "@/i18n/routing";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import { useApiForm } from "@/components/forms/use-api-form";
-import { useMe } from "@/lib/api/hooks/use-api";
-import { backendVoid } from "@/lib/api/bff-client";
-import type { Schemas } from "@/lib/api/schemas";
-import { timeZoneOptions } from "@/lib/time-zones";
-import { useMounted } from "@/lib/use-mounted";
+import { LoadingBlock } from "@/components/layout/loading-block";
+import { Input, Select } from "@/components/ui/input";
+import { queryKeys } from "@/constants/query-keys";
 import {
   createProfileSchema,
   type ProfileValues,
 } from "@/features/profile/schemas/profile-schema";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { LOCALES } from "@/i18n/routing";
+import { backendVoid } from "@/lib/api/bff-client";
+import { useMe } from "@/lib/api/hooks/use-api";
+import type { Schemas } from "@/lib/api/schemas";
+import { timeZoneOptions } from "@/lib/time-zones";
+import { showSuccessToast } from "@/lib/toasts";
 
 const THEMES = ["system", "light", "dark"] as const;
 
-function ProfileFormBody({ profile }: { profile: Schemas["UserProfileView"] }) {
+function ProfileFormBody({
+  profile,
+  isFetching,
+}: {
+  profile: Schemas["UserProfileView"];
+  isFetching: boolean;
+}) {
   const t = useTranslations("settings.profile");
   const tValidation = useTranslations("validation");
   const locale = useLocale();
@@ -34,7 +39,6 @@ function ProfileFormBody({ profile }: { profile: Schemas["UserProfileView"] }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { setTheme } = useTheme();
-  const [saved, setSaved] = useState(false);
   const schema = createProfileSchema(tValidation);
   const zones = timeZoneOptions(profile.timeZone);
 
@@ -48,11 +52,17 @@ function ProfileFormBody({ profile }: { profile: Schemas["UserProfileView"] }) {
     },
     fields: ["displayName", "locale", "timeZone", "theme"],
     submit: async (values) => {
-      setSaved(false);
       await backendVoid("/me/profile", { method: "PUT", body: values, locale });
-      await queryClient.invalidateQueries({ queryKey: queryKeys.me() });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.me() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.members() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.owners() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.contactsAll() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.companiesAll() }),
+      ]);
       setTheme(values.theme);
-      setSaved(true);
+      form.reset(values);
+      showSuccessToast(t("saved"));
       if (values.locale !== locale)
         router.replace(pathname, {
           locale: values.locale as (typeof LOCALES)[number],
@@ -60,57 +70,70 @@ function ProfileFormBody({ profile }: { profile: Schemas["UserProfileView"] }) {
     },
   });
 
-  const { errors, isSubmitting } = form.formState;
+  const { errors, isSubmitting, isDirty } = form.formState;
   return (
-    <div className="flex max-w-md flex-col gap-4">
-      {saved ? <Alert tone="info">{t("saved")}</Alert> : null}
-      <ApiForm
-        onSubmit={onSubmit}
-        formError={formError}
-        alertRef={alertRef}
-        pending={isSubmitting}
-        submitLabel={t("submit")}
-      >
-        <FormField label={t("displayName")} error={errors.displayName?.message}>
-          <Input autoComplete="name" {...form.register("displayName")} />
-        </FormField>
-        <FormField label={t("locale")} error={errors.locale?.message}>
-          <Select {...form.register("locale")}>
-            {LOCALES.map((code) => (
-              <option key={code} value={code}>
-                {t(`locales.${code}`)}
-              </option>
-            ))}
-          </Select>
-        </FormField>
-        <FormField label={t("timeZone")} error={errors.timeZone?.message}>
-          <Select {...form.register("timeZone")}>
-            {zones.map((zone) => (
-              <option key={zone} value={zone}>
-                {zone}
-              </option>
-            ))}
-          </Select>
-        </FormField>
-        <FormField label={t("theme")} error={errors.theme?.message}>
-          <Select {...form.register("theme")}>
-            {THEMES.map((theme) => (
-              <option key={theme} value={theme}>
-                {t(`themes.${theme}`)}
-              </option>
-            ))}
-          </Select>
-        </FormField>
-      </ApiForm>
+    <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-border bg-card p-6">
+      <TableProgressBar active={isFetching} />
+      <div className="flex max-w-md flex-col gap-4">
+        <ApiForm
+          onSubmit={onSubmit}
+          formError={formError}
+          alertRef={alertRef}
+          pending={isSubmitting}
+          submitDisabled={!isDirty}
+          submitLabel={t("submit")}
+        >
+          <FormField
+            label={t("displayName")}
+            error={errors.displayName?.message}
+          >
+            <Input autoComplete="name" {...form.register("displayName")} />
+          </FormField>
+          <FormField label={t("locale")} error={errors.locale?.message}>
+            <Select {...form.register("locale")}>
+              {LOCALES.map((code) => (
+                <option key={code} value={code}>
+                  {t(`locales.${code}`)}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField label={t("timeZone")} error={errors.timeZone?.message}>
+            <Select {...form.register("timeZone")}>
+              {zones.map((zone) => (
+                <option key={zone} value={zone}>
+                  {zone}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField label={t("theme")} error={errors.theme?.message}>
+            <Select {...form.register("theme")}>
+              {THEMES.map((theme) => (
+                <option key={theme} value={theme}>
+                  {t(`themes.${theme}`)}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+        </ApiForm>
+      </div>
     </div>
   );
 }
 
 export function ProfileForm() {
-  const mounted = useMounted();
-  const { data: me } = useMe();
-  if (!mounted || !me) {
+  const { data: me, isPending, isFetching } = useMe();
+  if (isPending && !me) {
     return <LoadingBlock />;
   }
-  return <ProfileFormBody profile={me.user} />;
+  if (!me) {
+    return null;
+  }
+  return (
+    <ProfileFormBody
+      profile={me.user}
+      isFetching={Boolean(isFetching && !isPending)}
+    />
+  );
 }

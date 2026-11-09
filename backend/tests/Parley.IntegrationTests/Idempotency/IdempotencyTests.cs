@@ -18,7 +18,6 @@ using Parley.IntegrationTests.Infrastructure.Hosting;
 using Parley.IntegrationTests.Tenancy.Support;
 using Parley.SharedKernel.Errors;
 using Parley.SharedKernel.Idempotency;
-using Parley.SharedKernel.Idempotency.Abstractions;
 using Parley.SharedKernel.Idempotency.Persistence;
 using Parley.SharedKernel.Localization;
 using Parley.SharedKernel.Tenancy.Abstractions;
@@ -360,7 +359,7 @@ public sealed class IdempotencyTests(PostgresFixture fixture) : IAsyncLifetime
             {
                 services.AddControllers().AddApplicationPart(Assembly.GetExecutingAssembly());
                 services.AddSingleton(Recorder);
-                services.AddScoped<IdempotencyKeyFilter>();
+                services.AddScoped<IdempotencyKeyFilter<TenantTestDbContext>>();
                 services.AddScoped(provider =>
                 {
                     var tenant = provider.GetRequiredService<ITenantContext>();
@@ -368,7 +367,7 @@ public sealed class IdempotencyTests(PostgresFixture fixture) : IAsyncLifetime
                         TenantTestDbContextFactory.CreateOptions(fixture.ConnectionString, tenant, fixture.TimeProvider),
                         tenant);
                 });
-                services.AddScoped<IIdempotencyStore, EfIdempotencyStore<TenantTestDbContext>>();
+                services.AddIdempotencyStore<TenantTestDbContext>();
             });
         });
 }

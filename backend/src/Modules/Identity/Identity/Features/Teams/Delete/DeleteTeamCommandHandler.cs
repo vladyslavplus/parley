@@ -14,7 +14,7 @@ public sealed class DeleteTeamCommandHandler(
     IdentityDbContext dbContext,
     ITenantContext tenantContext,
     ICurrentUser currentUser,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<DeleteTeamCommand, Result>
 {
     public async ValueTask<Result> Handle(DeleteTeamCommand command, CancellationToken cancellationToken)

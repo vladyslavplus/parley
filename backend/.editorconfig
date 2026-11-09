@@ -22,3 +22,9 @@ dotnet_diagnostic.CS1591.severity = none
 [src/Modules/Identity/Identity/Migrations/*.cs]
 dotnet_diagnostic.IDE0161.severity = none
 dotnet_diagnostic.IDE0005.severity = none
+
+# Crm migrations follow the same generated-code exception as Identity: EF Core emits block-scoped
+# namespaces and an unconditional System using. Only IDE0161 and IDE0005 are relaxed; IDE0130 still applies.
+[src/Modules/Crm/Crm/Migrations/*.cs]
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.IDE0005.severity = none

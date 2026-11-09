@@ -9,6 +9,10 @@ public static class HangfireConstants
 
     public const string IdempotencyCleanupCron = "*/15 * * * *";
 
+    public const string ContactExportCleanupJobName = "crm-contact-exports-cleanup";
+
+    public const string ContactExportCleanupCron = "*/15 * * * *";
+
     public const int SchemaInitMaxAttempts = 10;
 
     /// <summary>

@@ -22,7 +22,8 @@ public sealed class IdentityApiFactory(
     PostgresFixture postgres,
     MailpitFixture mailpit,
     IReadOnlyDictionary<string, string?>? extraConfiguration = null,
-    IPAddress? peerAddress = null) : WebApplicationFactory<Program>
+    IPAddress? peerAddress = null,
+    Action<IServiceCollection>? extraServices = null) : WebApplicationFactory<Program>
 {
     private const string TestQueuePrefix = "identity-test-";
 
@@ -53,11 +54,23 @@ public sealed class IdentityApiFactory(
 
     private readonly string _queue = TestQueuePrefix + Guid.CreateVersion7().ToString("N");
 
+    /// <summary>Contact export files of this host; removed when the host is disposed.</summary>
+    private readonly string _exportDirectory = Path.Combine(Path.GetTempPath(), "parley-crm-exports-" + Guid.CreateVersion7().ToString("N"));
+
     /// <summary>Clock shared by the host. Tests advance it to cross the refresh grace window.</summary>
     public FakeTimeProvider Clock { get; } = new(DateTimeOffset.UtcNow);
 
     /// <summary>Log entries written by this host, for leak checks.</summary>
     public CapturingLoggerProvider Logs { get; } = new();
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing && Directory.Exists(_exportDirectory))
+        {
+            Directory.Delete(_exportDirectory, recursive: true);
+        }
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -77,6 +90,8 @@ public sealed class IdentityApiFactory(
         settings["Hangfire:Queues:0"] = _queue;
         settings["Hangfire:QueuePollInterval"] = FastQueuePollInterval;
         settings["Auth:EmailQueueName"] = _queue;
+        settings["CrmExports:QueueName"] = _queue;
+        settings["CrmExports:Directory"] = _exportDirectory;
         foreach (var (key, value) in settings)
         {
             configuration[key] = value;
@@ -106,6 +121,7 @@ public sealed class IdentityApiFactory(
             // Outbox passes are driven explicitly by the tests that assert on them.
             OutboxDelivery.RemoveBackgroundLoops(services);
             services.AddControllers().AddApplicationPart(typeof(ThrowingTestController).Assembly);
+            extraServices?.Invoke(services);
         });
     }
 }

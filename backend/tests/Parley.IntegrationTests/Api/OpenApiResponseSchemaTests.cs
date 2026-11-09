@@ -59,6 +59,29 @@ public sealed class OpenApiResponseSchemaTests(PostgresFixture postgres, Mailpit
         schema.ValueKind.Should().NotBe(JsonValueKind.Undefined, $"{path} documents its success body");
     }
 
+    [Theory]
+    [InlineData("ContactExportView", "status", "completed")]
+    [InlineData("SearchResultItem", "kind", "contact")]
+    [InlineData("CustomFieldDefinitionView", "fieldType", "select")]
+    [InlineData("CustomFieldDefinitionView", "entityType", "company")]
+    public async Task StringValuedProperty_DocumentsItsAllowedValues(string schemaName, string property, string value)
+    {
+        var token = TestContext.Current.CancellationToken;
+        using var document = await ReadDocumentAsync(token);
+
+        var allowed = document.RootElement
+            .GetProperty("components")
+            .GetProperty("schemas")
+            .GetProperty(schemaName)
+            .GetProperty("properties")
+            .GetProperty(property)
+            .GetProperty("enum")
+            .EnumerateArray()
+            .Select(item => item.GetString());
+
+        allowed.Should().Contain(value, $"{schemaName}.{property} is a union on the generated client");
+    }
+
     private async Task<JsonDocument> ReadDocumentAsync(CancellationToken cancellationToken)
     {
         using var client = AuthTestClient.CreateClient(_factory, CultureCodes.English);

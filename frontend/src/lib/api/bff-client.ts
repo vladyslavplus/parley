@@ -16,7 +16,9 @@ export interface BffRequest {
   method?: Method;
   body?: unknown;
   query?: Record<string, string | number | null | undefined>;
+  headers?: Record<string, string>;
   locale: string;
+  signal?: AbortSignal;
 }
 
 type BackendPath = keyof paths;
@@ -33,11 +35,19 @@ function withQuery(url: string, query: BffRequest["query"]): string {
 
 export async function bffFetch(
   url: string,
-  { method = "GET", body, query, locale }: BffRequest,
+  {
+    method = "GET",
+    body,
+    query,
+    headers: extraHeaders,
+    locale,
+    signal,
+  }: BffRequest,
 ): Promise<Response> {
   const headers: Record<string, string> = {
     [HEADERS.accept]: MEDIA_TYPES.json,
     [HEADERS.acceptLanguage]: locale,
+    ...extraHeaders,
   };
   if (body !== undefined) headers[HEADERS.contentType] = MEDIA_TYPES.json;
   let response: Response;
@@ -47,8 +57,12 @@ export async function bffFetch(
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
       credentials: "same-origin",
+      signal,
     });
-  } catch {
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw err;
+    }
     throw networkError();
   }
   if (!response.ok) throw await apiErrorFromResponse(response);

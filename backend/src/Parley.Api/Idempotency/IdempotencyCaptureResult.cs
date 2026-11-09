@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using Parley.SharedKernel.Idempotency.Abstractions;
 
 namespace Parley.Api.Idempotency;
@@ -17,8 +18,12 @@ internal sealed class IdempotencyCaptureResult(
     IActionResult innerResult,
     IIdempotencyStore store,
     Guid claimId,
-    ILogger<IdempotencyKeyFilter> logger) : IActionResult
+    ILogger logger) : IActionResult
 {
+    /// <summary>Response headers that round-trip through replay.</summary>
+    internal static readonly IReadOnlyList<string> AllowedResponseHeaderNames =
+        [HeaderNames.Location, HeaderNames.ETag];
+
     public async Task ExecuteResultAsync(ActionContext actionContext)
     {
         var response = actionContext.HttpContext.Response;
@@ -82,7 +87,7 @@ internal sealed class IdempotencyCaptureResult(
     private static string? SerializeResponseHeaders(HttpResponse response)
     {
         var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var name in IdempotencyKeyFilter.AllowedResponseHeaderNames)
+        foreach (var name in AllowedResponseHeaderNames)
         {
             if (response.Headers.TryGetValue(name, out var values))
             {

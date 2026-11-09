@@ -19,11 +19,21 @@ public sealed class MembersController(IMediator mediator, ErrorTextLocalizer err
 {
     [HttpGet(IdentityRoutes.Members)]
     [RequiresPermission(Permissions.UsersManage)]
-    [ProducesResponseType<CursorPage<MemberView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<KeysetCursorPage<MemberView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> List([FromQuery] Guid? after, [FromQuery] int? limit, CancellationToken cancellationToken)
+    public async Task<IActionResult> List(
+        [FromQuery] string? after,
+        [FromQuery] int? limit,
+        [FromQuery] string? q,
+        [FromQuery] string? roleCode,
+        [FromQuery] string? teamId,
+        [FromQuery] string? status,
+        [FromQuery] string? sort,
+        [FromQuery] string? order,
+        CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new ListMembersQuery(after, limit), cancellationToken);
+        var result = await mediator.Send(new ListMembersQuery(after, limit, q, roleCode, teamId, status, sort, order), cancellationToken);
         return FromResult(result, Ok);
     }
 

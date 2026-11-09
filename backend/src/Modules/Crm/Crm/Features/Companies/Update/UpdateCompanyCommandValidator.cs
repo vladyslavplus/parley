@@ -1,0 +1,25 @@
+using FluentValidation;
+using Parley.Crm.Shared;
+using Parley.SharedKernel.Errors;
+
+namespace Parley.Crm.Features.Companies.Update;
+
+public sealed class UpdateCompanyCommandValidator : AbstractValidator<UpdateCompanyCommand>
+{
+    public UpdateCompanyCommandValidator()
+    {
+        RuleFor(command => command.Version)
+            .NotEqual(0U).WithErrorCode(ErrorCodes.ValidationFailed);
+        RuleFor(command => command.Name)
+            .Must(value => !string.IsNullOrWhiteSpace(value)).WithErrorCode(ErrorCodes.ValidationFailed)
+            .MaximumLength(CrmLimits.CompanyNameMaximumLength).WithErrorCode(ErrorCodes.ValidationFailed);
+        RuleFor(command => command.Domain)
+            .MaximumLength(CrmLimits.DomainMaximumLength).WithErrorCode(ErrorCodes.ValidationFailed);
+        RuleFor(command => command.Country)
+            .Length(CrmLimits.CountryCodeLength).WithErrorCode(ErrorCodes.ValidationFailed)
+            .Matches("^[A-Za-z]{2}$").WithErrorCode(ErrorCodes.ValidationFailed)
+            .When(command => !string.IsNullOrWhiteSpace(command.Country));
+        RuleFor(command => command.Industry)
+            .MaximumLength(CrmLimits.IndustryMaximumLength).WithErrorCode(ErrorCodes.ValidationFailed);
+    }
+}

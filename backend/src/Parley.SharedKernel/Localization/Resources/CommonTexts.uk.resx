@@ -117,4 +117,85 @@
   <data name="identity.organization.not_found" xml:space="preserve">
     <value>Організацію не знайдено.</value>
   </data>
+  <data name="crm.contact.not_found" xml:space="preserve">
+    <value>Контакт не знайдено.</value>
+  </data>
+  <data name="crm.contact.email_taken" xml:space="preserve">
+    <value>Контакт з такою адресою електронної пошти вже існує.</value>
+  </data>
+  <data name="crm.contact.not_deleted" xml:space="preserve">
+    <value>Контакт не видалено, тому його не можна відновити.</value>
+  </data>
+  <data name="crm.contact.company_not_found" xml:space="preserve">
+    <value>Вибрану компанію не знайдено.</value>
+  </data>
+  <data name="crm.contact.owner_not_allowed" xml:space="preserve">
+    <value>Не можна призначити цей запис вибраному власнику.</value>
+  </data>
+  <data name="crm.company.not_found" xml:space="preserve">
+    <value>Компанію не знайдено.</value>
+  </data>
+  <data name="crm.company.not_deleted" xml:space="preserve">
+    <value>Компанію не видалено, тому її не можна відновити.</value>
+  </data>
+  <data name="crm.company.owner_not_allowed" xml:space="preserve">
+    <value>Не можна призначити цей запис вибраному власнику.</value>
+  </data>
+  <data name="crm.tag.not_found" xml:space="preserve">
+    <value>Мітку не знайдено.</value>
+  </data>
+  <data name="crm.tag.name_taken" xml:space="preserve">
+    <value>Мітка з такою назвою вже існує.</value>
+  </data>
+  <data name="crm.custom_field.not_found" xml:space="preserve">
+    <value>Користувацьке поле не знайдено.</value>
+  </data>
+  <data name="crm.custom_field.key_taken" xml:space="preserve">
+    <value>Користувацьке поле з таким ключем уже існує для цього типу записів.</value>
+  </data>
+  <data name="crm.custom_field.limit_reached" xml:space="preserve">
+    <value>Досягнуто максимальної кількості користувацьких полів для цього типу записів.</value>
+  </data>
+  <data name="crm.custom_field.archived" xml:space="preserve">
+    <value>Користувацьке поле архівовано, його не можна змінювати.</value>
+  </data>
+  <data name="crm.custom_field.unknown_key" xml:space="preserve">
+    <value>Такого користувацького поля немає або його архівовано.</value>
+  </data>
+  <data name="crm.custom_field.required" xml:space="preserve">
+    <value>Це користувацьке поле обов'язкове.</value>
+  </data>
+  <data name="crm.custom_field.type_mismatch" xml:space="preserve">
+    <value>Значення має неправильний тип для цього користувацького поля.</value>
+  </data>
+  <data name="crm.custom_field.value_invalid" xml:space="preserve">
+    <value>Значення не є допустимим для цього користувацького поля.</value>
+  </data>
+  <data name="crm.custom_field.option_invalid" xml:space="preserve">
+    <value>Значення не є одним з варіантів цього користувацького поля.</value>
+  </data>
+  <data name="crm.custom_field.text_too_long" xml:space="preserve">
+    <value>Текст занадто довгий для цього користувацького поля.</value>
+  </data>
+  <data name="crm.export.not_found" xml:space="preserve">
+    <value>Експорт не знайдено.</value>
+  </data>
+  <data name="crm.export.not_ready" xml:space="preserve">
+    <value>Експорт ще не готовий. Спробуйте трохи пізніше.</value>
+  </data>
+  <data name="crm.export.expired" xml:space="preserve">
+    <value>Посилання на експорт застаріло. Створіть новий експорт.</value>
+  </data>
+  <data name="crm.export.range_invalid" xml:space="preserve">
+    <value>Дата початку не може бути пізнішою за дату завершення.</value>
+  </data>
+  <data name="crm.search.query_too_short" xml:space="preserve">
+    <value>Введіть щонайменше два символи для пошуку.</value>
+  </data>
+  <data name="crm.search.query_too_long" xml:space="preserve">
+    <value>Текст пошуку занадто довгий.</value>
+  </data>
+  <data name="crm.export.enqueue_failed" xml:space="preserve">
+    <value>Не вдалося запустити експорт. Спробуйте ще раз трохи пізніше.</value>
+  </data>
 </root>

@@ -2,7 +2,10 @@
   "required": "This field is required.",
   "email": "Enter a valid email address.",
   "tooLong": "Use at most {max} characters.",
+  "tooShort": "Use at least {min} characters.",
   "passwordMin": "Use at least {min} characters.",
   "passwordMismatch": "Passwords do not match.",
-  "currency": "Use a {length}-letter currency code."
+  "currency": "Use a {length}-letter currency code.",
+  "customFieldKey": "Use only lowercase letters, numbers, and underscores, starting with a letter.",
+  "invalidNumber": "Enter a valid non-negative number."
 }

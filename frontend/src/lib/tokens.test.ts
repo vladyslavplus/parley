@@ -119,6 +119,36 @@ describe("Token Contrast Verification from globals.css", () => {
     }
   });
 
+  it("semantic status colors pass text contrast >= 4.5:1 against background and card in both light and dark themes", () => {
+    const semanticKeys = ["--success", "--warning", "--destructive", "--info"];
+
+    for (const key of semanticKeys) {
+      const lightColor = lightVars[key];
+      const lightBg = lightVars["--background"];
+      const lightCard = lightVars["--card"];
+      expect(
+        computeContrastRatio(lightColor, lightBg),
+        `${key} in light mode failed contrast against background`,
+      ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        computeContrastRatio(lightColor, lightCard),
+        `${key} in light mode failed contrast against card`,
+      ).toBeGreaterThanOrEqual(4.5);
+
+      const darkColor = darkVars[key];
+      const darkBg = darkVars["--background"];
+      const darkCard = darkVars["--card"];
+      expect(
+        computeContrastRatio(darkColor, darkBg),
+        `${key} in dark mode failed contrast against background`,
+      ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        computeContrastRatio(darkColor, darkCard),
+        `${key} in dark mode failed contrast against card`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   it("form input borders meet >= 3:1 UI boundary contrast", () => {
     expect(
       computeContrastRatio(lightVars["--input"], lightVars["--background"]),

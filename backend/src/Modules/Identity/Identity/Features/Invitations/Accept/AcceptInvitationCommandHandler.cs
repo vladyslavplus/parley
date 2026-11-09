@@ -24,7 +24,7 @@ public sealed class AcceptInvitationCommandHandler(
     UserManager<User> userManager,
     RefreshTokenService refreshTokens,
     IMutableTenantContext tenantContext,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<AcceptInvitationCommand, Result<AuthTokens>>
 {
     public async ValueTask<Result<AuthTokens>> Handle(AcceptInvitationCommand command, CancellationToken cancellationToken)

@@ -49,6 +49,8 @@ async function handle(request: NextRequest, context: Context) {
   let accessToken = request.cookies.get(SESSION_COOKIES.access)?.value;
   const refreshToken = request.cookies.get(SESSION_COOKIES.refresh)?.value;
 
+  const idempotencyKey =
+    request.headers.get(HEADERS.idempotencyKey) ?? undefined;
   const call = (token: string | undefined) =>
     backendFetch({
       ...backendContext,
@@ -57,6 +59,7 @@ async function handle(request: NextRequest, context: Context) {
       search: request.nextUrl.search,
       body,
       accessToken: token,
+      idempotencyKey,
     });
 
   let refreshed: Awaited<ReturnType<typeof refreshSession>> | null = null;
@@ -91,7 +94,7 @@ async function handle(request: NextRequest, context: Context) {
     if (value) headers.set(name, value);
   }
   const response = new NextResponse(
-    upstream.status === 204 ? null : await upstream.text(),
+    upstream.status === 204 ? null : upstream.body,
     { status: upstream.status, headers },
   );
   if (refreshed?.kind === "ok") {

@@ -2,16 +2,37 @@
   "tokens": {
     "title": "Design System Tokens",
     "description": "Visual foundation, semantic color tokens, typography scales, contrast verification, and motion rules.",
+    "backToApp": "Back to app",
     "themeSwitcher": "Theme",
     "localeSwitcher": "Language",
     "sections": {
       "colors": "Semantic Colors",
+      "colorsDescription": "Graphite neutrals with single blue accent family. Minimum WCAG AA 4.5:1 text, 3:1 UI.",
       "stages": "Pipeline Stages Ramp",
+      "stagesDescription": "Five-step cool slate-blue ramp (light to saturated), never a rainbow.",
       "tags": "Pastel Tags",
+      "tagsDescription": "Pastel fills with ink text, high contrast (>11:1 in light, >12:1 in dark).",
       "typography": "Typography Scale & Fonts",
+      "typographyDescription": "Onest (UI, --font-sans), Source Serif 4 (Headings, --font-display), JetBrains Mono (Technical/IDs, --font-mono).",
       "radius": "Radius & Controls",
+      "radiusDescription": "Controls: 6px, Cards/Popovers: 10px, Large blocks: 16px - 24px.",
       "motion": "Motion & Animation Timing",
-      "shadows": "Elevation & Shadows"
+      "motionDescription": "Restrained, purposeful motion. All animations honor prefers-reduced-motion.",
+      "shadows": "Elevation & Shadows",
+      "toasts": "Toast Notifications",
+      "toastsDescription": "Semantic status toasts with tokens, custom radii, semantic icons, and actions."
+    },
+    "toasts": {
+      "triggerSuccess": "Success Toast",
+      "triggerError": "Error Toast",
+      "triggerInfo": "Info Toast",
+      "triggerWarning": "Warning Toast",
+      "triggerUndo": "Undo Toast",
+      "successMessage": "Action completed successfully.",
+      "errorMessage": "Failed to perform action.",
+      "infoMessage": "New information is available.",
+      "warningMessage": "Check your configuration.",
+      "undoMessage": "Item deleted."
     },
     "labels": {
       "light": "Light",
@@ -19,7 +40,18 @@
       "contrast": "Contrast",
       "cssVar": "Variable",
       "sample": "Sample text in this scale",
-      "tabularTest": "Tabular numerals alignment test: 111,111.11 vs 888,888.88"
+      "tabularTest": "Tabular numerals alignment test: 111,111.11 vs 888,888.88",
+      "runtimeValue": "Runtime Value",
+      "displayHeading": "Display / Landing Heading (Source Serif 4)",
+      "heading1": "Heading 1 (Onest 24px)",
+      "heading2": "Heading 2 (Onest 18px)",
+      "bodyText": "Body Text (Onest 14px)",
+      "displayHeadingSample": "Intelligent Customer Relationships for Modern Teams",
+      "heading1Sample": "Organization Members & Access Control",
+      "heading2Sample": "Pipeline Performance and Conversion Velocity",
+      "bodyTextSample": "Clean graphite typography with high information density, designed for everyday focus without visual fatigue.",
+      "tagPrefix": "Tag",
+      "computing": "computing..."
     }
   }
 }

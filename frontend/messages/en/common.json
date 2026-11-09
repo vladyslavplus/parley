@@ -8,13 +8,19 @@
   "toggleTheme": "Toggle theme",
   "steps": "Steps",
   "dev": "Development",
+  "loading": "Loading",
   "cancel": "Cancel",
   "save": "Save",
   "edit": "Edit",
+  "forbidden": "You do not have permission to view this section.",
   "actions": {
     "signOut": "Sign out"
   },
   "organizationSwitcher": {
     "label": "Organization"
+  },
+  "toast": {
+    "close": "Close notification",
+    "regionLabel": "Notifications"
   }
 }

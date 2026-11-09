@@ -1,33 +1,38 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import crmEn from "../../../../messages/en/crm.json";
 import settingsEn from "../../../../messages/en/settings.json";
+import tableEn from "../../../../messages/en/table.json";
 import { displayTimeZone } from "@/lib/time-zones";
 
 const OCCURRED_AT = "2026-06-01T22:30:00Z";
 
+vi.mock("@/features/crm/hooks/use-owners", () => ({
+  useOwners: () => ({ data: { items: [] }, isFetching: false }),
+}));
+
 let me: unknown;
 vi.mock("@/lib/api/hooks/use-api", () => ({
   useMe: () => ({ data: me }),
-  useAuditEvents: () => ({
+  useAuditEventsPage: () => ({
     isPending: false,
     isError: false,
-    hasNextPage: false,
+    isFetching: false,
     data: {
-      pages: [
+      items: [
         {
-          items: [
-            {
-              id: "e1",
-              action: "member.role_changed",
-              targetType: null,
-              actorUserId: null,
-              occurredAt: OCCURRED_AT,
-            },
-          ],
+          id: "e1",
+          action: "member.role_changed",
+          targetType: null,
+          actorUserId: null,
+          occurredAt: OCCURRED_AT,
         },
       ],
+      nextCursor: null,
+      hasMore: false,
     },
   }),
 }));
@@ -38,13 +43,15 @@ afterEach(cleanup);
 
 function renderPanel() {
   render(
-    <NextIntlClientProvider
-      locale="en"
-      messages={{ settings: settingsEn }}
-      timeZone="Pacific/Auckland"
-    >
-      <AuditPanel />
-    </NextIntlClientProvider>,
+    <NuqsTestingAdapter>
+      <NextIntlClientProvider
+        locale="en"
+        messages={{ settings: settingsEn, table: tableEn, crm: crmEn }}
+        timeZone="Pacific/Auckland"
+      >
+        <AuditPanel />
+      </NextIntlClientProvider>
+    </NuqsTestingAdapter>,
   );
 }
 

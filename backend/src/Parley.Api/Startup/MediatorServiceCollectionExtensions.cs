@@ -13,7 +13,7 @@ public static class MediatorServiceCollectionExtensions
         services.AddMediator(options =>
         {
             options.ServiceLifetime = ServiceLifetime.Scoped;
-            options.Assemblies = [typeof(Parley.Identity.Module).Assembly];
+            options.Assemblies = [typeof(Identity.Module).Assembly, typeof(Parley.Crm.Module).Assembly];
             options.PipelineBehaviors =
             [
                 typeof(LoggingBehavior<,>),

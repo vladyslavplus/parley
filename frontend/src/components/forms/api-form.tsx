@@ -8,6 +8,7 @@ export function ApiForm({
   formError,
   alertRef,
   pending,
+  submitDisabled,
   submitLabel,
   children,
 }: {
@@ -15,6 +16,7 @@ export function ApiForm({
   formError: string | null;
   alertRef: Ref<HTMLDivElement>;
   pending: boolean;
+  submitDisabled?: boolean;
   submitLabel: string;
   children: ReactNode;
 }) {
@@ -22,7 +24,7 @@ export function ApiForm({
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
       {formError ? <Alert ref={alertRef}>{formError}</Alert> : null}
       {children}
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending || Boolean(submitDisabled)}>
         {submitLabel}
       </Button>
     </form>

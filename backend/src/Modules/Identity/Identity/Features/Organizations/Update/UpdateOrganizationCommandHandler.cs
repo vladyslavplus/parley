@@ -14,7 +14,7 @@ public sealed class UpdateOrganizationCommandHandler(
     IdentityDbContext dbContext,
     ITenantContext tenantContext,
     ICurrentUser currentUser,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<UpdateOrganizationCommand, Result>
 {
     public async ValueTask<Result> Handle(UpdateOrganizationCommand command, CancellationToken cancellationToken)

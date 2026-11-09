@@ -26,7 +26,8 @@
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
     "items": {
-      "dashboard": "Overview",
+      "contacts": "Contacts",
+      "companies": "Companies",
       "settings": "Settings",
       "profile": "Profile",
       "organization": "Organization",
@@ -48,6 +49,7 @@
   "quickCreate": {
     "title": "Quick Create",
     "contact": "New Contact",
+    "company": "New Company",
     "deal": "New Deal",
     "task": "New Task"
   },
@@ -64,7 +66,12 @@
     "development": "Development",
     "settings": "Settings",
     "actions": "Actions",
-    "noResults": "No results found."
+    "noResults": "No results found.",
+    "searchFailed": "Search failed. Please try again.",
+    "goToContacts": "Go to contacts",
+    "goToCompanies": "Go to companies",
+    "createContact": "Create contact",
+    "createCompany": "Create company"
   },
   "user": {
     "defaultInitial": "U"

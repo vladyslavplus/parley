@@ -14,7 +14,7 @@ namespace Parley.SharedKernel.Idempotency.Persistence;
 /// <see cref="TenantContextNotSetException"/>); the unique constraint is the
 /// final guard for concurrent first use.
 /// </summary>
-public sealed class EfIdempotencyStore<TDbContext>(TDbContext context, ITenantContext tenantContext) : IIdempotencyStore
+public sealed class EfIdempotencyStore<TDbContext>(TDbContext context, ITenantContext tenantContext) : IModuleIdempotencyStore<TDbContext>
     where TDbContext : DbContext
 {
     public async Task<IdempotencyKey?> FindAsync(string key, CancellationToken cancellationToken)

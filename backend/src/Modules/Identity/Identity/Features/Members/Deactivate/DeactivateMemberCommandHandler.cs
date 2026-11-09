@@ -16,7 +16,7 @@ public sealed class DeactivateMemberCommandHandler(
     IdentityDbContext dbContext,
     ICurrentUser currentUser,
     ITenantContext tenantContext,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<DeactivateMemberCommand, Result>
 {
     public async ValueTask<Result> Handle(DeactivateMemberCommand command, CancellationToken cancellationToken)

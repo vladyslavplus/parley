@@ -5,12 +5,15 @@
     "organization": "Організація",
     "members": "Учасники",
     "teams": "Команди",
-    "audit": "Журнал аудиту"
+    "audit": "Журнал аудиту",
+    "customFields": "Користувацькі поля"
   },
   "roles": {
+    "owner": "Власник",
     "admin": "Адміністратор",
     "sales_manager": "Керівник продажів",
     "sales_rep": "Менеджер з продажів",
+    "member": "Учасник",
     "marketer": "Маркетолог",
     "viewer": "Спостерігач"
   },
@@ -44,10 +47,26 @@
   },
   "members": {
     "title": "Учасники",
+    "subtitle": "Керування учасниками організації, ролями, командами та запрошеннями",
+    "searchPlaceholder": "Пошук за ім'ям або email...",
+    "empty": "Учасників не знайдено.",
     "noTeam": "Без команди",
     "inTeam": "У команді",
+    "tabs": {
+      "active": "Активні учасники",
+      "pending": "Очікують відповіді"
+    },
+    "filters": {
+      "role": "Роль",
+      "allRoles": "Усі ролі",
+      "team": "Команда",
+      "allTeams": "Усі команди",
+      "status": "Статус",
+      "allStatuses": "Усі статуси"
+    },
     "invite": {
       "title": "Запросити учасника",
+      "description": "Надішліть запрошення електронною поштою для приєднання до організації з відповідною роллю та командою.",
       "email": "Електронна пошта",
       "role": "Роль",
       "team": "Команда",
@@ -60,24 +79,52 @@
       "role": "Роль",
       "team": "Команда",
       "status": "Статус",
+      "joinedAt": "Приєднався",
       "actions": "Дії"
     },
     "status": {
       "active": "Активний",
       "deactivated": "Деактивований"
     },
+    "editMember": "Редагувати {name}",
+    "deactivateMember": "Деактивувати {name}",
+    "editModal": {
+      "title": "Редагувати учасника",
+      "saved": "Дані учасника оновлено."
+    },
     "deactivate": "Деактивувати",
     "deactivateConfirm": "Деактивувати цього учасника? Він одразу втратить доступ.",
+    "deactivateModal": {
+      "title": "Деактивувати учасника",
+      "description": "Ви дійсно бажаєте деактивувати {name}? Учасник одразу втратить доступ до організації.",
+      "deactivated": "Учасника деактивовано."
+    },
     "loadMore": "Показати ще",
     "loadFailed": "Не вдалося завантажити учасників.",
     "pending": {
       "title": "Очікують відповіді",
+      "searchPlaceholder": "Пошук за email запрошення...",
       "empty": "Немає запрошень, що очікують відповіді.",
-      "revoke": "Скасувати"
+      "revoke": "Скасувати",
+      "revokeFor": "Скасувати запрошення для {email}",
+      "resendFor": "Повторно надіслати запрошення для {email}",
+      "revoked": "Запрошення скасовано.",
+      "columns": {
+        "email": "Електронна пошта",
+        "role": "Роль",
+        "team": "Команда",
+        "expiresAt": "Дійсне до"
+      },
+      "revokeModal": {
+        "title": "Скасувати запрошення",
+        "description": "Ви дійсно бажаєте скасувати запрошення для {email}? Посилання у листі одразу перестане працювати."
+      }
     }
   },
   "teams": {
     "title": "Команди",
+    "subtitle": "Групуйте учасників у команди для розподілу записів та звітності",
+    "searchPlaceholder": "Пошук команд...",
     "name": "Назва команди",
     "create": "Створити команду",
     "rename": "Перейменувати",
@@ -85,20 +132,117 @@
     "cancel": "Скасувати",
     "delete": "Видалити",
     "deleteConfirm": "Видалити цю команду?",
+    "editTeam": "Редагувати {name}",
+    "deleteTeam": "Видалити {name}",
+    "columns": {
+      "name": "Команда",
+      "id": "ID",
+      "actions": "Дії"
+    },
+    "createModal": {
+      "title": "Створити команду",
+      "description": "Додайте нову команду для об'єднання учасників організації.",
+      "created": "Команду створено."
+    },
+    "editModal": {
+      "title": "Редагувати команду",
+      "description": "Оновіть назву команди.",
+      "saved": "Команду оновлено."
+    },
+    "deleteModal": {
+      "title": "Видалити команду",
+      "description": "Ви дійсно бажаєте видалити команду {name}? Учасники цієї команди залишаться без призначеної команди.",
+      "deleted": "Команду видалено."
+    },
     "empty": "Команд ще немає.",
     "loadMore": "Показати ще",
     "loadFailed": "Не вдалося завантажити команди."
   },
   "audit": {
     "title": "Журнал аудиту",
+    "subtitle": "Історія подій безпеки та адміністрування вашої організації (лише для читання)",
+    "searchPlaceholder": "Пошук за дією або об'єктом...",
+    "filters": {
+      "action": "Дія",
+      "allActions": "Усі дії",
+      "actor": "Виконавець",
+      "allActors": "Усі виконавці",
+      "from": "З дати",
+      "to": "До дати"
+    },
     "columns": {
       "time": "Час",
       "action": "Дія",
       "target": "Об’єкт",
       "actor": "Виконавець"
     },
+    "actions": {
+      "identity_member_role_changed": "Змінено роль учасника",
+      "identity_member_team_changed": "Змінено команду учасника",
+      "identity_member_deactivated": "Деактивовано учасника",
+      "identity_member_reactivated": "Реактивовано учасника",
+      "identity_invitation_created": "Створено запрошення",
+      "identity_invitation_accepted": "Прийнято запрошення",
+      "identity_invitation_revoked": "Відкликано запрошення",
+      "identity_team_created": "Створено команду",
+      "identity_team_renamed": "Перейменовано команду",
+      "identity_team_deleted": "Видалено команду",
+      "identity_organization_settings_changed": "Змінено налаштування організації",
+      "identity_session_sign_in_failed": "Невдала спроба входу",
+      "identity_session_account_locked": "Обліковий запис заблоковано",
+      "crm_contact_deleted": "Видалено контакт",
+      "crm_contact_restored": "Відновлено контакт",
+      "crm_company_deleted": "Видалено компанію",
+      "crm_company_restored": "Відновлено компанію",
+      "crm_contacts_exported": "Експортовано контакти"
+    },
+    "invalidDateRange": "Початкова дата не може бути пізнішою за кінцеву дату.",
     "empty": "Подій ще немає.",
     "loadMore": "Показати ще",
     "loadFailed": "Не вдалося завантажити журнал аудиту."
+  },
+  "customFields": {
+    "title": "Користувацькі поля",
+    "subtitle": "Налаштуйте додаткові атрибути для контактів та компаній",
+    "searchPlaceholder": "Пошук за назвою або ключем...",
+    "filters": {
+      "allTypes": "Усі типи"
+    },
+    "create": "Нове поле",
+    "edit": "Редагувати поле",
+    "editField": "Редагувати {label}",
+    "archive": "Архівувати",
+    "archiveField": "Архівувати {label}",
+    "actions": "Дії",
+    "saved": "Користувацьке поле збережено.",
+    "archivedSuccess": "Користувацьке поле архівовано.",
+    "entityType": {
+      "contact": "Контакти",
+      "company": "Компанії"
+    },
+    "empty": "Немає користувацьких полів для {entityType}.",
+    "fields": {
+      "label": "Назва",
+      "labelPlaceholder": "напр. Джерело ліда",
+      "key": "Ключ",
+      "keyPlaceholder": "напр. lead_source",
+      "keyHelp": "Унікальний системний ідентифікатор (наприклад, lead_source)",
+      "fieldType": "Тип поля",
+      "options": "Варіанти",
+      "optionsPlaceholder": "Сайт, Партнер, Рекомендація, Подія",
+      "optionsHelp": "Список варіантів через кому",
+      "isRequired": "Обов'язкове",
+      "position": "Позиція"
+    },
+    "types": {
+      "text": "Текст",
+      "number": "Число",
+      "boolean": "Логічне",
+      "select": "Вибір із списку",
+      "date": "Дата"
+    },
+    "archived": "В архіві",
+    "archiveConfirm": "Архівувати користувацьке поле",
+    "archiveConfirmDescription": "Існуючі дані, збережені у цьому полі, залишаться видимими на записах, але поле не можна буде змінювати для нових записів."
   }
 }

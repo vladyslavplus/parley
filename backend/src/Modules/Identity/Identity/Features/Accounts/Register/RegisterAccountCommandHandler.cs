@@ -21,7 +21,7 @@ public sealed class RegisterAccountCommandHandler(
     UserManager<User> userManager,
     AuthEmailScheduler emailScheduler,
     IMutableTenantContext tenantContext,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<RegisterAccountCommand, Result>
 {
     public async ValueTask<Result> Handle(RegisterAccountCommand command, CancellationToken cancellationToken)

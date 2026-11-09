@@ -21,7 +21,7 @@ public sealed class SignInCommandHandler(
     RefreshTokenService refreshTokens,
     DummyPasswordHash dummyPasswordHash,
     IMutableTenantContext tenantContext,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<SignInCommand, Result<AuthTokens>>
 {
     public async ValueTask<Result<AuthTokens>> Handle(SignInCommand command, CancellationToken cancellationToken)

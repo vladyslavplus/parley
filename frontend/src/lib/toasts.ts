@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast, type ExternalToast } from "sonner";
 
 import { LIMITS } from "@/constants/limits";
 
@@ -12,12 +12,47 @@ export interface UndoToastOptions {
   onUndo: () => void | Promise<void>;
 }
 
+export function showSuccessToast(
+  message: string,
+  options?: ExternalToast,
+): string | number {
+  return toast.success(message, options);
+}
+
+export function showErrorToast(
+  message: string,
+  options?: ExternalToast,
+): string | number {
+  return toast.error(message, {
+    duration: LIMITS.toastErrorDurationMs,
+    ...options,
+  });
+}
+
+export function showInfoToast(
+  message: string,
+  options?: ExternalToast,
+): string | number {
+  return toast.info(message, options);
+}
+
+export function showWarningToast(
+  message: string,
+  options?: ExternalToast,
+): string | number {
+  return toast.warning(message, options);
+}
+
+export function dismissToast(id?: string | number): string | number {
+  return toast.dismiss(id);
+}
+
 export function showUndoToast({
   message,
   description,
   undoLabel,
   failedMessage,
-  duration = LIMITS.toastDurationMs,
+  duration = LIMITS.toastUndoDurationMs,
   onUndo,
 }: UndoToastOptions): string | number {
   return toast(message, {
@@ -29,7 +64,7 @@ export function showUndoToast({
         try {
           await onUndo();
         } catch {
-          toast.error(failedMessage);
+          showErrorToast(failedMessage);
         }
       },
     },
@@ -53,4 +88,4 @@ export function useUndoToast() {
   };
 }
 
-export { toast };
+export type { ExternalToast };

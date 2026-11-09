@@ -27,6 +27,8 @@ export const HEADERS = {
   origin: "Origin",
   secFetchSite: "Sec-Fetch-Site",
   contentLength: "Content-Length",
+  contentDisposition: "Content-Disposition",
+  idempotencyKey: "Idempotency-Key",
 } as const;
 
 export const SEC_FETCH_SITE_SAME_ORIGIN = "same-origin";
@@ -39,6 +41,8 @@ export const SAFE_METHODS: ReadonlySet<string> = new Set(["GET", "HEAD"]);
 export const PROXY_RESPONSE_HEADERS = [
   HEADERS.contentType,
   HEADERS.retryAfter,
+  HEADERS.contentDisposition,
+  HEADERS.contentLength,
 ] as const;
 
 export const MEDIA_TYPES = {

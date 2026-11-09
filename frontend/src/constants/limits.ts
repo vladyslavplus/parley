@@ -1,6 +1,9 @@
 export const LIMITS = {
   defaultPageSize: 20,
-  searchDebounceMs: 300,
+  searchDebounceMs: 200,
+  searchMinQueryLength: 2,
+  searchMaxQueryLength: 100,
+  exportPollIntervalMs: 1500,
   passwordMinLength: 8,
   passwordMaxLength: 256,
   emailMaxLength: 256,
@@ -9,9 +12,41 @@ export const LIMITS = {
   teamNameMaxLength: 100,
   currencyCodeLength: 3,
   meStaleTimeMs: 60_000,
-  tablePageSizes: [10, 25, 50, 100] as const,
-  defaultTablePageSize: 25,
-  toastDurationMs: 5000,
+  queryStaleTimeMs: 30_000,
+  queryGcTimeMs: 5 * 60_000,
+  tablePageSizes: [20, 50, 100] as const,
+  defaultTablePageSize: 20,
+  toastDurationMs: 4000,
+  toastErrorDurationMs: 8000,
+  toastUndoDurationMs: 8000,
+  toastMaxVisible: 3,
+  toastTopOffsetPx: 64,
+  toastMaxWidthPx: 356,
+  ownerPickerLimit: 20,
+  ownerPickerMaxLimit: 50,
+  tagPickerLimit: 20,
+  comboboxMaxVisibleRows: 5,
+  tableProgressDelayMs: 150,
+  customFieldKeyMinLength: 2,
+  customFieldKeyMaxLength: 40,
+  customFieldLabelMaxLength: 100,
+  contactFirstNameMaxLength: 100,
+  contactLastNameMaxLength: 100,
+  contactPhoneMaxLength: 50,
+  companyNameMaxLength: 200,
+  companyDomainMaxLength: 255,
+  companyCountryMaxLength: 2,
+  companyIndustryMaxLength: 100,
+  crmListDefaultLimit: 20,
+  crmLookupLimit: 100,
+  companyPickerLimit: 20,
+  tagColorCount: 5,
+} as const;
+
+export const CUSTOM_FIELD_KEY_REGEX = /^[a-z][a-z0-9_]*$/;
+
+export const SENTINELS = {
+  all: "__all__",
 } as const;
 
 export type Limits = (typeof LIMITS)[keyof typeof LIMITS];

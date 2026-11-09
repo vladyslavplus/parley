@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Parley.Api.ErrorHandling;
 using Parley.Api.Localization;
+using Parley.Api.Startup.OpenApi;
 
 namespace Parley.Api.Startup;
 
@@ -16,7 +17,9 @@ public static class ApiPipelineServiceCollectionExtensions
         // validation ProblemDetails instead of the framework's default shape.
         services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
         services.AddEndpointsApiExplorer();
-        services.AddOpenApi(ApiConstants.OpenApiDocumentName);
+        services.AddOpenApi(ApiConstants.OpenApiDocumentName, options => options
+            .AddSchemaTransformer<StringEnumSchemaTransformer>()
+            .AddOperationTransformer<ListParameterOperationTransformer>());
 
         services.AddSingleton(TimeProvider.System);
         services.AddLocalization();

@@ -25,7 +25,7 @@ public sealed class InviteMemberCommandHandler(
     UserManager<User> userManager,
     ITenantContext tenantContext,
     ICurrentUser currentUser,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider,
     IOptions<InvitationOptions> options,
     AuthEmailScheduler emailScheduler) : IRequestHandler<InviteMemberCommand, Result<InvitationView>>

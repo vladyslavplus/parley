@@ -16,7 +16,7 @@ public sealed class UpdateTeamCommandHandler(
     IdentityDbContext dbContext,
     ITenantContext tenantContext,
     ICurrentUser currentUser,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<UpdateTeamCommand, Result<TeamView>>
 {
     public async ValueTask<Result<TeamView>> Handle(UpdateTeamCommand command, CancellationToken cancellationToken)

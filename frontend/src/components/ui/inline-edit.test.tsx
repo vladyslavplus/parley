@@ -56,4 +56,30 @@ describe("InlineEdit", () => {
     expect(handleSave).not.toHaveBeenCalled();
     expect(screen.getByText("Original Value")).toBeDefined();
   });
+
+  it("remains in edit mode with typed draft when onSave rejects", async () => {
+    const handleSave = vi.fn().mockRejectedValue(new Error("Save failed"));
+
+    render(
+      <NextIntlClientProvider locale="en" messages={{ forms: formsEn }}>
+        <InlineEdit value="Original Value" onSave={handleSave} />
+      </NextIntlClientProvider>,
+    );
+
+    const trigger = screen.getByText("Original Value");
+    fireEvent.click(trigger);
+
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "Attempted Value" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(handleSave).toHaveBeenCalledWith("Attempted Value");
+    // Wait for promise rejection to be handled
+    await Promise.resolve();
+
+    // Input should still be present with the attempted value
+    const retainedInput = screen.getByRole("textbox");
+    expect(retainedInput).toBeInTheDocument();
+    expect((retainedInput as HTMLInputElement).value).toBe("Attempted Value");
+  });
 });

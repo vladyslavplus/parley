@@ -16,7 +16,7 @@ public sealed class ChangeMemberRoleCommandHandler(
     IdentityDbContext dbContext,
     ITenantContext tenantContext,
     ICurrentUser currentUser,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<ChangeMemberRoleCommand, Result>
 {
     public async ValueTask<Result> Handle(ChangeMemberRoleCommand command, CancellationToken cancellationToken)

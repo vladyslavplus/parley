@@ -14,7 +14,7 @@ namespace Parley.SharedKernel.Outbox.Publishing;
 /// <see cref="TenantContextNotSetException"/>) and the timestamp from
 /// <c>TimeProvider</c>.
 /// </summary>
-public sealed class DbContextOutbox<TDbContext>(TDbContext context, ITenantContext tenantContext, TimeProvider timeProvider) : IOutbox
+public sealed class DbContextOutbox<TDbContext>(TDbContext context, ITenantContext tenantContext, TimeProvider timeProvider) : IModuleOutbox<TDbContext>
     where TDbContext : DbContext
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };

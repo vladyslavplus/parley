@@ -197,7 +197,7 @@ public sealed class HangfireTests(PostgresFixture fixture) : IAsyncLifetime
             var tenant = scope.ServiceProvider.GetRequiredService<IMutableTenantContext>();
             tenant.Set(organizationId);
             var db = scope.ServiceProvider.GetRequiredService<TenantTestDbContext>();
-            scope.ServiceProvider.GetRequiredService<IOutbox>().Add(new TestOrderPlaced
+            scope.ServiceProvider.GetRequiredService<IModuleOutbox<TenantTestDbContext>>().Add(new TestOrderPlaced
             {
                 EventId = Guid.CreateVersion7(),
                 OccurredAt = fixture.TimeProvider.GetUtcNow(),
@@ -225,7 +225,7 @@ public sealed class HangfireTests(PostgresFixture fixture) : IAsyncLifetime
         readTenant.Clear();
     }
 
-    private string Enqueue<TJob>(System.Linq.Expressions.Expression<Action<TJob>> expression)
+    private string Enqueue<TJob>(System.Linq.Expressions.Expression<Func<TJob, Task>> expression)
     {
         using var scope = Factory.Services.CreateScope();
         var client = scope.ServiceProvider.GetRequiredService<IBackgroundJobClient>();
@@ -260,7 +260,7 @@ public sealed class HangfireTests(PostgresFixture fixture) : IAsyncLifetime
     private WebApplicationFactory<Program> BuildFactory(PostgresFixture fixture) =>
         fixture.Factory.WithWebHostBuilder(builder =>
         {
-            builder.ConfigureAppConfiguration((context, configuration) =>
+            builder.ConfigureAppConfiguration((_, configuration) =>
             {
                 configuration.AddInMemoryCollection(new Dictionary<string, string?>
                 {

@@ -85,6 +85,18 @@
 }
 
 @layer base {
+  html {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  html.dark,
+  html.dark body {
+    background-color: var(--background);
+    color: var(--foreground);
+    color-scheme: dark;
+  }
+
   :root {
     color-scheme: light;
 
@@ -224,9 +236,56 @@
     }
   }
 
+  /* Indeterminate progress bar animation */
+  @keyframes indeterminate-bar {
+    0% {
+      transform: translateX(-100%) scaleX(0.2);
+    }
+    50% {
+      transform: translateX(20%) scaleX(0.6);
+    }
+    100% {
+      transform: translateX(100%) scaleX(0.2);
+    }
+  }
+
+  .animate-indeterminate {
+    animation: indeterminate-bar 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-indeterminate {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      transform: none !important;
+    }
+  }
+
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 150ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Responsive & accessible toast placement */
+  @media (max-width: 640px) {
+    [data-sonner-toaster] {
+      left: 1rem !important;
+      right: 1rem !important;
+      top: 4rem !important;
+      transform: none !important;
+      width: auto !important;
+    }
+
+    [data-sonner-toaster] [data-sonner-toast] {
+      width: 100% !important;
+      max-width: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-sonner-toaster] [data-sonner-toast] {
+      transition: none !important;
+      animation: none !important;
+    }
   }
 }

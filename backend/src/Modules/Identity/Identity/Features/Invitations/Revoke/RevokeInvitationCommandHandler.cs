@@ -14,7 +14,7 @@ public sealed class RevokeInvitationCommandHandler(
     IdentityDbContext dbContext,
     ICurrentUser currentUser,
     ITenantContext tenantContext,
-    IOutbox outbox,
+    IModuleOutbox<IdentityDbContext> outbox,
     TimeProvider timeProvider) : IRequestHandler<RevokeInvitationCommand, Result>
 {
     public async ValueTask<Result> Handle(RevokeInvitationCommand command, CancellationToken cancellationToken)

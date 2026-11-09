@@ -14,6 +14,8 @@ using Parley.Identity.Authentication.Tokens;
 using Parley.Identity.Authorization.Permissions;
 using Parley.Identity.Authorization.Scope;
 using Parley.Identity.Contracts.Authorization;
+using Parley.Identity.Contracts.Users;
+using Parley.Identity.Directory;
 using Parley.Identity.Domain.Users;
 using Parley.Identity.Email;
 using Parley.Identity.Email.Jobs;
@@ -128,6 +130,7 @@ public static class Module
         services.AddScoped<IPermissionChecker, PermissionChecker>();
         services.AddScoped<IUserScopeReader, UserScopeReader>();
         services.AddScoped<IDataScope, DataScopeService>();
+        services.AddScoped<IUserDirectory, UserDirectory>();
 
         return services;
     }

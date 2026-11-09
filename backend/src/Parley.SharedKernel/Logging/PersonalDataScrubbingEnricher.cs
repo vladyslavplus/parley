@@ -38,55 +38,55 @@ public sealed class PersonalDataScrubbingEnricher : ILogEventEnricher
         switch (value)
         {
             case ScalarValue { Value: string text }:
-            {
-                var masked = PersonalDataMasking.Mask(text);
-                return ReferenceEquals(masked, text) ? value : new ScalarValue(masked);
-            }
+                {
+                    var masked = PersonalDataMasking.Mask(text);
+                    return ReferenceEquals(masked, text) ? value : new ScalarValue(masked);
+                }
 
             case StructureValue structure:
-            {
-                var properties = new LogEventProperty[structure.Properties.Count];
-                var changed = false;
-                for (var index = 0; index < structure.Properties.Count; index++)
                 {
-                    var property = structure.Properties[index];
-                    var scrubbed = ScrubValue(property.Name, property.Value);
-                    changed |= !ReferenceEquals(scrubbed, property.Value);
-                    properties[index] = ReferenceEquals(scrubbed, property.Value)
-                        ? property
-                        : new LogEventProperty(property.Name, scrubbed);
-                }
+                    var properties = new LogEventProperty[structure.Properties.Count];
+                    var changed = false;
+                    for (var index = 0; index < structure.Properties.Count; index++)
+                    {
+                        var property = structure.Properties[index];
+                        var scrubbed = ScrubValue(property.Name, property.Value);
+                        changed |= !ReferenceEquals(scrubbed, property.Value);
+                        properties[index] = ReferenceEquals(scrubbed, property.Value)
+                            ? property
+                            : new LogEventProperty(property.Name, scrubbed);
+                    }
 
-                return changed ? new StructureValue(properties, structure.TypeTag) : value;
-            }
+                    return changed ? new StructureValue(properties, structure.TypeTag) : value;
+                }
 
             case SequenceValue sequence:
-            {
-                var values = new LogEventPropertyValue[sequence.Elements.Count];
-                var changed = false;
-                for (var index = 0; index < sequence.Elements.Count; index++)
                 {
-                    var scrubbed = ScrubValue(propertyName, sequence.Elements[index]);
-                    changed |= !ReferenceEquals(scrubbed, sequence.Elements[index]);
-                    values[index] = scrubbed;
-                }
+                    var values = new LogEventPropertyValue[sequence.Elements.Count];
+                    var changed = false;
+                    for (var index = 0; index < sequence.Elements.Count; index++)
+                    {
+                        var scrubbed = ScrubValue(propertyName, sequence.Elements[index]);
+                        changed |= !ReferenceEquals(scrubbed, sequence.Elements[index]);
+                        values[index] = scrubbed;
+                    }
 
-                return changed ? new SequenceValue(values) : value;
-            }
+                    return changed ? new SequenceValue(values) : value;
+                }
 
             case DictionaryValue dictionary:
-            {
-                var entries = new List<KeyValuePair<ScalarValue, LogEventPropertyValue>>(dictionary.Elements.Count);
-                var changed = false;
-                foreach (var (key, entryValue) in dictionary.Elements)
                 {
-                    var scrubbed = ScrubValue(propertyName, entryValue);
-                    changed |= !ReferenceEquals(scrubbed, entryValue);
-                    entries.Add(new KeyValuePair<ScalarValue, LogEventPropertyValue>(key, scrubbed));
-                }
+                    var entries = new List<KeyValuePair<ScalarValue, LogEventPropertyValue>>(dictionary.Elements.Count);
+                    var changed = false;
+                    foreach (var (key, entryValue) in dictionary.Elements)
+                    {
+                        var scrubbed = ScrubValue(propertyName, entryValue);
+                        changed |= !ReferenceEquals(scrubbed, entryValue);
+                        entries.Add(new KeyValuePair<ScalarValue, LogEventPropertyValue>(key, scrubbed));
+                    }
 
-                return changed ? new DictionaryValue(entries) : value;
-            }
+                    return changed ? new DictionaryValue(entries) : value;
+                }
 
             default:
                 return value;

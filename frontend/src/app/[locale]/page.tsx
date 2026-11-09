@@ -16,5 +16,3 @@ export default async function HomePage({
     jar.has(SESSION_COOKIES.access) || jar.has(SESSION_COOKIES.refresh);
   redirect(`/${locale}${signedIn ? ROUTES.settingsProfile : ROUTES.login}`);
 }
-
-export const dynamic = "force-dynamic";

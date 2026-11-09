@@ -63,7 +63,7 @@ describe("Drawer", () => {
     expect(screen.queryByText("Hidden drawer content")).toBeNull();
   });
 
-  it("proves R2-P2-2: Esc inside InlineEdit cancels edit without closing Drawer", () => {
+  it("cancels edit on Esc inside InlineEdit without closing Drawer", () => {
     const handleOpenChange = vi.fn();
 
     render(

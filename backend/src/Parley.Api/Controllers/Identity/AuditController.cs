@@ -15,11 +15,22 @@ public sealed class AuditController(IMediator mediator, ErrorTextLocalizer error
 {
     [HttpGet(IdentityRoutes.AuditEvents)]
     [RequiresPermission(Permissions.AuditRead)]
-    [ProducesResponseType<CursorPage<AuditEventView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<KeysetCursorPage<AuditEventView>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> List([FromQuery] Guid? before, [FromQuery] int? limit, CancellationToken cancellationToken)
+    public async Task<IActionResult> List(
+        [FromQuery] string? after,
+        [FromQuery] int? limit,
+        [FromQuery] string? q,
+        [FromQuery] string? action,
+        [FromQuery] string? actorUserId,
+        [FromQuery] string? from,
+        [FromQuery] string? to,
+        [FromQuery] string? sort,
+        [FromQuery] string? order,
+        CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new ListAuditEventsQuery(before, limit), cancellationToken);
+        var result = await mediator.Send(new ListAuditEventsQuery(after, limit, q, action, actorUserId, from, to, sort, order), cancellationToken);
         return FromResult(result, Ok);
     }
 }

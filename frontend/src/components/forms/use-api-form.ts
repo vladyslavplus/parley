@@ -18,6 +18,7 @@ interface Options<TValues extends FieldValues> {
   defaultValues: DefaultValues<TValues>;
   fields: readonly Path<TValues>[];
   submit: (values: TValues) => Promise<void>;
+  codeFields?: Partial<Record<string, Path<TValues>>>;
 }
 
 // Form wiring shared by every screen: client validation for UX, server field
@@ -27,6 +28,7 @@ export function useApiForm<TValues extends FieldValues>({
   defaultValues,
   fields,
   submit,
+  codeFields,
 }: Options<TValues>) {
   const tKinds = useTranslations("errors.kinds");
   const form = useForm<TValues, unknown, TValues>({
@@ -53,6 +55,20 @@ export function useApiForm<TValues extends FieldValues>({
       setErrorCode(error.code);
       const mapped = mapFieldErrors(error, fields);
       let focused = false;
+
+      const isCodeMapped = Boolean(error.code && codeFields?.[error.code]);
+      if (isCodeMapped) {
+        const fieldName = codeFields![error.code!]!;
+        const message =
+          error.detail || describeError(error, (kind) => tKinds(kind));
+        form.setError(
+          fieldName,
+          { type: "server", message },
+          { shouldFocus: true },
+        );
+        focused = true;
+      }
+
       for (const [name, message] of Object.entries(mapped.fields)) {
         form.setError(
           name as Path<TValues>,
@@ -61,7 +77,8 @@ export function useApiForm<TValues extends FieldValues>({
         );
         focused = true;
       }
-      if (mapped.formMessage || !focused) {
+
+      if (!isCodeMapped && (mapped.formMessage || !focused)) {
         setFormError(
           mapped.formMessage ?? describeError(error, (kind) => tKinds(kind)),
         );

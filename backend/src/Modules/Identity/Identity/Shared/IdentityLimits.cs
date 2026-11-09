@@ -40,4 +40,7 @@ public static class IdentityLimits
     public const int AuditActionMaximumLength = 128;
 
     public const int TargetTypeMaximumLength = 64;
+
+    /// <summary>Longest text a list search accepts.</summary>
+    public const int SearchMaximumLength = 100;
 }

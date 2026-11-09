@@ -22,6 +22,7 @@ export interface BackendRequest extends BackendContext {
   search?: string;
   body?: string;
   accessToken?: string;
+  idempotencyKey?: string | null;
 }
 
 const FORWARDED_FOR_SEPARATOR = ",";
@@ -60,6 +61,9 @@ export function backendFetch(request: BackendRequest): Promise<Response> {
   }
   if (request.body !== undefined) {
     headers.set(HEADERS.contentType, MEDIA_TYPES.json);
+  }
+  if (request.idempotencyKey) {
+    headers.set(HEADERS.idempotencyKey, request.idempotencyKey);
   }
   return fetch(`${requireApiBaseUrl()}${request.path}${request.search ?? ""}`, {
     method: request.method,
