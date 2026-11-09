@@ -23,6 +23,15 @@ public sealed class CrmAudienceReader(CrmDbContext dbContext, ITenantContext ten
             .SqlQuery<AudienceSqlRow>(AudienceSql.Batch(tenantContext.OrganizationId, afterContactId, limit))
             .ToListAsync(cancellationToken);
 
-        return rows.Select(row => new CrmAudienceRow(row.ContactId, row.OwnerUserId, row.CountryIso2)).ToArray();
+        return rows
+            .Select(row => new CrmAudienceRow(
+                row.ContactId,
+                row.OwnerUserId,
+                row.CountryIso2,
+                row.TagIds,
+                row.LastOrderAt,
+                row.Email,
+                row.EmailNormalized))
+            .ToArray();
     }
 }

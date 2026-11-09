@@ -28,3 +28,8 @@ dotnet_diagnostic.IDE0005.severity = none
 [src/Modules/Crm/Crm/Migrations/*.cs]
 dotnet_diagnostic.IDE0161.severity = none
 dotnet_diagnostic.IDE0005.severity = none
+
+# Campaigns migrations follow the same generated-code exception as Identity and Crm. Only IDE0161 and IDE0005 are relaxed; IDE0130 still applies.
+[src/Modules/Campaigns/Campaigns/Migrations/*.cs]
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.IDE0005.severity = none

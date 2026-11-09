@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using Npgsql;
+using Parley.Campaigns.Persistence;
 using Parley.Crm.Persistence;
 using Parley.Identity.Persistence;
 using Parley.IntegrationTests.Access.Support;
@@ -103,6 +104,17 @@ public sealed class PostgresFixture : IAsyncLifetime
             await crmContext.Database.MigrateAsync();
         }
 
+        // The campaigns schema is created by its own migrations, the same way.
+        await using (var campaignsContext = new CampaignsDbContext(
+            new DbContextOptionsBuilder<CampaignsDbContext>()
+                .UseNpgsql(ConnectionString)
+                .UseSnakeCaseNamingConvention()
+                .Options,
+            new JobTenantContext()))
+        {
+            await campaignsContext.Database.MigrateAsync();
+        }
+
         await RegistrationRollbackTrigger.InstallAsync(ConnectionString, CancellationToken.None);
 
         await using (var designConnection = new NpgsqlConnection(ConnectionString))
@@ -113,7 +125,7 @@ public sealed class PostgresFixture : IAsyncLifetime
             _respawner = await Respawner.CreateAsync(designConnection, new RespawnerOptions
             {
                 DbAdapter = DbAdapter.Postgres,
-                SchemasToInclude = [TenantTestDbContext.SchemaName, SecondSchemaDbContext.SchemaName, IdentityDbContext.SchemaName, CrmDbContext.SchemaName],
+                SchemasToInclude = [TenantTestDbContext.SchemaName, SecondSchemaDbContext.SchemaName, IdentityDbContext.SchemaName, CrmDbContext.SchemaName, CampaignsDbContext.SchemaName],
                 SchemasToExclude = [PersistenceConstants.HangfireSchema],
                 // Migration history lives in the default (public) schema and must survive resets,
                 // or the next host start re-runs Initial.
@@ -121,6 +133,7 @@ public sealed class PostgresFixture : IAsyncLifetime
                 [
                     new Table(IdentityDbContext.SchemaName, PersistenceConstants.MigrationHistoryTable),
                     new Table(CrmDbContext.SchemaName, PersistenceConstants.MigrationHistoryTable),
+                    new Table(CampaignsDbContext.SchemaName, PersistenceConstants.MigrationHistoryTable),
                     new Table(TestDatabaseSettings.PublicSchema, PersistenceConstants.MigrationHistoryTable),
                     // System roles and their grants are seeded by the migration; a reset would drop them.
                     new Table(IdentityDbContext.SchemaName, IdentityDbContext.RolesTableName),

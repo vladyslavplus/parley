@@ -345,4 +345,67 @@
   <data name="crm.demo.note.call_after_order" xml:space="preserve">
     <value>Просить подзвонити після наступного замовлення.</value>
   </data>
+  <data name="campaigns.template.not_found" xml:space="preserve">
+    <value>Шаблон не знайдено.</value>
+  </data>
+  <data name="campaigns.template.syntax_invalid" xml:space="preserve">
+    <value>Синтаксис шаблону некоректний: рядок {0}, позиція {1}.</value>
+  </data>
+  <data name="campaigns.template.variable_unknown" xml:space="preserve">
+    <value>Змінна '{0}' не дозволена (рядок {1}, позиція {2}).</value>
+  </data>
+  <data name="campaigns.template.tag_not_allowed" xml:space="preserve">
+    <value>Тег '{0}' заборонено (рядок {1}, позиція {2}).</value>
+  </data>
+  <data name="campaigns.template.filter_not_allowed" xml:space="preserve">
+    <value>Фільтр '{0}' заборонено (рядок {1}, позиція {2}).</value>
+  </data>
+  <data name="campaigns.template.too_long" xml:space="preserve">
+    <value>Шаблон занадто довгий.</value>
+  </data>
+  <data name="campaigns.template.render_failed" xml:space="preserve">
+    <value>Не вдалося відобразити шаблон.</value>
+  </data>
+  <data name="campaigns.segment.not_found" xml:space="preserve">
+    <value>Сегмент не знайдено.</value>
+  </data>
+  <data name="campaigns.segment.rfm_not_available" xml:space="preserve">
+    <value>Фільтр за RFM-сегментом поки недоступний.</value>
+  </data>
+  <data name="campaigns.template.version_conflict" xml:space="preserve">
+    <value>Шаблон змінив інший користувач. Оновіть його і спробуйте ще раз.</value>
+  </data>
+  <data name="campaigns.campaign.not_found" xml:space="preserve">
+    <value>Кампанію не знайдено.</value>
+  </data>
+  <data name="campaigns.campaign.audience_frozen" xml:space="preserve">
+    <value>Аудиторію заморожено. Налаштування кампанії більше не можна змінити.</value>
+  </data>
+  <data name="campaigns.campaign.not_draft" xml:space="preserve">
+    <value>Редагувати можна лише кампанію в статусі чернетки.</value>
+  </data>
+  <data name="campaigns.campaign.invalid_state" xml:space="preserve">
+    <value>Кампанія не в такому стані, що дозволяє цю дію.</value>
+  </data>
+  <data name="campaigns.campaign.version_conflict" xml:space="preserve">
+    <value>Кампанію змінено після того, як ви її завантажили. Оновіть її і спробуйте ще раз.</value>
+  </data>
+  <data name="campaigns.campaign.holdout_share_out_of_range" xml:space="preserve">
+    <value>Частка контрольної групи поза дозволеним діапазоном.</value>
+  </data>
+  <data name="campaigns.campaign.targeting_share_out_of_range" xml:space="preserve">
+    <value>Частка таргетингу поза дозволеним діапазоном.</value>
+  </data>
+  <data name="campaigns.campaign.targeting_mode_invalid" xml:space="preserve">
+    <value>Режим таргетингу не підтримується.</value>
+  </data>
+  <data name="campaigns.campaign.targeting_not_permitted" xml:space="preserve">
+    <value>Таргетинг за оцінками потребує дозволу на ML-інсайти.</value>
+  </data>
+  <data name="campaigns.campaign.scores_unavailable" xml:space="preserve">
+    <value>Оцінок ще немає, тому цей режим таргетингу не можна підготувати.</value>
+  </data>
+  <data name="campaigns.segment.version_conflict" xml:space="preserve">
+    <value>Сегмент змінив інший користувач. Оновіть його і спробуйте ще раз.</value>
+  </data>
 </root>
