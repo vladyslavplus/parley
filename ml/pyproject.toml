@@ -22,6 +22,7 @@ train = [
     "openpyxl==3.1.5",
     "pyarrow==26.0.1",
     "pyyaml==6.0.3",
+    "matplotlib==3.11.2",
 ]
 serve = [
     "fastapi==0.162.2",
@@ -44,3 +45,5 @@ packages = ["parley_ml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["slow: runs a real model fit on the clean data; excluded from the default run (use -m slow)"]
+addopts = "-m 'not slow'"

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 300" width="980" height="300" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+  <title>Uplift research pipeline: data, validation grid, frozen winners, one test pass</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#444"/>
+    </marker>
+  </defs>
+  <rect width="980" height="300" fill="#ffffff"/>
+  <g stroke="#2b4c7e" stroke-width="1.5" fill="#eef3fb">
+    <rect x="20" y="40" width="150" height="90" rx="6"/>
+    <rect x="215" y="40" width="165" height="90" rx="6"/>
+    <rect x="425" y="40" width="165" height="90" rx="6"/>
+    <rect x="635" y="40" width="150" height="90" rx="6"/>
+    <rect x="815" y="40" width="145" height="90" rx="6"/>
+  </g>
+  <g fill="#1d2a3a">
+    <text x="95" y="72" text-anchor="middle" font-weight="600">Criteo data</text>
+    <text x="95" y="94" text-anchor="middle">train, validation</text>
+    <text x="95" y="112" text-anchor="middle">test (locked)</text>
+    <text x="297" y="72" text-anchor="middle" font-weight="600">Validation grid</text>
+    <text x="297" y="94" text-anchor="middle">3 families x 2 outcomes</text>
+    <text x="297" y="112" text-anchor="middle">x 4 depth/rate cells</text>
+    <text x="507" y="72" text-anchor="middle" font-weight="600">Freeze</text>
+    <text x="507" y="94" text-anchor="middle">winners, k* on validation</text>
+    <text x="507" y="112" text-anchor="middle">written before test</text>
+    <text x="710" y="72" text-anchor="middle" font-weight="600">Final fit</text>
+    <text x="710" y="94" text-anchor="middle">3 seeds per winner</text>
+    <text x="710" y="112" text-anchor="middle">early stop on validation</text>
+    <text x="887" y="72" text-anchor="middle" font-weight="600">Test, once</text>
+    <text x="887" y="94" text-anchor="middle">bootstrap, paired</text>
+    <text x="887" y="112" text-anchor="middle">sample sizes, profit</text>
+  </g>
+  <g stroke="#444" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+    <line x1="172" y1="85" x2="213" y2="85"/>
+    <line x1="382" y1="85" x2="423" y2="85"/>
+    <line x1="592" y1="85" x2="633" y2="85"/>
+    <line x1="787" y1="85" x2="813" y2="85"/>
+  </g>
+  <g fill="#1d2a3a">
+    <text x="490" y="175" text-anchor="middle" font-weight="600">Order enforced in code</text>
+    <text x="490" y="198" text-anchor="middle">The configured winners must match the committed validation grid.</text>
+    <text x="490" y="218" text-anchor="middle">Test split loads only after the freeze file exists; the access log is written first.</text>
+    <text x="490" y="238" text-anchor="middle">Outputs are committed as CSV and Markdown; figures stay in git-ignored artifacts.</text>
+  </g>
+</svg>

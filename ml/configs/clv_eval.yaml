@@ -1,0 +1,35 @@
+# CLV evaluation (RQ2) and artifact. Paths are relative to the ml/ directory.
+# Run: uv run --directory ml python -m parley_ml.clv.evaluate --config configs/clv_eval.yaml
+
+paths:
+  # Fit run from parley_ml.clv.fit: provides the split dates, MAP parameters and checksums.
+  fit_run_dir: "artifacts/runs/clv_fit-14e62fd3ac3c"
+  # Clean data (checked against the fit run's transactions checksum).
+  input_dir: "artifacts/online_retail"
+  # Committed results (metrics CSV, curves PNG, report).
+  results_dir: "results"
+  # Git-ignored run record: <run_root>/clv_eval-<config hash>/evaluation.json
+  run_root: "artifacts/runs"
+  # Artifact directory: <artifact_root>/clv_bgnbd_gg-<yyyymmdd>-<fit config hash>/
+  artifact_root: "artifacts/models"
+
+evaluation:
+  # Customer bootstrap: resamples customers with replacement; intervals are percentiles.
+  bootstrap_replicates: 500
+  bootstrap_seed: 20261109
+  # Top-decile capture uses the top 10 % of customers by prediction.
+  decile_fraction: 0.1
+  # Calibration bins by calibration frequency (repeat purchase days); the last bin is open.
+  frequency_bin_edges: [0, 1, 2, 3, 5, 10]
+  # Last-period spend baseline: net spend of all lines in this many days before calibration_end.
+  # Equal to the holdout length, so both baselines look at the same span.
+  last_period_days: 183
+  # RFM baseline: frequency and monetary value over this many days before calibration_end.
+  rfm_window_days: 365
+  rfm_tiers: 5
+
+artifact:
+  # Version date in the artifact name (yyyymmdd). Fixed in config so the name is reproducible.
+  version_date: "2026-11-09"
+  # Default horizon written to the manifest (serving takes the horizon per request).
+  horizon_days: 365

@@ -1,0 +1,15 @@
+# Validation grid for the three uplift families over both outcomes. Each cell is one run directory.
+# Winners are chosen on the validation split only (see the selection block).
+grid:
+  max_depth: [4, 6]
+  learning_rate: [0.05, 0.1]
+families:
+  - configs/uplift_response.yaml
+  - configs/uplift_s.yaml
+  - configs/uplift_t.yaml
+runs_root: artifacts/runs
+summary_csv: results/uplift_validation_grid.csv
+summary_markdown: results/uplift_validation_grid.md
+selection:
+  split: validation
+  metric: qini_coefficient
