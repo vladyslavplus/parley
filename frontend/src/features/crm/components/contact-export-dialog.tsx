@@ -98,14 +98,14 @@ export function ContactExportDialog({
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <Button
                     variant="secondary"
-                    className="h-8 px-3 text-xs"
+                    className="px-3 text-xs"
                     onClick={() => handleOpenChange(false)}
                   >
                     {tCommon("cancel")}
                   </Button>
                   <Button
                     variant="primary"
-                    className="h-8 px-3 text-xs"
+                    className="px-3 text-xs"
                     onClick={() => void startExport(filters)}
                   >
                     {t("start")}
@@ -146,7 +146,7 @@ export function ContactExportDialog({
                 <div className="flex items-center gap-2 pt-2">
                   <Button
                     variant="secondary"
-                    className="h-8 px-3 text-xs"
+                    className="px-3 text-xs"
                     onClick={() => handleOpenChange(false)}
                   >
                     {t("close")}
@@ -155,7 +155,7 @@ export function ContactExportDialog({
                     <a
                       href={state.downloadUrl}
                       download
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--radius-control)] bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 rounded-[var(--radius-control)] bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
                     >
                       <Download className="h-3.5 w-3.5" />
                       <span>{t("download")}</span>
@@ -183,7 +183,7 @@ export function ContactExportDialog({
                 <div className="flex items-center gap-2 pt-2">
                   <Button
                     variant="secondary"
-                    className="h-8 px-3 text-xs"
+                    className="px-3 text-xs"
                     onClick={() => handleOpenChange(false)}
                   >
                     {t("close")}
@@ -191,7 +191,7 @@ export function ContactExportDialog({
                   <Button
                     variant="primary"
                     onClick={() => void startExport(filters)}
-                    className="h-8 px-3 text-xs gap-1.5"
+                    className="px-3 text-xs gap-1.5"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
                     <span>{t("tryAgain")}</span>

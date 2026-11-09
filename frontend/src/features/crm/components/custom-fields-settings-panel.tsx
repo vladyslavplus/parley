@@ -17,13 +17,14 @@ import { useApiForm } from "@/components/forms/use-api-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Input, Select as NativeSelect } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SimpleSelect,
 } from "@/components/ui/select";
 import { PERMISSIONS } from "@/constants/permissions";
 import { KeysetPagination } from "@/features/crm/components/keyset-pagination";
@@ -351,7 +352,7 @@ export function CustomFieldsSettingsPanel() {
               });
               setCreateOpen(true);
             }}
-            className="h-8 gap-1.5 text-xs px-3 self-start sm:self-auto whitespace-nowrap"
+            className="gap-1.5 text-xs px-3 self-start sm:self-auto whitespace-nowrap"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>{t("create")}</span>
@@ -427,22 +428,22 @@ export function CustomFieldsSettingsPanel() {
               })
             }
           >
-            <NativeSelect
-              aria-label={t("fields.fieldType")}
+            <SimpleSelect
+              ariaLabel={t("fields.fieldType")}
               value={fieldType}
-              onChange={(e) => {
-                void setFieldType(e.target.value);
+              onValueChange={(next) => {
+                void setFieldType(next);
                 tableState.resetPaging();
               }}
-              className="h-8 w-auto min-w-[140px] text-xs bg-background py-1"
-            >
-              <option value="">{t("filters.allTypes")}</option>
-              {FIELD_TYPES.map((ft) => (
-                <option key={ft} value={ft}>
-                  {t(`types.${ft}`)}
-                </option>
-              ))}
-            </NativeSelect>
+              options={[
+                { value: "", label: t("filters.allTypes") },
+                ...FIELD_TYPES.map((ft) => ({
+                  value: ft,
+                  label: t(`types.${ft}`),
+                })),
+              ]}
+              className="w-auto min-w-[140px] text-xs"
+            />
           </DataTableSearchFilterBar>
         }
         paginationSlot={
@@ -503,7 +504,7 @@ export function CustomFieldsSettingsPanel() {
                 <Input
                   {...createForm.register("label")}
                   placeholder={t("fields.labelPlaceholder")}
-                  className="h-8 text-xs bg-background"
+                  className="text-xs bg-background"
                 />
               </FormField>
 
@@ -516,7 +517,7 @@ export function CustomFieldsSettingsPanel() {
                 <Input
                   {...createForm.register("key")}
                   placeholder={t("fields.keyPlaceholder")}
-                  className="h-8 font-mono text-xs bg-background"
+                  className="font-mono text-xs bg-background"
                 />
               </FormField>
 
@@ -534,7 +535,7 @@ export function CustomFieldsSettingsPanel() {
                     )
                   }
                 >
-                  <SelectTrigger className="h-8 text-xs bg-background">
+                  <SelectTrigger className="text-xs bg-background">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -556,7 +557,7 @@ export function CustomFieldsSettingsPanel() {
                   <Input
                     {...createForm.register("options")}
                     placeholder={t("fields.optionsPlaceholder")}
-                    className="h-8 text-xs bg-background"
+                    className="text-xs bg-background"
                   />
                 </FormField>
               )}
@@ -583,7 +584,7 @@ export function CustomFieldsSettingsPanel() {
                 <Input
                   type="number"
                   {...createForm.register("position", { valueAsNumber: true })}
-                  className="h-8 text-xs bg-background"
+                  className="text-xs bg-background"
                 />
               </FormField>
 
@@ -592,7 +593,7 @@ export function CustomFieldsSettingsPanel() {
                   type="button"
                   variant="secondary"
                   onClick={() => setCreateOpen(false)}
-                  className="h-8 px-3 text-xs"
+                  className="px-3 text-xs"
                 >
                   {tCommon("cancel")}
                 </Button>
@@ -600,7 +601,7 @@ export function CustomFieldsSettingsPanel() {
                   type="submit"
                   variant="primary"
                   disabled={createForm.formState.isSubmitting}
-                  className="h-8 px-3 text-xs"
+                  className="px-3 text-xs"
                 >
                   {tCommon("save")}
                 </Button>
@@ -637,7 +638,7 @@ export function CustomFieldsSettingsPanel() {
               >
                 <Input
                   {...editForm.register("label")}
-                  className="h-8 text-xs bg-background"
+                  className="text-xs bg-background"
                 />
               </FormField>
 
@@ -649,7 +650,7 @@ export function CustomFieldsSettingsPanel() {
                 >
                   <Input
                     {...editForm.register("options")}
-                    className="h-8 text-xs bg-background"
+                    className="text-xs bg-background"
                   />
                 </FormField>
               )}
@@ -676,7 +677,7 @@ export function CustomFieldsSettingsPanel() {
                 <Input
                   type="number"
                   {...editForm.register("position", { valueAsNumber: true })}
-                  className="h-8 text-xs bg-background"
+                  className="text-xs bg-background"
                 />
               </FormField>
 
@@ -685,7 +686,7 @@ export function CustomFieldsSettingsPanel() {
                   type="button"
                   variant="secondary"
                   onClick={() => setEditingField(null)}
-                  className="h-8 px-3 text-xs"
+                  className="px-3 text-xs"
                 >
                   {tCommon("cancel")}
                 </Button>
@@ -696,7 +697,7 @@ export function CustomFieldsSettingsPanel() {
                     editForm.formState.isSubmitting ||
                     !editForm.formState.isDirty
                   }
-                  className="h-8 px-3 text-xs"
+                  className="px-3 text-xs"
                 >
                   {tCommon("save")}
                 </Button>

@@ -1,4 +1,106 @@
 {
+  "deals": {
+    "title": "Угоди",
+    "recordTitle": "Угода",
+    "subtitle": "Відстежуйте та просувайте угоди за воронкою продажів",
+    "toolbar": {
+      "searchPlaceholder": "Пошук угод за назвою...",
+      "statusLabel": "Статус угоди",
+      "statusOpen": "Відкриті",
+      "statusWon": "Виграні",
+      "statusLost": "Втрачені",
+      "statusAll": "Усі",
+      "newDeal": "Нова угода"
+    },
+    "board": {
+      "total": "Разом",
+      "noPipeline": "Для цієї організації не знайдено воронку."
+    },
+    "column": {
+      "total": "Разом",
+      "empty": "Немає угод на цьому етапі",
+      "showMore": "Показати більше"
+    },
+    "card": {
+      "won": "Виграно",
+      "lost": "Втрачено",
+      "reopen": "Відновити",
+      "dragHandle": "Перетягніть для переміщення {title}"
+    },
+    "picker": {
+      "title": "Угоди",
+      "placeholder": "Оберіть угоду...",
+      "noDeal": "Без угоди",
+      "searchPlaceholder": "Пошук угод...",
+      "clear": "Очистити",
+      "empty": "Угод не знайдено",
+      "loading": "Завантаження угод...",
+      "resultsCount": "{count, plural, one {# угоду знайдено} other {# угод знайдено}}"
+    },
+    "terminalDialog": {
+      "wonTitle": "Позначити угоду як виграну",
+      "lostTitle": "Позначити угоду як втрачену",
+      "wonDescription": "Ви впевнені, що хочете позначити \"{title}\" як виграну?",
+      "lostDescription": "Будь ласка, вкажіть причину втрати угоди \"{title}\", щоб покращити результати в майбутньому.",
+      "lostReasonLabel": "Причина втрати",
+      "lostReasonPlaceholder": "Опишіть, чому угоду було втрачено...",
+      "cancel": "Скасувати",
+      "confirmWon": "Позначити як виграну",
+      "confirmLost": "Позначити як втрачену"
+    },
+    "quickCreate": {
+      "title": "Нова угода",
+      "description": "Створіть нову угоду у воронці з основними даними.",
+      "name": "Назва угоди",
+      "namePlaceholder": "наприклад, Річна підписка на ПЗ",
+      "amount": "Сума",
+      "currency": "Валюта",
+      "company": "Компанія",
+      "selectCompany": "Оберіть компанію...",
+      "contact": "Контакт",
+      "selectContact": "Оберіть контакт...",
+      "owner": "Відповідальний",
+      "selectOwner": "Оберіть відповідального...",
+      "submit": "Створити угоду",
+      "created": "Угоду успішно створено."
+    },
+    "record": {
+      "back": "Назад до угод",
+      "delete": "Видалити угоду",
+      "reopen": "Відновити угоду",
+      "saved": "Угоду успішно оновлено.",
+      "stageChanged": "Етап угоди оновлено.",
+      "notFound": "Угоду не знайдено.",
+      "namePlaceholder": "Введіть назву угоди...",
+      "lostReason": "Причина втрати: {reason}",
+      "dealDeleted": "Угоду \"{title}\" видалено.",
+      "deleteConfirmTitle": "Видалити угоду",
+      "deleteConfirmDescription": "Ви впевнені, що хочете видалити \"{title}\"? Цю дію не можна скасувати.",
+      "fields": {
+        "stage": "Етап",
+        "amount": "Сума",
+        "expectedCloseDate": "Очікувана дата закриття",
+        "company": "Компанія",
+        "contact": "Контакт",
+        "owner": "Відповідальний",
+        "noCompany": "Компанію не прив'язано",
+        "noContact": "Контакт не прив'язано",
+        "unassigned": "Не призначено"
+      },
+      "sections": {
+        "overview": "Огляд",
+        "customFields": "Користувацькі поля",
+        "timeline": "Хронологія",
+        "tasks": "Завдання"
+      }
+    },
+    "accessibility": {
+      "pickedUp": "Піднято угоду {title}.",
+      "dragOver": "Угоду {title} переміщено над {target}.",
+      "dropped": "Угоду {title} переміщено на етап {stage}.",
+      "cancelled": "Переміщення скасовано. Угоду {title} повернуто на початкову позицію."
+    }
+  },
   "contacts": {
     "title": "Контакти",
     "recordTitle": "Контакт",
@@ -69,10 +171,6 @@
         "deals": {
           "title": "Немає активних угод",
           "description": "Угоди у воронці продажів, пов'язані з цим контактом, відображатимуться тут."
-        },
-        "orders": {
-          "title": "Історія замовлень порожня",
-          "description": "Попередні замовлення та транзакції клієнта відстежуватимуться у цьому розділі."
         },
         "scores": {
           "title": "Оцінки ще не розраховані",
@@ -152,6 +250,7 @@
         "overview": "Загальне",
         "customFields": "Користувацькі поля",
         "timeline": "Хронологія",
+        "tasks": "Завдання",
         "deals": "Угоди",
         "contacts": "Контакти"
       },
@@ -253,15 +352,18 @@
   },
   "filters": {
     "owner": "Відповідальний",
+    "company": "Компанія",
+    "button": "Фільтри",
+    "activeCount": "{count, plural, one {# активний фільтр} few {# активні фільтри} many {# активних фільтрів} other {# активного фільтра}}",
+    "back": "Назад до фільтрів",
+    "clearFilter": "Скинути",
+    "removeChip": "Прибрати фільтр {filter}: {value}",
     "tag": "Тег",
     "allOwners": "Усі відповідальні",
     "allTags": "Усі теги",
     "dateRange": "Дата створення",
     "reset": "Скинути фільтри",
     "clearSearch": "Очистити пошук",
-    "filterBy": "Фільтр",
-    "ownerFilter": "Відповідальний: {owner}",
-    "tagFilter": "Тег: {tag}",
     "ownerPicker": {
       "searchPlaceholder": "Пошук відповідальних...",
       "loading": "Завантаження відповідальних...",
@@ -306,6 +408,148 @@
       "completed": "{count, plural, one {Експорт завершено (# рядок)} few {Експорт завершено (# рядки)} many {Експорт завершено (# рядків)} other {Експорт завершено (# рядків)}}",
       "failed": "Помилка експорту.",
       "expired": "Термін дії посилання на експорт минув."
+    }
+  },
+  "tasks": {
+    "title": "Завдання",
+    "subtitle": "Відстежуйте та керуйте запланованими завданнями та діями",
+    "newTask": "Нове завдання",
+    "editTask": "Редагувати завдання",
+    "deleteTask": "Видалити завдання",
+    "save": "Зберегти зміни",
+    "create": "Створити завдання",
+    "statusLabel": "Статус завдання",
+    "searchPlaceholder": "Пошук завдань за назвою...",
+    "emptyTasks": "Немає завдань за обраними фільтрами.",
+    "taskCreated": "Завдання успішно створено.",
+    "taskUpdated": "Завдання успішно оновлено.",
+    "taskDeleted": "Завдання видалено.",
+    "deal": "Угода",
+    "contact": "Контакт",
+    "company": "Компанія",
+    "completeTaskAria": "Позначити завдання виконаним: {title}",
+    "reopenTaskAria": "Повернути завдання в роботу: {title}",
+    "overdueBadge": "Прострочено",
+    "tabs": {
+      "mine": "Мої завдання",
+      "all": "Усі завдання"
+    },
+    "status": {
+      "all": "Всі",
+      "open": "Відкриті",
+      "completed": "Виконані",
+      "overdue": "Прострочені"
+    },
+    "table": {
+      "title": "Назва",
+      "dueDate": "Термін",
+      "assignee": "Виконавець",
+      "linkedRecord": "Пов'язаний запис"
+    },
+    "panel": {
+      "title": "Завдання",
+      "empty": "Немає запланованих завдань для цього запису."
+    },
+    "form": {
+      "title": "Назва",
+      "titlePlaceholder": "напр. Зателефонувати щодо пропозиції",
+      "dueDate": "Термін виконання",
+      "assignee": "Виконавець",
+      "selectAssignee": "Оберіть виконавця...",
+      "linkedContact": "Контакт",
+      "selectContact": "Оберіть контакт...",
+      "linkedDeal": "Угода",
+      "selectDeal": "Оберіть угоду...",
+      "linkedCompany": "Компанія",
+      "selectCompany": "Оберіть компанію...",
+      "notes": "Нотатки",
+      "notesPlaceholder": "Додайте коментар або деталі завдання..."
+    },
+    "errors": {
+      "titleRequired": "Назва обов'язкова",
+      "titleTooLong": "Назва не може перевищувати 200 символів",
+      "notesTooLong": "Нотатки не можуть перевищувати 2000 символів",
+      "assigneeRequired": "Виконавець обов'язковий"
+    },
+    "deleteConfirmTitle": "Видалити завдання",
+    "deleteConfirmDescription": "Ви дійсно бажаєте видалити \"{title}\"? Цю дію не можна скасувати."
+  },
+  "notes": {
+    "title": "Нотатки",
+    "newNote": "Нова нотатка",
+    "editNote": "Редагувати нотатку",
+    "deleteNote": "Видалити нотатку",
+    "addNote": "Додати нотатку",
+    "save": "Зберегти зміни",
+    "create": "Додати нотатку",
+    "noteCreated": "Нотатку успішно додано.",
+    "noteUpdated": "Нотатку успішно оновлено.",
+    "noteDeleted": "Нотатку видалено.",
+    "markdownSupported": "Підтримується Markdown",
+    "form": {
+      "body": "Текст нотатки",
+      "bodyPlaceholder": "Напишіть вашу нотатку тут...",
+      "quickAddPlaceholder": "Напишіть нотатку або оновлення..."
+    },
+    "errors": {
+      "bodyRequired": "Текст нотатки обов'язковий",
+      "bodyTooLong": "Нотатка не може перевищувати 4000 символів"
+    },
+    "deleteConfirmTitle": "Видалити нотатку",
+    "deleteConfirmDescription": "Ви дійсно бажаєте видалити цю нотатку? Цю дію не можна скасувати."
+  },
+  "timeline": {
+    "title": "Хронологія активності",
+    "empty": "Немає записів активності для цього запису.",
+    "showMore": "Показати більше",
+    "unknownUser": "Хтось",
+    "deal": "Угода",
+    "task": "Завдання",
+    "filters": {
+      "all": "Всі",
+      "note_added": "Нотатки",
+      "task_completed": "Завдання",
+      "deal_stage_changed": "Угоди",
+      "deal_closed": "Закриті угоди",
+      "contact_created": "Контакти",
+      "order_recorded": "Замовлення"
+    },
+    "events": {
+      "contactCreated": "{actor} створив(ла) контакт",
+      "dealStageChanged": "{actor} змінив(ла) етап угоди \"{deal}\" на {stage}",
+      "dealClosed": "{actor} закрив(ла) угоду \"{deal}\" ({status})",
+      "noteAdded": "{actor} залишив(ла) нотатку",
+      "taskCompleted": "{actor} виконав(ла) завдання \"{task}\"",
+      "aStage": "етап",
+      "statusWon": "виграно",
+      "statusLost": "програно",
+      "statusOpen": "відкрито",
+      "orderRecorded": "Записано замовлення {invoice}: {amount}",
+      "orderRecordedInvoice": "Записано замовлення {invoice}",
+      "orderRecordedAmount": "Записано замовлення: {amount}",
+      "orderRecordedNeutral": "Записано замовлення",
+      "orderCancellation": "Скасування",
+      "statusClosed": "закрито"
+    },
+    "system": "Система"
+  },
+  "orders": {
+    "title": "Замовлення",
+    "searchPlaceholder": "Пошук за номером рахунку...",
+    "columns": {
+      "invoice": "Рахунок",
+      "ordered": "Дата",
+      "lines": "Позицій",
+      "total": "Сума"
+    },
+    "cancellation": "Скасування",
+    "empty": "Замовлень ще немає",
+    "emptyFiltered": "Немає замовлень за обраними фільтрами",
+    "loadFailed": "Не вдалося завантажити замовлення.",
+    "invalidDateRange": "Початкова дата не може бути пізнішою за кінцеву.",
+    "filters": {
+      "from": "Замовлено від",
+      "to": "Замовлено до"
     }
   }
 }

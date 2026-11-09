@@ -14,11 +14,13 @@ import {
 } from "@/components/data-table";
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
+import { FormSelect } from "@/components/forms/form-select";
 import { useApiForm } from "@/components/forms/use-api-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Input, Select } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
+import { SimpleSelect, type SelectOptionItem } from "@/components/ui/select";
 import { LIMITS } from "@/constants/limits";
 import {
   MEMBERSHIP_STATUSES,
@@ -68,27 +70,17 @@ function resolveInvitationSort(
     : "createdAt";
 }
 
-function RoleOptions() {
+function useRoleOptions(): SelectOptionItem[] {
   const t = useTranslations("settings.roles");
-  return SYSTEM_ROLES.map((code) => (
-    <option key={code} value={code}>
-      {t(code)}
-    </option>
-  ));
+  return SYSTEM_ROLES.map((code) => ({ value: code, label: t(code) }));
 }
 
-function TeamOptions({ teams }: { teams: Schemas["TeamView"][] }) {
+function useTeamOptions(teams: Schemas["TeamView"][]): SelectOptionItem[] {
   const t = useTranslations("settings.members");
-  return (
-    <>
-      <option value="">{t("noTeam")}</option>
-      {teams.map((team) => (
-        <option key={team.id} value={team.id}>
-          {team.name}
-        </option>
-      ))}
-    </>
-  );
+  return [
+    { value: "", label: t("noTeam") },
+    ...teams.map((team) => ({ value: team.id, label: team.name })),
+  ];
 }
 
 function InviteMemberDialog({
@@ -110,6 +102,8 @@ function InviteMemberDialog({
   const locale = useLocale();
   const invalidate = useInvalidate();
   const schema = createInviteSchema(tValidation);
+  const roleOptions = useRoleOptions();
+  const teamOptions = useTeamOptions(teams);
 
   const { form, onSubmit, formError, alertRef } = useApiForm<InviteValues>({
     schema,
@@ -165,26 +159,24 @@ function InviteMemberDialog({
               <Input
                 type="email"
                 autoComplete="off"
-                className="h-8 text-xs bg-background"
+                className="text-xs bg-background"
                 {...form.register("email")}
               />
             </FormField>
             <FormField label={t("role")} error={errors.roleCode?.message}>
-              <Select
-                className="h-8 text-xs bg-background"
-                {...form.register("roleCode")}
-              >
-                <RoleOptions />
-              </Select>
+              <FormSelect
+                control={form.control}
+                name="roleCode"
+                options={roleOptions}
+              />
             </FormField>
             {canTeams ? (
               <FormField label={t("team")} error={errors.teamId?.message}>
-                <Select
-                  className="h-8 text-xs bg-background"
-                  {...form.register("teamId")}
-                >
-                  <TeamOptions teams={teams} />
-                </Select>
+                <FormSelect
+                  control={form.control}
+                  name="teamId"
+                  options={teamOptions}
+                />
               </FormField>
             ) : null}
             <div className="flex justify-end pt-1">
@@ -193,7 +185,7 @@ function InviteMemberDialog({
                 variant="secondary"
                 onClick={() => handleOpenChange(false)}
                 disabled={isSubmitting}
-                className="h-8 px-3 text-xs"
+                className="px-3 text-xs"
               >
                 {tCommon("cancel")}
               </Button>
@@ -217,6 +209,8 @@ function EditMemberDialog({
   canTeams: boolean;
 }) {
   const t = useTranslations("settings.members");
+  const roleOptions = useRoleOptions();
+  const teamOptions = useTeamOptions(teams);
   const tCommon = useTranslations("common");
   const tKinds = useTranslations("errors.kinds");
   const locale = useLocale();
@@ -306,28 +300,26 @@ function EditMemberDialog({
 
           <div className="space-y-4">
             <FormField label={t("columns.role")}>
-              <Select
-                aria-label={t("columns.role")}
+              <SimpleSelect
+                ariaLabel={t("columns.role")}
                 value={roleCode}
                 disabled={pending}
-                onChange={(event) => setRoleCode(event.target.value)}
-                className="h-8 text-xs bg-background"
-              >
-                <RoleOptions />
-              </Select>
+                onValueChange={setRoleCode}
+                options={roleOptions}
+                className="text-xs"
+              />
             </FormField>
 
             {canTeams ? (
               <FormField label={t("columns.team")}>
-                <Select
-                  aria-label={t("columns.team")}
+                <SimpleSelect
+                  ariaLabel={t("columns.team")}
                   value={teamId}
                   disabled={pending}
-                  onChange={(event) => setTeamId(event.target.value)}
-                  className="h-8 text-xs bg-background"
-                >
-                  <TeamOptions teams={teams} />
-                </Select>
+                  onValueChange={setTeamId}
+                  options={teamOptions}
+                  className="text-xs"
+                />
               </FormField>
             ) : null}
           </div>
@@ -338,7 +330,7 @@ function EditMemberDialog({
               variant="secondary"
               onClick={onClose}
               disabled={pending}
-              className="h-8 px-3 text-xs"
+              className="px-3 text-xs"
             >
               {tCommon("cancel")}
             </Button>
@@ -347,7 +339,7 @@ function EditMemberDialog({
               variant="primary"
               onClick={() => void handleSave()}
               disabled={!isDirty || pending}
-              className="h-8 px-3 text-xs"
+              className="px-3 text-xs"
             >
               {tCommon("save")}
             </Button>
@@ -360,6 +352,7 @@ function EditMemberDialog({
 
 export function MembersPanel() {
   const t = useTranslations("settings.members");
+  const roleOptions = useRoleOptions();
   const tRoles = useTranslations("settings.roles");
   const locale = useLocale();
   const { data: me } = useMe();
@@ -741,7 +734,7 @@ export function MembersPanel() {
         <Button
           variant="primary"
           onClick={() => setInviteOpen(true)}
-          className="h-8 gap-1.5 text-xs px-3 self-start sm:self-auto whitespace-nowrap"
+          className="gap-1.5 text-xs px-3 self-start sm:self-auto whitespace-nowrap"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>{t("invite.title")}</span>
@@ -828,53 +821,50 @@ export function MembersPanel() {
                   })
                 }
               >
-                <Select
-                  aria-label={t("filters.role")}
+                <SimpleSelect
+                  ariaLabel={t("filters.role")}
                   value={roleCode}
-                  onChange={(e) => {
-                    void setRoleCode(e.target.value);
+                  onValueChange={(next) => {
+                    void setRoleCode(next);
                     tableState.resetPaging();
                   }}
-                  className="h-8 w-auto min-w-[130px] text-xs bg-background py-1"
-                >
-                  <option value="">{t("filters.allRoles")}</option>
-                  <RoleOptions />
-                </Select>
+                  options={[
+                    { value: "", label: t("filters.allRoles") },
+                    ...roleOptions,
+                  ]}
+                  className="w-auto min-w-[130px] text-xs"
+                />
 
                 {canTeams ? (
-                  <Select
-                    aria-label={t("filters.team")}
+                  <SimpleSelect
+                    ariaLabel={t("filters.team")}
                     value={teamId}
-                    onChange={(e) => {
-                      void setTeamId(e.target.value);
+                    onValueChange={(next) => {
+                      void setTeamId(next);
                       tableState.resetPaging();
                     }}
-                    className="h-8 w-auto min-w-[140px] text-xs bg-background py-1"
-                  >
-                    <option value="">{t("filters.allTeams")}</option>
-                    {teams.map((tm) => (
-                      <option key={tm.id} value={tm.id}>
-                        {tm.name}
-                      </option>
-                    ))}
-                  </Select>
+                    options={[
+                      { value: "", label: t("filters.allTeams") },
+                      ...teams.map((tm) => ({ value: tm.id, label: tm.name })),
+                    ]}
+                    className="w-auto min-w-[140px] text-xs"
+                  />
                 ) : null}
 
-                <Select
-                  aria-label={t("filters.status")}
+                <SimpleSelect
+                  ariaLabel={t("filters.status")}
                   value={status}
-                  onChange={(e) => {
-                    void setStatus(
-                      e.target.value as "active" | "deactivated" | "all",
-                    );
+                  onValueChange={(next) => {
+                    void setStatus(next as "active" | "deactivated" | "all");
                     tableState.resetPaging();
                   }}
-                  className="h-8 w-auto min-w-[130px] text-xs bg-background py-1"
-                >
-                  <option value="active">{t("status.active")}</option>
-                  <option value="deactivated">{t("status.deactivated")}</option>
-                  <option value="all">{t("filters.allStatuses")}</option>
-                </Select>
+                  options={[
+                    { value: "active", label: t("status.active") },
+                    { value: "deactivated", label: t("status.deactivated") },
+                    { value: "all", label: t("filters.allStatuses") },
+                  ]}
+                  className="w-auto min-w-[130px] text-xs"
+                />
               </DataTableSearchFilterBar>
             }
             paginationSlot={
@@ -921,18 +911,19 @@ export function MembersPanel() {
                 })
               }
             >
-              <Select
-                aria-label={t("filters.role")}
+              <SimpleSelect
+                ariaLabel={t("filters.role")}
                 value={roleCode}
-                onChange={(e) => {
-                  void setRoleCode(e.target.value);
+                onValueChange={(next) => {
+                  void setRoleCode(next);
                   tableState.resetPaging();
                 }}
-                className="h-8 w-auto min-w-[130px] text-xs bg-background py-1"
-              >
-                <option value="">{t("filters.allRoles")}</option>
-                <RoleOptions />
-              </Select>
+                options={[
+                  { value: "", label: t("filters.allRoles") },
+                  ...roleOptions,
+                ]}
+                className="w-auto min-w-[130px] text-xs"
+              />
             </DataTableSearchFilterBar>
           }
           paginationSlot={

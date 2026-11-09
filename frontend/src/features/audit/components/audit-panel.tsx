@@ -10,7 +10,8 @@ import {
   useServerTableState,
 } from "@/components/data-table";
 import { Alert } from "@/components/ui/alert";
-import { Input, Select } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
+import { SimpleSelect } from "@/components/ui/select";
 import {
   AUDIT_ACTIONS,
   type AuditActionCode,
@@ -200,22 +201,22 @@ export function AuditPanel() {
               })
             }
           >
-            <Select
-              aria-label={t("filters.action")}
+            <SimpleSelect
+              ariaLabel={t("filters.action")}
               value={action}
-              onChange={(e) => {
-                void setAction(e.target.value);
+              onValueChange={(next) => {
+                void setAction(next);
                 tableState.resetPaging();
               }}
-              className="h-8 w-auto min-w-[180px] text-xs bg-background py-1"
-            >
-              <option value="">{t("filters.allActions")}</option>
-              {AUDIT_ACTIONS.map((code) => (
-                <option key={code} value={code}>
-                  {formatActionLabel(code)} ({code})
-                </option>
-              ))}
-            </Select>
+              options={[
+                { value: "", label: t("filters.allActions") },
+                ...AUDIT_ACTIONS.map((code) => ({
+                  value: code,
+                  label: `${formatActionLabel(code)} (${code})`,
+                })),
+              ]}
+              className="w-auto min-w-[180px] text-xs"
+            />
 
             <OwnerPicker
               variant="control"
@@ -244,7 +245,7 @@ export function AuditPanel() {
                   }
                   tableState.resetPaging();
                 }}
-                className="h-8 w-auto text-xs bg-background px-2"
+                className="w-auto text-xs bg-background px-2"
               />
               <span className="text-xs text-muted-foreground">—</span>
               <Input
@@ -260,7 +261,7 @@ export function AuditPanel() {
                   }
                   tableState.resetPaging();
                 }}
-                className="h-8 w-auto text-xs bg-background px-2"
+                className="w-auto text-xs bg-background px-2"
               />
             </div>
           </DataTableSearchFilterBar>

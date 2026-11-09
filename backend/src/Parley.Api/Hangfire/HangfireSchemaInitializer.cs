@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using Parley.Api.Options;
 using Parley.Crm.Exports;
+using Parley.Crm.Tasks;
 using Parley.SharedKernel.BackgroundJobs;
 using Parley.SharedKernel.Persistence.Conventions;
 
@@ -88,6 +89,21 @@ public sealed class HangfireSchemaInitializer(
             logger.LogWarning(
                 exception,
                 "Recurring contact export cleanup registration was deferred until the database is available.");
+        }
+
+        try
+        {
+            recurringJobs.AddOrUpdate(
+                HangfireConstants.TaskDueSoonScanJobName,
+                Job.FromExpression<TaskDueSoonScanJob>(job => job.ExecuteAsync(null, CancellationToken.None)),
+                HangfireConstants.TaskDueSoonScanCron,
+                new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(
+                exception,
+                "Recurring task due-soon registration was deferred until the database is available.");
         }
     }
 

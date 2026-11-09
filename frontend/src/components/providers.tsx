@@ -29,6 +29,7 @@ import {
   Info,
   Loader2,
 } from "lucide-react";
+import { LocaleCacheSync } from "@/components/locale-cache-sync";
 import { ROUTES, ROUTE_PARAMS } from "@/constants/routes";
 import { LIMITS } from "@/constants/limits";
 import { THEME_STORAGE_KEY } from "@/constants/theme";
@@ -92,7 +93,10 @@ function QueryProvider({ children }: { children: ReactNode }) {
     });
   });
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <LocaleCacheSync />
+      {children}
+    </QueryClientProvider>
   );
 }
 

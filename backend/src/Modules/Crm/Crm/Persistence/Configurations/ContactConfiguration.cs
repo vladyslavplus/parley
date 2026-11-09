@@ -29,6 +29,8 @@ public sealed class ContactConfiguration : IEntityTypeConfiguration<Contact>
         builder.Property(contact => contact.Source).HasMaxLength(CrmLimits.SourceMaximumLength).IsRequired();
         builder.Property(contact => contact.CustomFields).HasColumnType("jsonb").IsRequired();
         builder.Property(contact => contact.DeletedAt).HasColumnType("timestamptz").HasConversion(NullableUtcConverter);
+        builder.Property(contact => contact.ExternalRef).HasMaxLength(CrmLimits.ExternalRefMaximumLength);
+        builder.Property(contact => contact.LastOrderAt).HasColumnType("timestamptz").HasConversion(UtcValueConverters.Optional);
         builder.Property(contact => contact.NameNormalized)
             .HasComputedColumnSql(CrmSql.ContactNameNormalized, stored: true);
         builder.Property<NpgsqlTsVector>(CrmSchemaNames.SearchVectorProperty)
@@ -43,6 +45,8 @@ public sealed class ContactConfiguration : IEntityTypeConfiguration<Contact>
         builder.HasTenantIndex(CrmSchemaNames.ContactCompanyIndex, nameof(Contact.CompanyId), nameof(Contact.Id));
         builder.HasTenantUniqueIndex(CrmSchemaNames.ContactEmailIndex, nameof(Contact.EmailNormalized))
             .HasFilter(CrmSql.LiveRowFilter);
+        builder.HasTenantUniqueIndex(CrmSchemaNames.ContactSourceExternalRefIndex, nameof(Contact.Source), nameof(Contact.ExternalRef))
+            .HasFilter(CrmSql.ExternalRefPresentFilter);
         builder.HasIndex(CrmSchemaNames.SearchVectorProperty)
             .HasDatabaseName(CrmSchemaNames.ContactSearchIndex)
             .HasMethod(CrmSchemaNames.GinMethod);

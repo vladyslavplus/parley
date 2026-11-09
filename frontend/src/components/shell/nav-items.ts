@@ -1,6 +1,8 @@
 import {
   Building2,
+  CheckSquare,
   Contact,
+  Kanban,
   Palette,
   Settings,
   type LucideIcon,
@@ -20,6 +22,14 @@ export interface NavItemConfig {
 
 export const MAIN_NAV_ITEMS: NavItemConfig[] = [
   {
+    id: "deals",
+    href: ROUTES.deals,
+    titleKey: "sidebar.items.deals",
+    icon: Kanban,
+    permission: PERMISSIONS.dealsRead,
+    section: "main",
+  },
+  {
     id: "contacts",
     href: ROUTES.contacts,
     titleKey: "sidebar.items.contacts",
@@ -33,6 +43,14 @@ export const MAIN_NAV_ITEMS: NavItemConfig[] = [
     titleKey: "sidebar.items.companies",
     icon: Building2,
     permission: PERMISSIONS.companiesRead,
+    section: "main",
+  },
+  {
+    id: "tasks",
+    href: ROUTES.tasks,
+    titleKey: "sidebar.items.tasks",
+    icon: CheckSquare,
+    permission: PERMISSIONS.tasksRead,
     section: "main",
   },
 ];

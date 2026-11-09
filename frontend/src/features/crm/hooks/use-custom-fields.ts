@@ -16,14 +16,14 @@ export type CustomFieldsPageParams = {
   after?: string;
   limit?: number;
   q?: string;
-  entityType?: "contact" | "company";
+  entityType?: "contact" | "company" | "deal";
   fieldType?: "text" | "number" | "date" | "boolean" | "select";
   sort?: "name" | "createdAt" | "position";
   order?: "asc" | "desc";
 };
 
 export function useCustomFields(
-  entityType?: "contact" | "company",
+  entityType?: "contact" | "company" | "deal",
   enabled = true,
 ) {
   const locale = useLocale();

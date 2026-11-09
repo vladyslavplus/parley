@@ -1,7 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Download, Plus, RefreshCw, Search, X } from "lucide-react";
+import { Download, Plus, RefreshCw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
@@ -10,10 +10,10 @@ import {
   DataTable,
   DataTableColumnsMenu,
   DataTableDensityToggle,
+  DataTableSearchFilterBar,
   useKeysetPaging,
 } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { LIMITS } from "@/constants/limits";
 import { PERMISSIONS } from "@/constants/permissions";
 import { companyRecordRoute, contactRecordRoute } from "@/constants/routes";
@@ -23,9 +23,11 @@ import { ContactQuickCreateDialog } from "@/features/crm/components/contact-quic
 import { CrmBulkBar } from "@/features/crm/components/crm-bulk-bar";
 import { CrmTagBadge } from "@/features/crm/components/crm-tag-badge";
 import { KeysetPagination } from "@/features/crm/components/keyset-pagination";
-import { OwnerPicker } from "@/features/crm/components/owner-picker";
-import { TagPicker } from "@/features/crm/components/tag-picker";
 import { useContacts } from "@/features/crm/hooks/use-contacts";
+import {
+  useOwnerDimension,
+  useTagDimension,
+} from "@/features/crm/filters/use-filter-dimensions";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import { useTags } from "@/features/crm/hooks/use-tags";
 import type { Contact } from "@/features/crm/types";
@@ -122,6 +124,21 @@ export function ContactsListView() {
     setSelectedContact(row);
     setPreviewOpen(true);
   }
+
+  const tagDimension = useTagDimension({
+    value: tagId,
+    onChange: (value) => {
+      void setTagId(value);
+      resetPaging();
+    },
+  });
+  const ownerDimension = useOwnerDimension({
+    value: ownerUserId,
+    onChange: (value) => {
+      void setOwnerUserId(value);
+      resetPaging();
+    },
+  });
 
   function handleFilterReset() {
     setSearchInput("");
@@ -313,9 +330,9 @@ export function ContactsListView() {
           <Button
             variant="primary"
             onClick={() => setQuickCreateOpen(true)}
-            className="h-8 gap-1.5 text-xs px-3 self-start sm:self-auto"
+            className="gap-1.5 self-start px-3 text-xs sm:self-auto"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-4 w-4" />
             <span>{t("create")}</span>
           </Button>
         </Can>
@@ -332,91 +349,35 @@ export function ContactsListView() {
         manualSorting
         onRowClick={handleRowClick}
         toolbar={
-          <div className="flex flex-wrap items-center justify-between gap-3 w-full">
-            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-              {/* Search input with debounce */}
-              <div className="relative w-full max-w-xs">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                <Input
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder={t("searchPlaceholder")}
-                  className="h-8 pl-8 text-xs bg-background"
-                />
-                {searchInput && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchInput("");
-                      void setQ("");
-                      resetPaging();
-                    }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                    aria-label={tFilters("clearSearch")}
+          <DataTableSearchFilterBar
+            searchInput={searchInput}
+            onSearchInputChange={setSearchInput}
+            onClearSearch={() => {
+              setSearchInput("");
+              void setQ("");
+              resetPaging();
+            }}
+            searchPlaceholder={t("searchPlaceholder")}
+            filters={[tagDimension, ownerDimension]}
+            hasActiveFilters={Boolean(q || tagId || ownerUserId || after)}
+            onResetFilters={handleFilterReset}
+            actions={
+              <>
+                <Can permission={PERMISSIONS.contactsExport}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setExportDialogOpen(true)}
+                    className="gap-1.5 px-2.5 text-xs"
                   >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-
-              {/* Tag filter */}
-              <TagPicker
-                value={tagId || null}
-                valueName={tagId ? (tagMap.get(tagId)?.name ?? null) : null}
-                onChange={(nextTagId) => {
-                  void setTagId(nextTagId ?? "");
-                  resetPaging();
-                }}
-              />
-
-              {/* Owner filter */}
-              <OwnerPicker
-                variant="filter"
-                value={ownerUserId || null}
-                valueDisplayName={
-                  ownerUserId
-                    ? (contacts.find((r) => r.ownerUserId === ownerUserId)
-                        ?.ownerDisplayName ?? null)
-                    : null
-                }
-                valueEmail={
-                  ownerUserId
-                    ? (contacts.find((r) => r.ownerUserId === ownerUserId)
-                        ?.ownerEmail ?? null)
-                    : null
-                }
-                onChange={(nextOwnerId) => {
-                  void setOwnerUserId(nextOwnerId ?? "");
-                  resetPaging();
-                }}
-              />
-
-              {(q || tagId || ownerUserId || after) && (
-                <Button
-                  variant="secondary"
-                  onClick={handleFilterReset}
-                  className="h-8 px-2.5 text-xs text-muted-foreground"
-                >
-                  {tFilters("reset")}
-                </Button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Can permission={PERMISSIONS.contactsExport}>
-                <Button
-                  variant="secondary"
-                  onClick={() => setExportDialogOpen(true)}
-                  className="h-8 gap-1.5 text-xs px-2.5"
-                >
-                  <Download className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span>{tCrm("export.button")}</span>
-                </Button>
-              </Can>
-              <DataTableDensityToggle />
-              <DataTableColumnsMenu />
-            </div>
-          </div>
+                    <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span>{tCrm("export.button")}</span>
+                  </Button>
+                </Can>
+                <DataTableDensityToggle />
+                <DataTableColumnsMenu />
+              </>
+            }
+          />
         }
         sorting={
           sort
@@ -451,7 +412,7 @@ export function ContactsListView() {
               <Button
                 variant="secondary"
                 onClick={() => void contactsQuery.refetch()}
-                className="h-8 gap-1.5 text-xs px-3"
+                className="gap-1.5 px-3 text-xs"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
                 <span>{t("retry")}</span>
@@ -460,7 +421,7 @@ export function ContactsListView() {
                 <Button
                   variant="secondary"
                   onClick={resetPaging}
-                  className="h-8 gap-1.5 text-xs px-3"
+                  className="gap-1.5 px-3 text-xs"
                 >
                   <span>{t("resetPaging")}</span>
                 </Button>
@@ -470,7 +431,7 @@ export function ContactsListView() {
             <Button
               variant="secondary"
               onClick={handleFilterReset}
-              className="h-8 px-3 text-xs"
+              className="px-3 text-xs"
             >
               {tFilters("reset")}
             </Button>
@@ -479,9 +440,9 @@ export function ContactsListView() {
               <Button
                 variant="primary"
                 onClick={() => setQuickCreateOpen(true)}
-                className="h-8 gap-1.5 text-xs px-3"
+                className="gap-1.5 px-3 text-xs"
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-4 w-4" />
                 <span>{t("create")}</span>
               </Button>
             </Can>

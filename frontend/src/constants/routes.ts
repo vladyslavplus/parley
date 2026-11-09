@@ -10,10 +10,13 @@ export const ROUTES = {
   app: "/app",
   contacts: "/app/contacts",
   companies: "/app/companies",
+  deals: "/app/deals",
+  tasks: "/app/tasks",
   settingsProfile: "/app/settings/profile",
   settingsOrganization: "/app/settings/organization",
   settingsMembers: "/app/settings/members",
   settingsTeams: "/app/settings/teams",
+  settingsPipeline: "/app/settings/pipeline",
   settingsAudit: "/app/settings/audit",
   settingsCustomFields: "/app/settings/custom-fields",
   devTokens: "/dev/tokens",
@@ -39,6 +42,12 @@ export const BACKEND_PATHS = {
   me: "/me",
   contacts: "/contacts",
   companies: "/companies",
+  deals: "/deals",
+  pipelines: "/pipelines",
+  tasks: "/tasks",
+  notes: "/notes",
+  activities: "/activities",
+  orders: "/orders",
   tags: "/tags",
   customFields: "/custom-fields",
 } as const;
@@ -58,6 +67,10 @@ export function contactRecordRoute(id: string): string {
 
 export function companyRecordRoute(id: string): string {
   return `${ROUTES.companies}/${id}`;
+}
+
+export function dealRecordRoute(id: string): string {
+  return `${ROUTES.deals}/${id}`;
 }
 
 export function contactExportDownloadRoute(id: string): string {

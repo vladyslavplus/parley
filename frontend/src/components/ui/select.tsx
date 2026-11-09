@@ -18,7 +18,7 @@ export function SelectTrigger({
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        "inline-flex h-8 w-full items-center justify-between gap-2 rounded-[var(--radius-control)] border border-input bg-background px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer select-none",
+        "inline-flex h-[var(--control-height)] w-full items-center justify-between gap-2 rounded-[var(--radius-control)] border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer select-none",
         className,
       )}
       {...props}
@@ -122,7 +122,7 @@ export function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        "relative flex w-full select-none items-center rounded-sm py-1.5 pl-7 pr-2 text-xs text-foreground outline-none transition-colors hover:bg-muted focus:bg-muted data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer",
+        "relative flex w-full select-none items-center rounded-sm py-1.5 pl-7 pr-2 text-sm text-foreground outline-none transition-colors hover:bg-muted focus:bg-muted data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer",
         className,
       )}
       {...props}
@@ -146,5 +146,69 @@ export function SelectSeparator({
       className={cn("my-1 h-px bg-border", className)}
       {...props}
     />
+  );
+}
+
+// Radix reserves the empty string for "no selection", so an option whose value
+// is "" (for example "All roles") travels as this sentinel.
+const EMPTY_OPTION_VALUE = "__empty__";
+
+export interface SelectOptionItem {
+  value: string;
+  label: string;
+}
+
+interface SimpleSelectProps {
+  value: string;
+  onValueChange: (value: string) => void;
+  options: readonly SelectOptionItem[];
+  ariaLabel?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  id?: string;
+  className?: string;
+  invalid?: boolean;
+  ariaDescribedBy?: string;
+}
+
+// The one select used across the app: options in, value out.
+export function SimpleSelect({
+  value,
+  onValueChange,
+  options,
+  ariaLabel,
+  placeholder,
+  disabled,
+  id,
+  className,
+  invalid,
+  ariaDescribedBy,
+}: SimpleSelectProps) {
+  const toRadix = (v: string) => (v === "" ? EMPTY_OPTION_VALUE : v);
+  return (
+    <Select
+      value={toRadix(value)}
+      onValueChange={(next) =>
+        onValueChange(next === EMPTY_OPTION_VALUE ? "" : next)
+      }
+      disabled={disabled}
+    >
+      <SelectTrigger
+        id={id}
+        aria-label={ariaLabel}
+        aria-invalid={invalid || undefined}
+        aria-describedby={ariaDescribedBy}
+        className={className}
+      >
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={toRadix(option.value)}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

@@ -41,4 +41,36 @@ export const queryKeys = {
       : ([...queryKeys.all, "custom-fields"] as const),
   customFieldsList: (filters?: Record<string, unknown>) =>
     [...queryKeys.all, "custom-fields", "list", filters] as const,
+  pipelinesAll: () => [...queryKeys.all, "pipelines"] as const,
+  pipelinesList: (filters?: Record<string, unknown>) =>
+    [...queryKeys.all, "pipelines", "list", filters] as const,
+  pipeline: (id: string) =>
+    [...queryKeys.all, "pipelines", "detail", id] as const,
+  pipelineBoard: (id: string) =>
+    [...queryKeys.all, "pipelines", "board", id] as const,
+  dealsAll: () => [...queryKeys.all, "deals"] as const,
+  dealLists: () => [...queryKeys.all, "deals", "list"] as const,
+  dealList: (filters?: Record<string, unknown>) =>
+    [...queryKeys.all, "deals", "list", filters] as const,
+  deal: (id: string) => [...queryKeys.all, "deals", "detail", id] as const,
+  tasksAll: () => [...queryKeys.all, "tasks"] as const,
+  tasksLists: () => [...queryKeys.all, "tasks", "list"] as const,
+  tasksList: (filters?: Record<string, unknown>) =>
+    [...queryKeys.all, "tasks", "list", filters] as const,
+  tasksMine: (filters?: Record<string, unknown>) =>
+    [...queryKeys.all, "tasks", "mine", filters] as const,
+  task: (id: string) => [...queryKeys.all, "tasks", "detail", id] as const,
+  tasksOverdueCount: () =>
+    [...queryKeys.all, "tasks", "overdue-count"] as const,
+  notesAll: () => [...queryKeys.all, "notes"] as const,
+  notesList: (subject: Record<string, unknown>) =>
+    [...queryKeys.all, "notes", "list", subject] as const,
+  note: (id: string) => [...queryKeys.all, "notes", "detail", id] as const,
+  ordersAll: () => [...queryKeys.all, "orders"] as const,
+  ordersList: (filters?: Record<string, unknown>) =>
+    [...queryKeys.all, "orders", "list", filters] as const,
+  order: (id: string) => [...queryKeys.all, "orders", "detail", id] as const,
+  activitiesAll: () => [...queryKeys.all, "activities"] as const,
+  activitiesList: (subject: Record<string, unknown>) =>
+    [...queryKeys.all, "activities", "list", subject] as const,
 };

@@ -6,4 +6,6 @@ public static class CustomFieldEntityTypes
     public const string Contact = "contact";
 
     public const string Company = "company";
+
+    public const string Deal = "deal";
 }

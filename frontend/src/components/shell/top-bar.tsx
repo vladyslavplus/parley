@@ -91,7 +91,7 @@ export function TopBar({ onOpenSearch, onOpenCreate, onToggleSidebar }: Props) {
           <Button
             variant="secondary"
             onClick={onOpenCreate}
-            className="h-8 px-2.5 text-xs gap-1 hidden sm:inline-flex"
+            className="px-2.5 text-xs gap-1 hidden sm:inline-flex"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>{tShell("quickCreate.title")}</span>

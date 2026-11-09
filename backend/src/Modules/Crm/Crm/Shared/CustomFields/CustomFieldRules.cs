@@ -15,6 +15,7 @@ public static class CustomFieldRules
     [
         CustomFieldEntityTypes.Contact,
         CustomFieldEntityTypes.Company,
+        CustomFieldEntityTypes.Deal,
     ];
 
     public static IReadOnlyList<string> FieldTypes { get; } =

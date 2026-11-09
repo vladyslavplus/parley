@@ -25,14 +25,18 @@
     "development": "Розробка",
     "collapse": "Згорнути панель",
     "expand": "Розгорнути панель",
+    "hasOverdueTasks": "Є прострочені завдання",
     "items": {
+      "deals": "Угоди",
       "contacts": "Контакти",
       "companies": "Компанії",
+      "tasks": "Завдання",
       "settings": "Налаштування",
       "profile": "Профіль",
       "organization": "Організація",
       "members": "Учасники",
       "teams": "Команди",
+      "pipeline": "Воронка",
       "audit": "Журнал аудиту",
       "tokens": "Токени дизайну"
     }
@@ -70,8 +74,12 @@
     "searchFailed": "Помилка пошуку. Спробуйте ще раз.",
     "goToContacts": "Перейти до контактів",
     "goToCompanies": "Перейти до компаній",
+    "goToDeals": "Перейти до угод",
+    "goToTasks": "Перейти до завдань",
     "createContact": "Створити контакт",
-    "createCompany": "Створити компанію"
+    "createCompany": "Створити компанію",
+    "createDeal": "Створити угоду",
+    "createTask": "Створити завдання"
   },
   "user": {
     "defaultInitial": "U"

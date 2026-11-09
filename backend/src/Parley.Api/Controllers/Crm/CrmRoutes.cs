@@ -23,6 +23,46 @@ public static class CrmRoutes
 
     public const string ContactExportDownload = "contacts/exports/{id:guid}/download";
 
+    public const string Pipelines = "pipelines";
+
+    public const string PipelineById = "pipelines/{id:guid}";
+
+    public const string PipelineBoard = "pipelines/{id:guid}/board";
+
+    public const string PipelineStages = "pipelines/{id:guid}/stages";
+
+    public const string PipelineStageById = "pipelines/{id:guid}/stages/{stageId:guid}";
+
+    public const string PipelineStageOrder = "pipelines/{id:guid}/stages/order";
+
+    public const string Deals = "deals";
+
+    public const string DealById = "deals/{id:guid}";
+
+    public const string DealMove = "deals/{id:guid}/move";
+
+    public const string DealRestore = "deals/{id:guid}/restore";
+
+    public const string Tasks = "tasks";
+
+    public const string TasksMine = "tasks/mine";
+
+    public const string TaskById = "tasks/{id:guid}";
+
+    public const string TaskComplete = "tasks/{id:guid}/complete";
+
+    public const string TaskReopen = "tasks/{id:guid}/reopen";
+
+    public const string Notes = "notes";
+
+    public const string NoteById = "notes/{id:guid}";
+
+    public const string Activities = "activities";
+
+    public const string Orders = "orders";
+
+    public const string OrderById = "orders/{id:guid}";
+
     public const string Search = "search";
 
     public const string Companies = "companies";

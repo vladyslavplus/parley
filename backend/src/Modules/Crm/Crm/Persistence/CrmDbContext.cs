@@ -3,8 +3,13 @@ using Parley.Crm.Domain.Activities;
 using Parley.Crm.Domain.Companies;
 using Parley.Crm.Domain.Contacts;
 using Parley.Crm.Domain.CustomFields;
+using Parley.Crm.Domain.Deals;
 using Parley.Crm.Domain.Exports;
+using Parley.Crm.Domain.Notes;
+using Parley.Crm.Domain.Orders;
+using Parley.Crm.Domain.Pipelines;
 using Parley.Crm.Domain.Tags;
+using Parley.Crm.Domain.Tasks;
 using Parley.SharedKernel.Idempotency.Persistence;
 using Parley.SharedKernel.Outbox.Mapping;
 using Parley.SharedKernel.Persistence.Conventions;
@@ -37,6 +42,20 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options, ITenant
     public DbSet<Activity> Activities => Set<Activity>();
 
     public DbSet<ContactExport> ContactExports => Set<ContactExport>();
+
+    public DbSet<Order> Orders => Set<Order>();
+
+    public DbSet<Pipeline> Pipelines => Set<Pipeline>();
+
+    public DbSet<PipelineStage> PipelineStages => Set<PipelineStage>();
+
+    public DbSet<Deal> Deals => Set<Deal>();
+
+    public DbSet<DealStageHistoryEntry> DealStageHistory => Set<DealStageHistoryEntry>();
+
+    public DbSet<CrmTask> Tasks => Set<CrmTask>();
+
+    public DbSet<Note> Notes => Set<Note>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

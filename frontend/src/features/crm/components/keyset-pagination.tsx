@@ -4,13 +4,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SimpleSelect } from "@/components/ui/select";
 import { LIMITS } from "@/constants/limits";
 
 interface Props {
@@ -43,21 +37,16 @@ export function KeysetPagination({
             <span className="text-xs text-muted-foreground whitespace-nowrap">
               {tTable("pagination.rowsPerPage")}
             </span>
-            <Select
+            <SimpleSelect
+              ariaLabel={tTable("pagination.rowsPerPage")}
               value={String(pageSize)}
               onValueChange={(val) => onPageSizeChange(Number(val))}
-            >
-              <SelectTrigger className="h-8 w-16 text-xs bg-background">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LIMITS.tablePageSizes.map((size) => (
-                  <SelectItem key={size} value={String(size)}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={LIMITS.tablePageSizes.map((size) => ({
+                value: String(size),
+                label: String(size),
+              }))}
+              className="w-20 text-xs"
+            />
           </div>
         )}
 
@@ -73,7 +62,7 @@ export function KeysetPagination({
           variant="secondary"
           onClick={onPreviousPage}
           disabled={!hasPreviousPage}
-          className="h-8 gap-1 text-xs px-2.5"
+          className="gap-1 text-xs px-2.5"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>{tCrm("pagination.previous")}</span>
@@ -82,7 +71,7 @@ export function KeysetPagination({
           variant="secondary"
           onClick={onNextPage}
           disabled={!hasNextPage}
-          className="h-8 gap-1 text-xs px-2.5"
+          className="gap-1 text-xs px-2.5"
         >
           <span>{tCrm("pagination.next")}</span>
           <ArrowRight className="h-3.5 w-3.5" />

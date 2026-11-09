@@ -199,8 +199,10 @@ describe("MembersPanel", () => {
     const roleSelect = within(editDialog).getByLabelText("columns.role");
     const teamSelect = within(editDialog).getByLabelText("columns.team");
 
-    fireEvent.change(roleSelect, { target: { value: "admin" } });
-    fireEvent.change(teamSelect, { target: { value: TEAM_2_ID } });
+    fireEvent.keyDown(roleSelect, { key: "Enter" });
+    fireEvent.click(await screen.findByRole("option", { name: "admin" }));
+    fireEvent.keyDown(teamSelect, { key: "Enter" });
+    fireEvent.click(await screen.findByRole("option", { name: "SMB" }));
 
     const saveBtn = within(editDialog).getByRole("button", { name: "save" });
     expect(saveBtn).not.toBeDisabled();

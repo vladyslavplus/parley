@@ -1,0 +1,100 @@
+# Online Retail II ingest and cleaning. Paths are relative to the ml/ directory.
+# Run: uv run --directory ml python -m parley_ml.datasets.online_retail --config configs/online_retail.yaml
+
+dataset:
+  name: online_retail_ii
+  uci_id: 502
+  doi: "10.24432/C5CG6D"
+  license: "CC BY 4.0"
+  creator: "Daqing Chen"
+  source_url: "https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip"
+  archive_sha256: "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb"
+  archive_bytes: 45622418
+  workbook_member: "online_retail_II.xlsx"
+  workbook_sha256: "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980"
+  user_agent: "parley-ml-dataset-fetch/1"
+  download_timeout_seconds: 120
+
+paths:
+  cache_dir: "data/online_retail_ii"
+  output_dir: "artifacts/online_retail"
+
+# Canonical name per source column. Mirrors that use other names are normalized here.
+source_columns:
+  Invoice: invoice_no
+  InvoiceNo: invoice_no
+  StockCode: stock_code
+  Description: description
+  Quantity: quantity
+  InvoiceDate: invoice_ts
+  Price: unit_price
+  UnitPrice: unit_price
+  "Customer ID": customer_id
+  CustomerID: customer_id
+  Country: country_raw
+
+# Expected dataset identity. The ingest fails when the workbook does not match.
+expected:
+  raw_rows: 1067371
+  distinct_customers_raw: 5942
+  rows_without_customer_id: 243007
+
+cleaning:
+  # Invoices starting with this prefix are cancellations: kept, flagged, netted in amounts.
+  cancellation_invoice_prefix: "C"
+  # Product stock codes: five digits with an optional one or two letter suffix.
+  product_stock_code_pattern: '^\d{5}[A-Za-z]{0,2}$'
+  # The two workbook sheets overlap for these invoice dates (inclusive start, exclusive end).
+  sheet_overlap_start: "2010-12-01"
+  sheet_overlap_end_exclusive: "2010-12-10"
+  # Source timestamps are UK local time without an offset. They are stored as UTC
+  # without conversion (see the data card). Intervals stay real, DST shifts are
+  # at most one hour.
+  timestamp_convention: "naive source time stored as UTC"
+
+# Country names found in the source mapped to ISO 3166-1 alpha-2.
+# null = not a country (or ambiguous): the row is kept with a null country and counted.
+country_iso2:
+  United Kingdom: GB
+  EIRE: IE
+  Germany: DE
+  France: FR
+  Netherlands: NL
+  Spain: ES
+  Switzerland: CH
+  Belgium: BE
+  Portugal: PT
+  Australia: AU
+  Channel Islands: null
+  Italy: IT
+  Norway: "NO"
+  Sweden: SE
+  Cyprus: CY
+  Finland: FI
+  Austria: AT
+  Denmark: DK
+  Unspecified: null
+  Greece: GR
+  Japan: JP
+  USA: US
+  Poland: PL
+  United Arab Emirates: AE
+  Israel: IL
+  Hong Kong: HK
+  Singapore: SG
+  Malta: MT
+  Iceland: IS
+  Canada: CA
+  Lithuania: LT
+  RSA: ZA
+  Bahrain: BH
+  Brazil: BR
+  Thailand: TH
+  Korea: KR
+  European Community: null
+  Lebanon: LB
+  West Indies: null
+  Bermuda: BM
+  Nigeria: NG
+  Czech Republic: CZ
+  Saudi Arabia: SA

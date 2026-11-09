@@ -107,6 +107,7 @@ public sealed class RegisterAccountCommandHandler(
                 EventId = Guid.CreateVersion7(),
                 OccurredAt = nowUtc,
                 OrganizationId = organization.Id,
+                DefaultLocale = organization.DefaultLocale,
             });
             await dbContext.SaveChangesAsync(cancellationToken);
 

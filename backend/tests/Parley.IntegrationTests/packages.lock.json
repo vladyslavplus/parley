@@ -845,6 +845,7 @@
       "Parley.Crm": {
         "type": "Project",
         "dependencies": {
+          "Bogus": "[35.6.5, )",
           "EFCore.NamingConventions": "[10.0.1, )",
           "FluentValidation": "[12.2.0, )",
           "FluentValidation.DependencyInjectionExtensions": "[12.2.0, )",

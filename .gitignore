@@ -34,3 +34,6 @@ appsettings.*.json
 
 # Local contact export files
 crm-exports/
+
+# Generated outputs: demo passwords and local artifacts (never tracked)
+artifacts/

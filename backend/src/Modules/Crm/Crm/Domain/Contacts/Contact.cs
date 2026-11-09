@@ -34,6 +34,12 @@ public sealed class Contact : BusinessEntity
 
     public string Source { get; set; } = ContactSources.Manual;
 
+    /// <summary>Identifier in the source system; unique per organization and source when set.</summary>
+    public string? ExternalRef { get; set; }
+
+    /// <summary>Instant of the latest non-cancellation order, UTC; maintained from the orders table.</summary>
+    public DateTime? LastOrderAt { get; set; }
+
     /// <summary>Custom field values as a JSON object keyed by definition key.</summary>
     public string CustomFields { get; set; } = CrmLimits.EmptyJsonObject;
 

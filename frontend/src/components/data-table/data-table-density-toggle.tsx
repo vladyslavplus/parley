@@ -18,7 +18,7 @@ export function DataTableDensityToggle() {
       onClick={() =>
         setDensity(density === "compact" ? "comfortable" : "compact")
       }
-      className="h-8 px-2.5 text-xs gap-1.5"
+      className="px-2.5 text-xs gap-1.5"
       title={t("density.label")}
     >
       <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />

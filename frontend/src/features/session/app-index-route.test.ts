@@ -11,6 +11,18 @@ describe("resolveAppIndexRoute", () => {
     expect(target).toBe(`/en${ROUTES.contacts}`);
   });
 
+  it("redirects to deals when user has deals.read but lacks contacts.read permission", () => {
+    const permissions = [{ permission: PERMISSIONS.dealsRead }];
+    const target = resolveAppIndexRoute(permissions, "en");
+    expect(target).toBe(`/en${ROUTES.deals}`);
+  });
+
+  it("redirects to tasks when user has tasks.read but lacks contacts.read and deals.read", () => {
+    const permissions = [{ permission: PERMISSIONS.tasksRead }];
+    const target = resolveAppIndexRoute(permissions, "en");
+    expect(target).toBe(`/en${ROUTES.tasks}`);
+  });
+
   it("redirects to profile when user lacks contacts.read permission", () => {
     const permissions = [{ permission: "teams.read" }];
     const target = resolveAppIndexRoute(permissions, "en");

@@ -9,4 +9,11 @@ namespace Parley.Identity.Contracts.Events;
 public sealed record OrganizationCreated : IntegrationEvent
 {
     public Guid OrganizationId { get; init; }
+
+    /// <summary>Default locale of the organization, used to name rows seeded for it (for example pipeline stages).</summary>
+    /// <summary>
+    /// Default locale of the organization, used to name rows seeded for it (for example pipeline stages). Events
+    /// written before the locale was carried are read with it missing; consumers then use the platform default.
+    /// </summary>
+    public string? DefaultLocale { get; init; }
 }

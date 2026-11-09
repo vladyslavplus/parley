@@ -6,6 +6,7 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
+import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const mockUpdateContact = vi.fn();
@@ -15,6 +16,7 @@ const mockUndoToast = vi.fn();
 const mockRouterPush = vi.fn();
 
 let mockCanWrite = true;
+let mockCanReadOrders = true;
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
@@ -37,7 +39,8 @@ vi.mock("@/lib/toasts", () => ({
 
 vi.mock("@/features/session/components/can", () => ({
   Can: ({ children }: { children: React.ReactNode }) => children,
-  useCan: () => mockCanWrite,
+  useCan: (permission: string) =>
+    permission === "orders.read" ? mockCanReadOrders : mockCanWrite,
 }));
 
 vi.mock("@/features/crm/hooks/use-contact", () => ({
@@ -125,19 +128,83 @@ vi.mock("@/features/crm/hooks/use-crm-mutations", () => ({
   }),
 }));
 
+vi.mock("@/features/orders/components/orders-panel", () => ({
+  OrdersPanel: () => <div>orders panel</div>,
+}));
+
 const { ContactRecordView } = await import("./contact-record-view");
+
+function renderRecord(
+  searchParams?: string,
+  onUrlUpdate?: (update: { queryString: string }) => void,
+) {
+  return render(
+    <NuqsTestingAdapter searchParams={searchParams} onUrlUpdate={onUrlUpdate}>
+      <ContactRecordView id="c-100" />
+    </NuqsTestingAdapter>,
+  );
+}
 
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   mockCanWrite = true;
+  mockCanReadOrders = true;
+});
+
+describe("ContactRecordView orders tab", () => {
+  it("shows the orders tab when the user can read orders", () => {
+    renderRecord();
+    expect(
+      screen.getByRole("tab", { name: "record.sections.orders" }),
+    ).toBeInTheDocument();
+  });
+
+  it("hides the orders tab without the orders permission", () => {
+    mockCanReadOrders = false;
+    renderRecord();
+    expect(
+      screen.queryByRole("tab", { name: "record.sections.orders" }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("ContactRecordView tab in the URL", () => {
+  it("opens the tab named in the URL on a deep link", () => {
+    renderRecord("?tab=orders");
+    expect(screen.getByText("orders panel")).toBeDefined();
+    expect(
+      screen
+        .getByRole("tab", { name: "record.sections.orders" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
+  });
+
+  it("stores the selected tab and clears the orders params when leaving it", async () => {
+    const updates: string[] = [];
+    renderRecord(
+      "?tab=orders&sort=amount&order=asc&after=abc&orderedFrom=2026-01-01",
+      ({ queryString }) => updates.push(queryString),
+    );
+
+    fireEvent.click(
+      screen.getByRole("tab", { name: "record.sections.overview" }),
+    );
+
+    await waitFor(() => {
+      const last = updates[updates.length - 1] ?? "";
+      expect(last).not.toContain("sort=");
+      expect(last).not.toContain("after=");
+      expect(last).not.toContain("orderedFrom=");
+    });
+  });
 });
 
 describe("ContactRecordView inline edit and soft delete", () => {
   it("inline edit sends expected version token when saving", async () => {
     mockUpdateContact.mockResolvedValue({ id: "c-100", version: 43 });
 
-    render(<ContactRecordView id="c-100" />);
+    renderRecord();
 
     // Click on first name inline edit trigger
     const firstNameBtn = screen.getByRole("button", {
@@ -165,7 +232,7 @@ describe("ContactRecordView inline edit and soft delete", () => {
   it("soft delete triggers delete mutation, navigates, and shows undo toast", async () => {
     mockDeleteContact.mockResolvedValue(undefined);
 
-    render(<ContactRecordView id="c-100" />);
+    renderRecord();
 
     const deleteBtn = screen.getByRole("button", { name: "record.delete" });
     fireEvent.click(deleteBtn);
@@ -187,7 +254,7 @@ describe("ContactRecordView inline edit and soft delete", () => {
   it("omits archived custom fields from submitted payload when saving an active custom field", async () => {
     mockUpdateContact.mockResolvedValue({ id: "c-100", version: 43 });
 
-    render(<ContactRecordView id="c-100" />);
+    renderRecord();
 
     // Active field inline edit
     const activeFieldBtn = screen.getByRole("button", {
@@ -220,7 +287,7 @@ describe("ContactRecordView inline edit and soft delete", () => {
   it("renders plain text without edit buttons when user lacks write permission", () => {
     mockCanWrite = false;
 
-    render(<ContactRecordView id="c-100" />);
+    renderRecord();
 
     // No edit buttons for first name or email
     expect(

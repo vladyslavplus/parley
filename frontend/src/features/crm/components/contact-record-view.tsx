@@ -35,14 +35,16 @@ import { CompanyPicker } from "@/features/crm/components/company-picker";
 import { CrmCustomFieldsRender } from "@/features/crm/components/crm-custom-fields-render";
 import {
   DealsPlaceholder,
-  OrdersPlaceholder,
   ScoresPlaceholder,
-  TasksPlaceholder,
-  TimelinePlaceholder,
 } from "@/features/crm/components/crm-placeholders";
+import { OrdersPanel } from "@/features/orders/components/orders-panel";
+import { TasksPanel } from "@/features/tasks/components/tasks-panel";
+import { ActivityTimeline } from "@/features/timeline/components/activity-timeline";
 import { CrmTagBadge } from "@/features/crm/components/crm-tag-badge";
 import { OwnerPicker } from "@/features/crm/components/owner-picker";
 import { RecordTabs } from "@/features/crm/components/record-tabs";
+import { useRecordTab } from "@/features/crm/hooks/use-record-tab";
+import { useResetOrdersParams } from "@/features/orders/hooks/use-reset-orders-params";
 import { useContact } from "@/features/crm/hooks/use-contact";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import { useCustomFields } from "@/features/crm/hooks/use-custom-fields";
@@ -54,7 +56,15 @@ import { toApiError } from "@/lib/errors";
 import { formatDate } from "@/lib/formatters";
 import { showSuccessToast } from "@/lib/toasts";
 
-type TabKey = "overview" | "timeline" | "tasks" | "deals" | "orders" | "scores";
+const TAB_KEYS = [
+  "overview",
+  "timeline",
+  "tasks",
+  "deals",
+  "orders",
+  "scores",
+] as const;
+type TabKey = (typeof TAB_KEYS)[number];
 
 export function ContactRecordView({ id }: { id: string }) {
   const t = useTranslations("crm.contacts");
@@ -64,8 +74,10 @@ export function ContactRecordView({ id }: { id: string }) {
   const router = useRouter();
 
   const canWrite = useCan(PERMISSIONS.contactsWrite);
+  const canReadOrders = useCan(PERMISSIONS.ordersRead);
 
-  const [activeTab, setActiveTab] = useState<TabKey>("overview");
+  const [activeTab, setActiveTab] = useRecordTab(TAB_KEYS, "overview");
+  const resetOrdersParams = useResetOrdersParams();
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [addTagOpen, setAddTagOpen] = useState(false);
   const [selectedTagId, setSelectedTagId] = useState("");
@@ -147,7 +159,7 @@ export function ContactRecordView({ id }: { id: string }) {
             <Button
               variant="secondary"
               onClick={() => contactQuery.refetch()}
-              className="h-8 gap-1.5 text-xs px-3"
+              className="gap-1.5 text-xs px-3"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               <span>{tCrm("record.retry")}</span>
@@ -284,23 +296,38 @@ export function ContactRecordView({ id }: { id: string }) {
     {
       key: "timeline" as const,
       label: t("record.sections.timeline"),
-      content: <TimelinePlaceholder />,
+      content: <ActivityTimeline subject={{ contactId: id }} />,
     },
     {
       key: "tasks" as const,
       label: t("record.sections.tasks"),
-      content: <TasksPlaceholder />,
+      content: (
+        <TasksPanel
+          subject={{
+            contactId: id,
+            contactName: [contact?.firstName, contact?.lastName]
+              .filter(Boolean)
+              .join(" "),
+            companyId: contact?.companyId ?? undefined,
+            companyName: contact?.companyName,
+          }}
+        />
+      ),
     },
     {
       key: "deals" as const,
       label: t("record.sections.deals"),
       content: <DealsPlaceholder />,
     },
-    {
-      key: "orders" as const,
-      label: t("record.sections.orders"),
-      content: <OrdersPlaceholder />,
-    },
+    ...(canReadOrders
+      ? [
+          {
+            key: "orders" as const,
+            label: t("record.sections.orders"),
+            content: <OrdersPanel contactId={id} />,
+          },
+        ]
+      : []),
     {
       key: "scores" as const,
       label: t("record.sections.scores"),
@@ -360,7 +387,7 @@ export function ContactRecordView({ id }: { id: string }) {
             <Button
               variant="secondary"
               onClick={() => setDeleteConfirmOpen(true)}
-              className="h-8 gap-1.5 text-xs px-3 text-destructive hover:bg-destructive/10 self-start sm:self-auto"
+              className="gap-1.5 text-xs px-3 text-destructive hover:bg-destructive/10 self-start sm:self-auto"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>{t("record.delete")}</span>
@@ -589,7 +616,10 @@ export function ContactRecordView({ id }: { id: string }) {
       <RecordTabs
         tabs={tabItems}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(key: TabKey) => {
+          if (key !== "orders") void resetOrdersParams();
+          void setActiveTab(key);
+        }}
       />
 
       {/* Delete confirmation dialog */}

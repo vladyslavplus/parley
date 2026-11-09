@@ -53,6 +53,7 @@ export function DataTable<TData>({
   pageCount,
   paginationSlot,
   toolbar,
+  hideToolbar = false,
   className,
 }: DataTableProps<TData>) {
   const t = useTranslations("table");
@@ -173,7 +174,7 @@ export function DataTable<TData>({
   return (
     <DataTableProvider value={contextValue}>
       <div className={cn("space-y-2 relative", className)}>
-        {toolbar ?? <DataTableToolbar />}
+        {hideToolbar ? null : (toolbar ?? <DataTableToolbar />)}
 
         {/* Table Container */}
         <div

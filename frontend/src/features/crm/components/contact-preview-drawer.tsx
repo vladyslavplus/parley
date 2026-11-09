@@ -103,7 +103,7 @@ export function ContactPreviewDrawer({
           <Can permission={PERMISSIONS.contactsDelete}>
             <Button
               variant="secondary"
-              className="text-xs text-destructive border-border hover:bg-destructive/10 hover:border-destructive/40 gap-1.5 h-8 px-2.5 whitespace-nowrap shrink-0"
+              className="text-xs text-destructive border-border hover:bg-destructive/10 hover:border-destructive/40 gap-1.5 px-2.5 whitespace-nowrap shrink-0"
               onClick={handleDelete}
             >
               <Trash2 className="h-3.5 w-3.5 shrink-0" />
@@ -113,14 +113,14 @@ export function ContactPreviewDrawer({
           <div className="flex items-center gap-2 ml-auto shrink-0">
             <Button
               variant="secondary"
-              className="text-xs h-8 px-3 whitespace-nowrap shrink-0"
+              className="text-xs px-3 whitespace-nowrap shrink-0"
               onClick={() => onOpenChange(false)}
             >
               {t("preview.back")}
             </Button>
             <Link
               href={contactRecordRoute(contact.id)}
-              className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-control)] bg-primary text-primary-foreground px-3 h-8 text-xs font-medium hover:bg-primary/90 transition-colors whitespace-nowrap shrink-0"
+              className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-control)] bg-primary text-primary-foreground px-3 text-xs font-medium hover:bg-primary/90 transition-colors whitespace-nowrap shrink-0"
             >
               <span>{t("preview.openRecord")}</span>
               <ExternalLink className="h-3.5 w-3.5 shrink-0" />

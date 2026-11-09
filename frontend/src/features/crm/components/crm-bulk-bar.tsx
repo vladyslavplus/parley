@@ -80,7 +80,7 @@ export function CrmBulkBar({
             setSelectedOwner("");
             setAssignOpen(true);
           }}
-          className="h-8 gap-1.5 text-xs px-2.5"
+          className="gap-1.5 text-xs px-2.5"
         >
           <UserPlus className="h-3.5 w-3.5" />
           <span>{t("assignOwner")}</span>
@@ -92,7 +92,7 @@ export function CrmBulkBar({
         <Button
           variant="secondary"
           onClick={() => setDeleteConfirmOpen(true)}
-          className="h-8 gap-1.5 text-xs px-2.5 text-destructive hover:bg-destructive/10"
+          className="gap-1.5 text-xs px-2.5 text-destructive hover:bg-destructive/10"
         >
           <Trash2 className="h-3.5 w-3.5" />
           <span>{t("delete")}</span>
@@ -136,7 +136,7 @@ export function CrmBulkBar({
                 variant="secondary"
                 onClick={() => setAssignOpen(false)}
                 disabled={isPending}
-                className="h-8 px-3 text-xs"
+                className="px-3 text-xs"
               >
                 {tCommon("cancel")}
               </Button>
@@ -144,7 +144,7 @@ export function CrmBulkBar({
                 variant="primary"
                 onClick={handleAssign}
                 disabled={!selectedOwner || isPending}
-                className="h-8 px-3 text-xs"
+                className="px-3 text-xs"
               >
                 {t("assign")}
               </Button>

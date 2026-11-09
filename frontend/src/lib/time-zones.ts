@@ -129,3 +129,75 @@ export function toZonedAuditDateRangeUtc(
     invalidRange: false,
   };
 }
+
+export function utcIsoToLocalDateTimeString(
+  iso: string | null | undefined,
+  timeZone: string = FALLBACK_TIME_ZONE,
+): string {
+  if (!iso) return "";
+  try {
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return "";
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    });
+    const parts = formatter.formatToParts(date);
+    let y = "";
+    let m = "";
+    let d = "";
+    let h = "";
+    let min = "";
+    for (const part of parts) {
+      if (part.type === "year") y = part.value;
+      else if (part.type === "month") m = part.value;
+      else if (part.type === "day") d = part.value;
+      else if (part.type === "hour") h = part.value;
+      else if (part.type === "minute") min = part.value;
+    }
+    return `${y}-${m}-${d}T${h}:${min}`;
+  } catch {
+    return "";
+  }
+}
+
+export function localDateTimeStringToUtcIso(
+  localStr: string | null | undefined,
+  timeZone: string = FALLBACK_TIME_ZONE,
+): string | null {
+  if (!localStr || !localStr.trim()) return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(
+    localStr.trim(),
+  );
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+
+  try {
+    const targetUtcMs = Date.UTC(year, month - 1, day, hour, minute, 0, 0);
+    const offset = getTimeZoneOffsetMs(targetUtcMs, timeZone);
+    const candidateUtcMs = targetUtcMs - offset;
+    const secondOffset = getTimeZoneOffsetMs(candidateUtcMs, timeZone);
+    return new Date(targetUtcMs - secondOffset).toISOString();
+  } catch {
+    return new Date(
+      Date.UTC(year, month - 1, day, hour, minute, 0, 0),
+    ).toISOString();
+  }
+}
+
+export function isTaskOverdue(
+  dueAt: string | null | undefined,
+  isCompleted: boolean,
+): boolean {
+  if (!dueAt || isCompleted) return false;
+  return new Date(dueAt).getTime() < Date.now();
+}

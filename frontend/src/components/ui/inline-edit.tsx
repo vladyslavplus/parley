@@ -105,7 +105,7 @@ export function InlineEdit({
           onKeyDown={handleKeyDown}
           onBlur={handleSave}
           aria-label={effectiveAriaLabel}
-          className="h-8 py-1 text-xs"
+          className="text-xs"
         />
         <Button
           variant="secondary"

@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { PERMISSIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
 import { customFieldsListQueryOptions } from "@/features/crm/hooks/use-custom-fields";
+import { pipelinesListQueryOptions } from "@/features/deals/hooks/use-pipelines";
 import { Can } from "@/features/session/components/can";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
@@ -29,6 +30,11 @@ const ITEMS = [
     href: ROUTES.settingsTeams,
     key: "teams",
     permission: PERMISSIONS.teamsManage,
+  },
+  {
+    href: ROUTES.settingsPipeline,
+    key: "pipeline",
+    permission: PERMISSIONS.pipelinesManage,
   },
   {
     href: ROUTES.settingsAudit,
@@ -77,6 +83,13 @@ function NavItem({
     if (itemKey === "teams") {
       void queryClient
         .query(teamsListQueryOptions({}, locale))
+        .catch(() => undefined);
+      return;
+    }
+
+    if (itemKey === "pipeline") {
+      void queryClient
+        .query(pipelinesListQueryOptions(locale))
         .catch(() => undefined);
       return;
     }

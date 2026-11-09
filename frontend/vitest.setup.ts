@@ -12,3 +12,12 @@ vi.mock("next/font/google", () => ({
     className: "font-mono",
   }),
 }));
+
+// jsdom lacks the pointer-capture and scroll APIs Radix Select relies on.
+if (typeof window !== "undefined") {
+  const proto = window.HTMLElement.prototype;
+  proto.hasPointerCapture ??= () => false;
+  proto.setPointerCapture ??= () => {};
+  proto.releasePointerCapture ??= () => {};
+  proto.scrollIntoView ??= () => {};
+}

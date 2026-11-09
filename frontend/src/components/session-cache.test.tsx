@@ -140,9 +140,8 @@ describe("session boundaries clear the query cache", () => {
     );
     const reset = vi.spyOn(client, "resetQueries");
 
-    fireEvent.change(screen.getByRole("combobox"), {
-      target: { value: "org-2" },
-    });
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "Enter" });
+    fireEvent.click(await screen.findByRole("option", { name: "Two" }));
 
     await waitFor(() => expect(reset).toHaveBeenCalled());
     expect(refresh).toHaveBeenCalled();

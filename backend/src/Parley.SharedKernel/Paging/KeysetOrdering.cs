@@ -42,6 +42,23 @@ public static class KeysetOrdering
         return key is null ? null : new KeysetPosition<TKey>(key!, cursor.Id);
     }
 
+    /// <summary>
+    /// The position a cursor encodes for a value-type sort key. The shared reader hands back the text key, which is
+    /// parsed here; a key that does not parse yields null, so the caller rejects the cursor. Null when there is no cursor.
+    /// </summary>
+    public static KeysetPosition<TKey>? ReadValuePosition<TKey>(KeysetCursor? cursor, string sortField, Func<string, TKey?> parseKey)
+        where TKey : struct
+    {
+        if (cursor is null)
+        {
+            return null;
+        }
+
+        var raw = ReadPosition(cursor, sortField, ParseText);
+        var parsed = raw is null ? null : parseKey(raw.Key);
+        return parsed is null ? null : new KeysetPosition<TKey>(parsed.Value, raw!.Id);
+    }
+
     /// <summary>Round-trip text form of a timestamp sort key.</summary>
     public static string FormatTimestamp(DateTime value) => value.ToString(TimestampFormat, CultureInfo.InvariantCulture);
 
