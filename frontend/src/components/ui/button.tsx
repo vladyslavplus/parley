@@ -22,7 +22,7 @@ export function buttonVariants({
   className?: string;
 } = {}): string {
   return cn(
-    "inline-flex items-center justify-center rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer select-none",
+    "inline-flex h-[var(--control-height)] items-center justify-center gap-1.5 whitespace-nowrap rounded-[var(--radius-control)] px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer select-none",
     VARIANTS[variant],
     className,
   );

@@ -71,6 +71,68 @@ The BFF forwards the end-user address in `X-Forwarded-For` only when it runs beh
 an ingress that appends the real client address and `TRUSTED_INGRESS=true` is set
 (`frontend/.env.example`). Local development settings trust the loopback addresses.
 
+## Demo workspace
+
+The demo creates the organization "Parley Demo" with about 5,900 generated customers,
+their orders, deals, tasks, notes and timeline. The customers come from the Online
+Retail II dataset (CC BY 4.0, attribution in `ml/datacards/online_retail_ii.md`). The
+demo uses its own database, `parley_demo`, never your everyday database.
+
+1. Start the support services, then a throwaway database container on a free port:
+
+   ```powershell
+   docker compose up -d
+   docker run -d --name parley-demo-db -e POSTGRES_PASSWORD=<choose-a-password> -p 127.0.0.1:55440:5432 pgvector/pgvector:0.8.7-pg17
+   ```
+
+2. Build the demo export (the ML environment is described in the ML section):
+
+   ```powershell
+   uv run --directory ml python -m parley_ml.datasets.online_retail --config configs/online_retail.yaml
+   uv run --directory ml python -m parley_ml.datasets.demo_export --config configs/demo_export.yaml
+   ```
+
+3. Set the connection string for the demo database. Keep it in the environment, not on the command line:
+
+   ```powershell
+   $env:PARLEY_DEMO_CONNECTION_STRING = "Host=127.0.0.1;Port=55440;Database=parley_demo;Username=postgres;Password=<choose-a-password>"
+   ```
+
+4. Drop and recreate `parley_demo`, apply the migrations and seed it. The script refuses any
+   database that is not named `parley_demo` or `parley_demo_<suffix>`, any host other than
+   the local machine, and the port of the compose database (5433):
+
+   ```powershell
+   scripts\reset-demo.ps1 -ConfirmReset
+   ```
+
+5. Start the API on the demo database. The variable overrides the Development setting, and the
+   API applies any pending migrations when it starts:
+
+   ```powershell
+   $env:Database__ConnectionString = $env:PARLEY_DEMO_CONNECTION_STRING
+   dotnet run --project backend/src/Parley.Api
+   ```
+
+6. Start the web app. Its API address is set in `frontend/.env.local` (`API_BASE_URL`):
+
+   ```powershell
+   pnpm --dir frontend dev
+   ```
+
+The demo accounts are written to `artifacts/demo-accounts.txt` in the repository root. That
+folder is git-ignored, so the passwords are never committed. Do not copy them into tracked
+files. The accounts are `admin`, `marketer`, `viewer`, two managers (`manager.north`,
+`manager.south`), and six sales reps (`rep.north.1` to `rep.north.3`, `rep.south.1` to
+`rep.south.3`), all on the domain `demo.parley.test`. If the file is lost, issue new
+passwords with the same seed command and `--reset-passwords`:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
+$env:Database__ConnectionString = $env:PARLEY_DEMO_CONNECTION_STRING
+dotnet run --project backend/src/Parley.Api --no-launch-profile -- seed-demo --input ml/artifacts/demo_export --confirm-target-database --reset-passwords
+```
+
 ## Build and test
 
 ```powershell

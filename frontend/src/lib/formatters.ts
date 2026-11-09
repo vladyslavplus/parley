@@ -78,3 +78,28 @@ export function formatPlural(
 
   return template.replace(/\{count\}/g, formatNumber(count, locale));
 }
+
+export function formatRelativeAge(
+  value: Date | string | number,
+  locale: string = DEFAULT_LOCALE,
+): string {
+  const date = typeof value === "object" ? value : new Date(value);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+
+  if (diffDays >= 1) {
+    return rtf.format(-diffDays, "day");
+  }
+  if (diffHours >= 1) {
+    return rtf.format(-diffHours, "hour");
+  }
+  if (diffMinutes >= 1) {
+    return rtf.format(-diffMinutes, "minute");
+  }
+  return rtf.format(0, "second");
+}

@@ -6,10 +6,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { TableProgressBar } from "@/components/data-table/table-progress-bar";
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
+import { FormSelect } from "@/components/forms/form-select";
 import { useApiForm } from "@/components/forms/use-api-form";
 import { LoadingBlock } from "@/components/layout/loading-block";
 import { Alert } from "@/components/ui/alert";
-import { Input, Select } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { LIMITS } from "@/constants/limits";
 import { PERMISSIONS } from "@/constants/permissions";
 import { queryKeys } from "@/constants/query-keys";
@@ -70,9 +71,9 @@ function OrganizationFormBody({
 
   const { errors, isSubmitting, isDirty } = form.formState;
   return (
-    <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-border bg-card p-6">
+    <div className="relative w-full max-w-lg overflow-hidden rounded-[var(--radius-card)] border border-border bg-card p-6">
       <TableProgressBar active={isFetching} />
-      <div className="flex max-w-md flex-col gap-4">
+      <div className="flex flex-col gap-4">
         {canManage ? null : <Alert tone="info">{t("readOnly")}</Alert>}
         <fieldset disabled={!canManage} className="contents">
           <ApiForm
@@ -87,25 +88,24 @@ function OrganizationFormBody({
               <Input {...form.register("name")} />
             </FormField>
             <FormField label={t("timeZone")} error={errors.timeZone?.message}>
-              <Select {...form.register("timeZone")}>
-                {zones.map((zone) => (
-                  <option key={zone} value={zone}>
-                    {zone}
-                  </option>
-                ))}
-              </Select>
+              <FormSelect
+                control={form.control}
+                name="timeZone"
+                options={zones.map((zone) => ({ value: zone, label: zone }))}
+              />
             </FormField>
             <FormField
               label={t("defaultLocale")}
               error={errors.defaultLocale?.message}
             >
-              <Select {...form.register("defaultLocale")}>
-                {LOCALES.map((code) => (
-                  <option key={code} value={code}>
-                    {tProfile(`locales.${code}`)}
-                  </option>
-                ))}
-              </Select>
+              <FormSelect
+                control={form.control}
+                name="defaultLocale"
+                options={LOCALES.map((code) => ({
+                  value: code,
+                  label: tProfile(`locales.${code}`),
+                }))}
+              />
             </FormField>
             <FormField label={t("currency")} error={errors.currency?.message}>
               <Input

@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Parley.SharedKernel.Persistence.Conventions;
 
@@ -10,11 +9,12 @@ namespace Parley.SharedKernel.Persistence.Concurrency;
 /// </summary>
 public static class UniqueConstraintViolations
 {
-    public static bool IsViolationOf(DbUpdateException exception, string constraintName)
+    /// <summary>Matches a save or a bulk update: the exception itself or any inner exception may carry the violation.</summary>
+    public static bool IsViolationOf(Exception exception, string constraintName)
     {
         ArgumentNullException.ThrowIfNull(exception);
 
-        for (var current = exception.InnerException; current is not null; current = current.InnerException)
+        for (var current = exception; current is not null; current = current.InnerException)
         {
             if (current is PostgresException postgres
                 && string.Equals(postgres.SqlState, PersistenceConstants.UniqueViolationSqlState, StringComparison.Ordinal)

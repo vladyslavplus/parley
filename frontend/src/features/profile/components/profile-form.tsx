@@ -7,9 +7,10 @@ import { useTheme } from "next-themes";
 import { TableProgressBar } from "@/components/data-table/table-progress-bar";
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
+import { FormSelect } from "@/components/forms/form-select";
 import { useApiForm } from "@/components/forms/use-api-form";
 import { LoadingBlock } from "@/components/layout/loading-block";
-import { Input, Select } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { queryKeys } from "@/constants/query-keys";
 import {
   createProfileSchema,
@@ -72,9 +73,9 @@ function ProfileFormBody({
 
   const { errors, isSubmitting, isDirty } = form.formState;
   return (
-    <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-border bg-card p-6">
+    <div className="relative w-full max-w-lg overflow-hidden rounded-[var(--radius-card)] border border-border bg-card p-6">
       <TableProgressBar active={isFetching} />
-      <div className="flex max-w-md flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <ApiForm
           onSubmit={onSubmit}
           formError={formError}
@@ -90,31 +91,31 @@ function ProfileFormBody({
             <Input autoComplete="name" {...form.register("displayName")} />
           </FormField>
           <FormField label={t("locale")} error={errors.locale?.message}>
-            <Select {...form.register("locale")}>
-              {LOCALES.map((code) => (
-                <option key={code} value={code}>
-                  {t(`locales.${code}`)}
-                </option>
-              ))}
-            </Select>
+            <FormSelect
+              control={form.control}
+              name="locale"
+              options={LOCALES.map((code) => ({
+                value: code,
+                label: t(`locales.${code}`),
+              }))}
+            />
           </FormField>
           <FormField label={t("timeZone")} error={errors.timeZone?.message}>
-            <Select {...form.register("timeZone")}>
-              {zones.map((zone) => (
-                <option key={zone} value={zone}>
-                  {zone}
-                </option>
-              ))}
-            </Select>
+            <FormSelect
+              control={form.control}
+              name="timeZone"
+              options={zones.map((zone) => ({ value: zone, label: zone }))}
+            />
           </FormField>
           <FormField label={t("theme")} error={errors.theme?.message}>
-            <Select {...form.register("theme")}>
-              {THEMES.map((theme) => (
-                <option key={theme} value={theme}>
-                  {t(`themes.${theme}`)}
-                </option>
-              ))}
-            </Select>
+            <FormSelect
+              control={form.control}
+              name="theme"
+              options={THEMES.map((theme) => ({
+                value: theme,
+                label: t(`themes.${theme}`),
+              }))}
+            />
           </FormField>
         </ApiForm>
       </div>

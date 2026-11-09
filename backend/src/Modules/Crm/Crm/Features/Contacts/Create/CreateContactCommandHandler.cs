@@ -85,6 +85,7 @@ public sealed class CreateContactCommandHandler(
             OrganizationId = organizationId,
             Type = ActivityTypes.ContactCreated,
             ContactId = contact.Id,
+            CompanyId = contact.CompanyId,
             ActorUserId = actorId,
             OccurredAt = now.UtcDateTime,
         });

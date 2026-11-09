@@ -615,6 +615,7 @@
       "Parley.Crm": {
         "type": "Project",
         "dependencies": {
+          "Bogus": "[35.6.5, )",
           "EFCore.NamingConventions": "[10.0.1, )",
           "FluentValidation": "[12.2.0, )",
           "FluentValidation.DependencyInjectionExtensions": "[12.2.0, )",
@@ -700,6 +701,12 @@
           "OpenTelemetry": "[1.20.1, )",
           "Serilog": "[4.4.0, )"
         }
+      },
+      "Bogus": {
+        "type": "CentralTransitive",
+        "requested": "[35.6.5, )",
+        "resolved": "35.6.5",
+        "contentHash": "2FGZn+aAVHjmCgClgmGkTDBVZk0zkLvAKGaxEf5JL6b3i9JbHTE4wnuY4vHCuzlCmJdU6VZjgDfHwmYkQF8VAA=="
       },
       "EFCore.NamingConventions": {
         "type": "CentralTransitive",

@@ -34,7 +34,7 @@ export function useApiForm<TValues extends FieldValues>({
   const form = useForm<TValues, unknown, TValues>({
     resolver: zodResolver(schema),
     defaultValues,
-    mode: "onBlur",
+    mode: "onTouched",
     reValidateMode: "onChange",
   });
   const [formError, setFormError] = useState<string | null>(null);

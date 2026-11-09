@@ -198,4 +198,151 @@
   <data name="crm.export.enqueue_failed" xml:space="preserve">
     <value>Не вдалося запустити експорт. Спробуйте ще раз трохи пізніше.</value>
   </data>
+  <data name="crm.pipeline.not_found" xml:space="preserve">
+    <value>Воронку не знайдено.</value>
+  </data>
+  <data name="crm.stage.not_found" xml:space="preserve">
+    <value>Етап не знайдено.</value>
+  </data>
+  <data name="crm.stage.name_taken" xml:space="preserve">
+    <value>Етап із такою назвою вже є у воронці.</value>
+  </data>
+  <data name="crm.stage.limit_reached" xml:space="preserve">
+    <value>У воронці вже максимальна кількість етапів.</value>
+  </data>
+  <data name="crm.stage.has_deals" xml:space="preserve">
+    <value>На етапі є угоди. Спершу перемістіть їх на інший етап.</value>
+  </data>
+  <data name="crm.stage.open_required" xml:space="preserve">
+    <value>У воронці має бути щонайменше один відкритий етап.</value>
+  </data>
+  <data name="crm.stage.terminal_fixed" xml:space="preserve">
+    <value>Етапи «Виграно» і «Програно» не можна видалити або перемістити.</value>
+  </data>
+  <data name="crm.stage.order_invalid" xml:space="preserve">
+    <value>Порядок етапів має містити кожен відкритий етап рівно один раз.</value>
+  </data>
+  <data name="crm.deal.not_found" xml:space="preserve">
+    <value>Угоду не знайдено.</value>
+  </data>
+  <data name="crm.deal.contact_not_found" xml:space="preserve">
+    <value>Обраний контакт не знайдено.</value>
+  </data>
+  <data name="crm.deal.company_not_found" xml:space="preserve">
+    <value>Обрану компанію не знайдено.</value>
+  </data>
+  <data name="crm.deal.owner_not_allowed" xml:space="preserve">
+    <value>Ви не можете призначити цю угоду обраному власнику.</value>
+  </data>
+  <data name="crm.deal.stage_not_found" xml:space="preserve">
+    <value>Обраний етап не належить до цієї воронки.</value>
+  </data>
+  <data name="crm.pipeline.default_name" xml:space="preserve">
+    <value>Продажі</value>
+  </data>
+  <data name="crm.pipeline.stage.new" xml:space="preserve">
+    <value>Нові</value>
+  </data>
+  <data name="crm.pipeline.stage.qualified" xml:space="preserve">
+    <value>Кваліфікація</value>
+  </data>
+  <data name="crm.pipeline.stage.proposal" xml:space="preserve">
+    <value>Пропозиція</value>
+  </data>
+  <data name="crm.pipeline.stage.negotiation" xml:space="preserve">
+    <value>Переговори</value>
+  </data>
+  <data name="crm.pipeline.stage.won" xml:space="preserve">
+    <value>Виграно</value>
+  </data>
+  <data name="crm.pipeline.stage.lost" xml:space="preserve">
+    <value>Програно</value>
+  </data>
+  <data name="crm.deal.not_deleted" xml:space="preserve">
+    <value>Угоду не видалено.</value>
+  </data>
+  <data name="crm.task.not_found" xml:space="preserve">
+    <value>Завдання не знайдено.</value>
+  </data>
+  <data name="crm.task.assignee_not_allowed" xml:space="preserve">
+    <value>Ви не можете призначити це завдання обраному учаснику.</value>
+  </data>
+  <data name="crm.task.subject_not_found" xml:space="preserve">
+    <value>Обраний запис не знайдено.</value>
+  </data>
+  <data name="crm.note.not_found" xml:space="preserve">
+    <value>Нотатку не знайдено.</value>
+  </data>
+  <data name="crm.note.subject_required" xml:space="preserve">
+    <value>Нотатка має належати рівно одному контакту, угоді або компанії.</value>
+  </data>
+  <data name="crm.note.subject_not_found" xml:space="preserve">
+    <value>Обраний запис не знайдено.</value>
+  </data>
+  <data name="crm.activity.subject_required" xml:space="preserve">
+    <value>Оберіть один контакт, угоду або компанію.</value>
+  </data>
+  <data name="crm.activity.subject_ambiguous" xml:space="preserve">
+    <value>Оберіть лише один: контакт, угоду або компанію.</value>
+  </data>
+  <data name="crm.activity.subject_not_found" xml:space="preserve">
+    <value>Обраний запис не знайдено.</value>
+  </data>
+  <data name="crm.order.not_found" xml:space="preserve">
+    <value>Замовлення не знайдено.</value>
+  </data>
+  <data name="crm.demo.deal_suffix.reorder" xml:space="preserve">
+    <value>Повторне замовлення</value>
+  </data>
+  <data name="crm.demo.deal_suffix.wholesale" xml:space="preserve">
+    <value>Оптове замовлення</value>
+  </data>
+  <data name="crm.demo.deal_suffix.seasonal" xml:space="preserve">
+    <value>Сезонний запас</value>
+  </data>
+  <data name="crm.demo.deal_suffix.review" xml:space="preserve">
+    <value>Перегляд співпраці</value>
+  </data>
+  <data name="crm.demo.deal_suffix.price" xml:space="preserve">
+    <value>Оновлення цін</value>
+  </data>
+  <data name="crm.demo.lost_reason.price" xml:space="preserve">
+    <value>Ціна занадто висока</value>
+  </data>
+  <data name="crm.demo.lost_reason.competitor" xml:space="preserve">
+    <value>Обрано іншого постачальника</value>
+  </data>
+  <data name="crm.demo.lost_reason.budget" xml:space="preserve">
+    <value>Немає бюджету на квартал</value>
+  </data>
+  <data name="crm.demo.task.confirm_order" xml:space="preserve">
+    <value>Підтвердити замовлення</value>
+  </data>
+  <data name="crm.demo.task.send_price_list" xml:space="preserve">
+    <value>Надіслати прайс-лист</value>
+  </data>
+  <data name="crm.demo.task.check_stock" xml:space="preserve">
+    <value>Перевірити залишки на складі</value>
+  </data>
+  <data name="crm.demo.task.follow_up_delivery" xml:space="preserve">
+    <value>Зв'язатися після доставки</value>
+  </data>
+  <data name="crm.demo.task.review_invoice" xml:space="preserve">
+    <value>Перевірити рахунок</value>
+  </data>
+  <data name="crm.demo.note.delivery_times" xml:space="preserve">
+    <value>Питав про терміни доставки.</value>
+  </data>
+  <data name="crm.demo.note.email" xml:space="preserve">
+    <value>Просить писати на електронну пошту.</value>
+  </data>
+  <data name="crm.demo.note.bulk_pricing" xml:space="preserve">
+    <value>Цікавиться оптовими цінами.</value>
+  </data>
+  <data name="crm.demo.note.seasonal_reorders" xml:space="preserve">
+    <value>Замовляє щосезону.</value>
+  </data>
+  <data name="crm.demo.note.call_after_order" xml:space="preserve">
+    <value>Просить подзвонити після наступного замовлення.</value>
+  </data>
 </root>

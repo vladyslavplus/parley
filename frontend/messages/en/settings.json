@@ -6,6 +6,7 @@
     "members": "Members",
     "teams": "Teams",
     "audit": "Audit log",
+    "pipeline": "Pipeline",
     "customFields": "Custom fields"
   },
   "roles": {
@@ -244,5 +245,36 @@
     "archived": "Archived",
     "archiveConfirm": "Archive custom field",
     "archiveConfirmDescription": "Existing data stored in this field will remain visible on existing records, but the field cannot be edited for new entries."
+  },
+  "pipeline": {
+    "title": "Pipeline settings",
+    "subtitle": "Configure deal stages, probabilities and color ramps",
+    "noPipeline": "No pipeline found for this organization.",
+    "pipelineName": "Pipeline name",
+    "saved": "Pipeline renamed successfully.",
+    "stagesTitle": "Pipeline stages",
+    "stagesDescription": "Deals move through these stages from creation to close.",
+    "probability": "Win probability",
+    "moveUp": "Move stage up",
+    "moveDown": "Move stage down",
+    "editStage": "Edit stage",
+    "deleteStage": "Delete stage",
+    "addStage": "Add stage",
+    "terminalStagesTitle": "Terminal stages (fixed)",
+    "stageWon": "Won stage",
+    "stageLost": "Lost stage",
+    "stageCreated": "Stage created successfully.",
+    "stageUpdated": "Stage updated successfully.",
+    "stageDeleted": "Stage deleted successfully.",
+    "stagesReordered": "Stages reordered successfully.",
+    "deleteStageTitle": "Delete stage",
+    "deleteStageDescription": "Are you sure you want to delete stage \"{name}\"? You cannot delete a stage that still has deals.",
+    "saveStage": "Save stage",
+    "stageName": "Stage name",
+    "stageNamePlaceholder": "e.g. Qualification",
+    "stageColor": "Stage color",
+    "errors": {
+      "stageHasDeals": "Cannot delete this stage because it still contains active deals. Move or delete the deals first."
+    }
   }
 }

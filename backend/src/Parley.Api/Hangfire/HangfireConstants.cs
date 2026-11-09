@@ -13,6 +13,10 @@ public static class HangfireConstants
 
     public const string ContactExportCleanupCron = "*/15 * * * *";
 
+    public const string TaskDueSoonScanJobName = "crm-task-due-soon-scan";
+
+    public const string TaskDueSoonScanCron = "*/5 * * * *";
+
     public const int SchemaInitMaxAttempts = 10;
 
     /// <summary>

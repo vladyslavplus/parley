@@ -107,7 +107,7 @@ function TeamModalDialog({
           >
             <FormField label={t("name")} error={errors.name?.message}>
               <Input
-                className="h-8 text-xs bg-background"
+                className="text-xs bg-background"
                 {...form.register("name")}
               />
             </FormField>
@@ -117,7 +117,7 @@ function TeamModalDialog({
                 variant="secondary"
                 onClick={() => handleOpenChange(false)}
                 disabled={isSubmitting}
-                className="h-8 px-3 text-xs"
+                className="px-3 text-xs"
               >
                 {tCommon("cancel")}
               </Button>
@@ -261,7 +261,7 @@ export function TeamsPanel() {
         <Button
           variant="primary"
           onClick={() => setCreateOpen(true)}
-          className="h-8 gap-1.5 text-xs px-3 self-start sm:self-auto whitespace-nowrap"
+          className="gap-1.5 text-xs px-3 self-start sm:self-auto whitespace-nowrap"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>{t("create")}</span>

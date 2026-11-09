@@ -3,9 +3,14 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using Parley.Api.Controllers.Crm;
 using Parley.Api.Controllers.Identity;
+using Parley.Crm.Domain.Activities;
+using Parley.Crm.Domain.Deals;
 using Parley.Crm.Features.CustomFields.Shared;
 using Parley.Crm.Shared.CustomFields;
+using Parley.Crm.Shared.Deals;
+using Parley.Crm.Shared.Pipelines;
 using Parley.Crm.Shared.Sorting;
+using Parley.Crm.Shared.Tasks;
 using Parley.Identity.Features.Audit.Shared;
 using Parley.Identity.Features.Invitations.Shared;
 using Parley.Identity.Features.Members.Shared;
@@ -35,6 +40,13 @@ public sealed class ListParameterOperationTransformer : IOpenApiOperationTransfo
     private const string ParameterTo = "to";
     private const string ParameterEntityType = "entityType";
     private const string ParameterFieldType = "fieldType";
+    private const string ParameterStageId = "stageId";
+    private const string ParameterContactId = "contactId";
+    private const string ParameterCompanyId = "companyId";
+    private const string ParameterOwnerUserId = "ownerUserId";
+    private const string ParameterDealId = "dealId";
+    private const string ParameterAssigneeUserId = "assigneeUserId";
+    private const string ParameterType = "type";
 
     private const string SegmentSeparator = "/";
 
@@ -54,7 +66,31 @@ public sealed class ListParameterOperationTransformer : IOpenApiOperationTransfo
         [ParameterTo] = "Instant excluded, UTC, ISO 8601.",
         [ParameterEntityType] = "Only definitions of this record type.",
         [ParameterFieldType] = "Only definitions of this field type.",
+        [ParameterStageId] = "Only deals on this stage (GUID).",
+        [ParameterContactId] = "Only records of this contact (GUID).",
+        [ParameterDealId] = "Only records of this deal (GUID).",
+        [ParameterAssigneeUserId] = "Only tasks assigned to this member (GUID).",
+        [ParameterType] = "Only timeline entries of this type.",
+        [ParameterCompanyId] = "Only records of this company (GUID).",
+        [ParameterOwnerUserId] = "Only records owned by this user (GUID).",
     };
+
+    private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> RouteDescriptions =
+        new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal)
+        {
+            [CrmRoutes.Deals] = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [ParameterStatus] = "Deal status to list: open, won or lost.",
+            },
+            [CrmRoutes.Tasks] = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [ParameterStatus] = "Task status to list: open, completed or overdue (open and past its due instant).",
+            },
+            [CrmRoutes.TasksMine] = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [ParameterStatus] = "Task status to list: open, completed or overdue (open and past its due instant).",
+            },
+        };
 
     private static readonly string[] ListRoutes =
     [
@@ -67,6 +103,12 @@ public sealed class ListParameterOperationTransformer : IOpenApiOperationTransfo
         CrmRoutes.Tags,
         CrmRoutes.CustomFields,
         CrmRoutes.Owners,
+        CrmRoutes.Pipelines,
+        CrmRoutes.Deals,
+        CrmRoutes.Tasks,
+        CrmRoutes.TasksMine,
+        CrmRoutes.Notes,
+        CrmRoutes.Activities,
     ];
 
     private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<string>>> AllowedValuesByRoute =
@@ -103,6 +145,38 @@ public sealed class ListParameterOperationTransformer : IOpenApiOperationTransfo
                 [ParameterSort] = ListSortFields.Values,
                 [ParameterOrder] = SortDirections.All,
             },
+            [CrmRoutes.Pipelines] = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                [ParameterSort] = PipelineSortFields.Values,
+                [ParameterOrder] = SortDirections.All,
+            },
+            [CrmRoutes.Deals] = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                [ParameterSort] = DealSortFields.Values,
+                [ParameterOrder] = SortDirections.All,
+                [ParameterStatus] = DealStatuses.All,
+            },
+            [CrmRoutes.Tasks] = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                [ParameterSort] = TaskSortFields.Values,
+                [ParameterOrder] = SortDirections.All,
+                [ParameterStatus] = TaskStatuses.All,
+            },
+            [CrmRoutes.TasksMine] = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                [ParameterSort] = TaskSortFields.Values,
+                [ParameterOrder] = SortDirections.All,
+                [ParameterStatus] = TaskStatuses.All,
+            },
+            [CrmRoutes.Notes] = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                [ParameterOrder] = SortDirections.All,
+            },
+            [CrmRoutes.Activities] = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                [ParameterOrder] = SortDirections.All,
+                [ParameterType] = ActivityTypes.All,
+            },
             [CrmRoutes.CustomFields] = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
             {
                 [ParameterSort] = CustomFieldListRules.SortFields,
@@ -128,7 +202,11 @@ public sealed class ListParameterOperationTransformer : IOpenApiOperationTransfo
                 continue;
             }
 
-            if (Descriptions.TryGetValue(parameter.Name, out var description))
+            if (RouteDescriptions.TryGetValue(route, out var routeDescriptions) && routeDescriptions.TryGetValue(parameter.Name, out var routeDescription))
+            {
+                parameter.Description = routeDescription;
+            }
+            else if (Descriptions.TryGetValue(parameter.Name, out var description))
             {
                 parameter.Description = description;
             }

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Activity,
-  CheckSquare,
-  DollarSign,
-  Package,
-  TrendingUp,
-} from "lucide-react";
+import { Activity, CheckSquare, DollarSign, TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { EmptyState } from "@/components/ui/empty-state";
@@ -38,17 +32,6 @@ export function DealsPlaceholder() {
   return (
     <EmptyState
       icon={DollarSign}
-      title={t("title")}
-      description={t("description")}
-    />
-  );
-}
-
-export function OrdersPlaceholder() {
-  const t = useTranslations("crm.contacts.record.placeholders.orders");
-  return (
-    <EmptyState
-      icon={Package}
       title={t("title")}
       description={t("description")}
     />

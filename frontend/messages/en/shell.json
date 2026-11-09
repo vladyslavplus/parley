@@ -25,14 +25,18 @@
     "development": "Development",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
+    "hasOverdueTasks": "Has overdue tasks",
     "items": {
+      "deals": "Deals",
       "contacts": "Contacts",
       "companies": "Companies",
+      "tasks": "Tasks",
       "settings": "Settings",
       "profile": "Profile",
       "organization": "Organization",
       "members": "Members",
       "teams": "Teams",
+      "pipeline": "Pipeline",
       "audit": "Audit log",
       "tokens": "Design tokens"
     }
@@ -70,8 +74,12 @@
     "searchFailed": "Search failed. Please try again.",
     "goToContacts": "Go to contacts",
     "goToCompanies": "Go to companies",
+    "goToDeals": "Go to deals",
+    "goToTasks": "Go to tasks",
     "createContact": "Create contact",
-    "createCompany": "Create company"
+    "createCompany": "Create company",
+    "createDeal": "Create deal",
+    "createTask": "Create task"
   },
   "user": {
     "defaultInitial": "U"

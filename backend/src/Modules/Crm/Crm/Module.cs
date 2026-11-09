@@ -3,11 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Parley.Crm.Contracts.Audience;
+using Parley.Crm.Contracts.DemoSeed;
+using Parley.Crm.Contracts.Metrics;
+using Parley.Crm.Contracts.Outcomes;
 using Parley.Crm.Exports;
 using Parley.Crm.Features.Contacts.Create;
+using Parley.Crm.Features.Pipelines.Consumers;
 using Parley.Crm.Options;
 using Parley.Crm.Persistence;
+using Parley.Crm.Readers;
+using Parley.Crm.Seeding.DemoSeed;
 using Parley.Crm.Shared.Owners;
+using Parley.Crm.Shared.Pipelines;
+using Parley.Crm.Tasks;
+using Parley.Identity.Contracts.Events;
 using Parley.SharedKernel.Idempotency.Persistence;
 using Parley.SharedKernel.Outbox.Dispatching;
 using Parley.SharedKernel.Persistence.Interceptors;
@@ -35,9 +45,15 @@ public static class Module
             .Bind(configuration.GetSection(CrmStorageOptions.SectionName));
         services.AddOptions<CrmExportOptions>()
             .Bind(configuration.GetSection(CrmExportOptions.SectionName));
+        services.AddOptions<CrmTaskOptions>()
+            .Bind(configuration.GetSection(CrmTaskOptions.SectionName));
         services.AddSingleton<ContactExportStorage>();
         services.AddScoped<ContactExportScheduler>();
         services.AddScoped<OwnerDirectory>();
+        services.AddScoped<ICrmCustomerMetricsReader, CrmCustomerMetricsReader>();
+        services.AddScoped<ICrmAudienceReader, CrmAudienceReader>();
+        services.AddScoped<ICrmOutcomeReader, CrmOutcomeReader>();
+        services.AddScoped<ICrmDemoDataImporter, CrmDemoDataImporter>();
         services.AddIdempotencyStore<CrmDbContext>();
 
         services.AddDbContext<CrmDbContext>((provider, options) => options
@@ -46,7 +62,11 @@ public static class Module
             .AddInterceptors(provider.GetRequiredService<AuditStampingInterceptor>()));
 
         services.AddHostedService<CrmMigrationsHostedService>();
+        services.AddScoped<DefaultPipelineProvisioner>();
+        services.AddScoped<TaskDueSoonJob>();
+        services.AddScoped<TaskDueSoonScanJob>();
         services.AddOutbox<CrmDbContext>(configuration);
+        services.AddIntegrationEventConsumer<OrganizationCreated, CrmDbContext, OrganizationCreatedConsumer>();
 
         services.AddValidatorsFromAssemblyContaining<CreateContactCommandValidator>();
 

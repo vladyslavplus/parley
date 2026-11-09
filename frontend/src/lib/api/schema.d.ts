@@ -1353,6 +1353,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/activities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
+                    after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
+                    limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only records of this contact (GUID). */
+                    contactId?: string;
+                    /** @description Only records of this deal (GUID). */
+                    dealId?: string;
+                    /** @description Only records of this company (GUID). */
+                    companyId?: string;
+                    /** @description Only timeline entries of this type. */
+                    type?: "contact_created" | "deal_stage_changed" | "deal_closed" | "note_added" | "task_completed" | "order_recorded";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfActivityView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfActivityView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfActivityView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/companies": {
         parameters: {
             query?: never;
@@ -1369,6 +1456,7 @@ export interface paths {
                     limit?: number | string;
                     /** @description Case-insensitive text the listed fields must contain. */
                     q?: string;
+                    /** @description Only records owned by this user (GUID). */
                     ownerUserId?: string;
                     /** @description Field to sort by. The allowed values are listed per endpoint. */
                     sort?: "name" | "created";
@@ -2075,7 +2163,9 @@ export interface paths {
                     /** @description Case-insensitive text the listed fields must contain. */
                     q?: string;
                     tagId?: string;
+                    /** @description Only records of this company (GUID). */
                     companyId?: string;
+                    /** @description Only records owned by this user (GUID). */
                     ownerUserId?: string;
                     createdFrom?: string;
                     createdTo?: string;
@@ -2737,7 +2827,7 @@ export interface paths {
                     /** @description Case-insensitive text the listed fields must contain. */
                     q?: string;
                     /** @description Only definitions of this record type. */
-                    entityType?: "contact" | "company";
+                    entityType?: "contact" | "company" | "deal";
                     /** @description Only definitions of this field type. */
                     fieldType?: "text" | "number" | "date" | "boolean" | "select";
                     /** @description Field to sort by. The allowed values are listed per endpoint. */
@@ -3004,6 +3094,897 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/deals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
+                    after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
+                    limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only deals on this stage (GUID). */
+                    stageId?: string;
+                    /** @description Only records owned by this user (GUID). */
+                    ownerUserId?: string;
+                    /** @description Only records of this company (GUID). */
+                    companyId?: string;
+                    /** @description Only records of this contact (GUID). */
+                    contactId?: string;
+                    /** @description Deal status to list: open, won or lost. */
+                    status?: "open" | "won" | "lost";
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "name" | "amount" | "created" | "position";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfDealView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfDealView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfDealView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["DealRequest"];
+                    "text/json": null | components["schemas"]["DealRequest"];
+                    "application/*+json": null | components["schemas"]["DealRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DealView"];
+                        "application/json": components["schemas"]["DealView"];
+                        "text/json": components["schemas"]["DealView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DealView"];
+                        "application/json": components["schemas"]["DealView"];
+                        "text/json": components["schemas"]["DealView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["UpdateDealRequest"];
+                    "text/json": null | components["schemas"]["UpdateDealRequest"];
+                    "application/*+json": null | components["schemas"]["UpdateDealRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DealView"];
+                        "application/json": components["schemas"]["DealView"];
+                        "text/json": components["schemas"]["DealView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DealView"];
+                        "application/json": components["schemas"]["DealView"];
+                        "text/json": components["schemas"]["DealView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{id}/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["MoveDealRequest"];
+                    "text/json": null | components["schemas"]["MoveDealRequest"];
+                    "application/*+json": null | components["schemas"]["MoveDealRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DealView"];
+                        "application/json": components["schemas"]["DealView"];
+                        "text/json": components["schemas"]["DealView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
+                    after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
+                    limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only records of this contact (GUID). */
+                    contactId?: string;
+                    /** @description Only records of this deal (GUID). */
+                    dealId?: string;
+                    /** @description Only records of this company (GUID). */
+                    companyId?: string;
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfNoteView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfNoteView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfNoteView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["NoteRequest"];
+                    "text/json": null | components["schemas"]["NoteRequest"];
+                    "application/*+json": null | components["schemas"]["NoteRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["NoteView"];
+                        "application/json": components["schemas"]["NoteView"];
+                        "text/json": components["schemas"]["NoteView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["UpdateNoteRequest"];
+                    "text/json": null | components["schemas"]["UpdateNoteRequest"];
+                    "application/*+json": null | components["schemas"]["UpdateNoteRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["NoteView"];
+                        "application/json": components["schemas"]["NoteView"];
+                        "text/json": components["schemas"]["NoteView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the orders the caller may see, newest first by default. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Opaque cursor of the page after the one before. */
+                    after?: string;
+                    /** @description Page size. */
+                    limit?: number | string;
+                    /** @description Free-text search over the order's invoice number and the contact's name. */
+                    q?: string;
+                    /** @description Only orders of this contact. */
+                    contactId?: string;
+                    /** @description Only orders of contacts of this company. */
+                    companyId?: string;
+                    /** @description Earliest order instant, inclusive, ISO 8601 with an offset. Clients convert a calendar day in their own time zone to an instant. */
+                    orderedFrom?: string;
+                    /** @description Order instant the range ends before, exclusive, ISO 8601 with an offset. Must not be earlier than `orderedFrom`. */
+                    orderedTo?: string;
+                    /** @description Sort field. */
+                    sort?: string;
+                    /** @description Sort direction, `asc` or `desc`. */
+                    order?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfOrderView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfOrderView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfOrderView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["OrderView"];
+                        "application/json": components["schemas"]["OrderView"];
+                        "text/json": components["schemas"]["OrderView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/owners": {
         parameters: {
             query?: never;
@@ -3061,6 +4042,581 @@ export interface paths {
             };
         };
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipelines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
+                    after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
+                    limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "name";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfPipelineSummaryView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfPipelineSummaryView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfPipelineSummaryView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipelines/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PipelineView"];
+                        "application/json": components["schemas"]["PipelineView"];
+                        "text/json": components["schemas"]["PipelineView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["PipelineRenameRequest"];
+                    "text/json": null | components["schemas"]["PipelineRenameRequest"];
+                    "application/*+json": null | components["schemas"]["PipelineRenameRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PipelineView"];
+                        "application/json": components["schemas"]["PipelineView"];
+                        "text/json": components["schemas"]["PipelineView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipelines/{id}/board": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PipelineBoardView"];
+                        "application/json": components["schemas"]["PipelineBoardView"];
+                        "text/json": components["schemas"]["PipelineBoardView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipelines/{id}/stages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["PipelineStageRequest"];
+                    "text/json": null | components["schemas"]["PipelineStageRequest"];
+                    "application/*+json": null | components["schemas"]["PipelineStageRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PipelineView"];
+                        "application/json": components["schemas"]["PipelineView"];
+                        "text/json": components["schemas"]["PipelineView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipelines/{id}/stages/{stageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    stageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["PipelineStageRequest"];
+                    "text/json": null | components["schemas"]["PipelineStageRequest"];
+                    "application/*+json": null | components["schemas"]["PipelineStageRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PipelineView"];
+                        "application/json": components["schemas"]["PipelineView"];
+                        "text/json": components["schemas"]["PipelineView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    stageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipelines/{id}/stages/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["PipelineStageOrderRequest"];
+                    "text/json": null | components["schemas"]["PipelineStageOrderRequest"];
+                    "application/*+json": null | components["schemas"]["PipelineStageOrderRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PipelineView"];
+                        "application/json": components["schemas"]["PipelineView"];
+                        "text/json": components["schemas"]["PipelineView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         post?: never;
         delete?: never;
         options?: never;
@@ -3380,6 +4936,555 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
+                    after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
+                    limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only tasks assigned to this member (GUID). */
+                    assigneeUserId?: string;
+                    /** @description Only records of this contact (GUID). */
+                    contactId?: string;
+                    /** @description Only records of this deal (GUID). */
+                    dealId?: string;
+                    /** @description Only records of this company (GUID). */
+                    companyId?: string;
+                    /** @description Task status to list: open, completed or overdue (open and past its due instant). */
+                    status?: "open" | "completed" | "overdue";
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "due" | "title" | "created";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfTaskView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfTaskView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfTaskView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["TaskRequest"];
+                    "text/json": null | components["schemas"]["TaskRequest"];
+                    "application/*+json": null | components["schemas"]["TaskRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TaskView"];
+                        "application/json": components["schemas"]["TaskView"];
+                        "text/json": components["schemas"]["TaskView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Cursor of the page to continue from, exactly as the previous page returned it. */
+                    after?: string;
+                    /** @description Page size. Defaults to 20 and is capped at 100. */
+                    limit?: number | string;
+                    /** @description Case-insensitive text the listed fields must contain. */
+                    q?: string;
+                    /** @description Only records of this contact (GUID). */
+                    contactId?: string;
+                    /** @description Only records of this deal (GUID). */
+                    dealId?: string;
+                    /** @description Only records of this company (GUID). */
+                    companyId?: string;
+                    /** @description Task status to list: open, completed or overdue (open and past its due instant). */
+                    status?: "open" | "completed" | "overdue";
+                    /** @description Field to sort by. The allowed values are listed per endpoint. */
+                    sort?: "due" | "title" | "created";
+                    /** @description Sort direction: asc or desc. */
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfTaskView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfTaskView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfTaskView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TaskView"];
+                        "application/json": components["schemas"]["TaskView"];
+                        "text/json": components["schemas"]["TaskView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["UpdateTaskRequest"];
+                    "text/json": null | components["schemas"]["UpdateTaskRequest"];
+                    "application/*+json": null | components["schemas"]["UpdateTaskRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TaskView"];
+                        "application/json": components["schemas"]["TaskView"];
+                        "text/json": components["schemas"]["TaskView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["VersionRequest"];
+                    "text/json": null | components["schemas"]["VersionRequest"];
+                    "application/*+json": null | components["schemas"]["VersionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TaskView"];
+                        "application/json": components["schemas"]["TaskView"];
+                        "text/json": components["schemas"]["TaskView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["VersionRequest"];
+                    "text/json": null | components["schemas"]["VersionRequest"];
+                    "application/*+json": null | components["schemas"]["VersionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TaskView"];
+                        "application/json": components["schemas"]["TaskView"];
+                        "text/json": components["schemas"]["TaskView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3956,6 +6061,73 @@ export interface components {
             token: null | string;
             password: null | string;
         };
+        /**
+         * @description One timeline entry as the API returns it. Times are UTC. The names are the ones the caller may see; a link to a
+         *     record outside the caller's scope shows no name.
+         */
+        ActivityView: {
+            /**
+             * Format: uuid
+             * @description Entry identifier.
+             */
+            id: string;
+            /** @description Entry type: `contact_created`, `deal_stage_changed`, `deal_closed`, `note_added` or `task_completed`. */
+            type: string;
+            /**
+             * Format: date-time
+             * @description Instant the entry happened, UTC.
+             */
+            occurredAt: string;
+            /**
+             * Format: uuid
+             * @description Member who caused the entry, when known.
+             */
+            actorUserId: null | string;
+            /** @description Actor display name, or null when unnamed or outside the organization. */
+            actorDisplayName: null | string;
+            /**
+             * Format: uuid
+             * @description Contact of the entry, when set.
+             */
+            contactId: null | string;
+            /** @description Full name of that contact, or null. */
+            contactName: null | string;
+            /**
+             * Format: uuid
+             * @description Deal of the entry, when set.
+             */
+            dealId: null | string;
+            /** @description Title of that deal, or null. */
+            dealTitle: null | string;
+            /**
+             * Format: uuid
+             * @description Company of the entry, when set.
+             */
+            companyId: null | string;
+            /** @description Name of that company, or null. */
+            companyName: null | string;
+            /**
+             * Format: uuid
+             * @description Note the entry refers to, when it is a note entry and the note is live.
+             */
+            noteId: null | string;
+            /** @description Text of that note, or null. */
+            noteBody: null | string;
+            /**
+             * Format: uint32
+             * @description Row version of that note, for editing it; null for entries that are not note entries.
+             */
+            noteVersion: null | number | string;
+            /**
+             * Format: uuid
+             * @description Task the entry refers to, when it is a task entry and the task is live.
+             */
+            taskId: null | string;
+            /** @description Title of that task, or null. */
+            taskTitle: null | string;
+            /** @description Safe details of the entry as a JSON object. */
+            payload: components["schemas"]["JsonElement"];
+        };
         /** @description Body of tag attachment to a contact. */
         AttachTagsRequest: {
             tagIds: null | string[];
@@ -4204,7 +6376,7 @@ export interface components {
              * @description Record type the field belongs to: `contact` or `company`.
              * @enum {string}
              */
-            entityType: "contact" | "company";
+            entityType: "contact" | "company" | "deal";
             /** @description Stable key used in the record's custom field object. Never changes. */
             key: string;
             /** @description Display label. */
@@ -4240,6 +6412,115 @@ export interface components {
             /** Format: int32 */
             position: number | string;
         };
+        /** @description Body of deal create. The owner defaults to the caller and the stage to the first open stage when omitted. */
+        DealRequest: {
+            title: null | string;
+            /** Format: double */
+            amount: number | string;
+            currency: null | string;
+            /** Format: uuid */
+            contactId: null | string;
+            /** Format: uuid */
+            companyId: null | string;
+            /** Format: uuid */
+            ownerUserId: null | string;
+            /** Format: date */
+            expectedCloseOn: null | string;
+            /** Format: uuid */
+            stageId: null | string;
+            customFields: null | Record<string, never>;
+        };
+        /**
+         * @description A deal as the API returns it. uint DealView.Version is the row version: clients send it back on update and
+         *     move, and a stale value returns 409.
+         */
+        DealView: {
+            /**
+             * Format: uuid
+             * @description Deal identifier.
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Pipeline the deal belongs to.
+             */
+            pipelineId: string;
+            /**
+             * Format: uuid
+             * @description Stage the deal sits on.
+             */
+            stageId: string;
+            /** @description Name of that stage. */
+            stageName: string;
+            /** @description Deal status: `open`, `won` or `lost`; follows the stage kind. */
+            status: string;
+            /** @description Deal title. */
+            title: string;
+            /**
+             * Format: double
+             * @description Amount in Currency.
+             */
+            amount: number | string;
+            /** @description ISO 4217 currency code. */
+            currency: string;
+            /**
+             * Format: uuid
+             * @description Linked contact, when set.
+             */
+            contactId: null | string;
+            /** @description Full name of the linked contact, or null when unset or outside the caller's scope. */
+            contactName: null | string;
+            /**
+             * Format: uuid
+             * @description Linked company, when set.
+             */
+            companyId: null | string;
+            /** @description Name of the linked company, or null when unset or outside the caller's scope. */
+            companyName: null | string;
+            /**
+             * Format: uuid
+             * @description Owner of the deal.
+             */
+            ownerUserId: string;
+            /** @description Owner display name, or null when unnamed or outside the organization. */
+            ownerDisplayName: null | string;
+            /** @description Owner email, or null under the same conditions. */
+            ownerEmail: null | string;
+            /**
+             * Format: date
+             * @description Expected close date, when set.
+             */
+            expectedCloseOn: null | string;
+            /**
+             * Format: date-time
+             * @description Instant the deal was won or lost, or null while open.
+             */
+            closedAt: null | string;
+            /** @description Reason given when the deal was lost, when set. */
+            lostReason: null | string;
+            /**
+             * Format: int64
+             * @description Order of the deal inside its stage.
+             */
+            boardPosition: number | string;
+            /** @description Custom field values keyed by definition key. */
+            customFields: Record<string, never>;
+            /**
+             * Format: date-time
+             * @description Creation instant in UTC.
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Last change instant in UTC.
+             */
+            updatedAt: string;
+            /**
+             * Format: uint32
+             * @description Row version to send back on update or move.
+             */
+            version: number | string;
+        };
         /** @description Body of endpoints that take only an address. */
         EmailRequest: {
             email: null | string;
@@ -4261,6 +6542,17 @@ export interface components {
             roleCode: null | string;
             /** Format: uuid */
             teamId: null | string;
+        };
+        JsonElement: unknown;
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfActivityView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["ActivityView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
         };
         /**
          * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
@@ -4306,6 +6598,16 @@ export interface components {
          * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
          *     encodes the sort value and identifier of the last item, and is null on the last page.
          */
+        KeysetCursorPageOfDealView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["DealView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
         KeysetCursorPageOfInvitationView: {
             /** @description Rows of this page, in list order. */
             items: components["schemas"]["InvitationView"][];
@@ -4326,9 +6628,49 @@ export interface components {
          * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
          *     encodes the sort value and identifier of the last item, and is null on the last page.
          */
+        KeysetCursorPageOfNoteView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["NoteView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfOrderView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["OrderView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfPipelineSummaryView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["PipelineSummaryView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
         KeysetCursorPageOfTagView: {
             /** @description Rows of this page, in list order. */
             items: components["schemas"]["TagView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfTaskView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["TaskView"][];
             /** @description Opaque cursor for the following page, or null when this is the last page. */
             nextCursor: null | string;
         };
@@ -4357,6 +6699,16 @@ export interface components {
             /** Format: date-time */
             joinedAt: string;
         };
+        /** @description Body of a deal move: target stage, zero-based place in that stage, and the row version the client read. */
+        MoveDealRequest: {
+            /** Format: uuid */
+            stageId: null | string;
+            /** Format: int32 */
+            position: number | string;
+            /** Format: uint32 */
+            version: number | string;
+            lostReason: null | string;
+        };
         /** @description One organization the signed-in user is an active member of. */
         MyOrganizationView: {
             /**
@@ -4370,6 +6722,104 @@ export interface components {
             roleCode: string;
             /** @description True for the organization the current access token is scoped to. */
             isCurrent: boolean;
+        };
+        /** @description Body of a note create. Exactly one of the three subject links must be set. */
+        NoteRequest: {
+            body: null | string;
+            /** Format: uuid */
+            contactId: null | string;
+            /** Format: uuid */
+            dealId: null | string;
+            /** Format: uuid */
+            companyId: null | string;
+        };
+        /**
+         * @description A note as the API returns it. uint NoteView.Version is the row version: clients send it back on update, and a stale
+         *     value returns 409.
+         */
+        NoteView: {
+            /**
+             * Format: uuid
+             * @description Note identifier.
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Contact the note belongs to, when it belongs to a contact.
+             */
+            contactId: null | string;
+            /**
+             * Format: uuid
+             * @description Deal the note belongs to, when it belongs to a deal.
+             */
+            dealId: null | string;
+            /**
+             * Format: uuid
+             * @description Company the note belongs to, when it belongs to a company.
+             */
+            companyId: null | string;
+            /** @description Note text. */
+            body: string;
+            /**
+             * Format: uuid
+             * @description Member who wrote the note.
+             */
+            authorUserId: string;
+            /** @description Author display name, or null when unnamed or outside the organization. */
+            authorDisplayName: null | string;
+            /** @description Author email, or null under the same conditions. */
+            authorEmail: null | string;
+            /**
+             * Format: date-time
+             * @description Creation instant in UTC.
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Last change instant in UTC.
+             */
+            updatedAt: string;
+            /**
+             * Format: uint32
+             * @description Row version to send back on update.
+             */
+            version: number | string;
+        };
+        /** @description An order as the API returns it. Amounts are net; a cancellation is negative and flagged. */
+        OrderView: {
+            /**
+             * Format: uuid
+             * @description Order identifier.
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Contact the order belongs to.
+             */
+            contactId: string;
+            /** @description Invoice number. */
+            externalRef: string;
+            /**
+             * Format: date-time
+             * @description Invoice instant, UTC.
+             */
+            orderedAt: string;
+            /**
+             * Format: double
+             * @description Net total in Currency.
+             */
+            totalAmount: number | string;
+            /** @description ISO 4217 code. */
+            currency: string;
+            /**
+             * Format: int32
+             * @description Lines of the invoice.
+             */
+            lineCount: number | string;
+            /** @description True for a cancellation. */
+            isCancellation: boolean;
+            /** @description Where the order came from. */
+            source: string;
         };
         /** @description Settings of an organization as members and administrators read them. */
         OrganizationView: {
@@ -4404,6 +6854,147 @@ export interface components {
             permission: string;
             /** @description Record scope: `own`, `team`, `org`, or null. */
             scope: null | string;
+        };
+        /** @description One column of the board. */
+        PipelineBoardStageView: {
+            /**
+             * Format: uuid
+             * @description Stage identifier.
+             */
+            id: string;
+            /** @description Stage name. */
+            name: string;
+            /**
+             * Format: int32
+             * @description Order of the stage in the pipeline.
+             */
+            position: number | string;
+            /** @description Stage kind: `open`, `won` or `lost`. */
+            kind: string;
+            /**
+             * Format: int32
+             * @description Win probability in basis points.
+             */
+            probabilityBps: number | string;
+            /**
+             * Format: int32
+             * @description Index into the color ramp, 0 to 4.
+             */
+            colorIndex: number | string;
+            /**
+             * Format: int32
+             * @description Visible deals on the stage.
+             */
+            dealCount: number | string;
+            /**
+             * Format: double
+             * @description Sum of the amounts of the visible deals on the stage.
+             */
+            totalAmount: number | string;
+        };
+        /**
+         * @description The board of a pipeline: every stage with its visible deal count and amount total. The cards of one stage
+         *     come from the deal list filtered by that stage, so the board read stays one statement per aggregate.
+         */
+        PipelineBoardView: {
+            /**
+             * Format: uuid
+             * @description Pipeline identifier.
+             */
+            pipelineId: string;
+            /** @description Pipeline name. */
+            pipelineName: string;
+            /** @description Stages in position order. */
+            stages: components["schemas"]["PipelineBoardStageView"][];
+        };
+        /** @description Body of a pipeline rename. `version` is the row version the client read. */
+        PipelineRenameRequest: {
+            /** Format: uint32 */
+            version: number | string;
+            name: null | string;
+        };
+        /** @description Body of a stage reorder: every open stage identifier in the new order. */
+        PipelineStageOrderRequest: {
+            stageIds: null | string[];
+        };
+        /** @description Body of a stage create or update: name, color index and win probability in basis points. */
+        PipelineStageRequest: {
+            name: null | string;
+            /** Format: int32 */
+            colorIndex: number | string;
+            /** Format: int32 */
+            probabilityBps: number | string;
+        };
+        /** @description A stage of a pipeline as the API returns it. */
+        PipelineStageView: {
+            /**
+             * Format: uuid
+             * @description Stage identifier.
+             */
+            id: string;
+            /** @description Stage name. */
+            name: string;
+            /**
+             * Format: int32
+             * @description Order of the stage in the pipeline.
+             */
+            position: number | string;
+            /** @description Stage kind: `open`, `won` or `lost`. */
+            kind: string;
+            /**
+             * Format: int32
+             * @description Win probability in basis points (10000 = 100 %).
+             */
+            probabilityBps: number | string;
+            /**
+             * Format: int32
+             * @description Index into the color ramp, 0 to 4.
+             */
+            colorIndex: number | string;
+        };
+        /** @description A pipeline in a list, without its stages. */
+        PipelineSummaryView: {
+            /**
+             * Format: uuid
+             * @description Pipeline identifier.
+             */
+            id: string;
+            /** @description Pipeline name. */
+            name: string;
+            /** @description Whether this is the organization's default pipeline. */
+            isDefault: boolean;
+            /**
+             * Format: int32
+             * @description Number of stages.
+             */
+            stageCount: number | string;
+            /**
+             * Format: uint32
+             * @description Row version.
+             */
+            version: number | string;
+        };
+        /**
+         * @description A pipeline with its stages in position order. uint PipelineView.Version is the row version: clients send it
+         *     back on rename, and a stale value returns 409.
+         */
+        PipelineView: {
+            /**
+             * Format: uuid
+             * @description Pipeline identifier.
+             */
+            id: string;
+            /** @description Pipeline name. */
+            name: string;
+            /** @description Whether this is the organization's default pipeline. */
+            isDefault: boolean;
+            /** @description Stages in position order; the won and lost stages come last. */
+            stages: components["schemas"]["PipelineStageView"][];
+            /**
+             * Format: uint32
+             * @description Row version to send back on rename.
+             */
+            version: number | string;
         };
         ProblemDetails: {
             type?: null | string;
@@ -4494,6 +7085,93 @@ export interface components {
              */
             colorIndex: number | string;
         };
+        /** @description Body of a task create: title, optional notes and due instant, assignee (the caller when absent) and links. */
+        TaskRequest: {
+            title: null | string;
+            notes: null | string;
+            /** Format: date-time */
+            dueAt: null | string;
+            /** Format: uuid */
+            assigneeUserId: null | string;
+            /** Format: uuid */
+            contactId: null | string;
+            /** Format: uuid */
+            dealId: null | string;
+            /** Format: uuid */
+            companyId: null | string;
+        };
+        /**
+         * @description A task as the API returns it. uint TaskView.Version is the row version: clients send it back on update, complete
+         *     and reopen, and a stale value returns 409.
+         */
+        TaskView: {
+            /**
+             * Format: uuid
+             * @description Task identifier.
+             */
+            id: string;
+            /** @description Task title. */
+            title: string;
+            /** @description Free text, when set. */
+            notes: null | string;
+            /**
+             * Format: date-time
+             * @description Due instant in UTC, or null when the task has no due date.
+             */
+            dueAt: null | string;
+            /**
+             * Format: date-time
+             * @description Instant the task was completed in UTC, or null while open.
+             */
+            completedAt: null | string;
+            /** @description True when CompletedAt is set. */
+            isCompleted: boolean;
+            /**
+             * Format: uuid
+             * @description Member the task is assigned to.
+             */
+            assigneeUserId: string;
+            /** @description Assignee display name, or null when unnamed or outside the organization. */
+            assigneeDisplayName: null | string;
+            /** @description Assignee email, or null under the same conditions. */
+            assigneeEmail: null | string;
+            /**
+             * Format: uuid
+             * @description Linked contact, when set.
+             */
+            contactId: null | string;
+            /** @description Full name of the linked contact, or null when unset or outside the caller's scope. */
+            contactName: null | string;
+            /**
+             * Format: uuid
+             * @description Linked deal, when set.
+             */
+            dealId: null | string;
+            /** @description Title of the linked deal, or null when unset or outside the caller's scope. */
+            dealTitle: null | string;
+            /**
+             * Format: uuid
+             * @description Linked company, when set.
+             */
+            companyId: null | string;
+            /** @description Name of the linked company, or null when unset or outside the caller's scope. */
+            companyName: null | string;
+            /**
+             * Format: date-time
+             * @description Creation instant in UTC.
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Last change instant in UTC.
+             */
+            updatedAt: string;
+            /**
+             * Format: uint32
+             * @description Row version to send back on update, complete or reopen.
+             */
+            version: number | string;
+        };
         /** @description Body of team create and rename. */
         TeamRequest: {
             name: null | string;
@@ -4543,12 +7221,53 @@ export interface components {
             /** Format: int32 */
             position: number | string;
         };
+        /** @description Body of deal update. `version` is the row version the client read; a null owner keeps the current one. */
+        UpdateDealRequest: {
+            /** Format: uint32 */
+            version: number | string;
+            title: null | string;
+            /** Format: double */
+            amount: number | string;
+            currency: null | string;
+            /** Format: uuid */
+            contactId: null | string;
+            /** Format: uuid */
+            companyId: null | string;
+            /** Format: uuid */
+            ownerUserId: null | string;
+            /** Format: date */
+            expectedCloseOn: null | string;
+            customFields: null | Record<string, never>;
+        };
+        /** @description Body of a note update: the row version the client read and the new text. */
+        UpdateNoteRequest: {
+            /** Format: uint32 */
+            version: number | string;
+            body: null | string;
+        };
         /** @description Body of `PUT /organizations/{id}`. */
         UpdateOrganizationRequest: {
             name: null | string;
             timeZone: null | string;
             defaultLocale: null | string;
             currency: null | string;
+        };
+        /** @description Body of a task update: the row version the client read, then the editable fields. A null assignee keeps the current one. */
+        UpdateTaskRequest: {
+            /** Format: uint32 */
+            version: number | string;
+            title: null | string;
+            notes: null | string;
+            /** Format: date-time */
+            dueAt: null | string;
+            /** Format: uuid */
+            assigneeUserId: null | string;
+            /** Format: uuid */
+            contactId: null | string;
+            /** Format: uuid */
+            dealId: null | string;
+            /** Format: uuid */
+            companyId: null | string;
         };
         /** @description The personal profile of the signed-in user. */
         UserProfileView: {
@@ -4559,6 +7278,11 @@ export interface components {
             locale: string;
             timeZone: string;
             theme: string;
+        };
+        /** @description Body of a state change that only needs the row version the client read. */
+        VersionRequest: {
+            /** Format: uint32 */
+            version: number | string;
         };
     };
     responses: never;

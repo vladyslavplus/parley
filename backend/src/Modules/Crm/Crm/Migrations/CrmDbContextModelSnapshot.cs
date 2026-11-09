@@ -169,9 +169,21 @@ namespace Parley.Crm.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("actor_user_id");
 
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
                     b.Property<Guid?>("ContactId")
                         .HasColumnType("uuid")
                         .HasColumnName("contact_id");
+
+                    b.Property<Guid?>("DealId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deal_id");
+
+                    b.Property<Guid?>("NoteId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("note_id");
 
                     b.Property<DateTime>("OccurredAt")
                         .HasColumnType("timestamptz")
@@ -186,6 +198,10 @@ namespace Parley.Crm.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("source_event_id");
 
+                    b.Property<Guid?>("TaskId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("task_id");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -196,8 +212,14 @@ namespace Parley.Crm.Migrations
                         .IsUnique()
                         .HasDatabaseName("ux_activities_organization_id_source_event_id");
 
+                    b.HasIndex("OrganizationId", "CompanyId", "OccurredAt")
+                        .HasDatabaseName("ix_activities_organization_id_company_id_occurred_at");
+
                     b.HasIndex("OrganizationId", "ContactId", "OccurredAt")
                         .HasDatabaseName("ix_activities_organization_id_contact_id_occurred_at");
+
+                    b.HasIndex("OrganizationId", "DealId", "OccurredAt")
+                        .HasDatabaseName("ix_activities_organization_id_deal_id_occurred_at");
 
                     b.ToTable("activities", "crm");
                 });
@@ -321,6 +343,11 @@ namespace Parley.Crm.Migrations
                         .HasColumnType("character varying(254)")
                         .HasColumnName("email_normalized");
 
+                    b.Property<string>("ExternalRef")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("external_ref");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -336,6 +363,10 @@ namespace Parley.Crm.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("last_name");
+
+                    b.Property<DateTime?>("LastOrderAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_order_at");
 
                     b.Property<string>("NameNormalized")
                         .IsRequired()
@@ -408,6 +439,11 @@ namespace Parley.Crm.Migrations
                     b.HasIndex("OrganizationId", "OwnerUserId", "Id")
                         .HasDatabaseName("ix_contacts_organization_id_owner_user_id_id");
 
+                    b.HasIndex("OrganizationId", "Source", "ExternalRef")
+                        .IsUnique()
+                        .HasDatabaseName("ux_contacts_organization_id_source_external_ref")
+                        .HasFilter("\"external_ref\" IS NOT NULL");
+
                     b.ToTable("contacts", "crm");
                 });
 
@@ -463,6 +499,165 @@ namespace Parley.Crm.Migrations
                     b.ToTable("custom_field_definitions", "crm");
                 });
 
+            modelBuilder.Entity("Parley.Crm.Domain.Deals.Deal", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<long>("BoardPosition")
+                        .HasColumnType("bigint")
+                        .HasColumnName("board_position");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("closed_at");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
+                    b.Property<Guid?>("ContactId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contact_id");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("CustomFields")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("custom_fields");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateOnly?>("ExpectedCloseOn")
+                        .HasColumnType("date")
+                        .HasColumnName("expected_close_on");
+
+                    b.Property<string>("LostReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("lost_reason");
+
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<Guid>("PipelineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pipeline_id");
+
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector")
+                        .HasComputedColumnSql("to_tsvector('simple'::regconfig, coalesce(\"title\", ''))", true);
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("source");
+
+                    b.Property<Guid>("StageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("stage_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("TitleNormalized")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasColumnName("title_normalized")
+                        .HasComputedColumnSql("lower(\"title\")", true);
+
+                    b.HasIndex("CustomFields")
+                        .HasDatabaseName("ix_deals_custom_fields");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("CustomFields"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("CustomFields"), new[] { "jsonb_path_ops" });
+
+                    b.HasIndex("PipelineId")
+                        .HasDatabaseName("ix_deals_pipeline_id");
+
+                    b.HasIndex("SearchVector")
+                        .HasDatabaseName("ix_deals_search_vector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "gin");
+
+                    b.HasIndex("StageId")
+                        .HasDatabaseName("ix_deals_stage_id");
+
+                    b.HasIndex("OrganizationId", "Amount", "Id")
+                        .HasDatabaseName("ix_deals_organization_id_amount_id");
+
+                    b.HasIndex("OrganizationId", "CreatedAt", "Id")
+                        .HasDatabaseName("ix_deals_organization_id_created_at_id");
+
+                    b.HasIndex("OrganizationId", "OwnerUserId", "Status")
+                        .HasDatabaseName("ix_deals_organization_id_owner_user_id_status");
+
+                    b.HasIndex("OrganizationId", "TitleNormalized", "Id")
+                        .HasDatabaseName("ix_deals_organization_id_title_normalized_id");
+
+                    b.HasIndex("OrganizationId", "PipelineId", "StageId", "BoardPosition")
+                        .HasDatabaseName("ix_deals_organization_id_pipeline_id_stage_id_board_position");
+
+                    b.ToTable("deals", "crm", t =>
+                        {
+                            t.HasCheckConstraint("ck_deals_status", "\"status\" IN ('open', 'won', 'lost')");
+                        });
+                });
+
+            modelBuilder.Entity("Parley.Crm.Domain.Deals.DealStageHistoryEntry", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("changed_at");
+
+                    b.Property<Guid>("ChangedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("changed_by_user_id");
+
+                    b.Property<Guid>("DealId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deal_id");
+
+                    b.Property<Guid?>("FromStageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("from_stage_id");
+
+                    b.Property<Guid>("ToStageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_stage_id");
+
+                    b.HasIndex("OrganizationId", "DealId", "ChangedAt")
+                        .HasDatabaseName("ix_deal_stage_history_organization_id_deal_id_changed_at");
+
+                    b.ToTable("deal_stage_history", "crm");
+                });
+
             modelBuilder.Entity("Parley.Crm.Domain.Exports.ContactExport", b =>
                 {
                     b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
@@ -508,6 +703,198 @@ namespace Parley.Crm.Migrations
                     b.ToTable("contact_exports", "crm");
                 });
 
+            modelBuilder.Entity("Parley.Crm.Domain.Notes.Note", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<Guid>("AuthorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_user_id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("body");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
+                    b.Property<Guid?>("ContactId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contact_id");
+
+                    b.Property<Guid?>("DealId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deal_id");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.HasIndex("OrganizationId", "CompanyId", "CreatedAt", "Id")
+                        .HasDatabaseName("ix_notes_organization_id_company_id_created_at_id");
+
+                    b.HasIndex("OrganizationId", "ContactId", "CreatedAt", "Id")
+                        .HasDatabaseName("ix_notes_organization_id_contact_id_created_at_id");
+
+                    b.HasIndex("OrganizationId", "DealId", "CreatedAt", "Id")
+                        .HasDatabaseName("ix_notes_organization_id_deal_id_created_at_id");
+
+                    b.ToTable("notes", "crm", t =>
+                        {
+                            t.HasCheckConstraint("ck_notes_subject_single", "num_nonnulls(\"contact_id\", \"deal_id\", \"company_id\") = 1");
+                        });
+                });
+
+            modelBuilder.Entity("Parley.Crm.Domain.Orders.Order", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contact_id");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("ExternalRef")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("external_ref");
+
+                    b.Property<bool>("IsCancellation")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_cancellation");
+
+                    b.Property<int>("LineCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("line_count");
+
+                    b.Property<DateTime>("OrderedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("ordered_at");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("source");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_amount");
+
+                    b.HasIndex("ContactId")
+                        .HasDatabaseName("ix_orders_contact_id");
+
+                    b.HasIndex("OrganizationId", "ContactId", "OrderedAt")
+                        .HasDatabaseName("ix_orders_organization_id_contact_id_ordered_at");
+
+                    b.HasIndex("OrganizationId", "Source", "ExternalRef")
+                        .IsUnique()
+                        .HasDatabaseName("ux_orders_organization_id_source_external_ref");
+
+                    b.ToTable("orders", "crm");
+                });
+
+            modelBuilder.Entity("Parley.Crm.Domain.Pipelines.Pipeline", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("SystemKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("system_key");
+
+                    b.HasIndex("OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_pipelines_organization_id_default")
+                        .HasFilter("\"is_default\"");
+
+                    b.ToTable("pipelines", "crm");
+                });
+
+            modelBuilder.Entity("Parley.Crm.Domain.Pipelines.PipelineStage", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<short>("ColorIndex")
+                        .HasColumnType("smallint")
+                        .HasColumnName("color_index");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NameNormalized")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasColumnName("name_normalized")
+                        .HasComputedColumnSql("lower(\"name\")", true);
+
+                    b.Property<Guid>("PipelineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pipeline_id");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<int>("ProbabilityBps")
+                        .HasColumnType("integer")
+                        .HasColumnName("probability_bps");
+
+                    b.Property<string>("SystemKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("system_key");
+
+                    b.HasIndex("PipelineId")
+                        .HasDatabaseName("ix_pipeline_stages_pipeline_id");
+
+                    b.HasIndex("OrganizationId", "PipelineId", "NameNormalized")
+                        .IsUnique()
+                        .HasDatabaseName("ux_pipeline_stages_organization_id_pipeline_id_name_normalized");
+
+                    b.HasIndex("OrganizationId", "PipelineId", "Position")
+                        .IsUnique()
+                        .HasDatabaseName("ux_pipeline_stages_organization_id_pipeline_id_position");
+
+                    b.ToTable("pipeline_stages", "crm", t =>
+                        {
+                            t.HasCheckConstraint("ck_pipeline_stages_color_index", "\"color_index\" BETWEEN 0 AND 4");
+
+                            t.HasCheckConstraint("ck_pipeline_stages_kind", "\"kind\" IN ('open', 'won', 'lost')");
+
+                            t.HasCheckConstraint("ck_pipeline_stages_probability_bps", "\"probability_bps\" BETWEEN 0 AND 10000");
+                        });
+                });
+
             modelBuilder.Entity("Parley.Crm.Domain.Tags.Tag", b =>
                 {
                     b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
@@ -541,6 +928,76 @@ namespace Parley.Crm.Migrations
                         {
                             t.HasCheckConstraint("ck_tags_color_index", "\"color_index\" BETWEEN 0 AND 4");
                         });
+                });
+
+            modelBuilder.Entity("Parley.Crm.Domain.Tasks.CrmTask", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<Guid>("AssigneeUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignee_user_id");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("completed_at");
+
+                    b.Property<Guid?>("ContactId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contact_id");
+
+                    b.Property<Guid?>("DealId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deal_id");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTime?>("DueAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("due_at");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateTime?>("ReminderSentAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("reminder_sent_at");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("TitleNormalized")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasColumnName("title_normalized")
+                        .HasComputedColumnSql("lower(\"title\")", true);
+
+                    b.HasIndex("DueAt", "Id")
+                        .HasDatabaseName("ix_tasks_due_at_id_open")
+                        .HasFilter("\"completed_at\" IS NULL AND \"deleted_at\" IS NULL AND \"reminder_sent_at\" IS NULL");
+
+                    b.HasIndex("OrganizationId", "CreatedAt", "Id")
+                        .HasDatabaseName("ix_tasks_organization_id_created_at_id");
+
+                    b.HasIndex("OrganizationId", "TitleNormalized", "Id")
+                        .HasDatabaseName("ix_tasks_organization_id_title_normalized_id");
+
+                    b.HasIndex("OrganizationId", "AssigneeUserId", "DueAt", "Id")
+                        .HasDatabaseName("ix_tasks_organization_id_assignee_user_id_due_at_id");
+
+                    b.ToTable("tasks", "crm");
                 });
 
             modelBuilder.Entity("Parley.SharedKernel.Idempotency.Persistence.IdempotencyKey", b =>
@@ -604,9 +1061,51 @@ namespace Parley.Crm.Migrations
                         .HasConstraintName("fk_contact_tags_tags_tag_id");
                 });
 
+            modelBuilder.Entity("Parley.Crm.Domain.Deals.Deal", b =>
+                {
+                    b.HasOne("Parley.Crm.Domain.Pipelines.Pipeline", null)
+                        .WithMany()
+                        .HasForeignKey("PipelineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_deals_pipelines_pipeline_id");
+
+                    b.HasOne("Parley.Crm.Domain.Pipelines.PipelineStage", null)
+                        .WithMany()
+                        .HasForeignKey("StageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_deals_pipeline_stages_stage_id");
+                });
+
+            modelBuilder.Entity("Parley.Crm.Domain.Orders.Order", b =>
+                {
+                    b.HasOne("Parley.Crm.Domain.Contacts.Contact", null)
+                        .WithMany()
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_orders_contacts_contact_id");
+                });
+
+            modelBuilder.Entity("Parley.Crm.Domain.Pipelines.PipelineStage", b =>
+                {
+                    b.HasOne("Parley.Crm.Domain.Pipelines.Pipeline", null)
+                        .WithMany("Stages")
+                        .HasForeignKey("PipelineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_pipeline_stages_pipelines_pipeline_id");
+                });
+
             modelBuilder.Entity("Parley.Crm.Domain.Contacts.Contact", b =>
                 {
                     b.Navigation("TagLinks");
+                });
+
+            modelBuilder.Entity("Parley.Crm.Domain.Pipelines.Pipeline", b =>
+                {
+                    b.Navigation("Stages");
                 });
 #pragma warning restore 612, 618
         }

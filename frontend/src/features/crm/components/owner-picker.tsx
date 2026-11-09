@@ -1,12 +1,13 @@
 "use client";
 
 import * as Popover from "@radix-ui/react-popover";
-import { Check, ChevronsUpDown, Search, User, X } from "lucide-react";
+import { Check, ChevronsUpDown, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { TableProgressBar } from "@/components/data-table/table-progress-bar";
-import { Input } from "@/components/ui/input";
+import { PICKER_TRIGGER } from "@/components/ui/input";
+import { PickerSearch } from "@/components/ui/picker-search";
 import { LIMITS } from "@/constants/limits";
 import { useOwners, type OwnerOption } from "@/features/crm/hooks/use-owners";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ export interface OwnerPickerProps {
   clearLabel?: string;
   disabled?: boolean;
   placeholder?: string;
-  variant?: "filter" | "control" | "inline";
+  variant?: "control" | "inline";
   className?: string;
   ariaLabel?: string;
 }
@@ -34,7 +35,7 @@ export function OwnerPicker({
   clearLabel,
   disabled = false,
   placeholder,
-  variant = "filter",
+  variant = "control",
   className,
   ariaLabel,
 }: OwnerPickerProps) {
@@ -204,40 +205,16 @@ export function OwnerPicker({
             aria-haspopup="listbox"
             aria-controls={open ? listboxId : undefined}
             aria-label={triggerLabel}
-            className={cn(
-              "flex h-8 items-center justify-between gap-2 rounded-[var(--radius-control)] border border-input bg-background px-2.5 py-1 text-xs shadow-xs focus-visible:outline-2 focus-visible:outline-ring cursor-pointer",
-              variant === "filter"
-                ? "w-auto min-w-[180px] max-w-[260px]"
-                : "w-full",
-              className,
-            )}
+            className={cn(PICKER_TRIGGER, className)}
           >
+            <User className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span
               className={cn(
-                "truncate text-left",
-                !value && variant === "control" && "text-muted-foreground",
+                "min-w-0 flex-1 truncate text-left",
+                !value && "text-muted-foreground",
               )}
             >
-              {variant === "filter" ? (
-                value && selectedDisplayLabel ? (
-                  <>
-                    <span className="text-muted-foreground">
-                      {tFilters("owner")}:{" "}
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {selectedDisplayLabel}
-                    </span>
-                    {resolvedEmail &&
-                      resolvedEmail !== selectedDisplayLabel && (
-                        <span className="text-muted-foreground ml-1">
-                          ({resolvedEmail})
-                        </span>
-                      )}
-                  </>
-                ) : (
-                  tFilters("ownerFilter", { owner: resolvedClearLabel })
-                )
-              ) : value && selectedDisplayLabel ? (
+              {value && selectedDisplayLabel ? (
                 <span>
                   <span className="font-medium text-foreground">
                     {selectedDisplayLabel}
@@ -270,34 +247,21 @@ export function OwnerPicker({
             {liveRegionStatus}
           </div>
 
-          <div className="flex items-center border-b border-border px-2 py-1.5">
-            <Search className="mr-2 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <Input
-              ref={inputRef}
-              autoFocus
-              role="combobox"
-              aria-expanded={open}
-              aria-haspopup="listbox"
-              aria-controls={listboxId}
-              aria-activedescendant={activeOptionId}
-              aria-autocomplete="list"
-              aria-label={tFilters("ownerPicker.searchPlaceholder")}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder={tFilters("ownerPicker.searchPlaceholder")}
-              className="h-7 border-0 bg-transparent px-1 text-xs shadow-none focus-visible:ring-0"
-            />
-            {searchInput && (
-              <button
-                type="button"
-                onClick={() => setSearchInput("")}
-                className="text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
-                aria-label={tFilters("clearSearch")}
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-          </div>
+          <PickerSearch
+            inputRef={inputRef}
+            autoFocus
+            role="combobox"
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            aria-controls={listboxId}
+            aria-activedescendant={activeOptionId}
+            aria-autocomplete="list"
+            aria-label={tFilters("ownerPicker.searchPlaceholder")}
+            value={searchInput}
+            onValueChange={setSearchInput}
+            placeholder={tFilters("ownerPicker.searchPlaceholder")}
+            clearLabel={tFilters("clearSearch")}
+          />
 
           <div
             id={listboxId}

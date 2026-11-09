@@ -97,7 +97,7 @@ export function CrmCustomFieldsRender({
                   value={typeof rawVal === "string" ? rawVal : ""}
                   onValueChange={(val) => void onSave(def.key, val || null)}
                 >
-                  <SelectTrigger className="h-8 text-xs bg-background">
+                  <SelectTrigger className="text-xs bg-background">
                     <SelectValue placeholder={t("selectOption")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -120,7 +120,7 @@ export function CrmCustomFieldsRender({
                   disabled={isFieldDisabled}
                   value={typeof rawVal === "string" ? rawVal : ""}
                   onChange={(e) => void onSave(def.key, e.target.value || null)}
-                  className="h-8 text-xs bg-background"
+                  className="text-xs bg-background"
                 />
               )
             ) : isArchived ? (

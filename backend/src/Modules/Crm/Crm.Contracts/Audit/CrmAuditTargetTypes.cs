@@ -10,4 +10,10 @@ public static class CrmAuditTargetTypes
     public const string Company = "company";
 
     public const string ContactExport = "contact_export";
+
+    public const string Deal = "deal";
+
+    public const string Task = "task";
+
+    public const string Note = "note";
 }

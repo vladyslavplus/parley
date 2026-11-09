@@ -22,7 +22,7 @@ export function DataTableColumnsMenu() {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <Button variant="secondary" className="h-8 px-2.5 text-xs gap-1.5">
+        <Button variant="secondary" className="px-2.5 text-xs gap-1.5">
           <Columns className="h-3.5 w-3.5 text-muted-foreground" />
           <span>{t("columns")}</span>
         </Button>

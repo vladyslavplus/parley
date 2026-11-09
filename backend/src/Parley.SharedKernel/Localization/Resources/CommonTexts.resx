@@ -198,4 +198,151 @@
   <data name="crm.export.enqueue_failed" xml:space="preserve">
     <value>The export could not be started. Try again in a moment.</value>
   </data>
+  <data name="crm.pipeline.not_found" xml:space="preserve">
+    <value>The pipeline was not found.</value>
+  </data>
+  <data name="crm.stage.not_found" xml:space="preserve">
+    <value>The stage was not found.</value>
+  </data>
+  <data name="crm.stage.name_taken" xml:space="preserve">
+    <value>A stage with this name already exists in the pipeline.</value>
+  </data>
+  <data name="crm.stage.limit_reached" xml:space="preserve">
+    <value>The pipeline already has the maximum number of stages.</value>
+  </data>
+  <data name="crm.stage.has_deals" xml:space="preserve">
+    <value>The stage has deals. Move them to another stage first.</value>
+  </data>
+  <data name="crm.stage.open_required" xml:space="preserve">
+    <value>The pipeline needs at least one open stage.</value>
+  </data>
+  <data name="crm.stage.terminal_fixed" xml:space="preserve">
+    <value>The Won and Lost stages cannot be removed or moved.</value>
+  </data>
+  <data name="crm.stage.order_invalid" xml:space="preserve">
+    <value>The stage order must list every open stage exactly once.</value>
+  </data>
+  <data name="crm.deal.not_found" xml:space="preserve">
+    <value>The deal was not found.</value>
+  </data>
+  <data name="crm.deal.contact_not_found" xml:space="preserve">
+    <value>The selected contact was not found.</value>
+  </data>
+  <data name="crm.deal.company_not_found" xml:space="preserve">
+    <value>The selected company was not found.</value>
+  </data>
+  <data name="crm.deal.owner_not_allowed" xml:space="preserve">
+    <value>You cannot assign this deal to the selected owner.</value>
+  </data>
+  <data name="crm.deal.stage_not_found" xml:space="preserve">
+    <value>The selected stage does not belong to this pipeline.</value>
+  </data>
+  <data name="crm.pipeline.default_name" xml:space="preserve">
+    <value>Sales</value>
+  </data>
+  <data name="crm.pipeline.stage.new" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="crm.pipeline.stage.qualified" xml:space="preserve">
+    <value>Qualified</value>
+  </data>
+  <data name="crm.pipeline.stage.proposal" xml:space="preserve">
+    <value>Proposal</value>
+  </data>
+  <data name="crm.pipeline.stage.negotiation" xml:space="preserve">
+    <value>Negotiation</value>
+  </data>
+  <data name="crm.pipeline.stage.won" xml:space="preserve">
+    <value>Won</value>
+  </data>
+  <data name="crm.pipeline.stage.lost" xml:space="preserve">
+    <value>Lost</value>
+  </data>
+  <data name="crm.deal.not_deleted" xml:space="preserve">
+    <value>The deal is not deleted.</value>
+  </data>
+  <data name="crm.task.not_found" xml:space="preserve">
+    <value>The task was not found.</value>
+  </data>
+  <data name="crm.task.assignee_not_allowed" xml:space="preserve">
+    <value>You cannot assign this task to the selected member.</value>
+  </data>
+  <data name="crm.task.subject_not_found" xml:space="preserve">
+    <value>The selected record was not found.</value>
+  </data>
+  <data name="crm.note.not_found" xml:space="preserve">
+    <value>The note was not found.</value>
+  </data>
+  <data name="crm.note.subject_required" xml:space="preserve">
+    <value>A note must belong to exactly one contact, deal or company.</value>
+  </data>
+  <data name="crm.note.subject_not_found" xml:space="preserve">
+    <value>The selected record was not found.</value>
+  </data>
+  <data name="crm.activity.subject_required" xml:space="preserve">
+    <value>Choose one contact, deal or company.</value>
+  </data>
+  <data name="crm.activity.subject_ambiguous" xml:space="preserve">
+    <value>Choose only one of contact, deal or company.</value>
+  </data>
+  <data name="crm.activity.subject_not_found" xml:space="preserve">
+    <value>The selected record was not found.</value>
+  </data>
+  <data name="crm.order.not_found" xml:space="preserve">
+    <value>The order was not found.</value>
+  </data>
+  <data name="crm.demo.deal_suffix.reorder" xml:space="preserve">
+    <value>Reorder</value>
+  </data>
+  <data name="crm.demo.deal_suffix.wholesale" xml:space="preserve">
+    <value>Wholesale order</value>
+  </data>
+  <data name="crm.demo.deal_suffix.seasonal" xml:space="preserve">
+    <value>Seasonal stock</value>
+  </data>
+  <data name="crm.demo.deal_suffix.review" xml:space="preserve">
+    <value>Account review</value>
+  </data>
+  <data name="crm.demo.deal_suffix.price" xml:space="preserve">
+    <value>Price update</value>
+  </data>
+  <data name="crm.demo.lost_reason.price" xml:space="preserve">
+    <value>Price too high</value>
+  </data>
+  <data name="crm.demo.lost_reason.competitor" xml:space="preserve">
+    <value>Chose another supplier</value>
+  </data>
+  <data name="crm.demo.lost_reason.budget" xml:space="preserve">
+    <value>No budget this quarter</value>
+  </data>
+  <data name="crm.demo.task.confirm_order" xml:space="preserve">
+    <value>Confirm order</value>
+  </data>
+  <data name="crm.demo.task.send_price_list" xml:space="preserve">
+    <value>Send price list</value>
+  </data>
+  <data name="crm.demo.task.check_stock" xml:space="preserve">
+    <value>Check stock levels</value>
+  </data>
+  <data name="crm.demo.task.follow_up_delivery" xml:space="preserve">
+    <value>Follow up after delivery</value>
+  </data>
+  <data name="crm.demo.task.review_invoice" xml:space="preserve">
+    <value>Review invoice</value>
+  </data>
+  <data name="crm.demo.note.delivery_times" xml:space="preserve">
+    <value>Asked about delivery times.</value>
+  </data>
+  <data name="crm.demo.note.email" xml:space="preserve">
+    <value>Prefers contact by email.</value>
+  </data>
+  <data name="crm.demo.note.bulk_pricing" xml:space="preserve">
+    <value>Interested in bulk pricing.</value>
+  </data>
+  <data name="crm.demo.note.seasonal_reorders" xml:space="preserve">
+    <value>Reorders every season.</value>
+  </data>
+  <data name="crm.demo.note.call_after_order" xml:space="preserve">
+    <value>Wants a call after the next order.</value>
+  </data>
 </root>

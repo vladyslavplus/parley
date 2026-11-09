@@ -28,7 +28,7 @@ export function DataTableToolbar({ children }: DataTableToolbarProps) {
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t("search")}
-          className="h-8 pl-8 text-xs bg-background"
+          className="pl-8 text-xs bg-background"
         />
       </div>
 

@@ -7,11 +7,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { PERMISSIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
 import { SHELL_SHORTCUTS } from "@/constants/shortcuts";
 import { companyListQueryOptions } from "@/features/crm/hooks/use-companies";
 import { contactListQueryOptions } from "@/features/crm/hooks/use-contacts";
-import { Can } from "@/features/session/components/can";
+import { useOverdueTasksCount } from "@/features/tasks/hooks/use-tasks";
+import { Can, useCan } from "@/features/session/components/can";
 import { Link, usePathname } from "@/i18n/navigation";
 import { shortcutRegistry } from "@/lib/shortcuts/registry";
 import { cn } from "@/lib/utils";
@@ -40,6 +42,11 @@ export function Sidebar({
   const pathname = usePathname();
   const locale = useLocale();
   const queryClient = useQueryClient();
+  const canReadTasks = useCan(PERMISSIONS.tasksRead);
+  const { data: overdueCount = 0 } = useOverdueTasksCount({
+    enabled: canReadTasks,
+  });
+  const hasOverdue = overdueCount > 0;
 
   useEffect(() => {
     const unregister = shortcutRegistry.register({
@@ -90,12 +97,23 @@ export function Sidebar({
         <Icon className="h-4 w-4 shrink-0" />
         <span
           className={cn(
-            "truncate whitespace-nowrap transition-opacity duration-150",
+            "truncate whitespace-nowrap transition-opacity duration-150 flex-1",
             collapsed ? "opacity-0 pointer-events-none md:w-0" : "opacity-100",
           )}
         >
           {label}
         </span>
+        {item.id === "tasks" && hasOverdue && (
+          <span
+            className={cn("ml-auto flex items-center", collapsed && "sr-only")}
+          >
+            <span
+              className="flex h-2 w-2 rounded-full bg-destructive"
+              aria-hidden="true"
+            />
+            <span className="sr-only">{tShell("sidebar.hasOverdueTasks")}</span>
+          </span>
+        )}
       </Link>
     );
 

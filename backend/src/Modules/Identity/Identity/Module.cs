@@ -14,6 +14,7 @@ using Parley.Identity.Authentication.Tokens;
 using Parley.Identity.Authorization.Permissions;
 using Parley.Identity.Authorization.Scope;
 using Parley.Identity.Contracts.Authorization;
+using Parley.Identity.Contracts.DemoSeed;
 using Parley.Identity.Contracts.Users;
 using Parley.Identity.Directory;
 using Parley.Identity.Domain.Users;
@@ -28,6 +29,7 @@ using Parley.Identity.Options.Invitations;
 using Parley.Identity.Options.RateLimiting;
 using Parley.Identity.Options.Storage;
 using Parley.Identity.Persistence;
+using Parley.Identity.Seeding.DemoSeed;
 using Parley.SharedKernel.Outbox.Audit;
 using Parley.SharedKernel.Outbox.Dispatching;
 using Parley.SharedKernel.Persistence.Interceptors;
@@ -131,6 +133,7 @@ public static class Module
         services.AddScoped<IUserScopeReader, UserScopeReader>();
         services.AddScoped<IDataScope, DataScopeService>();
         services.AddScoped<IUserDirectory, UserDirectory>();
+        services.AddScoped<IIdentityDemoDataImporter, IdentityDemoDataImporter>();
 
         return services;
     }

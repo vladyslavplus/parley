@@ -10,9 +10,10 @@ namespace Parley.Api.Startup;
 public static class BackgroundProcessingServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers Hangfire storage, the schema initializer, the job server and the dashboard filter.
+    /// Registers Hangfire storage, the job server and the dashboard filter. With <paramref name="runJobs"/> false the
+    /// recurring jobs are not registered and no job server starts; the storage stays available for enqueueing.
     /// </summary>
-    public static IServiceCollection AddBackgroundProcessing(this IServiceCollection services)
+    public static IServiceCollection AddBackgroundProcessing(this IServiceCollection services, bool runJobs = true)
     {
         services.AddSingleton<PlatformOperatorDashboardAuthorizationFilter>();
 
@@ -42,6 +43,11 @@ public static class BackgroundProcessingServiceCollectionExtensions
         // exist by the first poll. Modules opting into [IdempotencyKey] resolve their
         // scoped store (EfIdempotencyStore<TDbContext>) plus IdempotencyKeyFilter;
         // module hosts register both.
+        if (!runJobs)
+        {
+            return services;
+        }
+
         services.AddHostedService<HangfireSchemaInitializer>();
         services.AddHostedService(provider =>
         {

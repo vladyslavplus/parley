@@ -58,10 +58,10 @@ afterEach(() => {
 describe("OwnerPicker", () => {
   it("opens searchable combobox with 5-row cap, displays name + secondary email, and supports selection and clear", async () => {
     const onChange = vi.fn();
-    render(<OwnerPicker variant="filter" value={null} onChange={onChange} />);
+    render(<OwnerPicker variant="control" value={null} onChange={onChange} />);
 
     const trigger = screen.getByRole("button", { name: "owner" });
-    expect(trigger).toHaveTextContent("ownerFilter: allOwners");
+    expect(trigger).toHaveTextContent("allOwners");
     fireEvent.click(trigger);
 
     const searchInput = screen.getByRole("combobox");
@@ -90,7 +90,7 @@ describe("OwnerPicker", () => {
     const onChange = vi.fn();
     render(
       <OwnerPicker
-        variant="filter"
+        variant="control"
         value="u-missing-from-page-1"
         onChange={onChange}
       />,
@@ -105,7 +105,7 @@ describe("OwnerPicker", () => {
     const onChange = vi.fn();
     render(
       <OwnerPicker
-        variant="filter"
+        variant="control"
         value="u-99"
         valueDisplayName="Dmytro Bondar"
         valueEmail="dmytro@parley.io"

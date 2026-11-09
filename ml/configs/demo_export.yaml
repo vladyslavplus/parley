@@ -1,0 +1,20 @@
+# Demo seed export from the cleaned Online Retail II data.
+# Run from ml/: uv run --directory ml python -m parley_ml.datasets.demo_export --config configs/demo_export.yaml
+
+paths:
+  # Output of parley_ml.datasets.online_retail (checked against its manifest.json).
+  input_dir: "artifacts/online_retail"
+  output_dir: "artifacts/demo_export"
+
+export:
+  format_version: 1
+  # One currency per organization. The source prices are UK pounds.
+  currency: "GBP"
+
+attribution:
+  dataset: "Online Retail II"
+  creator: "Daqing Chen"
+  doi: "10.24432/C5CG6D"
+  license: "CC BY 4.0"
+  license_url: "https://creativecommons.org/licenses/by/4.0/"
+  text: "Chen, Daqing. Online Retail II [Dataset]. UCI Machine Learning Repository, 2012. https://doi.org/10.24432/C5CG6D. Licensed under CC BY 4.0."

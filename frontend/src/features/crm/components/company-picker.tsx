@@ -1,12 +1,13 @@
 "use client";
 
 import * as Popover from "@radix-ui/react-popover";
-import { Building2, Check, ChevronsUpDown, Search, X } from "lucide-react";
+import { Building2, Check, ChevronsUpDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { TableProgressBar } from "@/components/data-table/table-progress-bar";
-import { Input } from "@/components/ui/input";
+import { PICKER_TRIGGER } from "@/components/ui/input";
+import { PickerSearch } from "@/components/ui/picker-search";
 import { LIMITS } from "@/constants/limits";
 import { useCompanies } from "@/features/crm/hooks/use-companies";
 import { cn } from "@/lib/utils";
@@ -149,14 +150,12 @@ export function CompanyPicker({
             aria-haspopup="listbox"
             aria-controls={open ? listboxId : undefined}
             aria-label={triggerLabel}
-            className={cn(
-              "flex h-8 w-full items-center justify-between rounded-[var(--radius-control)] border border-input bg-background px-3 py-1 text-xs shadow-xs focus-visible:outline-2 focus-visible:outline-ring cursor-pointer",
-              className,
-            )}
+            className={cn(PICKER_TRIGGER, className)}
           >
+            <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span
               className={cn(
-                "truncate",
+                "min-w-0 flex-1 truncate",
                 !selectedDisplay && "text-muted-foreground",
               )}
             >
@@ -181,34 +180,21 @@ export function CompanyPicker({
             {liveRegionStatus}
           </div>
 
-          <div className="flex items-center border-b border-border px-2 py-1.5">
-            <Search className="mr-2 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <Input
-              ref={inputRef}
-              autoFocus
-              role="combobox"
-              aria-expanded={open}
-              aria-haspopup="listbox"
-              aria-controls={listboxId}
-              aria-activedescendant={activeOptionId}
-              aria-autocomplete="list"
-              aria-label={t("picker.searchPlaceholder")}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder={t("picker.searchPlaceholder")}
-              className="h-7 border-0 bg-transparent px-1 text-xs shadow-none focus-visible:ring-0"
-            />
-            {searchInput && (
-              <button
-                type="button"
-                onClick={() => setSearchInput("")}
-                className="text-muted-foreground hover:text-foreground p-0.5"
-                aria-label={t("picker.clear")}
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-          </div>
+          <PickerSearch
+            inputRef={inputRef}
+            autoFocus
+            role="combobox"
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            aria-controls={listboxId}
+            aria-activedescendant={activeOptionId}
+            aria-autocomplete="list"
+            aria-label={t("picker.searchPlaceholder")}
+            value={searchInput}
+            onValueChange={setSearchInput}
+            placeholder={t("picker.searchPlaceholder")}
+            clearLabel={t("picker.clear")}
+          />
 
           <div
             id={listboxId}

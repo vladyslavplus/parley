@@ -1,4 +1,106 @@
 {
+  "deals": {
+    "title": "Deals",
+    "recordTitle": "Deal",
+    "subtitle": "Track and advance deals across your sales pipeline",
+    "toolbar": {
+      "searchPlaceholder": "Search deals by title...",
+      "statusLabel": "Deal status",
+      "statusOpen": "Open",
+      "statusWon": "Won",
+      "statusLost": "Lost",
+      "statusAll": "All",
+      "newDeal": "New Deal"
+    },
+    "board": {
+      "total": "Total",
+      "noPipeline": "No pipeline found for this organization."
+    },
+    "column": {
+      "total": "Total",
+      "empty": "No deals in this stage",
+      "showMore": "Show more"
+    },
+    "card": {
+      "won": "Won",
+      "lost": "Lost",
+      "reopen": "Reopen",
+      "dragHandle": "Drag to move {title}"
+    },
+    "picker": {
+      "title": "Deals",
+      "placeholder": "Select deal...",
+      "noDeal": "No deal",
+      "searchPlaceholder": "Search deals...",
+      "clear": "Clear",
+      "empty": "No deals found",
+      "loading": "Loading deals...",
+      "resultsCount": "{count, plural, one {# deal found} other {# deals found}}"
+    },
+    "terminalDialog": {
+      "wonTitle": "Mark deal as Won",
+      "lostTitle": "Mark deal as Lost",
+      "wonDescription": "Are you sure you want to mark \"{title}\" as won?",
+      "lostDescription": "Please share why \"{title}\" was lost to help improve future deals.",
+      "lostReasonLabel": "Lost reason",
+      "lostReasonPlaceholder": "Describe why this deal was lost...",
+      "cancel": "Cancel",
+      "confirmWon": "Mark as Won",
+      "confirmLost": "Mark as Lost"
+    },
+    "quickCreate": {
+      "title": "New Deal",
+      "description": "Create a new deal in the pipeline with essential details.",
+      "name": "Deal title",
+      "namePlaceholder": "e.g. Annual Software Subscription",
+      "amount": "Amount",
+      "currency": "Currency",
+      "company": "Company",
+      "selectCompany": "Select company...",
+      "contact": "Contact",
+      "selectContact": "Select contact...",
+      "owner": "Owner",
+      "selectOwner": "Select owner...",
+      "submit": "Create deal",
+      "created": "Deal created successfully."
+    },
+    "record": {
+      "back": "Back to deals",
+      "delete": "Delete deal",
+      "reopen": "Reopen deal",
+      "saved": "Deal updated successfully.",
+      "stageChanged": "Deal stage updated.",
+      "notFound": "Deal not found.",
+      "namePlaceholder": "Enter deal title...",
+      "lostReason": "Lost reason: {reason}",
+      "dealDeleted": "Deal \"{title}\" deleted.",
+      "deleteConfirmTitle": "Delete deal",
+      "deleteConfirmDescription": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+      "fields": {
+        "stage": "Stage",
+        "amount": "Amount",
+        "expectedCloseDate": "Expected close date",
+        "company": "Company",
+        "contact": "Contact",
+        "owner": "Owner",
+        "noCompany": "No company linked",
+        "noContact": "No contact linked",
+        "unassigned": "Unassigned"
+      },
+      "sections": {
+        "overview": "Overview",
+        "customFields": "Custom Fields",
+        "timeline": "Timeline",
+        "tasks": "Tasks"
+      }
+    },
+    "accessibility": {
+      "pickedUp": "Picked up deal {title}.",
+      "dragOver": "Deal {title} moved over {target}.",
+      "dropped": "Deal {title} dropped on stage {stage}.",
+      "cancelled": "Movement cancelled. Deal {title} returned to initial position."
+    }
+  },
   "contacts": {
     "title": "Contacts",
     "recordTitle": "Contact",
@@ -69,10 +171,6 @@
         "deals": {
           "title": "No active deals",
           "description": "Pipeline opportunities associated with this contact will appear here."
-        },
-        "orders": {
-          "title": "No order history",
-          "description": "Past orders and transaction records will be tracked in this section."
         },
         "scores": {
           "title": "No scores calculated",
@@ -152,6 +250,7 @@
         "overview": "Overview",
         "customFields": "Custom Fields",
         "timeline": "Timeline",
+        "tasks": "Tasks",
         "deals": "Deals",
         "contacts": "Contacts"
       },
@@ -253,15 +352,18 @@
   },
   "filters": {
     "owner": "Owner",
+    "company": "Company",
+    "button": "Filters",
+    "activeCount": "{count, plural, one {# filter active} other {# filters active}}",
+    "back": "Back to filters",
+    "clearFilter": "Clear",
+    "removeChip": "Remove filter {filter}: {value}",
     "tag": "Tag",
     "allOwners": "All owners",
     "allTags": "All tags",
     "dateRange": "Created date",
     "reset": "Reset filters",
     "clearSearch": "Clear search",
-    "filterBy": "Filter",
-    "ownerFilter": "Owner: {owner}",
-    "tagFilter": "Tag: {tag}",
     "ownerPicker": {
       "searchPlaceholder": "Search owners...",
       "loading": "Loading owners...",
@@ -306,6 +408,148 @@
       "completed": "{count, plural, one {Export completed (# row)} other {Export completed (# rows)}}",
       "failed": "Export failed.",
       "expired": "Export link has expired."
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "subtitle": "Track and manage your scheduled follow-ups and action items",
+    "newTask": "New Task",
+    "editTask": "Edit Task",
+    "deleteTask": "Delete task",
+    "save": "Save changes",
+    "create": "Create task",
+    "statusLabel": "Task status",
+    "searchPlaceholder": "Search tasks by title...",
+    "emptyTasks": "No tasks match your filters.",
+    "taskCreated": "Task created successfully.",
+    "taskUpdated": "Task updated successfully.",
+    "taskDeleted": "Task deleted.",
+    "deal": "Deal",
+    "contact": "Contact",
+    "company": "Company",
+    "completeTaskAria": "Mark task complete: {title}",
+    "reopenTaskAria": "Reopen task: {title}",
+    "overdueBadge": "Overdue",
+    "tabs": {
+      "mine": "My tasks",
+      "all": "All tasks"
+    },
+    "status": {
+      "all": "All",
+      "open": "Open",
+      "completed": "Completed",
+      "overdue": "Overdue"
+    },
+    "table": {
+      "title": "Title",
+      "dueDate": "Due Date",
+      "assignee": "Assignee",
+      "linkedRecord": "Linked Record"
+    },
+    "panel": {
+      "title": "Tasks",
+      "empty": "No tasks scheduled for this record yet."
+    },
+    "form": {
+      "title": "Title",
+      "titlePlaceholder": "e.g. Follow up on proposal",
+      "dueDate": "Due date & time",
+      "assignee": "Assignee",
+      "selectAssignee": "Select assignee...",
+      "linkedContact": "Contact",
+      "selectContact": "Select contact...",
+      "linkedDeal": "Deal",
+      "selectDeal": "Select deal...",
+      "linkedCompany": "Company",
+      "selectCompany": "Select company...",
+      "notes": "Notes",
+      "notesPlaceholder": "Add notes or follow-up details..."
+    },
+    "errors": {
+      "titleRequired": "Title is required",
+      "titleTooLong": "Title cannot exceed 200 characters",
+      "notesTooLong": "Notes cannot exceed 2000 characters",
+      "assigneeRequired": "Assignee is required"
+    },
+    "deleteConfirmTitle": "Delete task",
+    "deleteConfirmDescription": "Are you sure you want to delete \"{title}\"? This action cannot be undone."
+  },
+  "notes": {
+    "title": "Notes",
+    "newNote": "New Note",
+    "editNote": "Edit Note",
+    "deleteNote": "Delete note",
+    "addNote": "Add note",
+    "save": "Save changes",
+    "create": "Add note",
+    "noteCreated": "Note added successfully.",
+    "noteUpdated": "Note updated successfully.",
+    "noteDeleted": "Note deleted.",
+    "markdownSupported": "Markdown supported",
+    "form": {
+      "body": "Note text",
+      "bodyPlaceholder": "Write your note here...",
+      "quickAddPlaceholder": "Write a note or update..."
+    },
+    "errors": {
+      "bodyRequired": "Note body is required",
+      "bodyTooLong": "Note cannot exceed 4000 characters"
+    },
+    "deleteConfirmTitle": "Delete note",
+    "deleteConfirmDescription": "Are you sure you want to delete this note? This action cannot be undone."
+  },
+  "timeline": {
+    "title": "Activity Timeline",
+    "empty": "No activities recorded for this record yet.",
+    "showMore": "Show more",
+    "unknownUser": "Someone",
+    "deal": "Deal",
+    "task": "Task",
+    "filters": {
+      "all": "All",
+      "note_added": "Notes",
+      "task_completed": "Tasks",
+      "deal_stage_changed": "Deals",
+      "deal_closed": "Closed Deals",
+      "contact_created": "Contacts",
+      "order_recorded": "Orders"
+    },
+    "events": {
+      "contactCreated": "{actor} created contact",
+      "dealStageChanged": "{actor} moved deal \"{deal}\" to {stage}",
+      "dealClosed": "{actor} closed deal \"{deal}\" as {status}",
+      "noteAdded": "{actor} added a note",
+      "taskCompleted": "{actor} completed task \"{task}\"",
+      "aStage": "a stage",
+      "statusWon": "won",
+      "statusLost": "lost",
+      "statusOpen": "open",
+      "orderRecorded": "Order {invoice} recorded: {amount}",
+      "orderRecordedInvoice": "Order {invoice} recorded",
+      "orderRecordedAmount": "An order was recorded: {amount}",
+      "orderRecordedNeutral": "An order was recorded",
+      "orderCancellation": "Cancellation",
+      "statusClosed": "closed"
+    },
+    "system": "System"
+  },
+  "orders": {
+    "title": "Orders",
+    "searchPlaceholder": "Search by invoice number...",
+    "columns": {
+      "invoice": "Invoice",
+      "ordered": "Ordered",
+      "lines": "Lines",
+      "total": "Total"
+    },
+    "cancellation": "Cancellation",
+    "empty": "No orders yet",
+    "emptyFiltered": "No orders match the filters",
+    "loadFailed": "Could not load orders.",
+    "invalidDateRange": "The start date must not be after the end date.",
+    "filters": {
+      "from": "Ordered from",
+      "to": "Ordered to"
     }
   }
 }

@@ -119,7 +119,7 @@ export function ConfirmDialog({
               variant="secondary"
               onClick={handleCancel}
               disabled={pending}
-              className="h-8 px-3 text-xs"
+              className="px-3 text-xs"
             >
               {cancelLabel ?? t("cancel")}
             </Button>
@@ -128,7 +128,7 @@ export function ConfirmDialog({
               variant={destructive ? "danger" : "primary"}
               onClick={handleConfirm}
               disabled={pending}
-              className="h-8 px-3 text-xs gap-1.5"
+              className="px-3 text-xs gap-1.5"
             >
               {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {confirmLabel ?? t("confirm")}

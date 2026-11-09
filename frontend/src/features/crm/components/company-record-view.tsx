@@ -21,24 +21,31 @@ import { APP_NAME } from "@/constants/app";
 import { PERMISSIONS } from "@/constants/permissions";
 import { contactRecordRoute, ROUTES } from "@/constants/routes";
 import { CrmCustomFieldsRender } from "@/features/crm/components/crm-custom-fields-render";
-import {
-  DealsPlaceholder,
-  TimelinePlaceholder,
-} from "@/features/crm/components/crm-placeholders";
+import { DealsPlaceholder } from "@/features/crm/components/crm-placeholders";
 import { OwnerPicker } from "@/features/crm/components/owner-picker";
 import { RecordTabs } from "@/features/crm/components/record-tabs";
 import { useCompany } from "@/features/crm/hooks/use-company";
 import { useContacts } from "@/features/crm/hooks/use-contacts";
+import { useRecordTab } from "@/features/crm/hooks/use-record-tab";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import { useCustomFields } from "@/features/crm/hooks/use-custom-fields";
 import { useSoftDeleteWithUndo } from "@/features/crm/hooks/use-soft-delete-with-undo";
+import { TasksPanel } from "@/features/tasks/components/tasks-panel";
+import { ActivityTimeline } from "@/features/timeline/components/activity-timeline";
 import { Can, useCan } from "@/features/session/components/can";
 import { Link, useRouter } from "@/i18n/navigation";
 import { toApiError } from "@/lib/errors";
 import { formatDate } from "@/lib/formatters";
 import { showSuccessToast } from "@/lib/toasts";
 
-type TabKey = "overview" | "timeline" | "deals" | "contacts";
+const TAB_KEYS = [
+  "overview",
+  "timeline",
+  "tasks",
+  "deals",
+  "contacts",
+] as const;
+type TabKey = (typeof TAB_KEYS)[number];
 
 function CompanyContactsTable({ companyId }: { companyId: string }) {
   const t = useTranslations("crm.companies");
@@ -115,7 +122,7 @@ export function CompanyRecordView({ id }: { id: string }) {
 
   const canWrite = useCan(PERMISSIONS.companiesWrite);
 
-  const [activeTab, setActiveTab] = useState<TabKey>("overview");
+  const [activeTab, setActiveTab] = useRecordTab(TAB_KEYS, "overview");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const companyQuery = useCompany(id);
@@ -184,7 +191,7 @@ export function CompanyRecordView({ id }: { id: string }) {
             <Button
               variant="secondary"
               onClick={() => companyQuery.refetch()}
-              className="h-8 gap-1.5 text-xs px-3"
+              className="gap-1.5 text-xs px-3"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               <span>{tCrm("record.retry")}</span>
@@ -266,7 +273,19 @@ export function CompanyRecordView({ id }: { id: string }) {
     {
       key: "timeline" as const,
       label: t("record.sections.timeline"),
-      content: <TimelinePlaceholder />,
+      content: <ActivityTimeline subject={{ companyId: id }} />,
+    },
+    {
+      key: "tasks" as const,
+      label: t("record.sections.tasks"),
+      content: (
+        <TasksPanel
+          subject={{
+            companyId: id,
+            companyName: company?.name,
+          }}
+        />
+      ),
     },
     {
       key: "deals" as const,
@@ -323,7 +342,7 @@ export function CompanyRecordView({ id }: { id: string }) {
             <Button
               variant="secondary"
               onClick={() => setDeleteConfirmOpen(true)}
-              className="h-8 gap-1.5 text-xs px-3 text-destructive hover:bg-destructive/10 self-start sm:self-auto"
+              className="gap-1.5 text-xs px-3 text-destructive hover:bg-destructive/10 self-start sm:self-auto"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>{t("record.delete")}</span>
@@ -418,7 +437,7 @@ export function CompanyRecordView({ id }: { id: string }) {
       <RecordTabs
         tabs={tabItems}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(key: TabKey) => void setActiveTab(key)}
       />
 
       {/* Delete confirmation dialog */}

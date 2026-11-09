@@ -15,4 +15,12 @@ public static class CrmAuditActions
     public const string CompanyRestored = "crm.company.restored";
 
     public const string ContactsExported = "crm.contacts.exported";
+
+    public const string DealDeleted = "crm.deal.deleted";
+
+    public const string DealRestored = "crm.deal.restored";
+
+    public const string TaskDeleted = "crm.task.deleted";
+
+    public const string NoteDeleted = "crm.note.deleted";
 }

@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 
-import { Select } from "@/components/ui/input";
+import { SimpleSelect } from "@/components/ui/select";
 import { API_ROUTES } from "@/constants/routes";
 import { useAction } from "@/lib/api/hooks/use-api";
 import { bffFetch } from "@/lib/api/bff-client";
@@ -54,19 +54,17 @@ export function OrganizationSwitcher({
       <label htmlFor={id} className="sr-only">
         {t("label")}
       </label>
-      <Select
+      <SimpleSelect
         id={id}
         value={current}
         disabled={pending}
-        onChange={(event) => void switchTo(event.target.value)}
-        className="h-8 text-xs bg-background"
-      >
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.name}
-          </option>
-        ))}
-      </Select>
+        onValueChange={(next) => void switchTo(next)}
+        options={options.map((option) => ({
+          value: option.id,
+          label: option.name,
+        }))}
+        className="text-xs"
+      />
       {error ? (
         <p role="alert" className="text-xs text-destructive">
           {error}

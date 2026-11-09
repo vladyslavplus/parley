@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/input";
+import { SimpleSelect } from "@/components/ui/select";
 import { LIMITS } from "@/constants/limits";
 import { useDataTableContext } from "./data-table-context";
 
@@ -53,17 +53,16 @@ export function DataTablePagination({ paginationSlot }: Props) {
         {/* Page size select */}
         <div className="flex items-center gap-2">
           <span>{t("pagination.rowsPerPage")}:</span>
-          <Select
-            value={pageSize}
-            onChange={(e) => table.setPageSize(Number(e.target.value))}
-            className="h-7 w-16 px-1.5 py-0 text-xs bg-background"
-          >
-            {LIMITS.tablePageSizes.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </Select>
+          <SimpleSelect
+            ariaLabel={t("pagination.rowsPerPage")}
+            value={String(pageSize)}
+            onValueChange={(next) => table.setPageSize(Number(next))}
+            options={LIMITS.tablePageSizes.map((size) => ({
+              value: String(size),
+              label: String(size),
+            }))}
+            className="w-20 text-xs"
+          />
         </div>
 
         {/* Page status */}

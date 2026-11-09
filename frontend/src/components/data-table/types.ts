@@ -42,6 +42,8 @@ export interface DataTableProps<TData> {
 
   // Custom toolbar composition
   toolbar?: ReactNode;
+  // Page owns search/filters; skip the built-in "Filter records" toolbar.
+  hideToolbar?: boolean;
 }
 
 export interface DataTableContextValue<TData> {
