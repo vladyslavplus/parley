@@ -1,0 +1,44 @@
+# CLV fit: BG/NBD and Gamma-Gamma with MAP on the calibration period of the clean Online Retail II data.
+# Paths are relative to the ml/ directory.
+# Run: uv run --directory ml python -m parley_ml.clv.fit --config configs/clv_fit.yaml
+
+dataset:
+  name: online_retail_ii
+
+paths:
+  # Output of parley_ml.datasets.online_retail (checked against its manifest.json).
+  input_dir: "artifacts/online_retail"
+  # Run directory: <output_dir>/clv_fit-<first 12 hex chars of the config sha256>/
+  output_dir: "artifacts/runs"
+
+split:
+  # Calibration: purchase days up to and including this UTC day.
+  calibration_end: "2011-06-09"
+  # Holdout: purchase days after calibration_end up to and including this UTC day (last day of the source data).
+  holdout_end: "2011-12-09"
+
+models:
+  bg_nbd:
+    method: "map"
+    # Library defaults (PyMC-Marketing 1.3.0 default_model_config). The resolved priors are written to fit.json.
+    priors: "library_defaults"
+  gamma_gamma:
+    method: "map"
+    priors: "library_defaults"
+    # Gamma-Gamma uses repeat customers with positive average repeat value.
+    min_frequency: 1
+    min_monetary_value: 0.0
+
+checks:
+  require_optimizer_success: true
+  # Norm of the gradient of the log posterior at the optimum (unconstrained space), divided by |log posterior|.
+  # L-BFGS-B stops on the relative reduction of the objective, so an absolute norm scales with the sum over customers.
+  max_relative_gradient: 0.00001
+  # Each restart solves MAP from every library estimate times these factors (fresh starts, not the library start).
+  restart_scales: [0.5, 2.0]
+  # Largest relative gap between the log posterior of the library estimate and of any restart optimum.
+  # The objective is compared, not the parameters: the dropout parameters lie on a weakly identified ridge.
+  max_relative_objective_gap: 0.00000001
+
+# Time budget for the whole run (Online Retail II clean data plus MAP fit: 10 minutes).
+budget_seconds: 600

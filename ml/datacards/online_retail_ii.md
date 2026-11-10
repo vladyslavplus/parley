@@ -104,8 +104,48 @@ Money: stored as float64, no currency column. The source currency is pounds ster
 - Manifest (`artifacts/online_retail/manifest.json`) holds the full counts, the config hash and the library versions.
 - Versions: pandas 3.1.1, pyarrow 26.0.1 (from `uv.lock`).
 
+## CLV daily purchase days and split (computed by `parley_ml.clv.fit`)
+Config: `configs/clv_fit.yaml`. Command: `uv run --directory ml python -m parley_ml.clv.fit --config configs/clv_fit.yaml`. Run id `clv_fit-14e62fd3ac3c` (config sha256 `14e62fd3ac3c7c94b9c455738af7698d1222ec3fdcf06bfca54f05126e337a1c`).
+
+Rules (from `parley_ml/clv/split.py`):
+- A purchase day is a customer's UTC calendar day with at least one non-cancellation line. Its value is the net of all that day's lines (cancellations on the day subtract). This matches the CRM daily net spend used in the metrics definitions.
+- Customer-days with cancellation lines only are not purchases. Their net amount is reported and not modeled.
+- Calibration: purchase days up to and including 2011-06-09 (UTC). Holdout: 2011-06-10 to 2011-12-09 inclusive (183 days). Days after 2011-12-09: none.
+
+| Item | Count |
+|---|---|
+| Clean transaction lines (read from the frozen Parquet, equal to the manifest) | 794,163 |
+| Lines of purchase invoices / cancellation lines | 776,577 / 17,586 |
+| Customer-days (customer, UTC day) | 37,990 |
+| Purchase days (one BG/NBD transaction each) | 32,878 |
+| Cancellation-only customer-days (not purchases) | 5,112, net -242,389.35 GBP |
+| Purchase-day net amount + cancellation-only net amount | 16,601,003.89 + (-242,389.35) = 16,358,614.54 (equals the sum of all line amounts) |
+| Calibration purchase days (2009-12-01 to 2011-06-09) | 23,330 |
+| Holdout purchase days (2011-06-10 to 2011-12-09) | 9,548 |
+| Customers with calibration purchases | 4,944 |
+| Customers with holdout purchases | 3,480 (2,572 also in calibration) |
+| Customers first seen in holdout (to be excluded from evaluation) | 908 |
+| Customers with cancellation lines only (no purchase day at all) | 23 (5,875 - 4,944 - 908) |
+| Calibration customers with T = 0 (first purchase on 2011-06-09) | 3 |
+| Gamma-Gamma customers (frequency >= 1 and average repeat value > 0) | 3,328 (8 repeat customers excluded for value <= 0) |
+
+Fit (MAP, PyMC-Marketing 1.3.0, library default priors, recorded in `fit.json`):
+
+| Model | Parameters | Optimizer | Restart check |
+|---|---|---|---|
+| BG/NBD | alpha 60.6495, r 0.6458, a 0.1428, b 2.8270, phi_dropout 0.0481, kappa_dropout 2.9698 | success, 20 iterations, log posterior -94,076.99; relative gradient 6.0e-8 | starts at 0.5x and 2x: objective gap at most 8.1e-11 relative; parameters differ by up to 5.3e-4 on a weakly identified ridge |
+| Gamma-Gamma | p 4.7442, q 2.2683, v 117.479 | success, 14 iterations, log posterior -22,887.94; relative gradient 7.8e-7 | starts at 0.5x and 2x: objective gap at most 7.7e-13 relative |
+
+Derived: purchase rate `r / alpha` = 0.01065 per day (about one purchase per 94 days per active customer).
+
+Frequency-monetary correlation (Gamma-Gamma customers, n = 3,328): Pearson 0.179, Spearman 0.246. The weak positive relation is the case where Gamma-Gamma's independence assumption is most tested; the report should state it.
+
+Reproducibility: two consecutive runs of the fit produced identical bytes for every output (`calibration_summary.parquet` sha256 `5b534f1629b66258d2c3707585e328c0cc299a7023e75067fc3993319a5a27c0`; `holdout_outcomes.parquet` sha256 `25e8a1f26e1975aa37638a2e8325a5a4bc421f885609b69ca117ef4ce48d564c`; `fit.json` sha256 `8134ad8e16e876a3b069dafc17461278ab48971bff4c848a890469254d60064c`). Re-running the ingest gave the same Parquet checksums as above. Elapsed fit time: 7.1 s on the development machine (budget 600 s).
+
+Time zone caveat applies here too: day boundaries are UTC midnight of the stored naive source time.
+
 ## Not in this card
-Daily aggregation for BG/NBD, the time-based calibration/holdout split (2011-06-09), model fitting and evaluation: later CLV steps.
+Evaluation against baselines, bootstrap intervals and calibration are in `results/rq2_clv.md` (run `clv_eval-c2134d2f41e6cd`, `configs/clv_eval.yaml`); the serving artifact is `artifacts/models/clv_bgnbd_gg-20261109-14e62fd/`.
 
 ## Demo export (CRM seed input)
 `artifacts/demo_export/` is produced by `uv run --directory ml python -m parley_ml.datasets.demo_export --config configs/demo_export.yaml`. It is git-ignored and carries this card's attribution in `manifest.json`.

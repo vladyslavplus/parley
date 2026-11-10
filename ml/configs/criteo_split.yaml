@@ -1,0 +1,11 @@
+# Stratified split of the Criteo rows: 70 / 10 / 20 by treatment x visit x conversion (8 strata).
+# The seed is fixed here; the same data and seed give identical row-index files.
+split:
+  seed: 20261110
+  fractions:
+    train: 0.70
+    validation: 0.10
+    test: 0.20
+  stratify_by: [treatment, visit, conversion]
+  # Largest allowed absolute difference between a split's treatment share and the overall share.
+  balance_tolerance: 0.001

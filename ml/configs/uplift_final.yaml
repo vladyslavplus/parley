@@ -1,0 +1,36 @@
+# Final RQ1 evaluation. The winners below are the best validation cell per family and outcome in the committed
+# validation grid (selection.metric below). The evaluation checks them against that file before fitting anything, so a
+# change here that does not match the grid stops the run. The test split is opened once, after the freeze file is written.
+primary_outcome: visit
+selection_metric: qini_coefficient
+grid_summary: results/uplift_validation_grid.csv
+family_configs:
+  response: configs/uplift_response.yaml
+  s: configs/uplift_s.yaml
+  t: configs/uplift_t.yaml
+# Three seeds per winner. XGBoost fits here use hist without row or column subsampling, so the seed does not change
+# the trees; the seed range reported in the results is therefore expected to be zero, and that is a finding, not a bug.
+seeds: [20261112, 20261113, 20261114]
+winners:
+  visit:
+    response: {max_depth: 6, learning_rate: 0.1}
+    s: {max_depth: 4, learning_rate: 0.05}
+    t: {max_depth: 6, learning_rate: 0.05}
+  conversion:
+    response: {max_depth: 6, learning_rate: 0.1}
+    s: {max_depth: 4, learning_rate: 0.1}
+    t: {max_depth: 6, learning_rate: 0.1}
+bootstrap:
+  replicates: 200
+  seed: 20261113
+# Test subsamples for the sample-size curve. "full" is the whole test split.
+sample_sizes: [50000, 100000, 1000000, full]
+sample_seed: 20261114
+cost_to_value_ratios: [0.001, 0.005, 0.01, 0.02]
+profit_grid_points: 100
+outputs:
+  final_root: artifacts/final
+  results_dir: results
+  report: results/rq1_uplift.md
+  notes: results/rq1_uplift_notes.md
+  figures: artifacts/final/figures

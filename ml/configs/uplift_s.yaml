@@ -1,0 +1,24 @@
+# S-learner: one XGBoost model on all training rows with the treatment flag as the first feature.
+# Uplift score = P(outcome | x, treated = 1) - P(outcome | x, treated = 0).
+family: s
+dataset:
+  name: criteo_uplift_v2_1
+  parquet: data/criteo_uplift/criteo_float32.parquet
+  manifest: data/criteo_uplift/ingest_manifest.json
+  split_dir: data/criteo_uplift/splits
+  # Only these splits are opened by training. The test split is scored once, in the final evaluation step.
+  fit_splits: [train, validation]
+features: [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11]
+treatment: treatment
+outcomes: [visit, conversion]
+seed: 20261112
+xgboost:
+  objective: binary:logistic
+  eval_metric: logloss
+  tree_method: hist
+  device: cuda
+  max_bin: 256
+early_stopping_rounds: 50
+max_rounds: 2000
+evaluation:
+  uplift_k: [0.05, 0.1, 0.2, 0.3, 0.5]

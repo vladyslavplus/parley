@@ -18,13 +18,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    working-directory: frontend
+
 jobs:
-  frontend:
-    name: Check and build
+  lint:
+    name: Lint and typecheck
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
 
@@ -43,11 +44,104 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Check
-        run: pnpm run check
+      # tsc and ESLint validate their own incremental state against file
+      # contents and config, so a stale cache cannot change the result.
+      - name: Restore TypeScript and ESLint caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            frontend/tsconfig.tsbuildinfo
+            frontend/node_modules/.cache/eslint
+          key: lint-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-${{ hashFiles('frontend/src/**', 'frontend/*.json', 'frontend/*.mjs', 'frontend/*.mts', 'frontend/*.ts') }}
+          restore-keys: |
+            lint-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-
+            lint-${{ runner.os }}-
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: ESLint
+        run: pnpm exec eslint . --cache --cache-strategy content --cache-location node_modules/.cache/eslint/
+
+      - name: Prettier
+        run: pnpm run format:check
+
+      - name: Token check
+        run: pnpm run tokens:check
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.node-version
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
 
       - name: Test
         run: pnpm run test
 
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.node-version
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Next.js keys its own build cache on file contents; the lockfile in the
+      # key drops it when dependencies (or the compiler) change.
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: frontend/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-${{ hashFiles('frontend/src/**', 'frontend/messages/**', 'frontend/next.config.ts', 'frontend/tsconfig.json', 'frontend/postcss.config.mjs') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-
+            nextjs-${{ runner.os }}-
+
       - name: Build
         run: pnpm run build
+
+  # Single required status: keeps the "Frontend CI / Check and build" check
+  # name used by branch protection while the real work runs in parallel.
+  frontend:
+    name: Check and build
+    runs-on: ubuntu-latest
+    needs: [lint, test, build]
+    if: ${{ always() }}
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Require every frontend job to pass
+        run: |
+          echo "lint=${{ needs.lint.result }} test=${{ needs.test.result }} build=${{ needs.build.result }}"
+          [ "${{ needs.lint.result }}" = "success" ] \
+            && [ "${{ needs.test.result }}" = "success" ] \
+            && [ "${{ needs.build.result }}" = "success" ]

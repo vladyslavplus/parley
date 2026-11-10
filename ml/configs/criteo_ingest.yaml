@@ -1,0 +1,35 @@
+# Criteo uplift research dataset (v2.1): download, checks, float32 Parquet, stratified split.
+# Paths are relative to the ml/ directory. Data goes to the git-ignored data/ directory only.
+# Run: uv run --directory ml python -m parley_ml.datasets.criteo --config configs/criteo_ingest.yaml
+
+dataset:
+  name: criteo_uplift_v2_1
+  # Pinned to a commit of the Hugging Face dataset repository (the source URL lives here, not in code).
+  source_url: "https://huggingface.co/datasets/criteo/criteo-uplift/resolve/2424920019e49d52d72c13ac1143ec5d53af276b/criteo-research-uplift-v2.1.csv.gz"
+  source_revision: "2424920019e49d52d72c13ac1143ec5d53af276b"
+  file_name: "criteo-research-uplift-v2.1.csv.gz"
+  sha256: "2716e1bf0fd157a93b5bf86924d9088419dfbac2022c6cd90030220634f616dc"
+  bytes: 311422618
+  license: "CC BY-NC-SA 4.0"
+  citation: "Diemert, Eustache; Betlei, Artem; Renaudin, Christophe; Amini, Massih-Reza. A Large Scale Benchmark for Uplift Modeling. AdKDD 2018. arXiv:2111.10106."
+  user_agent: "parley-ml-dataset-fetch/1"
+  download_timeout_seconds: 600
+
+paths:
+  cache_dir: "data/criteo_uplift"
+  parquet: "data/criteo_uplift/criteo_float32.parquet"
+  split_dir: "data/criteo_uplift/splits"
+  manifest: "data/criteo_uplift/ingest_manifest.json"
+
+# Expected identity. The ingest fails when the file differs. Rates are the published rates of this dataset version.
+expected:
+  rows: 13979592
+  treatment_ratio: 0.85
+  visit_rate: 0.047
+  conversion_rate: 0.0029
+  tolerance:
+    treatment_ratio: 0.005
+    visit_rate: 0.001
+    conversion_rate: 0.0003
+
+split_config: "configs/criteo_split.yaml"

@@ -832,7 +832,19 @@
       "Parley.Campaigns": {
         "type": "Project",
         "dependencies": {
+          "EFCore.NamingConventions": "[10.0.1, )",
+          "FluentValidation": "[12.2.0, )",
+          "FluentValidation.DependencyInjectionExtensions": "[12.2.0, )",
+          "Fluid.Core": "[2.41.1, )",
+          "Hangfire.Core": "[1.8.25, )",
+          "Mediator.Abstractions": "[3.0.2, )",
+          "Microsoft.EntityFrameworkCore": "[10.0.14, )",
+          "Newtonsoft.Json": "[13.0.4, )",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
           "Parley.Campaigns.Contracts": "[1.0.0, )",
+          "Parley.Crm.Contracts": "[1.0.0, )",
+          "Parley.Identity.Contracts": "[1.0.0, )",
+          "Parley.Insights.Contracts": "[1.0.0, )",
           "Parley.SharedKernel": "[1.0.0, )"
         }
       },

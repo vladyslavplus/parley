@@ -20,10 +20,16 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+
 jobs:
-  backend:
-    name: Build and test
+  lint:
+    name: Format, analyzers and unit tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -31,9 +37,14 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: backend/global.json
+          cache: true
+          cache-dependency-path: backend/**/packages.lock.json
 
       - name: Restore
         run: dotnet restore backend/Parley.slnx --locked-mode
+
+      - name: Verify formatting and code style
+        run: dotnet format backend/Parley.slnx --no-restore --verify-no-changes --diagnostics IDE0005 IDE0130 IDE0161
 
       - name: Build
         run: dotnet build backend/Parley.slnx --no-restore --nologo -p:TreatWarningsAsErrors=true
@@ -41,5 +52,61 @@ jobs:
       - name: Unit tests
         run: dotnet test backend/tests/Parley.UnitTests --no-restore --no-build
 
+  integration:
+    name: Integration tests (${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Each shard runs one filter. The catch-all shard runs every class that no explicit shard names,
+          # so a new test class lands in some shard without editing this file.
+          - shard: crm
+            filter: "FullyQualifiedName~Parley.IntegrationTests.Crm."
+          - shard: identity
+            filter: "FullyQualifiedName~Parley.IntegrationTests.Identity."
+          - shard: remaining
+            filter: "FullyQualifiedName!~Parley.IntegrationTests.Crm.&FullyQualifiedName!~Parley.IntegrationTests.Identity."
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+          cache: true
+          cache-dependency-path: backend/**/packages.lock.json
+
+      - name: Restore
+        run: dotnet restore backend/tests/Parley.IntegrationTests/Parley.IntegrationTests.csproj --locked-mode
+
+      # Testcontainers images, pinned as in the test sources. Pulled in the background so the build overlaps the pull.
+      - name: Pre-pull test images
+        run: |
+          (
+            docker pull -q "pgvector/pgvector:0.8.7-pg17@sha256:7d0a41464797aeb9862dfdc0bbf1526b82cfd324cdd8036df19e3545f4a9ccb8"
+            docker pull -q "axllent/mailpit:v1.27.8@sha256:6abc8e633df15eaf785cfcf38bae48e66f64beecdc03121e249d0f9ec15f0707"
+          ) > "$RUNNER_TEMP/prepull.log" 2>&1 &
+
+      - name: Build
+        run: dotnet build backend/tests/Parley.IntegrationTests/Parley.IntegrationTests.csproj --no-restore --nologo -p:TreatWarningsAsErrors=true
+
       - name: Integration tests
-        run: dotnet test backend/tests/Parley.IntegrationTests --no-restore --no-build
+        run: dotnet test backend/tests/Parley.IntegrationTests --no-restore --no-build --filter "${{ matrix.filter }}"
+
+  backend:
+    # The single required check. Its name is the one branch protection uses, so it stays "Build and test".
+    name: Build and test
+    needs: [lint, integration]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every job to pass
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          INTEGRATION_RESULT: ${{ needs.integration.result }}
+        run: |
+          echo "lint=$LINT_RESULT integration=$INTEGRATION_RESULT"
+          test "$LINT_RESULT" = "success" && test "$INTEGRATION_RESULT" = "success"
