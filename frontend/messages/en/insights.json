@@ -1,0 +1,119 @@
+{
+  "home": {
+    "title": "Today",
+    "subtitle": "Who to contact now, and how the business is doing.",
+    "sectionDashboard": "Business at a glance",
+    "priority": {
+      "title": "Priority today",
+      "subtitle": "Ranked for you from recent orders, order history, open tasks and stale deals.",
+      "columns": {
+        "contact": "Contact",
+        "reasons": "Why",
+        "segment": "Segment",
+        "next": "Next step"
+      },
+      "openContact": "Open contact",
+      "createTask": "Create task",
+      "empty": "Nobody needs a call today.",
+      "preparingTitle": "The priority list is not ready yet",
+      "preparingDescription": "It fills in after the first daily calculation of your contacts."
+    },
+    "newOrganization": {
+      "title": "Start with your contacts",
+      "description": "The priority list and the dashboard fill in as contacts, orders, deals and tasks arrive.",
+      "addContact": "Add a contact",
+      "openContacts": "Open contacts",
+      "openDeals": "Open deals"
+    }
+  },
+  "mode": {
+    "rfm": {
+      "title": "RFM mode",
+      "body": "The ranking uses only recency, frequency and value of orders, plus open tasks and stale deals. No machine learning is involved. The list shows who to contact; it does not predict what a contact will do."
+    }
+  },
+  "filters": {
+    "segment": "Segment",
+    "allSegments": "All segments",
+    "searchSegments": "Find a segment",
+    "noSegments": "No segment matches",
+    "help": "Segments compare each customer with the other customers of your organization.",
+    "tooLarge": "This segment is too large to filter; narrow the list with another filter first"
+  },
+  "dashboard": {
+    "pipeline": {
+      "title": "Pipeline value by stage",
+      "subtitle": "Open deals in each stage.",
+      "total": "{amount} in {count, plural, one {# open deal} few {# open deals} many {# open deals} other {# open deals}}",
+      "empty": "No open deals yet.",
+      "stageRow": "{count, plural, one {# deal} few {# deals} many {# deals} other {# deals}}, {amount}",
+      "chartLabel": "Pipeline value by stage: {total}"
+    },
+    "tasks": {
+      "title": "Tasks due",
+      "count": "{count, plural, =0 {No tasks due} one {# task due} few {# tasks due} many {# tasks due} other {# tasks due}}",
+      "description": "Open tasks due now or earlier.",
+      "open": "Open tasks"
+    },
+    "campaign": {
+      "title": "Latest campaign",
+      "name": "{name}",
+      "empty": "No completed campaign yet.",
+      "open": "Open campaign",
+      "lift": "{lift} percentage points",
+      "interval": "95% interval from {low} to {high} percentage points",
+      "provisional": "Provisional: the window is still open",
+      "finalizing": "The window has closed; final figures are being calculated.",
+      "description": "Describes what happened in this campaign. It does not show what caused it.",
+      "verdict": {
+        "measurable_lift": "A difference is measurable in this campaign",
+        "no_measurable_effect": "No measurable difference in this campaign",
+        "too_early": "Too early to draw a conclusion",
+        "unreliable": "Not reliable: group sizes differ from the plan"
+      },
+      "demo": "Demo",
+      "simulated": "Simulated effect"
+    },
+    "loadFailed": "The dashboard could not be loaded."
+  },
+  "ml": {
+    "title": "Machine learning",
+    "subtitle": "Whether this organization uses machine learning. Admins only.",
+    "explanation": "Turning ML on records your choice. Nothing changes yet: scores and ML targeting arrive in a later version, and the priority list keeps ranking with RFM either way.",
+    "switchLabel": "Machine learning enabled",
+    "state": {
+      "on": "On",
+      "off": "Off"
+    },
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Machine learning setting saved.",
+    "conflict": "This setting was changed elsewhere. It is now {state}. Your choice ({desired}) is kept: save again to apply it.",
+    "loadFailed": "The setting could not be loaded."
+  },
+  "reasons": {
+    "highValue": "High value",
+    "recentOrder": "Recent order",
+    "atRisk": "At risk",
+    "taskDue": "Task due",
+    "dealStale": "Stale deal"
+  },
+  "segments": {
+    "champions": "Champions",
+    "loyal": "Loyal",
+    "promising": "Promising",
+    "needsAttention": "Needs attention",
+    "atRisk": "At risk",
+    "hibernating": "Hibernating",
+    "lost": "Lost",
+    "regular": "Regular",
+    "noOrders": "No orders"
+  },
+  "actions": {
+    "call": "Call",
+    "reviewDeal": "Review deal",
+    "winBack": "Win back",
+    "reward": "Reward",
+    "nurture": "Nurture"
+  }
+}

@@ -8,18 +8,21 @@ using Parley.Api;
 using Parley.Api.Controllers.Campaigns;
 using Parley.Campaigns.Contracts.Errors;
 using Parley.Campaigns.Features.Campaigns.Prepare;
+using Parley.IntegrationTests.Campaigns.Send.Support;
 using Parley.IntegrationTests.Crm.Support;
 using Parley.IntegrationTests.Identity.Support;
 using Parley.IntegrationTests.Infrastructure.Auth;
 using Parley.IntegrationTests.Infrastructure.Fixtures;
 using Parley.IntegrationTests.Infrastructure.Hosting;
+using Parley.SharedKernel.Persistence.Conventions;
 using Xunit;
 
 namespace Parley.IntegrationTests.Campaigns.Prepare;
 
 /// <summary>
 /// The prepare flow end to end: the endpoint queues the job, the job freezes the audience, suppressed contacts are in
-/// neither arm, the commit point guards later edits, and a resumed freeze keeps the rows it wrote.
+/// neither arm, the commit point guards later edits, a resumed or repeated freeze rewrites the same audience, two runs
+/// at once leave one audience, and the recovery sweep queues a stuck campaign again.
 /// The job runs in the test scope, against a queue no server polls, so the outcome is deterministic.
 /// </summary>
 public sealed class CampaignPrepareTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
@@ -27,6 +30,14 @@ public sealed class CampaignPrepareTests(PostgresFixture postgres, MailpitFixtur
     private const string UnpolledQueueKey = "Campaigns:Prepare:QueueName";
 
     private const string UnpolledQueueName = "campaigns-prepare-unpolled";
+
+    private const string RecoveryAgeKey = "Campaigns:Prepare:RecoveryAge";
+
+    private const string ZeroRecoveryAge = "00:00:00";
+
+    private const string SrmPValueProperty = "srmPValue";
+
+    private const string JobsTable = "jobqueue";
 
     private const string IdProperty = "id";
 
@@ -62,7 +73,11 @@ public sealed class CampaignPrepareTests(PostgresFixture postgres, MailpitFixtur
         _factory = new IdentityApiFactory(
             postgres,
             mailpit,
-            new Dictionary<string, string?> { [UnpolledQueueKey] = UnpolledQueueName });
+            new Dictionary<string, string?>
+            {
+                [UnpolledQueueKey] = UnpolledQueueName,
+                [RecoveryAgeKey] = ZeroRecoveryAge,
+            });
     }
 
     public ValueTask DisposeAsync()
@@ -114,7 +129,7 @@ public sealed class CampaignPrepareTests(PostgresFixture postgres, MailpitFixtur
     }
 
     [Fact]
-    public async Task Prepare_ResumedAfterAnInterruption_ProducesIdenticalRows()
+    public async Task Prepare_ResumedAfterAnInterruption_ProducesTheSameAudience()
     {
         var token = TestContext.Current.CancellationToken;
         var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
@@ -131,12 +146,115 @@ public sealed class CampaignPrepareTests(PostgresFixture postgres, MailpitFixtur
         var firstRun = await ReadRecipientRowsAsync(campaign.Id, token);
         firstRun.Should().NotBeEmpty();
 
-        // An interruption before the commit point: the campaign is back in preparing, the rows are already written.
+        // An interruption before the commit point: the campaign is back in preparing. The next run rewrites the audience
+        // from the pinned inputs, so the contents match, with new row ids.
         await ResetToPreparingAsync(campaign.Id, token);
         await RunPrepareJobAsync(owner.OrganizationId, campaign.Id, token);
 
         var resumed = await ReadRecipientRowsAsync(campaign.Id, token);
-        resumed.Should().Equal(firstRun, "the resumed freeze keeps every row it had written, ids included");
+        resumed.Should().Equal(firstRun, "the same pinned inputs decide the same audience");
+    }
+
+    [Fact]
+    public async Task Prepare_ResumedAfterAPartialWriteWithChangedCrmData_ProducesOneConsistentAudience()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var templateId = await CreateTemplateAsync(admin, token);
+        var contacts = new List<Guid>();
+        for (var index = 0; index < 3; index++)
+        {
+            contacts.Add(CrmApi.IdOf(await CrmApi.CreateContactAsync(admin, ContactAt($"partial{index}"), token)));
+        }
+
+        var campaign = await CreateCampaignAsync(admin, templateId, token);
+        await admin.PostAsync(IdentityApi.Route(CampaignsRoutes.CampaignPrepare, campaign.Id), null, token);
+        await RunPrepareJobAsync(owner.OrganizationId, campaign.Id, token);
+
+        // An interruption after rows were written: the campaign is back in preparing and the rows are still there.
+        await ResetToPreparingAsync(campaign.Id, token);
+        var unfinished = await ReadReviewAsync(admin, campaign.Id, token);
+        unfinished.GetProperty(TreatmentProperty).GetProperty(CountProperty).GetInt32().Should().Be(0, "an unfinished freeze is invisible");
+        unfinished.GetProperty(HoldoutProperty).GetProperty(CountProperty).GetInt32().Should().Be(0, "an unfinished freeze is invisible");
+        unfinished.GetProperty(SrmPValueProperty).ValueKind.Should().Be(JsonValueKind.Null, "an unfinished freeze has no SRM check");
+
+        // Between the runs the CRM changes: one contact is suppressed by address, another by contact id after it changed
+        // its address, and a new contact appears.
+        await InsertSuppressionAsync(owner.OrganizationId, contacts[0], "partial0" + EmailDomain, token);
+        await InsertSuppressionAsync(owner.OrganizationId, contacts[1], "moved-away" + EmailDomain, token);
+        var late = CrmApi.IdOf(await CrmApi.CreateContactAsync(admin, ContactAt("partial-late"), token));
+
+        await RunPrepareJobAsync(owner.OrganizationId, campaign.Id, token);
+
+        var review = await ReadReviewAsync(admin, campaign.Id, token);
+        review.GetProperty(StatusProperty).GetString().Should().Be("ready");
+        var treatmentCount = review.GetProperty(TreatmentProperty).GetProperty(CountProperty).GetInt32();
+        var holdoutCount = review.GetProperty(HoldoutProperty).GetProperty(CountProperty).GetInt32();
+        (treatmentCount + holdoutCount).Should().Be(2, "one original contact and the new one; the two suppressed ones are gone");
+        (await CountRecipientsAsync(campaign.Id, contacts[0], token)).Should().Be(0, "a contact suppressed after the first run is not kept");
+        (await CountRecipientsAsync(campaign.Id, contacts[1], token)).Should().Be(0, "a suppression by contact id holds when the address changed");
+        (await CountRecipientsAsync(campaign.Id, late, token)).Should().Be(1, "a contact added after the first run is included");
+    }
+
+    [Fact]
+    public async Task Prepare_TwoRunsAtOnce_LeaveOneConsistentAudience()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var templateId = await CreateTemplateAsync(admin, token);
+        for (var index = 0; index < 4; index++)
+        {
+            await CrmApi.CreateContactAsync(admin, ContactAt($"twice{index}"), token);
+        }
+
+        var campaign = await CreateCampaignAsync(admin, templateId, token);
+        await admin.PostAsync(IdentityApi.Route(CampaignsRoutes.CampaignPrepare, campaign.Id), null, token);
+
+        // Two workers take the same campaign: one freezes it, the other exits at the lock or after the commit point.
+        await Task.WhenAll(
+            RunPrepareJobAsync(owner.OrganizationId, campaign.Id, token),
+            RunPrepareJobAsync(owner.OrganizationId, campaign.Id, token));
+
+        var review = await ReadReviewAsync(admin, campaign.Id, token);
+        review.GetProperty(StatusProperty).GetString().Should().Be("ready");
+        var treatmentCount = review.GetProperty(TreatmentProperty).GetProperty(CountProperty).GetInt32();
+        var holdoutCount = review.GetProperty(HoldoutProperty).GetProperty(CountProperty).GetInt32();
+        (treatmentCount + holdoutCount).Should().Be(4, "each eligible contact is one recipient, not two");
+        (await ReadRecipientRowsAsync(campaign.Id, token)).Should().HaveCount(4);
+    }
+
+    [Fact]
+    public async Task Prepare_StuckInPreparing_IsQueuedAgainBySweep_AndFreezesOnce()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var templateId = await CreateTemplateAsync(admin, token);
+        for (var index = 0; index < 3; index++)
+        {
+            await CrmApi.CreateContactAsync(admin, ContactAt($"stuck{index}"), token);
+        }
+
+        var campaign = await CreateCampaignAsync(admin, templateId, token);
+        var queuedBefore = await CountQueuedPrepareJobsAsync(token);
+        await admin.PostAsync(IdentityApi.Route(CampaignsRoutes.CampaignPrepare, campaign.Id), null, token);
+        (await CountQueuedPrepareJobsAsync(token)).Should().Be(queuedBefore + 1, "the prepare queues the freeze");
+
+        // The sweep finds the campaign in preparing with no write for the recovery age, and queues it again.
+        await RunPrepareRecoverySweepAsync(token);
+        (await CountQueuedPrepareJobsAsync(token)).Should().Be(queuedBefore + 2, "the sweep queues the stuck campaign");
+
+        await RunPrepareJobAsync(owner.OrganizationId, campaign.Id, token);
+        var review = await ReadReviewAsync(admin, campaign.Id, token);
+        review.GetProperty(StatusProperty).GetString().Should().Be("ready");
+        (await ReadRecipientRowsAsync(campaign.Id, token)).Should().HaveCount(3);
+
+        // A frozen campaign is not queued again.
+        var queuedAfterFreeze = await CountQueuedPrepareJobsAsync(token);
+        await RunPrepareRecoverySweepAsync(token);
+        (await CountQueuedPrepareJobsAsync(token)).Should().Be(queuedAfterFreeze);
     }
 
     private static readonly string CampaignTargetingModesAll = Parley.Campaigns.Domain.Campaigns.CampaignTargetingModes.All;
@@ -219,14 +337,17 @@ public sealed class CampaignPrepareTests(PostgresFixture postgres, MailpitFixtur
         (await command.ExecuteNonQueryAsync(token)).Should().Be(1);
     }
 
-    /// <summary>Recipient rows in a stable order, every column that the freeze decides, including the row id.</summary>
+    /// <summary>
+    /// Recipient rows in contact order: every column the freeze decides. The row id is left out, because a rewrite of the
+    /// audience gives its rows new ids.
+    /// </summary>
     private async Task<List<string>> ReadRecipientRowsAsync(Guid campaignId, CancellationToken token)
     {
         await using var connection = new NpgsqlConnection(postgres.ConnectionString);
         await connection.OpenAsync(token);
         await using var command = new NpgsqlCommand(
             """
-            SELECT id, contact_id, arm, assignment_bucket, is_targeted, email_snapshot, locale
+            SELECT contact_id, arm, assignment_bucket, is_targeted, email_snapshot, locale
             FROM campaigns.recipients WHERE campaign_id = @campaign ORDER BY contact_id
             """,
             connection);
@@ -235,10 +356,20 @@ public sealed class CampaignPrepareTests(PostgresFixture postgres, MailpitFixtur
         var rows = new List<string>();
         while (await reader.ReadAsync(token))
         {
-            rows.Add(string.Join('|', reader.GetValue(0), reader.GetValue(1), reader.GetString(2), reader.GetInt32(3), reader.GetBoolean(4), reader.GetString(5), reader.GetString(6)));
+            rows.Add(string.Join('|', reader.GetValue(0), reader.GetString(1), reader.GetInt32(2), reader.GetBoolean(3), reader.GetString(4), reader.GetString(5)));
         }
 
         return rows;
+    }
+
+    /// <summary>Queued prepare jobs on the test queue. No server polls it, so every entry stays until the count is read.</summary>
+    private Task<long> CountQueuedPrepareJobsAsync(CancellationToken token) =>
+        CampaignSendHarness.CountAsync(postgres.ConnectionString, PersistenceConstants.HangfireSchema, JobsTable, "queue", UnpolledQueueName, token);
+
+    private async Task RunPrepareRecoverySweepAsync(CancellationToken token)
+    {
+        using var scope = _factory.Services.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<CampaignPrepareRecoveryJob>().ExecuteAsync(null, token);
     }
 
     private sealed record CampaignHandle(Guid Id, uint Version);

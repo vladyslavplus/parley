@@ -24,6 +24,24 @@ public static class TestHostSettings
     /// <summary>SMTP address for hosts that never send mail. Nothing listens there.</summary>
     public const string UnusedSmtpHost = "127.0.0.1";
 
+    /// <summary>Domain of generated message ids in tests.</summary>
+    public const string MessageIdDomain = "parley.test";
+
+    /// <summary>Base address of the API in unsubscribe links of tests.</summary>
+    public const string PublicApiBaseUrlForLinks = "http://api.parley.test";
+
+    /// <summary>Queue no test host polls. Campaign send jobs are run by the tests, never by a worker.</summary>
+    public const string UnpolledCampaignSendQueue = "campaigns-send-unpolled";
+
+    /// <summary>Send rate of tests: effectively unlimited, so a send costs no measurable wait.</summary>
+    public const string TestRatePerSecond = "1000";
+
+    /// <summary>Retry backoff of tests: none, so a retry is due at once and a test does not wait for it.</summary>
+    public const string TestRetryBackoff = "00:00:00";
+
+    /// <summary>Random per test run; it signs unsubscribe tokens inside the test process only.</summary>
+    public static readonly string UnsubscribeTokenKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+
     public const int UnusedSmtpPort = 1;
 
     /// <summary>
@@ -39,5 +57,12 @@ public static class TestHostSettings
         ["Email:Port"] = smtpPort.ToString(CultureInfo.InvariantCulture),
         ["Email:FromAddress"] = FromAddress,
         ["Email:FromName"] = FromName,
+        ["Campaigns:Send:QueueName"] = UnpolledCampaignSendQueue,
+        ["Campaigns:Send:MessageIdDomain"] = MessageIdDomain,
+        ["Campaigns:Send:UnsubscribeTokenKey"] = UnsubscribeTokenKey,
+        ["Campaigns:Send:PublicApiBaseUrl"] = PublicApiBaseUrlForLinks,
+        ["Campaigns:Send:PublicWebBaseUrl"] = PublicBaseUrl,
+        ["Campaigns:Send:RatePerSecond"] = TestRatePerSecond,
+        ["Campaigns:Send:RetryBackoff"] = TestRetryBackoff,
     };
 }

@@ -22,6 +22,7 @@ export function contactListQueryOptions(
     tagId: filters.tagId || undefined,
     companyId: filters.companyId || undefined,
     ownerUserId: filters.ownerUserId || undefined,
+    segment: filters.segment || undefined,
     createdFrom: filters.createdFrom || undefined,
     createdTo: filters.createdTo || undefined,
     sort: filters.sort || "name",

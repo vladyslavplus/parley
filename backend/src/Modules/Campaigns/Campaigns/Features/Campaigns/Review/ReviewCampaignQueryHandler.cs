@@ -26,12 +26,15 @@ public sealed class ReviewCampaignQueryHandler(CampaignsDbContext dbContext, IOp
             return Result<CampaignReviewView>.Failure(Error.NotFound(CampaignsErrorCodes.CampaignNotFound));
         }
 
-        var arms = await dbContext.Recipients
-            .AsNoTracking()
-            .Where(recipient => recipient.CampaignId == query.CampaignId)
-            .GroupBy(recipient => recipient.Arm)
-            .Select(group => new CampaignArmSummary(group.Key, group.Count(), group.Count(recipient => recipient.IsTargeted)))
-            .ToListAsync(cancellationToken);
+        // An unfinished freeze is invisible: its partial rows are not an experiment yet, so the review shows nothing for them.
+        var arms = campaign.AudienceFrozenAt is null
+            ? new List<CampaignArmSummary>()
+            : await dbContext.Recipients
+                .AsNoTracking()
+                .Where(recipient => recipient.CampaignId == query.CampaignId)
+                .GroupBy(recipient => recipient.Arm)
+                .Select(group => new CampaignArmSummary(group.Key, group.Count(), group.Count(recipient => recipient.IsTargeted)))
+                .ToListAsync(cancellationToken);
 
         var treatment = arms.FirstOrDefault(arm => arm.Arm == HoldoutArms.Treatment) ?? new CampaignArmSummary(HoldoutArms.Treatment, 0, 0);
         var holdout = arms.FirstOrDefault(arm => arm.Arm == HoldoutArms.Holdout) ?? new CampaignArmSummary(HoldoutArms.Holdout, 0, 0);

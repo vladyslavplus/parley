@@ -46,6 +46,11 @@ const ITEMS = [
     key: "customFields",
     permission: PERMISSIONS.customFieldsManage,
   },
+  {
+    href: ROUTES.settingsMl,
+    key: "ml",
+    permission: PERMISSIONS.insightsMlManage,
+  },
 ] as const;
 
 type SettingsNavKey = (typeof ITEMS)[number]["key"];

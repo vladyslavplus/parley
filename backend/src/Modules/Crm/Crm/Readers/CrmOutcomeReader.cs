@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Parley.Crm.Contracts.Metrics;
 using Parley.Crm.Contracts.Outcomes;
 using Parley.Crm.Domain.Deals;
+using Parley.Crm.Domain.Orders;
 using Parley.Crm.Persistence;
 
 namespace Parley.Crm.Readers;
@@ -39,7 +40,8 @@ public sealed class CrmOutcomeReader(CrmDbContext dbContext) : ICrmOutcomeReader
                 group.Key,
                 group.Sum(order => order.IsCancellation ? 0 : 1),
                 group.Sum(order => order.TotalAmount),
-                group.Min(order => order.IsCancellation ? (DateTime?)null : order.OrderedAt)))
+                group.Min(order => order.IsCancellation ? (DateTime?)null : order.OrderedAt),
+                group.Sum(order => !order.IsCancellation && order.Source == OrderSources.DemoSimulated ? 1 : 0)))
             .ToListAsync(cancellationToken);
 
         var wonDeals = await dbContext.Deals.AsNoTracking()
@@ -62,7 +64,8 @@ public sealed class CrmOutcomeReader(CrmDbContext dbContext) : ICrmOutcomeReader
                 purchase.PurchaseCount,
                 purchase.Revenue,
                 ToOffset(purchase.FirstPurchaseAt),
-                ToOffset(won.GetValueOrDefault(purchase.ContactId))));
+                ToOffset(won.GetValueOrDefault(purchase.ContactId)),
+                purchase.SimulatedPurchaseCount));
             won.Remove(purchase.ContactId);
         }
 
@@ -77,7 +80,7 @@ public sealed class CrmOutcomeReader(CrmDbContext dbContext) : ICrmOutcomeReader
     private static DateTimeOffset? ToOffset(DateTime? value) =>
         value is { } instant ? new DateTimeOffset(DateTime.SpecifyKind(instant, DateTimeKind.Utc)) : null;
 
-    private sealed record PurchaseGroup(Guid ContactId, int PurchaseCount, decimal Revenue, DateTime? FirstPurchaseAt);
+    private sealed record PurchaseGroup(Guid ContactId, int PurchaseCount, decimal Revenue, DateTime? FirstPurchaseAt, int SimulatedPurchaseCount);
 
     private sealed record WonGroup(Guid ContactId, DateTime? FirstWonAt);
 }

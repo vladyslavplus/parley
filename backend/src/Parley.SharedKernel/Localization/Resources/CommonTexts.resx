@@ -405,7 +405,37 @@
   <data name="campaigns.campaign.scores_unavailable" xml:space="preserve">
     <value>No scores are available yet, so this targeting mode cannot be prepared.</value>
   </data>
+  <data name="campaigns.send.mail_unavailable" xml:space="preserve">
+    <value>The mail server did not accept the connection. The send will be retried.</value>
+  </data>
+  <data name="campaigns.send.result_unknown" xml:space="preserve">
+    <value>The result of the send is unknown, so the email will not be sent again.</value>
+  </data>
+  <data name="campaigns.send.recipient_unavailable" xml:space="preserve">
+    <value>The recipient is no longer available for sending.</value>
+  </data>
+  <data name="campaigns.send.test_failed" xml:space="preserve">
+    <value>The test email could not be sent. Try again later.</value>
+  </data>
+  <data name="campaigns.send.test_address_missing" xml:space="preserve">
+    <value>Your account has no email address to receive the test email.</value>
+  </data>
+  <data name="campaigns.unsubscribe.token_invalid" xml:space="preserve">
+    <value>This unsubscribe link is not valid.</value>
+  </data>
+  <data name="campaigns.unsubscribe.token_expired" xml:space="preserve">
+    <value>This unsubscribe link has expired.</value>
+  </data>
   <data name="campaigns.segment.version_conflict" xml:space="preserve">
     <value>The segment was changed by someone else. Reload it and try again.</value>
+  </data>
+  <data name="insights.ml_settings.version_conflict" xml:space="preserve">
+    <value>The ML settings were changed by someone else. Reload them and try again.</value>
+  </data>
+  <data name="campaigns.test_send.rate_limited" xml:space="preserve">
+    <value>Too many test emails were sent. Try again later.</value>
+  </data>
+  <data name="crm.contacts.segment_too_large" xml:space="preserve">
+    <value>The segment has too many contacts to filter here. Narrow the list with another filter.</value>
   </data>
 </root>

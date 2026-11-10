@@ -24,6 +24,7 @@ namespace Parley.Crm.Features.Contacts.Shared;
 /// <param name="OwnerDisplayName">Owner display name, or null when unowned, unnamed or outside the organization.</param>
 /// <param name="OwnerEmail">Owner email, or null under the same conditions.</param>
 /// <param name="CompanyName">Company name, or null when unset or when the caller cannot read that company.</param>
+/// <param name="Segment">RFM segment on the latest snapshot day. Set on the contact list only; null on other contact responses and when there is no snapshot.</param>
 public sealed record ContactView(
     Guid Id,
     string FirstName,
@@ -42,4 +43,5 @@ public sealed record ContactView(
     uint Version,
     string? OwnerDisplayName,
     string? OwnerEmail,
-    string? CompanyName);
+    string? CompanyName,
+    string? Segment);

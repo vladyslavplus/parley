@@ -39,6 +39,12 @@ public static class CrmLimits
     public const int OrderSearchMaximumLength = 64;
 
 
+    /// <summary>
+    /// Most contacts one segment filter of the contact list reads. A larger segment answers with a validation failure on
+    /// the segment field instead of an unbounded id list.
+    /// </summary>
+    public const int ContactSegmentFilterMaximum = 10000;
+
     public const int SearchMaximumLength = 100;
 
     /// <summary>Shortest search term; shorter terms match too much to rank usefully.</summary>

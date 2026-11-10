@@ -1,0 +1,453 @@
+{
+  "header": {
+    "format_version": 1,
+    "generated_by": "ml/scripts/make_lift_vectors.py (statsmodels and scipy directly, not the reference module)",
+    "libraries": {
+      "statsmodels": "0.15.0",
+      "scipy": "1.18.1"
+    },
+    "alpha": 0.05,
+    "power": 0.8,
+    "z_interval_and_test": "z = norm.ppf(1 - alpha/2) = 1.959963984540054 (two-sided)",
+    "z_power": "z_beta = norm.ppf(power) = 0.8416212335729143",
+    "rates": "rate = conversions / n; undefined when n = 0",
+    "lift": "rate_treatment - rate_holdout",
+    "wilson": "score interval per arm at z; centre (p + z^2/(2n))/(1+z^2/n), half z*sqrt(p(1-p)/n + z^2/(4n^2))/(1+z^2/n)",
+    "newcombe_wilson": "Newcombe 1998 method 10 (hybrid score): lower = lift - sqrt((p_t - l_t)^2 + (u_h - p_h)^2); upper = lift + sqrt((u_t - p_t)^2 + (p_h - l_h)^2)",
+    "z_test": "pooled two-proportion z, two-sided: p0 = (c_t+c_h)/(n_t+n_h); z = lift/sqrt(p0(1-p0)(1/n_t+1/n_h)); p = 2(1-Phi(|z|)); undefined when p0 in {0,1} or an arm is empty",
+    "srm": "chi-squared, 1 df, expected = n_total * share, share_treatment = share_treatment_bps/10000; p = P(chi2_1 > stat); undefined when n_total = 0",
+    "mde": "absolute: (z_alpha + z_beta) * sqrt(p(1-p)(1/n_t + 1/n_h)), p = holdout rate; undefined when an arm is empty",
+    "incremental_revenue": "(mean_revenue_treatment - mean_revenue_holdout) * n_treatment; undefined when n_treatment = 0 or a mean is missing",
+    "undefined": "a field listed in a case's undefined array is null in expected and has no defined value",
+    "precision": "every float is written with Python repr, the shortest string that round-trips to the same double"
+  },
+  "cases": [
+    {
+      "id": "balanced",
+      "description": "Balanced arms, moderate rates",
+      "treatment": {
+        "conversions": 500,
+        "n": 2000,
+        "mean_revenue": 12.5
+      },
+      "holdout": {
+        "conversions": 400,
+        "n": 2000,
+        "mean_revenue": 10.0
+      },
+      "share_treatment_bps": 5000,
+      "expected": {
+        "rate_treatment": 0.25,
+        "rate_holdout": 0.2,
+        "lift": 0.04999999999999999,
+        "ci_low": 0.024129711113609103,
+        "ci_high": 0.07579375517979867,
+        "z_test_p_value": 0.00015283804716505114,
+        "srm_p_value": 1.0,
+        "mde_absolute": 0.03543756139318639,
+        "incremental_revenue": 5000.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "tiny_holdout",
+      "description": "Tiny holdout; Wilson and Newcombe intervals are wide",
+      "treatment": {
+        "conversions": 10,
+        "n": 50,
+        "mean_revenue": 30.0
+      },
+      "holdout": {
+        "conversions": 1,
+        "n": 5,
+        "mean_revenue": 20.0
+      },
+      "share_treatment_bps": 9000,
+      "expected": {
+        "rate_treatment": 0.2,
+        "rate_holdout": 0.2,
+        "lift": 0.0,
+        "ci_low": -0.43340286329171696,
+        "ci_high": 0.2093302551043416,
+        "z_test_p_value": 1.0,
+        "srm_p_value": 0.8221867672380183,
+        "mde_absolute": 0.5256239783810172,
+        "incremental_revenue": 500.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "zero_conversions_treatment",
+      "description": "No conversions in the treatment arm",
+      "treatment": {
+        "conversions": 0,
+        "n": 300,
+        "mean_revenue": 0.0
+      },
+      "holdout": {
+        "conversions": 40,
+        "n": 600,
+        "mean_revenue": 8.0
+      },
+      "share_treatment_bps": 6667,
+      "expected": {
+        "rate_treatment": 0.0,
+        "rate_holdout": 0.06666666666666667,
+        "lift": -0.06666666666666667,
+        "ci_low": -0.0895091891358169,
+        "ci_high": -0.04521577775996377,
+        "z_test_p_value": 4.763175554746925e-06,
+        "srm_p_value": 6.817572763909572e-100,
+        "mde_absolute": 0.04941531842587708,
+        "incremental_revenue": -2400.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "zero_conversions_both",
+      "description": "No conversions in either arm (pooled rate 0: z-test undefined)",
+      "treatment": {
+        "conversions": 0,
+        "n": 400,
+        "mean_revenue": 0.0
+      },
+      "holdout": {
+        "conversions": 0,
+        "n": 400,
+        "mean_revenue": 0.0
+      },
+      "share_treatment_bps": 5000,
+      "expected": {
+        "rate_treatment": 0.0,
+        "rate_holdout": 0.0,
+        "lift": 0.0,
+        "ci_low": -0.009512294334296512,
+        "ci_high": 0.009512294334296512,
+        "z_test_p_value": null,
+        "srm_p_value": 1.0,
+        "mde_absolute": 0.0,
+        "incremental_revenue": 0.0
+      },
+      "undefined": [
+        "z_test_p_value"
+      ]
+    },
+    {
+      "id": "all_converted_treatment",
+      "description": "Every treated recipient converted",
+      "treatment": {
+        "conversions": 300,
+        "n": 300,
+        "mean_revenue": 25.0
+      },
+      "holdout": {
+        "conversions": 150,
+        "n": 300,
+        "mean_revenue": 12.0
+      },
+      "share_treatment_bps": 5000,
+      "expected": {
+        "rate_treatment": 1.0,
+        "rate_holdout": 0.5,
+        "lift": 0.5,
+        "ci_low": 0.4423754607174928,
+        "ci_high": 0.5562204838660831,
+        "z_test_p_value": 2.0884875837624556e-45,
+        "srm_p_value": 1.0,
+        "mde_absolute": 0.11437423758834482,
+        "incremental_revenue": 3900.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "all_converted_both",
+      "description": "Every recipient converted in both arms (pooled rate 1: z-test undefined)",
+      "treatment": {
+        "conversions": 200,
+        "n": 200,
+        "mean_revenue": 9.0
+      },
+      "holdout": {
+        "conversions": 100,
+        "n": 100,
+        "mean_revenue": 9.0
+      },
+      "share_treatment_bps": 5000,
+      "expected": {
+        "rate_treatment": 1.0,
+        "rate_holdout": 1.0,
+        "lift": 0.0,
+        "ci_low": -0.018845326377266547,
+        "ci_high": 0.03699349820698572,
+        "z_test_p_value": null,
+        "srm_p_value": 7.764036537930667e-09,
+        "mde_absolute": 0.0,
+        "incremental_revenue": 0.0
+      },
+      "undefined": [
+        "z_test_p_value"
+      ]
+    },
+    {
+      "id": "equal_rates",
+      "description": "Equal rates: lift 0, z 0, p 1",
+      "treatment": {
+        "conversions": 200,
+        "n": 1000,
+        "mean_revenue": 10.0
+      },
+      "holdout": {
+        "conversions": 100,
+        "n": 500,
+        "mean_revenue": 10.0
+      },
+      "share_treatment_bps": 6667,
+      "expected": {
+        "rate_treatment": 0.2,
+        "rate_holdout": 0.2,
+        "lift": 0.0,
+        "ci_low": -0.04414203473322426,
+        "ci_high": 0.041737648543708594,
+        "z_test_p_value": 1.0,
+        "srm_p_value": 0.9978148512354558,
+        "mde_absolute": 0.06137965682934016,
+        "incremental_revenue": 0.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "large_n",
+      "description": "Large arms",
+      "treatment": {
+        "conversions": 30300,
+        "n": 1000000,
+        "mean_revenue": 15.0
+      },
+      "holdout": {
+        "conversions": 2950,
+        "n": 100000,
+        "mean_revenue": 14.0
+      },
+      "share_treatment_bps": 9091,
+      "expected": {
+        "rate_treatment": 0.0303,
+        "rate_holdout": 0.0295,
+        "lift": 0.0008000000000000021,
+        "ci_low": -0.00031802802904195844,
+        "ci_high": 0.0018847057125543944,
+        "z_test_p_value": 0.15888487794685002,
+        "srm_p_value": 0.9735408233113051,
+        "mde_absolute": 0.0015722042202968702,
+        "incremental_revenue": 1000000.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "mde_example",
+      "description": "Plan example: n_h 590, n_t 5310, p 0.20",
+      "treatment": {
+        "conversions": 1062,
+        "n": 5310,
+        "mean_revenue": 20.0
+      },
+      "holdout": {
+        "conversions": 118,
+        "n": 590,
+        "mean_revenue": 20.0
+      },
+      "share_treatment_bps": 9000,
+      "expected": {
+        "rate_treatment": 0.2,
+        "rate_holdout": 0.2,
+        "lift": 0.0,
+        "ci_low": -0.0357593924017154,
+        "ci_high": 0.03221609403639759,
+        "z_test_p_value": 1.0,
+        "srm_p_value": 1.0,
+        "mde_absolute": 0.04863137714214683,
+        "incremental_revenue": 0.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "srm_exact",
+      "description": "Arm counts exactly match the share",
+      "treatment": {
+        "conversions": 900,
+        "n": 9000,
+        "mean_revenue": 11.0
+      },
+      "holdout": {
+        "conversions": 100,
+        "n": 1000,
+        "mean_revenue": 11.0
+      },
+      "share_treatment_bps": 9000,
+      "expected": {
+        "rate_treatment": 0.1,
+        "rate_holdout": 0.1,
+        "lift": 0.0,
+        "ci_low": -0.021034311248638846,
+        "ci_high": 0.018238952388693424,
+        "z_test_p_value": 1.0,
+        "srm_p_value": 1.0,
+        "mde_absolute": 0.028015852181129685,
+        "incremental_revenue": 0.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "srm_failing",
+      "description": "Arm counts far from the share (SRM alarm)",
+      "treatment": {
+        "conversions": 950,
+        "n": 9500,
+        "mean_revenue": 11.0
+      },
+      "holdout": {
+        "conversions": 50,
+        "n": 500,
+        "mean_revenue": 11.0
+      },
+      "share_treatment_bps": 9000,
+      "expected": {
+        "rate_treatment": 0.1,
+        "rate_holdout": 0.1,
+        "lift": 0.0,
+        "ci_low": -0.03000213460241539,
+        "ci_high": 0.024131254488167886,
+        "z_test_p_value": 1.0,
+        "srm_p_value": 2.2901484625243723e-62,
+        "mde_absolute": 0.03856366372885827,
+        "incremental_revenue": 0.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "negative_lift",
+      "description": "Treatment worse than holdout",
+      "treatment": {
+        "conversions": 90,
+        "n": 1000,
+        "mean_revenue": 7.0
+      },
+      "holdout": {
+        "conversions": 150,
+        "n": 1000,
+        "mean_revenue": 10.0
+      },
+      "share_treatment_bps": 5000,
+      "expected": {
+        "rate_treatment": 0.09,
+        "rate_holdout": 0.15,
+        "lift": -0.06,
+        "ci_low": -0.08851916382667815,
+        "ci_high": -0.03160411953189962,
+        "z_test_p_value": 3.649562942655081e-05,
+        "srm_p_value": 1.0,
+        "mde_absolute": 0.044737728286749406,
+        "incremental_revenue": -3000.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "small_share",
+      "description": "Holdout share 75 %",
+      "treatment": {
+        "conversions": 50,
+        "n": 500,
+        "mean_revenue": 9.0
+      },
+      "holdout": {
+        "conversions": 20,
+        "n": 1500,
+        "mean_revenue": 9.0
+      },
+      "share_treatment_bps": 2500,
+      "expected": {
+        "rate_treatment": 0.1,
+        "rate_holdout": 0.013333333333333334,
+        "lift": 0.08666666666666667,
+        "ci_low": 0.06226640637786876,
+        "ci_high": 0.11645934705614844,
+        "z_test_p_value": 6.719118289947211e-20,
+        "srm_p_value": 1.0,
+        "mde_absolute": 0.016593683408181046,
+        "incremental_revenue": 0.0
+      },
+      "undefined": []
+    },
+    {
+      "id": "zero_holdout_arm",
+      "description": "Holdout arm empty: holdout rate and lift undefined",
+      "treatment": {
+        "conversions": 10,
+        "n": 100,
+        "mean_revenue": 6.0
+      },
+      "holdout": {
+        "conversions": 0,
+        "n": 0,
+        "mean_revenue": null
+      },
+      "share_treatment_bps": 9000,
+      "expected": {
+        "rate_treatment": 0.1,
+        "rate_holdout": null,
+        "lift": null,
+        "ci_low": null,
+        "ci_high": null,
+        "z_test_p_value": null,
+        "srm_p_value": 0.0008581206663936758,
+        "mde_absolute": null,
+        "incremental_revenue": null
+      },
+      "undefined": [
+        "ci_high",
+        "ci_low",
+        "incremental_revenue",
+        "lift",
+        "mde_absolute",
+        "rate_holdout",
+        "z_test_p_value"
+      ]
+    },
+    {
+      "id": "both_arms_empty",
+      "description": "No recipients at all: everything undefined",
+      "treatment": {
+        "conversions": 0,
+        "n": 0,
+        "mean_revenue": null
+      },
+      "holdout": {
+        "conversions": 0,
+        "n": 0,
+        "mean_revenue": null
+      },
+      "share_treatment_bps": 5000,
+      "expected": {
+        "rate_treatment": null,
+        "rate_holdout": null,
+        "lift": null,
+        "ci_low": null,
+        "ci_high": null,
+        "z_test_p_value": null,
+        "srm_p_value": null,
+        "mde_absolute": null,
+        "incremental_revenue": null
+      },
+      "undefined": [
+        "ci_high",
+        "ci_low",
+        "incremental_revenue",
+        "lift",
+        "mde_absolute",
+        "rate_holdout",
+        "rate_treatment",
+        "srm_p_value",
+        "z_test_p_value"
+      ]
+    }
+  ]
+}

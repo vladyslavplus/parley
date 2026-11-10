@@ -3,11 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Parley.Campaigns.Contracts.Events;
 using Parley.Crm.Contracts.Audience;
+using Parley.Crm.Contracts.Dashboard;
 using Parley.Crm.Contracts.DemoSeed;
 using Parley.Crm.Contracts.Metrics;
 using Parley.Crm.Contracts.Outcomes;
+using Parley.Crm.Contracts.Priority;
+using Parley.Crm.Contracts.Recipients;
 using Parley.Crm.Exports;
+using Parley.Crm.Features.Activities.Consumers;
 using Parley.Crm.Features.Contacts.Create;
 using Parley.Crm.Features.Pipelines.Consumers;
 using Parley.Crm.Options;
@@ -51,9 +56,13 @@ public static class Module
         services.AddScoped<ContactExportScheduler>();
         services.AddScoped<OwnerDirectory>();
         services.AddScoped<ICrmCustomerMetricsReader, CrmCustomerMetricsReader>();
+        services.AddScoped<ICrmPriorityFactsReader, CrmPriorityFactsReader>();
+        services.AddScoped<ICrmDashboardReader, CrmDashboardReader>();
         services.AddScoped<ICrmAudienceReader, CrmAudienceReader>();
+        services.AddScoped<ICrmRecipientProfileReader, CrmRecipientProfileReader>();
         services.AddScoped<ICrmOutcomeReader, CrmOutcomeReader>();
         services.AddScoped<ICrmDemoDataImporter, CrmDemoDataImporter>();
+        services.AddScoped<ICrmDemoSimulatedOrderWriter, CrmDemoSimulatedOrderWriter>();
         services.AddIdempotencyStore<CrmDbContext>();
 
         services.AddDbContext<CrmDbContext>((provider, options) => options
@@ -67,6 +76,8 @@ public static class Module
         services.AddScoped<TaskDueSoonScanJob>();
         services.AddOutbox<CrmDbContext>(configuration);
         services.AddIntegrationEventConsumer<OrganizationCreated, CrmDbContext, OrganizationCreatedConsumer>();
+        services.AddIntegrationEventConsumer<CampaignEmailSent, CrmDbContext, CampaignEmailSentConsumer>();
+        services.AddIntegrationEventConsumer<RecipientUnsubscribed, CrmDbContext, RecipientUnsubscribedConsumer>();
 
         services.AddValidatorsFromAssemblyContaining<CreateContactCommandValidator>();
 

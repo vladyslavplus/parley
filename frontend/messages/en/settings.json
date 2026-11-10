@@ -7,7 +7,8 @@
     "teams": "Teams",
     "audit": "Audit log",
     "pipeline": "Pipeline",
-    "customFields": "Custom fields"
+    "customFields": "Custom fields",
+    "ml": "Machine learning"
   },
   "roles": {
     "owner": "Owner",

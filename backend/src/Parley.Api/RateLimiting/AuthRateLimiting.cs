@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Parley.Api.Localization;
 using Parley.Api.Networking;
+using Parley.Campaigns.Options;
 using Parley.Identity.Contracts.Errors;
 using Parley.Identity.Options.RateLimiting;
 using Parley.SharedKernel.Results;
@@ -42,9 +43,30 @@ public static class AuthRateLimiting
             AddPolicy(limiter, AuthRateLimitPolicies.ResetPassword, options => options.ResetPassword);
             AddPolicy(limiter, AuthRateLimitPolicies.InvitationCreate, options => options.InvitationCreate);
             AddPolicy(limiter, AuthRateLimitPolicies.InvitationAccept, options => options.InvitationAccept);
+            AddUnsubscribePolicy(limiter);
         });
 
         return services;
+    }
+
+    /// <summary>Unsubscribe links are public and carry no sign-in, so they are limited per client address like the auth endpoints.</summary>
+    private static void AddUnsubscribePolicy(RateLimiterOptions limiter)
+    {
+        limiter.AddPolicy<string>(CampaignsRateLimitPolicies.Unsubscribe, httpContext =>
+        {
+            var settings = httpContext.RequestServices.GetRequiredService<IOptions<CampaignsSendOptions>>().Value;
+            var resolver = httpContext.RequestServices.GetRequiredService<ClientAddressResolver>();
+            var address = resolver.Resolve(httpContext)?.ToString() ?? AuthRateLimitPolicies.UnknownClientAddress;
+            return RateLimitPartition.GetFixedWindowLimiter(
+                $"{CampaignsRateLimitPolicies.Unsubscribe}:{address}",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = settings.UnsubscribePermitLimit,
+                    Window = settings.UnsubscribeWindow,
+                    QueueLimit = QueueLimit,
+                    AutoReplenishment = true,
+                });
+        });
     }
 
     private static void AddPolicy(

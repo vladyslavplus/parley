@@ -2,7 +2,9 @@ using System.Data.Common;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Parley.Api.Hangfire;
 using Parley.Api.Options;
+using Parley.Campaigns.Contracts.DemoSeed;
 using Parley.Crm.Contracts.DemoSeed;
 using Parley.Identity.Contracts.Authorization;
 using Parley.Identity.Contracts.DemoSeed;
@@ -67,6 +69,9 @@ public static class SeedDemoCommand
         {
             // Starting the host applies the migrations in Development, so a database failure surfaces here as well.
             await app.StartAsync(cancellationToken);
+
+            // The seed runs no hosted services, so the Hangfire tables the campaign seed enqueues into are installed here.
+            await HangfireSchemaInstaller.InstallAsync(connectionString, cancellationToken);
             await using var scope = app.Services.CreateAsyncScope();
             var identity = await scope.ServiceProvider.GetRequiredService<IIdentityDemoDataImporter>()
                 .ImportAsync(SeedDemoOrganization.Profile, arguments.ResetPasswords, cancellationToken);
@@ -86,13 +91,20 @@ public static class SeedDemoCommand
                     owners),
                 cancellationToken);
 
+            // The historic campaigns are dated back from the last order of the import, the end of the dataset timeline.
+            var datasetEnd = crm.LatestOrderAt
+                ?? throw new InvalidOperationException("The CRM import has no orders, so the historic demo campaigns have no dataset end.");
+            var campaigns = await scope.ServiceProvider.GetRequiredService<ICampaignDemoSeeder>()
+                .SeedAsync(SeedDemoOrganization.Id, datasetEnd, cancellationToken);
+
             var summary = new SeedDemoSummary(
                 identity.OrganizationCreated,
                 identity.TeamsCreated,
                 identity.UsersCreated,
                 identity.MembershipsCreated,
                 accountsWritten ? accountsFile : null,
-                crm);
+                crm,
+                campaigns);
             await Console.Out.WriteLineAsync(JsonSerializer.Serialize(summary, OutputOptions));
             return SeedDemoCommandConstants.ExitSucceeded;
         }

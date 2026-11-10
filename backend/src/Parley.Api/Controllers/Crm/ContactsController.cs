@@ -36,12 +36,13 @@ public sealed class ContactsController(IMediator mediator, ErrorTextLocalizer er
         [FromQuery] Guid? ownerUserId,
         [FromQuery] DateOnly? createdFrom,
         [FromQuery] DateOnly? createdTo,
+        [FromQuery] string? segment,
         [FromQuery] string? sort,
         [FromQuery] string? order,
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new ListContactsQuery(after, limit, q, tagId, companyId, ownerUserId, createdFrom, createdTo, sort, order),
+            new ListContactsQuery(after, limit, q, tagId, companyId, ownerUserId, createdFrom, createdTo, segment, sort, order),
             cancellationToken);
         return FromResult(result, Ok);
     }

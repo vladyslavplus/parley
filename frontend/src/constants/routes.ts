@@ -7,11 +7,14 @@ export const ROUTES = {
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
   acceptInvitation: "/accept-invitation",
+  unsubscribe: "/unsubscribe",
   app: "/app",
   contacts: "/app/contacts",
   companies: "/app/companies",
   deals: "/app/deals",
   tasks: "/app/tasks",
+  campaigns: "/app/campaigns",
+  campaignNew: "/app/campaigns/new",
   settingsProfile: "/app/settings/profile",
   settingsOrganization: "/app/settings/organization",
   settingsMembers: "/app/settings/members",
@@ -19,6 +22,7 @@ export const ROUTES = {
   settingsPipeline: "/app/settings/pipeline",
   settingsAudit: "/app/settings/audit",
   settingsCustomFields: "/app/settings/custom-fields",
+  settingsMl: "/app/settings/ml",
   devTokens: "/dev/tokens",
 } as const;
 
@@ -35,6 +39,7 @@ export const API_ROUTES = {
   resetPassword: "/api/auth/reset-password",
   switchOrganization: "/api/auth/switch-organization",
   acceptInvitation: "/api/auth/accept-invitation",
+  unsubscribe: "/api/unsubscribe",
   backend: "/api/backend",
 } as const;
 
@@ -63,6 +68,10 @@ export const APP_AREA_SEGMENT = "app";
 
 export function contactRecordRoute(id: string): string {
   return `${ROUTES.contacts}/${id}`;
+}
+
+export function campaignRoute(id: string): string {
+  return `${ROUTES.campaigns}/${id}`;
 }
 
 export function companyRecordRoute(id: string): string {

@@ -4,6 +4,7 @@ namespace Parley.Campaigns.Features.Campaigns.Prepare;
 public sealed record CampaignFreezeInput(
     Guid Id,
     string Status,
+    DateTime? PrepareAsOf,
     DateTime? AudienceFrozenAt,
     Guid? SegmentId,
     Guid TemplateId,

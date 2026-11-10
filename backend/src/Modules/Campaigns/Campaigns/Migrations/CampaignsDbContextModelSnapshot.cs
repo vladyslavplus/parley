@@ -131,6 +131,152 @@ namespace Parley.Campaigns.Migrations
                     b.UseTpcMappingStrategy();
                 });
 
+            modelBuilder.Entity("Parley.Campaigns.Domain.Attribution.CampaignResult", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campaign_id");
+
+                    b.Property<DateTime>("ComputedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("computed_at");
+
+                    b.Property<long>("HoldoutAssigned")
+                        .HasColumnType("bigint")
+                        .HasColumnName("holdout_assigned");
+
+                    b.Property<long>("HoldoutConverted")
+                        .HasColumnType("bigint")
+                        .HasColumnName("holdout_converted");
+
+                    b.Property<decimal>("HoldoutRevenue")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("holdout_revenue");
+
+                    b.Property<long>("HoldoutTargeted")
+                        .HasColumnType("bigint")
+                        .HasColumnName("holdout_targeted");
+
+                    b.Property<double?>("IncrementalRevenue")
+                        .HasColumnType("double precision")
+                        .HasColumnName("incremental_revenue");
+
+                    b.Property<double?>("Lift")
+                        .HasColumnType("double precision")
+                        .HasColumnName("lift");
+
+                    b.Property<double?>("LiftCiHigh")
+                        .HasColumnType("double precision")
+                        .HasColumnName("lift_ci_high");
+
+                    b.Property<double?>("LiftCiLow")
+                        .HasColumnType("double precision")
+                        .HasColumnName("lift_ci_low");
+
+                    b.Property<double?>("MinimumDetectableEffect")
+                        .HasColumnType("double precision")
+                        .HasColumnName("minimum_detectable_effect");
+
+                    b.Property<double?>("PValue")
+                        .HasColumnType("double precision")
+                        .HasColumnName("p_value");
+
+                    b.Property<double?>("RateHoldout")
+                        .HasColumnType("double precision")
+                        .HasColumnName("rate_holdout");
+
+                    b.Property<double?>("RateTreatment")
+                        .HasColumnType("double precision")
+                        .HasColumnName("rate_treatment");
+
+                    b.Property<bool>("Simulated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("simulated");
+
+                    b.Property<double?>("SrmPValue")
+                        .HasColumnType("double precision")
+                        .HasColumnName("srm_p_value");
+
+                    b.Property<long>("TreatmentAssigned")
+                        .HasColumnType("bigint")
+                        .HasColumnName("treatment_assigned");
+
+                    b.Property<long>("TreatmentConverted")
+                        .HasColumnType("bigint")
+                        .HasColumnName("treatment_converted");
+
+                    b.Property<decimal>("TreatmentRevenue")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("treatment_revenue");
+
+                    b.Property<long>("TreatmentTargeted")
+                        .HasColumnType("bigint")
+                        .HasColumnName("treatment_targeted");
+
+                    b.Property<bool>("WindowClosed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("window_closed");
+
+                    b.Property<DateTime>("WindowEndsAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("window_ends_at");
+
+                    b.HasIndex("CampaignId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_campaign_results_campaign_id");
+
+                    b.ToTable("campaign_results", "campaigns");
+                });
+
+            modelBuilder.Entity("Parley.Campaigns.Domain.Attribution.RecipientOutcome", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campaign_id");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contact_id");
+
+                    b.Property<bool>("Converted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("converted");
+
+                    b.Property<DateTime>("EvaluatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("evaluated_at");
+
+                    b.Property<DateTime?>("FirstConversionAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("first_conversion_at");
+
+                    b.Property<int>("OrdersInWindow")
+                        .HasColumnType("integer")
+                        .HasColumnName("orders_in_window");
+
+                    b.Property<Guid>("RecipientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recipient_id");
+
+                    b.Property<decimal>("Revenue")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("revenue");
+
+                    b.Property<int>("SimulatedOrdersInWindow")
+                        .HasColumnType("integer")
+                        .HasColumnName("simulated_orders_in_window");
+
+                    b.HasIndex("CampaignId", "RecipientId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_recipient_outcomes_campaign_id_recipient_id");
+
+                    b.ToTable("recipient_outcomes", "campaigns");
+                });
+
             modelBuilder.Entity("Parley.Campaigns.Domain.Campaigns.Campaign", b =>
                 {
                     b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
@@ -168,6 +314,10 @@ namespace Parley.Campaigns.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
+
+                    b.Property<DateTime?>("PrepareAsOf")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("prepare_as_of");
 
                     b.Property<Guid?>("SegmentId")
                         .HasColumnType("uuid")
@@ -302,6 +452,68 @@ namespace Parley.Campaigns.Migrations
                         .HasDatabaseName("ix_segments_organization_id_name_id");
 
                     b.ToTable("segments", "campaigns");
+                });
+
+            modelBuilder.Entity("Parley.Campaigns.Domain.Sends.SendRecord", b =>
+                {
+                    b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempt_count");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campaign_id");
+
+                    b.Property<DateTime>("ClaimedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("claimed_at");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contact_id");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("error_code");
+
+                    b.Property<DateTime?>("LeaseExpiresAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("lease_expires_at");
+
+                    b.Property<string>("MessageId")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)")
+                        .HasColumnName("message_id");
+
+                    b.Property<Guid>("RecipientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recipient_id");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.HasIndex("CampaignId", "ContactId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_send_records_campaign_id_contact_id");
+
+                    b.HasIndex("OrganizationId", "CampaignId", "Status")
+                        .HasDatabaseName("ix_send_records_organization_id_campaign_id_status");
+
+                    b.ToTable("send_records", "campaigns", t =>
+                        {
+                            t.HasCheckConstraint("ck_send_records_status", "status IN ('claimed', 'sent', 'retryable_failed', 'failed', 'skipped_suppressed', 'unknown')");
+                        });
                 });
 
             modelBuilder.Entity("Parley.Campaigns.Domain.Suppressions.Suppression", b =>

@@ -15,6 +15,7 @@ using Parley.Identity.Authorization.Permissions;
 using Parley.Identity.Authorization.Scope;
 using Parley.Identity.Contracts.Authorization;
 using Parley.Identity.Contracts.DemoSeed;
+using Parley.Identity.Contracts.Organizations;
 using Parley.Identity.Contracts.Users;
 using Parley.Identity.Directory;
 using Parley.Identity.Domain.Users;
@@ -133,6 +134,7 @@ public static class Module
         services.AddScoped<IUserScopeReader, UserScopeReader>();
         services.AddScoped<IDataScope, DataScopeService>();
         services.AddScoped<IUserDirectory, UserDirectory>();
+        services.AddScoped<IOrganizationDirectory, OrganizationDirectory>();
         services.AddScoped<IIdentityDemoDataImporter, IdentityDemoDataImporter>();
 
         return services;

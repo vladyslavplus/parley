@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { HEADERS, MEDIA_TYPES, SESSION_COOKIES } from "@/constants/session";
 import { ERROR_CODES } from "@/constants/error-codes";
+import { ROUTE_PARAMS } from "@/constants/routes";
 import { problemResponse } from "@/lib/api/problem";
 import { rejectUnsafeRequest } from "@/lib/bff/request-guard";
 import {
@@ -74,6 +75,27 @@ export function createPublicHandler(path: PostPath) {
       status: response.status === 202 ? 202 : 204,
     });
   };
+}
+
+// Anonymous unsubscribe: the signed token travels in the query string and is
+// the only credential. Always a POST; the backend answers 204 and is idempotent.
+export async function unsubscribeHandler(
+  request: Request,
+): Promise<NextResponse> {
+  const rejected = rejectUnsafeRequest(request);
+  if (rejected) return rejected;
+  const token = new URL(request.url).searchParams.get(ROUTE_PARAMS.token);
+  let response: Response;
+  try {
+    response = await postBackend("/unsubscribe", {
+      search: `?${new URLSearchParams({ [ROUTE_PARAMS.token]: token ?? "" })}`,
+      ...contextOf(request),
+    });
+  } catch {
+    return backendUnavailable();
+  }
+  if (!response.ok) return passThroughProblem(response);
+  return new NextResponse(null, { status: 204 });
 }
 
 // Forwards credentials; on success the tokens go to httpOnly cookies and the

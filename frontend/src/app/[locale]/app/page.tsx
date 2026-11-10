@@ -3,6 +3,11 @@ import { redirect } from "next/navigation";
 
 import { BACKEND_PATHS } from "@/constants/routes";
 import { SESSION_COOKIES } from "@/constants/session";
+import { HomeView } from "@/features/insights/components/home-view";
+import {
+  hasAnyHomeSection,
+  homeSections,
+} from "@/features/insights/lib/home-sections";
 import { resolveAppIndexRoute } from "@/features/session/app-index-route";
 import type { AppLocale } from "@/i18n/routing";
 import type { Schemas } from "@/lib/api/schemas";
@@ -33,6 +38,13 @@ export default async function AppIndexPage({
     } catch {
       // fallback to profile if /me is unreachable
     }
+  }
+
+  // Home: priority today and the dashboard, for users who may read either.
+  // Everyone else keeps the first section they can open.
+  const sections = homeSections(user?.permissions);
+  if (user && hasAnyHomeSection(sections)) {
+    return <HomeView sections={sections} />;
   }
 
   redirect(resolveAppIndexRoute(user?.permissions, locale));

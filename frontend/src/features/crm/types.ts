@@ -13,6 +13,8 @@ export interface ContactFilters {
   tagId?: string;
   companyId?: string;
   ownerUserId?: string;
+  // RFM segment code (`SEGMENT_CODES`); empty means no segment filter.
+  segment?: string;
   createdFrom?: string;
   createdTo?: string;
   sort?: string;

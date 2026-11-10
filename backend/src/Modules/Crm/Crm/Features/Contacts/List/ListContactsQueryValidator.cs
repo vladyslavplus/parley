@@ -1,6 +1,7 @@
 using FluentValidation;
 using Parley.Crm.Shared;
 using Parley.Crm.Shared.Sorting;
+using Parley.Insights.Contracts.Rfm;
 using Parley.SharedKernel.Errors;
 using Parley.SharedKernel.Paging;
 
@@ -14,6 +15,8 @@ public sealed class ListContactsQueryValidator : AbstractValidator<ListContactsQ
             .Must(value => value is null || KeysetCursor.TryDecode(value, out _)).WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(query => query.Search)
             .MaximumLength(CrmLimits.SearchMaximumLength).WithErrorCode(ErrorCodes.ValidationFailed);
+        RuleFor(query => query.Segment)
+            .Must(value => value is null || RfmSegmentNames.All.Contains(value)).WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(query => query.Sort)
             .Must(ListSortFields.IsValid).WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(query => query.Order)

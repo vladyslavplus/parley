@@ -60,7 +60,8 @@ reference is at `http://localhost:5000/scalar/v1` in Development.
 
 Settings resolve in this order: `appsettings.json` (placeholders), then
 `appsettings.Development.json` in the Development environment, then environment
-variables such as `Auth__SigningKey` (the highest priority).
+variables such as `Auth__SigningKey` (the highest priority). `dotnet run` reads these files from the
+build output folder, so edits to `appsettings.Development.json` need a rebuild (`dotnet run` builds first).
 
 ## Rate limits behind the web BFF
 

@@ -27,6 +27,7 @@
     "expand": "Expand sidebar",
     "hasOverdueTasks": "Has overdue tasks",
     "items": {
+      "home": "Home",
       "deals": "Deals",
       "contacts": "Contacts",
       "companies": "Companies",
@@ -38,7 +39,8 @@
       "teams": "Teams",
       "pipeline": "Pipeline",
       "audit": "Audit log",
-      "tokens": "Design tokens"
+      "tokens": "Design tokens",
+      "campaigns": "Campaigns"
     }
   },
   "userMenu": {

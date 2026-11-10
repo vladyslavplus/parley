@@ -106,6 +106,12 @@
           "OpenTelemetry.Api": "1.20.1"
         }
       },
+      "Parley.Campaigns.Contracts": {
+        "type": "Project",
+        "dependencies": {
+          "Parley.SharedKernel": "[1.0.0, )"
+        }
+      },
       "Parley.Crm.Contracts": {
         "type": "Project",
         "dependencies": {
@@ -113,6 +119,12 @@
         }
       },
       "Parley.Identity.Contracts": {
+        "type": "Project",
+        "dependencies": {
+          "Parley.SharedKernel": "[1.0.0, )"
+        }
+      },
+      "Parley.Insights.Contracts": {
         "type": "Project",
         "dependencies": {
           "Parley.SharedKernel": "[1.0.0, )"

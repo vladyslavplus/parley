@@ -8,7 +8,8 @@
   "stepper": {
     "autosave": {
       "saving": "Saving draft...",
-      "saved": "All changes saved"
+      "saved": "All changes saved",
+      "error": "Not saved"
     },
     "next": "Next",
     "previous": "Back",

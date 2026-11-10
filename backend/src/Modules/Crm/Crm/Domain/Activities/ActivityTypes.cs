@@ -15,6 +15,10 @@ public static class ActivityTypes
 
     public const string OrderRecorded = "order_recorded";
 
+    public const string CampaignEmailSent = "campaign_email_sent";
+
+    public const string Unsubscribed = "unsubscribed";
+
     public static IReadOnlyList<string> All { get; } =
     [
         ContactCreated,
@@ -23,5 +27,7 @@ public static class ActivityTypes
         NoteAdded,
         TaskCompleted,
         OrderRecorded,
+        CampaignEmailSent,
+        Unsubscribed,
     ];
 }

@@ -56,6 +56,7 @@ public abstract class ApiControllerBase(ErrorTextLocalizer errorTexts) : Control
         ErrorType.Forbidden => StatusCodes.Status403Forbidden,
         ErrorType.NotFound => StatusCodes.Status404NotFound,
         ErrorType.Conflict => StatusCodes.Status409Conflict,
+        ErrorType.RateLimited => StatusCodes.Status429TooManyRequests,
         _ => StatusCodes.Status500InternalServerError,
     };
 }

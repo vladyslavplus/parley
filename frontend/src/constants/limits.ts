@@ -58,6 +58,44 @@ export const LIMITS = {
   activitiesPageSize: 20,
   maxNotesPageSize: 100,
   ordersPageSize: 20,
+  campaignAutosaveDebounceMs: 800,
+  campaignReviewPollMs: 2000,
+  // A campaign still `preparing` after this long is offered a resume.
+  campaignPrepareStallMs: 60_000,
+  // Delivery progress and the status of a sending campaign are polled at this
+  // pace until the campaign leaves `sending`.
+  campaignProgressPollMs: 2000,
+  // After "refresh results" the figures are polled until they are recomputed,
+  // for at most this long.
+  resultsRefreshPollMs: 2000,
+  resultsRefreshMaxMs: 30_000,
+  // Decimals shown for rates and lifts, in percent / percentage points.
+  resultsPercentDigits: 1,
+  // A p-value below the floor is shown as "< floor", never as 0.
+  pValueFloor: 0.001,
+  pValueDigits: 3,
+  campaignNameMaxLength: 200,
+  templateNameMaxLength: 200,
+  templateSubjectMaxLength: 300,
+  templateBodyMaxLength: 100_000,
+  segmentNameMaxLength: 200,
+  segmentDaysSinceLastOrderMax: 3650,
+  segmentCountryCodeLength: 2,
+  segmentPreviewDebounceMs: 400,
+  libraryPageSize: 20,
+  // Mirror the server options Campaigns:Holdout (bounds) and
+  // Campaigns:Analysis:PreviewBaselineRateBps; change them together.
+  holdoutShareMinBps: 500,
+  holdoutShareMaxBps: 5000,
+  holdoutShareStepBps: 100,
+  holdoutShareDefaultBps: 1000,
+  targetingShareMinBps: 500,
+  targetingShareMaxBps: 5000,
+  targetingShareStepBps: 100,
+  targetingShareDefaultBps: 1000,
+  mdeBaselineRateBps: 2000,
+  mdeZAlpha: 1.959964,
+  mdeZBeta: 0.841621,
 } as const;
 
 export const CUSTOM_FIELD_KEY_REGEX = /^[a-z][a-z0-9_]*$/;

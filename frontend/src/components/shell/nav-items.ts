@@ -2,6 +2,8 @@ import {
   Building2,
   CheckSquare,
   Contact,
+  House,
+  Mail,
   Kanban,
   Palette,
   Settings,
@@ -21,6 +23,14 @@ export interface NavItemConfig {
 }
 
 export const MAIN_NAV_ITEMS: NavItemConfig[] = [
+  {
+    id: "home",
+    href: ROUTES.app,
+    titleKey: "sidebar.items.home",
+    icon: House,
+    permission: null,
+    section: "main",
+  },
   {
     id: "deals",
     href: ROUTES.deals,
@@ -51,6 +61,14 @@ export const MAIN_NAV_ITEMS: NavItemConfig[] = [
     titleKey: "sidebar.items.tasks",
     icon: CheckSquare,
     permission: PERMISSIONS.tasksRead,
+    section: "main",
+  },
+  {
+    id: "campaigns",
+    href: ROUTES.campaigns,
+    titleKey: "sidebar.items.campaigns",
+    icon: Mail,
+    permission: PERMISSIONS.campaignsRead,
     section: "main",
   },
 ];

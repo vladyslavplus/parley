@@ -42,7 +42,7 @@ public static class ContactViews
     public static async Task<ContactView> ToViewAsync(ContactRow row, OwnerDirectory owners, CancellationToken cancellationToken) =>
         ToView(row, await owners.ReadAsync([row.OwnerUserId], cancellationToken));
 
-    public static ContactView ToView(ContactRow row, IReadOnlyDictionary<Guid, UserDirectoryEntry> owners)
+    public static ContactView ToView(ContactRow row, IReadOnlyDictionary<Guid, UserDirectoryEntry> owners, string? segment = null)
     {
         var owner = OwnerDirectory.Find(owners, row.OwnerUserId);
         return new ContactView(
@@ -63,6 +63,7 @@ public static class ContactViews
             row.Version,
             owner?.DisplayName,
             owner?.Email,
-            row.CompanyName);
+            row.CompanyName,
+            segment);
     }
 }
