@@ -19,6 +19,8 @@ const BACKEND_REASON_CODES = [
   "reason.at_risk",
   "reason.task_due",
   "reason.deal_stale",
+  "reason.persuadable",
+  "reason.uplift_high",
 ];
 const BACKEND_SEGMENT_CODES = [
   "champions",

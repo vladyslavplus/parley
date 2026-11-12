@@ -1,0 +1,97 @@
+{
+  "$defs": {
+    "ClvFeatures": {
+      "additionalProperties": false,
+      "properties": {
+        "frequency": {
+          "description": "Repeat purchase days: purchase_day_count - 1.",
+          "minimum": 0,
+          "title": "Frequency",
+          "type": "integer"
+        },
+        "monetary_value": {
+          "minimum": 0,
+          "title": "Monetary Value",
+          "type": "number"
+        },
+        "recency_days_since_first": {
+          "minimum": 0,
+          "title": "Recency Days Since First",
+          "type": "integer"
+        },
+        "tenure_days": {
+          "minimum": 0,
+          "title": "Tenure Days",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "frequency",
+        "recency_days_since_first",
+        "tenure_days",
+        "monetary_value"
+      ],
+      "title": "ClvFeatures",
+      "type": "object"
+    },
+    "ClvItem": {
+      "additionalProperties": false,
+      "properties": {
+        "features": {
+          "$ref": "#/$defs/ClvFeatures"
+        },
+        "subject_id": {
+          "format": "uuid",
+          "title": "Subject Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject_id",
+        "features"
+      ],
+      "title": "ClvItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "feature_schema_version": {
+      "minimum": 0,
+      "title": "Feature Schema Version",
+      "type": "integer"
+    },
+    "horizon_days": {
+      "maximum": 3650,
+      "minimum": 0,
+      "title": "Horizon Days",
+      "type": "integer"
+    },
+    "items": {
+      "description": "Each element is validated as ClvItem; invalid elements are rejected, not the batch.",
+      "items": {
+        "$ref": "#/$defs/ClvItem"
+      },
+      "type": "array"
+    },
+    "model_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model Version"
+    }
+  },
+  "required": [
+    "horizon_days",
+    "feature_schema_version",
+    "items"
+  ],
+  "title": "ClvScoreRequest",
+  "type": "object"
+}

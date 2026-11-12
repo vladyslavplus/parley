@@ -1,0 +1,23 @@
+{
+  "feature_schema_version": 1,
+  "model_name": "crm_uplift",
+  "model_version": "crm_uplift-20261110-8a4e785",
+  "provenance": "stub",
+  "rejected": [],
+  "scores": [
+    {
+      "p_control": 0.1500435472,
+      "p_treated": 0.2653440535,
+      "segment": "persuadable",
+      "subject_id": "0192f5a1-0000-7000-8000-000000000001",
+      "uplift": 0.1153005064
+    },
+    {
+      "p_control": 0.1500435472,
+      "p_treated": 0.2653440535,
+      "segment": "persuadable",
+      "subject_id": "0192f5a1-0000-7000-8000-000000000002",
+      "uplift": 0.1153005064
+    }
+  ]
+}

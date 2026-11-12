@@ -4,6 +4,7 @@ using Npgsql;
 using Parley.Insights.Contracts.Audit;
 using Parley.Insights.Contracts.Errors;
 using Parley.Insights.Contracts.Events;
+using Parley.Insights.Contracts.Scores;
 using Parley.Insights.Domain.Ml;
 using Parley.Insights.Features.MlSettings.Shared;
 using Parley.Insights.Persistence;
@@ -27,6 +28,13 @@ public sealed class UpdateMlSettingsCommandHandler(
         var actorId = currentUser.RequireUserId();
         var organizationId = tenantContext.OrganizationId;
 
+        // Null or empty means the newest synced uplift model. Any other version must be an uplift model the registry holds.
+        var requestedUplift = string.IsNullOrWhiteSpace(command.UpliftChange?.Version) ? null : command.UpliftChange!.Version;
+        if (requestedUplift is not null && !await IsUpliftModelAsync(requestedUplift, cancellationToken))
+        {
+            return Result<MlSettingsView>.Failure(Error.Validation(InsightsErrorCodes.MlSettingsModelUnknown));
+        }
+
         var setting = await dbContext.MlSettings.FirstOrDefaultAsync(cancellationToken);
         if (setting is null)
         {
@@ -45,12 +53,18 @@ public sealed class UpdateMlSettingsCommandHandler(
         }
 
         setting.MlEnabled = command.MlEnabled;
+        if (command.UpliftChange is not null)
+        {
+            setting.ActiveUpliftVersion = requestedUplift;
+        }
+
         setting.UpdatedBy = actorId;
         outbox.AddAuditRecorded(actorId, organizationId, InsightsAuditActions.MlSettingsChanged, timeProvider, InsightsAuditTargetTypes.MlSettings, setting.Id);
         outbox.Add(new MlSettingsChanged
         {
             OrganizationId = organizationId,
             MlEnabled = command.MlEnabled,
+            ActiveUpliftVersion = setting.ActiveUpliftVersion,
             ChangedByUserId = actorId,
         });
 
@@ -70,6 +84,12 @@ public sealed class UpdateMlSettingsCommandHandler(
 
         return Result<MlSettingsView>.Success(await MlSettingsLookup.FindViewAsync(dbContext, cancellationToken));
     }
+
+    /// <summary>True when the registry holds the version as an uplift model. Only synced models are stored, so a stored row is available.</summary>
+    private Task<bool> IsUpliftModelAsync(string version, CancellationToken cancellationToken) =>
+        dbContext.ModelVersions.AnyAsync(
+            model => model.ModelName == ScoringModelNames.Uplift && model.Kind == ScoreKinds.Uplift && model.Version == version,
+            cancellationToken);
 
     private static Result<MlSettingsView> Conflict() =>
         Result<MlSettingsView>.Failure(Error.Conflict(InsightsErrorCodes.MlSettingsVersionConflict));

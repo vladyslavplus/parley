@@ -46,14 +46,28 @@ public static class DailyRunStamps
         Guid organizationId,
         DateOnly asOf,
         DateTime completedAt,
+        string mode,
+        string mlStatus,
         CancellationToken cancellationToken)
     {
         var updated = await dbContext.DailyRuns.IgnoreQueryFilters()
             .Where(run => run.OrganizationId == organizationId && run.AsOf == asOf)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(run => run.PriorityCompletedAt, completedAt), cancellationToken);
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(run => run.PriorityCompletedAt, completedAt)
+                    .SetProperty(run => run.PriorityMode, mode)
+                    .SetProperty(run => run.PriorityMlStatus, mlStatus),
+                cancellationToken);
         if (updated == 0)
         {
-            dbContext.DailyRuns.Add(new DailyRun { OrganizationId = organizationId, AsOf = asOf, PriorityCompletedAt = completedAt });
+            dbContext.DailyRuns.Add(new DailyRun
+            {
+                OrganizationId = organizationId,
+                AsOf = asOf,
+                PriorityCompletedAt = completedAt,
+                PriorityMode = mode,
+                PriorityMlStatus = mlStatus,
+            });
             await dbContext.SaveChangesAsync(cancellationToken);
         }
     }

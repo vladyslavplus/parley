@@ -10,15 +10,26 @@ public sealed class StubScoreReader : IScoreReader
 {
     private const string ModelVersion = "stub-v";
 
+    private static readonly Guid StubRunId = Guid.Parse("0192f5a1-0000-7000-8000-0000000000aa");
+
     public Task<bool> HasScoresAsync(string scoreKind, CancellationToken cancellationToken) => Task.FromResult(true);
 
     /// <summary>No RFM day: the stub does not model snapshots, so the RFM filter sees no complete day.</summary>
     public Task<DateOnly?> ReadLatestRfmDayAsync(CancellationToken cancellationToken) => Task.FromResult<DateOnly?>(null);
 
+    /// <summary>One fixed completed run for every kind: the stub has no runs, and the freeze reads the run it is given.</summary>
+    public Task<Guid?> ReadLatestScoringRunAsync(string scoreKind, CancellationToken cancellationToken) =>
+        Task.FromResult<Guid?>(StubRunId);
+
+    /// <summary>The fixed run reports the stub model, so a frozen campaign pins a model name, version and provenance.</summary>
+    public Task<ScoringRunModel?> ReadScoringRunModelAsync(Guid scoringRunId, CancellationToken cancellationToken) =>
+        Task.FromResult<ScoringRunModel?>(new ScoringRunModel("crm_uplift", ModelVersion + ScoreKinds.Uplift, "stub provenance"));
+
     public Task<IReadOnlyDictionary<Guid, ContactScore>> ReadLatestScoresAsync(
         string scoreKind,
         IReadOnlyList<Guid> contactIds,
         DateOnly? rfmDay,
+        Guid? scoringRunId,
         CancellationToken cancellationToken)
     {
         IReadOnlyDictionary<Guid, ContactScore> scores = contactIds.ToDictionary(

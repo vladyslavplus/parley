@@ -59,7 +59,12 @@ public sealed class CampaignSendCompletion(
                 .SetProperty(campaign => campaign.UpdatedAt, now.UtcDateTime), cancellationToken);
         if (completed == 1)
         {
-            outbox.Add(new CampaignCompleted { CampaignId = campaignId, CompletedAt = now });
+            var starter = await dbContext.Campaigns
+                .AsNoTracking()
+                .Where(campaign => campaign.Id == campaignId)
+                .Select(campaign => campaign.StartedBy)
+                .FirstAsync(cancellationToken);
+            outbox.Add(new CampaignCompleted { CampaignId = campaignId, CompletedAt = now, StartedByUserId = starter });
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 

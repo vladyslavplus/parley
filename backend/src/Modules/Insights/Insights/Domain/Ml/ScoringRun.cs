@@ -19,6 +19,9 @@ public sealed class ScoringRun : BusinessEntity
 
     public int ContactsScored { get; set; }
 
+    /// <summary>Items the service refused. Counted, never scored; a run above the rejected share limit fails.</summary>
+    public int ContactsRejected { get; set; }
+
     public string? ErrorCode { get; set; }
 
     public DateTime StartedAt { get; set; }

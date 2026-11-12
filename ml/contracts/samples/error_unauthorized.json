@@ -1,0 +1,5 @@
+{
+  "code": "ml.auth.invalid_key",
+  "detail": "shared key missing or invalid",
+  "trace_id": "sample-uplift-request-unauthorized"
+}

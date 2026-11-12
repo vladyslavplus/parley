@@ -4,6 +4,20 @@ export const queryKeys = {
     [...queryKeys.all, "insights", "priority", filters] as const,
   insightsRfmSegments: () =>
     [...queryKeys.all, "insights", "rfm-segments"] as const,
+  notificationsList: (filters: Record<string, unknown>) =>
+    [...queryKeys.all, "notifications", "list", filters] as const,
+  notificationsUnreadCount: () =>
+    [...queryKeys.all, "notifications", "unread-count"] as const,
+  notificationsPreferences: () =>
+    [...queryKeys.all, "notifications", "preferences"] as const,
+  insightsMlStatus: () => [...queryKeys.all, "insights", "ml-status"] as const,
+  insightsModels: () => [...queryKeys.all, "insights", "models"] as const,
+  insightsScoringRun: (id: string) =>
+    [...queryKeys.all, "insights", "scoring-run", id] as const,
+  contactScores: (contactId: string) =>
+    [...queryKeys.all, "contacts", "scores", contactId] as const,
+  telegramStatus: () => [...queryKeys.all, "telegram", "status"] as const,
+  telegramLink: () => [...queryKeys.all, "telegram", "link"] as const,
   insightsMlSettings: () =>
     [...queryKeys.all, "insights", "ml-settings"] as const,
   dashboardOverview: () =>

@@ -5,6 +5,7 @@ using Parley.Identity.Authentication.Refresh;
 using Parley.Identity.Authentication.Tokens;
 using Parley.Identity.Contracts.Audit;
 using Parley.Identity.Contracts.Errors;
+using Parley.Identity.Contracts.Events;
 using Parley.Identity.Contracts.Memberships;
 using Parley.Identity.Domain.Invitations;
 using Parley.Identity.Domain.Memberships;
@@ -164,6 +165,7 @@ public sealed class AcceptInvitationCommandHandler(
             outbox.AddAuditRecorded(user.Id, organizationId, AuditActions.MemberReactivated, timeProvider, AuditTargetTypes.Member, membership.Id);
         }
 
+        outbox.Add(new MemberActivated { UserId = user.Id, InvitedByUserId = invitation.InvitedBy, OccurredAt = timeProvider.GetUtcNow() });
         outbox.AddAuditRecorded(user.Id, organizationId, AuditActions.InvitationAccepted, timeProvider, AuditTargetTypes.Invitation, invitation.Id);
         await dbContext.SaveChangesAsync(cancellationToken);
 

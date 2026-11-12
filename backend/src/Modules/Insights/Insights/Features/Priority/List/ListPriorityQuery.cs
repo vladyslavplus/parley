@@ -2,7 +2,6 @@ using Mediator;
 using Parley.Identity.Contracts.Authorization;
 using Parley.Insights.Features.Priority.Shared;
 using Parley.SharedKernel.Authorization;
-using Parley.SharedKernel.Paging;
 using Parley.SharedKernel.Results;
 
 namespace Parley.Insights.Features.Priority.List;
@@ -13,4 +12,4 @@ namespace Parley.Insights.Features.Priority.List;
 /// <param name="Segment">Only contacts in this RFM segment; null for every segment.</param>
 [RequiresPermission(Permissions.InsightsView)]
 public sealed record ListPriorityQuery(string? After, int? Limit, string? Segment)
-    : IRequest<Result<KeysetCursorPage<PriorityItemView>>>;
+    : IRequest<Result<PriorityListPageView>>;

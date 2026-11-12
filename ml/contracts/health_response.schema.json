@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "models_loaded": {
+      "description": "Number of models with status available.",
+      "minimum": 0,
+      "title": "Models Loaded",
+      "type": "integer"
+    },
+    "status": {
+      "const": "ok",
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "status",
+    "models_loaded"
+  ],
+  "title": "HealthResponse",
+  "type": "object"
+}

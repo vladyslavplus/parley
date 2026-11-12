@@ -14,6 +14,7 @@ public sealed class LatestScoreConfiguration : IEntityTypeConfiguration<LatestSc
         builder.ToTable(InsightsSchemaNames.LatestScoresTable);
         builder.HasKey(nameof(LatestScore.OrganizationId), nameof(LatestScore.ContactId), nameof(LatestScore.ScoreKind));
         builder.Property(score => score.ScoreKind).HasMaxLength(InsightsLimits.CodeMaximumLength).IsRequired();
+        builder.Property(score => score.ModelName).HasMaxLength(InsightsLimits.VersionMaximumLength).IsRequired();
         builder.Property(score => score.ModelVersion).HasMaxLength(InsightsLimits.VersionMaximumLength).IsRequired();
         builder.Property(score => score.Value).HasColumnType("numeric(18,6)");
         builder.Property(score => score.Payload).HasColumnType("jsonb");

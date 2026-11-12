@@ -7,10 +7,12 @@ namespace Parley.Insights.Domain.Priority;
 /// <param name="Value">Priority value; higher ranks first.</param>
 /// <param name="ReasonCodes">Reason codes that explain the value.</param>
 /// <param name="SuggestedAction">Next action code.</param>
+/// <param name="Mode">The mode the value was computed in: ml when the uplift scores were used, rfm otherwise.</param>
 public sealed record PriorityCandidate(
     Guid ContactId,
     Guid? OwnerUserId,
     string Segment,
     decimal Value,
     IReadOnlyList<string> ReasonCodes,
-    string SuggestedAction);
+    string SuggestedAction,
+    string Mode = PriorityModes.Rfm);

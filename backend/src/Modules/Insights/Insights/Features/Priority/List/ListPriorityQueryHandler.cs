@@ -12,19 +12,25 @@ using Parley.Insights.Shared;
 using Parley.SharedKernel.Errors;
 using Parley.SharedKernel.Paging;
 using Parley.SharedKernel.Results;
+using Parley.SharedKernel.Tenancy.Abstractions;
 
 namespace Parley.Insights.Features.Priority.List;
 
 /// <summary>
-/// Reads one keyset page of the latest priority list, scoped to what the caller may see. Contacts whose profile the CRM no
-/// longer returns (deleted since the build) are left out of the page.
+/// Reads one keyset page of the latest priority list, scoped to what the caller may see, with the mode and the ML status of
+/// the day. Contacts whose profile the CRM no longer returns (deleted since the build) are left out of the page. Before the
+/// first complete day the page is empty and its status is the current one.
 /// </summary>
 public sealed class ListPriorityQueryHandler(
     InsightsDbContext dbContext,
     IDataScope dataScope,
-    ICrmRecipientProfileReader profiles) : IRequestHandler<ListPriorityQuery, Result<KeysetCursorPage<PriorityItemView>>>
+    ICrmRecipientProfileReader profiles,
+    IPermissionChecker permissions,
+    ICurrentUser currentUser,
+    ITenantContext tenantContext) : IRequestHandler<ListPriorityQuery, Result<PriorityListPageView>>
 {
-    private const string PrioritySortField = "priority";
+    /// <summary>The cursor orders by rank, never by value: a cursor that carried the value would hand it to every caller.</summary>
+    private const string RankSortField = "rank";
 
     private static readonly Expression<Func<PriorityItem, PriorityItemRow>> Projection = item => new PriorityItemRow(
         item.Id,
@@ -37,7 +43,7 @@ public sealed class ListPriorityQueryHandler(
         item.ReasonCodes,
         item.SuggestedAction);
 
-    public async ValueTask<Result<KeysetCursorPage<PriorityItemView>>> Handle(ListPriorityQuery query, CancellationToken cancellationToken)
+    public async ValueTask<Result<PriorityListPageView>> Handle(ListPriorityQuery query, CancellationToken cancellationToken)
     {
         var limit = PageLimits.Resolve(query.Limit);
         KeysetCursor? cursor = null;
@@ -49,8 +55,15 @@ public sealed class ListPriorityQueryHandler(
         var day = await DailyRunStamps.LatestPriorityDayAsync(dbContext, cancellationToken);
         if (day is null)
         {
-            return Empty();
+            return Empty(await CurrentStatusAsync(cancellationToken));
         }
+
+        var stamp = await dbContext.DailyRuns.AsNoTracking()
+            .Where(run => run.AsOf == day.Value && run.PriorityCompletedAt != null)
+            .Select(run => new { run.PriorityMode, run.PriorityMlStatus })
+            .FirstOrDefaultAsync(cancellationToken);
+        var mode = stamp?.PriorityMode ?? PriorityModes.Rfm;
+        var mlStatus = stamp?.PriorityMlStatus ?? PriorityMlStatus.Disabled;
 
         var scope = await dataScope.ForPermissionAsync(Permissions.ContactsRead, cancellationToken);
         var items = InsightsScopeFilter.Priority(
@@ -61,18 +74,18 @@ public sealed class ListPriorityQueryHandler(
             items = items.Where(item => item.Segment == segment);
         }
 
-        var page = await KeysetPages.ReadAsync<PriorityItem, PriorityItemRow, decimal?>(
+        var page = await KeysetPages.ReadAsync<PriorityItem, PriorityItemRow, int?>(
             items,
             cursor,
-            PrioritySortField,
-            item => item.PriorityValue,
+            RankSortField,
+            item => (int?)item.Rank,
             item => item.Id,
             Projection,
-            row => row.Value,
+            row => (int?)row.Rank,
             row => row.Id,
-            ParseValue,
-            FormatValue,
-            descending: true,
+            ParseRank,
+            FormatRank,
+            descending: false,
             limit,
             cancellationToken);
         if (page is null)
@@ -84,33 +97,46 @@ public sealed class ListPriorityQueryHandler(
         var names = contactIds.Count == 0
             ? new Dictionary<Guid, CrmRecipientProfileRow>()
             : (await profiles.ReadBatchAsync(contactIds, cancellationToken)).ToDictionary(profile => profile.ContactId);
+        // Scores are the ML view's business: a caller without it sees the order and the reasons, never the value.
+        var showValue = currentUser.UserId is { } userId
+            && await permissions.HasPermissionAsync(userId, tenantContext.OrganizationId, Permissions.InsightsMlView, cancellationToken);
         var views = page.Items
             .Where(row => names.ContainsKey(row.ContactId))
-            .Select(row => ToView(row, names[row.ContactId]))
+            .Select(row => ToView(row, names[row.ContactId], showValue))
             .ToArray();
-        return Result<KeysetCursorPage<PriorityItemView>>.Success(new KeysetCursorPage<PriorityItemView>(views, page.NextCursor));
+        return Result<PriorityListPageView>.Success(new PriorityListPageView(views, page.NextCursor, mode, mlStatus));
     }
 
-    private static PriorityItemView ToView(PriorityItemRow row, CrmRecipientProfileRow profile) => new(
+    /// <summary>
+    /// The status before the first complete day. No rows exist yet, so the list is RFM and cannot be ready: a ready switch
+    /// reads as no scores until the first build has ranked a contact by uplift.
+    /// </summary>
+    private async Task<(string Mode, string MlStatus)> CurrentStatusAsync(CancellationToken cancellationToken)
+    {
+        var status = await PriorityMlStatusResolver.ReadAsync(dbContext, cancellationToken);
+        return (PriorityModes.Rfm, status == PriorityMlStatus.Ready ? PriorityMlStatus.NoScores : status);
+    }
+
+    private static PriorityItemView ToView(PriorityItemRow row, CrmRecipientProfileRow profile, bool showValue) => new(
         row.ContactId,
         profile.LastName is null ? profile.FirstName : $"{profile.FirstName} {profile.LastName}",
         profile.CompanyName,
         row.OwnerUserId,
         row.Rank,
-        row.Value,
+        showValue ? row.Value : null,
         row.Mode,
         row.Segment,
         row.ReasonCodes,
         row.SuggestedAction);
 
-    private static decimal? ParseValue(string text) =>
-        decimal.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? value : null;
+    private static int? ParseRank(string text) =>
+        int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var rank) ? rank : null;
 
-    private static string FormatValue(decimal? value) => value?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+    private static string FormatRank(int? rank) => rank?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
 
-    private static Result<KeysetCursorPage<PriorityItemView>> Empty() =>
-        Result<KeysetCursorPage<PriorityItemView>>.Success(new KeysetCursorPage<PriorityItemView>([], null));
+    private static Result<PriorityListPageView> Empty((string Mode, string MlStatus) status) =>
+        Result<PriorityListPageView>.Success(new PriorityListPageView([], null, status.Mode, status.MlStatus));
 
-    private static Result<KeysetCursorPage<PriorityItemView>> Invalid() =>
-        Result<KeysetCursorPage<PriorityItemView>>.Failure(Error.Validation(ErrorCodes.ValidationFailed));
+    private static Result<PriorityListPageView> Invalid() =>
+        Result<PriorityListPageView>.Failure(Error.Validation(ErrorCodes.ValidationFailed));
 }

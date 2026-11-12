@@ -6,7 +6,7 @@ namespace Parley.Insights.Features.Priority.Shared;
 /// <param name="CompanyName">Name of the contact's company; null when there is none.</param>
 /// <param name="OwnerUserId">Owner of the contact; null when unowned.</param>
 /// <param name="Rank">Rank among the owner's contacts on the build day.</param>
-/// <param name="Value">Priority value; higher ranks first.</param>
+/// <param name="Value">Priority value; higher ranks first. Null unless the caller holds the ML view permission: the value of an ML row is derived from the scores.</param>
 /// <param name="Mode">Scoring mode of the value.</param>
 /// <param name="Segment">RFM segment code.</param>
 /// <param name="ReasonCodes">Reason codes that explain the value.</param>
@@ -17,7 +17,7 @@ public sealed record PriorityItemView(
     string? CompanyName,
     Guid? OwnerUserId,
     int Rank,
-    decimal Value,
+    decimal? Value,
     string Mode,
     string Segment,
     IReadOnlyList<string> ReasonCodes,

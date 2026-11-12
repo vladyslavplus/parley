@@ -181,6 +181,11 @@
           "title": "Top by RFM score",
           "description": "Email only the most recent, frequent and valuable customers."
         }
+      },
+      "uplift": {
+        "checking": "Checking scores...",
+        "notReady": "Run scoring first. Top uplift needs scores from a completed uplift run.",
+        "model": "Scores from {name} {version}"
       }
     },
     "review": {
@@ -216,7 +221,9 @@
       "resume": "Resume preparing",
       "resuming": "Resuming...",
       "stopped": "Preparing stopped before it finished. Resume to continue; the people already assigned keep their group.",
-      "saveFailed": "Your latest changes are not saved yet, so the campaign was not prepared. Fix the save problem above and try again."
+      "saveFailed": "Your latest changes are not saved yet, so the campaign was not prepared. Fix the save problem above and try again.",
+      "scoreModel": "Scores from {name} {version}",
+      "scoreModelPending": "The model is fixed when the audience is frozen."
     },
     "editTitle": "Edit campaign",
     "loadLatest": "Load the latest version"

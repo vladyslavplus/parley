@@ -1,0 +1,5 @@
+{
+  "code": "ml.request.batch_too_large",
+  "detail": "at most 1000 items per request",
+  "trace_id": "sample-uplift-request-batch-too-large"
+}

@@ -39,6 +39,12 @@ namespace Parley.Insights.Migrations
                         .HasColumnType("character varying(32)")
                         .HasColumnName("score_kind");
 
+                    b.Property<string>("ModelName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("model_name");
+
                     b.Property<string>("ModelVersion")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -245,6 +251,14 @@ namespace Parley.Insights.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("priority_completed_at");
 
+                    b.Property<string>("PriorityMlStatus")
+                        .HasColumnType("text")
+                        .HasColumnName("priority_ml_status");
+
+                    b.Property<string>("PriorityMode")
+                        .HasColumnType("text")
+                        .HasColumnName("priority_mode");
+
                     b.Property<DateTime?>("RfmCompletedAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("rfm_completed_at");
@@ -343,6 +357,10 @@ namespace Parley.Insights.Migrations
                 {
                     b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
 
+                    b.Property<int>("ContactsRejected")
+                        .HasColumnType("integer")
+                        .HasColumnName("contacts_rejected");
+
                     b.Property<int>("ContactsScored")
                         .HasColumnType("integer")
                         .HasColumnName("contacts_scored");
@@ -352,8 +370,8 @@ namespace Parley.Insights.Migrations
                         .HasColumnName("contacts_total");
 
                     b.Property<string>("ErrorCode")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
                         .HasColumnName("error_code");
 
                     b.Property<int>("FeatureSchemaVersion")
@@ -395,6 +413,14 @@ namespace Parley.Insights.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
                         .HasColumnName("status");
+
+                    b.HasIndex("OrganizationId", "Kind")
+                        .IsUnique()
+                        .HasDatabaseName("ux_scoring_runs_organization_id_kind_active")
+                        .HasFilter("status IN ('queued', 'running')");
+
+                    b.HasIndex("OrganizationId", "Kind", "Status", "FinishedAt")
+                        .HasDatabaseName("ix_scoring_runs_organization_id_kind_status_finished_at");
 
                     b.ToTable("scoring_runs", "insights");
                 });

@@ -38,3 +38,8 @@ dotnet_diagnostic.IDE0005.severity = none
 [src/Modules/Insights/Insights/Migrations/*.cs]
 dotnet_diagnostic.IDE0161.severity = none
 dotnet_diagnostic.IDE0005.severity = none
+
+# Notifications migrations follow the same generated-code exception as Identity, Crm, Campaigns and Insights. Only IDE0161 and IDE0005 are relaxed; IDE0130 still applies.
+[src/Modules/Notifications/Notifications/Migrations/*.cs]
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.IDE0005.severity = none

@@ -23,11 +23,58 @@ campaigns:
 
 # Semi-synthetic crm_uplift fixture. Covariates and baseline outcomes are real; the injected effect is the only synthetic part.
 fixture:
-  # Start of the baseline window T0 (2011-06-10). Y0 is any order in (T0, T0 + baseline_window_days].
+  # Start of the baseline window T0 (2011-06-10). Features use orders up to T0 minus one second (inclusive instant).
+  # Y0 is any purchase in (T0, T0 + baseline_window_days].
   t0: "2011-06-10"
   baseline_window_days: 30
   # Assignment share for the fixture (50 % so both arms have enough rows).
   holdout_share_bps: 5000
+  # Text seed of the shared holdout algorithm (parley_ml.experiments.holdout). Changing it reshuffles the arms.
+  assignment_seed: "crm-uplift-demo-assignment-v1"
+  # Seed of the uniform draws that turn Y0 into the simulated treated outcome.
+  outcome_seed: 20261116
+  # Population: customers with a purchase before T0 and non-negative net value and average value
+  # (parley_ml.features.crm.eligible_contacts). The service validates the same rule.
+
+# Customer-level split of the fixture. Stratified by arm and observed outcome. No customer is in two splits.
+split:
+  seed: 20261117
+  validation_share: 0.10
+  test_share: 0.20
+
+# T-learner: one XGBoost model per arm. Hyperparameters are fixed here, before any model output was looked at.
+model:
+  seed: 20261118
+  xgboost:
+    objective: binary:logistic
+    eval_metric: logloss
+    tree_method: hist
+    device: cpu
+    max_bin: 256
+    max_depth: 3
+    eta: 0.1
+  early_stopping_rounds: 30
+  max_rounds: 500
+
+# Segment thresholds of the served model. Chosen on the validation split only, by maximising the macro F1 of the four
+# segments against the known segments. The test split is scored once, after these values are frozen.
+selection:
+  do_not_disturb_uplift_below: [-0.05, -0.03, -0.02, -0.01]
+  persuadable_uplift_at_least: [0.02, 0.05, 0.08, 0.10]
+  sure_thing_control_rate_at_least: [0.15, 0.25, 0.35]
+
+evaluation:
+  bootstrap_replicates: 200
+  bootstrap_seed: 20261119
+  # Share of the test split in the top of the ranking, for the "mean true tau" check.
+  top_share: 0.20
+
+artifact:
+  root: "artifacts/models"
+  # Date in the version name and manifest. Fixed in config so the same run gives the same name.
+  trained_at: "2026-11-10"
+  demo_export_dir: "artifacts/demo_export"
+  results_md: "results/crm_uplift_demo.md"
 
 # Effect function tau(x). Segments are checked in the order listed; the first match wins.
 # Feature names are the 8 fields of feature_schema_version 1 (recency_days, orders_365d, order_count, value_365d, ...).

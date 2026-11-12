@@ -81,7 +81,12 @@ export function useSaveMlSettings() {
   const locale = useLocale();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { mlEnabled: boolean; version: number }) =>
+    mutationFn: (input: {
+      mlEnabled: boolean;
+      version: number;
+      // Omitted keeps the stored choice; null selects the newest model.
+      activeUpliftVersion?: string | null;
+    }) =>
       insightsJson<MlSettings>("/insights/ml-settings", {
         method: "PUT",
         body: input,

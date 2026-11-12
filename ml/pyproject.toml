@@ -32,9 +32,11 @@ serve = [
     "numpy==2.4.6",
     "scipy>=1.14",
     "pydantic>=2.9",
+    "pyyaml==6.0.3",
 ]
 dev = [
     "pytest>=8",
+    "httpx>=0.28",
 ]
 
 [build-system]

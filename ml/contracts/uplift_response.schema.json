@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "Rejection": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "subject_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The subject id as sent, or null when it was not a string.",
+          "title": "Subject Id"
+        }
+      },
+      "required": [
+        "subject_id",
+        "code",
+        "detail"
+      ],
+      "title": "Rejection",
+      "type": "object"
+    },
+    "UpliftScore": {
+      "additionalProperties": false,
+      "properties": {
+        "p_control": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "P Control",
+          "type": "number"
+        },
+        "p_treated": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "P Treated",
+          "type": "number"
+        },
+        "segment": {
+          "enum": [
+            "persuadable",
+            "sure_thing",
+            "lost_cause",
+            "do_not_disturb"
+          ],
+          "title": "Segment",
+          "type": "string"
+        },
+        "subject_id": {
+          "title": "Subject Id",
+          "type": "string"
+        },
+        "uplift": {
+          "description": "p_treated minus p_control.",
+          "title": "Uplift",
+          "type": "number"
+        }
+      },
+      "required": [
+        "subject_id",
+        "uplift",
+        "p_treated",
+        "p_control",
+        "segment"
+      ],
+      "title": "UpliftScore",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "feature_schema_version": {
+      "title": "Feature Schema Version",
+      "type": "integer"
+    },
+    "model_name": {
+      "title": "Model Name",
+      "type": "string"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "provenance": {
+      "title": "Provenance",
+      "type": "string"
+    },
+    "rejected": {
+      "items": {
+        "$ref": "#/$defs/Rejection"
+      },
+      "title": "Rejected",
+      "type": "array"
+    },
+    "scores": {
+      "items": {
+        "$ref": "#/$defs/UpliftScore"
+      },
+      "title": "Scores",
+      "type": "array"
+    }
+  },
+  "required": [
+    "model_name",
+    "model_version",
+    "feature_schema_version",
+    "provenance",
+    "scores",
+    "rejected"
+  ],
+  "title": "UpliftScoreResponse",
+  "type": "object"
+}

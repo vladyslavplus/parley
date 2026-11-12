@@ -17,4 +17,10 @@ public sealed class DailyRun : BusinessEntity
 
     /// <summary>Set once the priority rows of the day are written.</summary>
     public DateTime? PriorityCompletedAt { get; set; }
+
+    /// <summary>The mode the priority list was built in: ml when the uplift scores were used, rfm otherwise.</summary>
+    public string? PriorityMode { get; set; }
+
+    /// <summary>Why the list is in its mode, from <see cref="Parley.Insights.Domain.Priority.PriorityMlStatus"/>.</summary>
+    public string? PriorityMlStatus { get; set; }
 }

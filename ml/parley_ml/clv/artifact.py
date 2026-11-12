@@ -8,7 +8,8 @@ from pathlib import Path
 from typing import Any, Final
 
 from parley_ml.datasets.checksums import sha256_file, write_json
-from parley_ml.serving.clv import MANIFEST_FILE, BetaGeoParameters, GammaGammaParameters
+from parley_ml.serving.artifacts import MANIFEST_FILE, MANIFEST_SCHEMA_VERSION
+from parley_ml.serving.clv import BetaGeoParameters, GammaGammaParameters
 
 MODEL_NAME: Final = "clv_bgnbd_gg"
 FEATURE_SCHEMA_VERSION: Final = 1
@@ -54,7 +55,7 @@ def write_artifact(
     write_json(directory / PARAMETERS_FILE, parameters)
 
     manifest = {
-        "schema_version": 1,
+        "schema_version": MANIFEST_SCHEMA_VERSION,
         "model_name": MODEL_NAME,
         "trained_at": version_date.isoformat(),
         "version": version,
@@ -80,8 +81,7 @@ def write_artifact(
             "value_definition": "expected purchase days over the horizon times expected spend, undiscounted",
         },
         "feature_mapping": FEATURE_MAPPING,
-        "parameters_file": PARAMETERS_FILE,
-        "parameters_sha256": sha256_file(directory / PARAMETERS_FILE),
+        "files": {PARAMETERS_FILE: sha256_file(directory / PARAMETERS_FILE)},
         "evaluation": {
             "run": evaluation_run,
             "population": evaluation["population"],

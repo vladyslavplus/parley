@@ -7,6 +7,7 @@ using Parley.Insights.Contracts.Scores;
 using Parley.IntegrationTests.Campaigns.Send.Support;
 using Parley.IntegrationTests.Crm.Support;
 using Parley.IntegrationTests.Identity.Support;
+using Parley.IntegrationTests.Infrastructure.Auth;
 using Parley.IntegrationTests.Infrastructure.Fixtures;
 using Parley.IntegrationTests.Infrastructure.Hosting;
 using Xunit;
@@ -92,6 +93,14 @@ public sealed class PrepareRankingTests(PostgresFixture postgres, MailpitFixture
         var targetedLowestScore = rows.Where(row => row.IsTargeted).Min(row => row.ScoreValue!.Value);
         var untargetedHighestScore = rows.Where(row => !row.IsTargeted).Max(row => row.ScoreValue!.Value);
         targetedLowestScore.Should().BeGreaterThanOrEqualTo(untargetedHighestScore, "the targeted rows are the top scores");
+
+        // The frozen snapshot names the model the recipients were ranked with, on the campaign and on its review.
+        var frozenVersion = rows.Select(row => row.ModelVersion).Distinct().Single();
+        var detail = await AuthTestClient.ReadJsonAsync(await admin.GetAsync($"campaigns/{campaignId:D}", token), token);
+        detail.GetProperty("targetingModelVersion").GetString().Should().Be(frozenVersion);
+        detail.GetProperty("targetingModelName").GetString().Should().NotBeNullOrEmpty();
+        var review = await AuthTestClient.ReadJsonAsync(await admin.GetAsync($"campaigns/{campaignId:D}/review", token), token);
+        review.GetProperty("targetingModelVersion").GetString().Should().Be(frozenVersion);
     }
 
     private async Task<List<RecipientRow>> ReadRowsAsync(Guid campaignId, CancellationToken token)

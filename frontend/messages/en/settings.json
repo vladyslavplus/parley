@@ -8,7 +8,9 @@
     "audit": "Audit log",
     "pipeline": "Pipeline",
     "customFields": "Custom fields",
-    "ml": "Machine learning"
+    "ml": "Machine learning",
+    "notifications": "Notifications",
+    "mlModels": "Model registry"
   },
   "roles": {
     "owner": "Owner",

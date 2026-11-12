@@ -38,4 +38,10 @@ public static class InsightsSchemaNames
     public const string ModelVersionNameIndex = "ux_model_versions_model_name_version";
 
     public const string ScoreRunContactKindIndex = "ux_scores_scoring_run_id_contact_id_score_kind";
+
+    /// <summary>One active (queued or running) scoring run per organization and kind.</summary>
+    public const string ScoringRunActiveIndex = "ux_scoring_runs_organization_id_kind_active";
+
+    /// <summary>Latest completed run of a kind.</summary>
+    public const string ScoringRunLatestIndex = "ix_scoring_runs_organization_id_kind_status_finished_at";
 }

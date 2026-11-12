@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "code": {
+      "description": "Stable error code, for example ml.score.unknown_model_version.",
+      "title": "Code",
+      "type": "string"
+    },
+    "detail": {
+      "description": "Short English detail for logs. The .NET side shows its own localized text.",
+      "title": "Detail",
+      "type": "string"
+    },
+    "trace_id": {
+      "description": "Request id; the same value is returned in the X-Request-Id header.",
+      "title": "Trace Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "code",
+    "detail",
+    "trace_id"
+  ],
+  "title": "ErrorBody",
+  "type": "object"
+}

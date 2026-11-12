@@ -19,7 +19,15 @@ public sealed class ReviewCampaignQueryHandler(CampaignsDbContext dbContext, IOp
         var campaign = await dbContext.Campaigns
             .AsNoTracking()
             .Where(row => row.Id == query.CampaignId)
-            .Select(row => new { row.Status, row.AudienceFrozenAt, row.HoldoutShareBps })
+            .Select(row => new
+            {
+                row.Status,
+                row.AudienceFrozenAt,
+                row.HoldoutShareBps,
+                row.TargetingModelName,
+                row.TargetingModelVersion,
+                row.TargetingProvenance,
+            })
             .FirstOrDefaultAsync(cancellationToken);
         if (campaign is null)
         {
@@ -66,6 +74,9 @@ public sealed class ReviewCampaignQueryHandler(CampaignsDbContext dbContext, IOp
             holdout,
             srmPValue,
             srmWarning,
-            minimumDetectableEffectBps));
+            minimumDetectableEffectBps,
+            campaign.TargetingModelName,
+            campaign.TargetingModelVersion,
+            campaign.TargetingProvenance));
     }
 }

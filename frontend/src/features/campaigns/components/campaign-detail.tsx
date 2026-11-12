@@ -109,6 +109,15 @@ function CampaignReadOnly({ campaign }: { campaign: Campaign }) {
           flush={() => Promise.resolve(true)}
           canAct={canManage}
           onEditTargeting={() => undefined}
+          snapshot={
+            campaign.targetingModelName && campaign.targetingModelVersion
+              ? {
+                  name: campaign.targetingModelName,
+                  version: campaign.targetingModelVersion,
+                  provenance: campaign.targetingProvenance,
+                }
+              : null
+          }
         />
       )}
 

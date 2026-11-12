@@ -56,4 +56,10 @@ public static class CampaignsLimits
 
     /// <summary>Longest stored error code.</summary>
     public const int ErrorCodeMaximumLength = 100;
+
+    /// <summary>Longest stored scoring model version, as the registry allows it.</summary>
+    public const int TargetingModelVersionMaximumLength = 64;
+
+    /// <summary>Longest stored model provenance, as the registry allows it.</summary>
+    public const int TargetingProvenanceMaximumLength = 32;
 }

@@ -1,5 +1,17 @@
 export const LIMITS = {
   defaultPageSize: 20,
+  // The bell polls the unread count only while the tab is visible.
+  notificationsPollIntervalMs: 45_000,
+  // The bell shows this many unread items as a count; above it, "99+".
+  notificationsBellCountCap: 99,
+  // Latest items shown in the bell dropdown.
+  notificationsPopoverSize: 5,
+  // A scoring run is polled this often while it is queued or running.
+  scoringRunPollIntervalMs: 2_000,
+  // The Telegram link is polled this often while a link code is pending.
+  telegramLinkPollIntervalMs: 3_000,
+  // The countdown of a link code ticks this often.
+  telegramCodeTickMs: 1_000,
   searchDebounceMs: 200,
   searchMinQueryLength: 2,
   searchMaxQueryLength: 100,

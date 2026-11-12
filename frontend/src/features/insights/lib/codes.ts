@@ -7,6 +7,8 @@ export const REASON_LABEL_KEYS = {
   "reason.at_risk": "reasons.atRisk",
   "reason.task_due": "reasons.taskDue",
   "reason.deal_stale": "reasons.dealStale",
+  "reason.persuadable": "reasons.persuadable",
+  "reason.uplift_high": "reasons.upliftHigh",
 } as const;
 
 export const SEGMENT_LABEL_KEYS = {
@@ -21,6 +23,15 @@ export const SEGMENT_LABEL_KEYS = {
   no_orders: "segments.noOrders",
 } as const;
 
+// Uplift segments come from the ML scores. They are shown next to the RFM
+// segment, never mixed into the RFM filter.
+export const UPLIFT_SEGMENT_LABEL_KEYS = {
+  persuadable: "scoring.upliftSegments.persuadable",
+  sure_thing: "scoring.upliftSegments.sureThing",
+  lost_cause: "scoring.upliftSegments.lostCause",
+  do_not_disturb: "scoring.upliftSegments.doNotDisturb",
+} as const;
+
 export const ACTION_LABEL_KEYS = {
   "action.call": "actions.call",
   "action.review_deal": "actions.reviewDeal",
@@ -33,6 +44,8 @@ export type ReasonLabelKey =
   (typeof REASON_LABEL_KEYS)[keyof typeof REASON_LABEL_KEYS];
 export type SegmentLabelKey =
   (typeof SEGMENT_LABEL_KEYS)[keyof typeof SEGMENT_LABEL_KEYS];
+export type UpliftSegmentLabelKey =
+  (typeof UPLIFT_SEGMENT_LABEL_KEYS)[keyof typeof UPLIFT_SEGMENT_LABEL_KEYS];
 export type ActionLabelKey =
   (typeof ACTION_LABEL_KEYS)[keyof typeof ACTION_LABEL_KEYS];
 
@@ -55,6 +68,12 @@ export function reasonLabelKey(code: string): ReasonLabelKey | null {
 
 export function segmentLabelKey(code: string): SegmentLabelKey | null {
   return lookup(SEGMENT_LABEL_KEYS, code);
+}
+
+export function upliftSegmentLabelKey(
+  code: string,
+): UpliftSegmentLabelKey | null {
+  return lookup(UPLIFT_SEGMENT_LABEL_KEYS, code);
 }
 
 export function actionLabelKey(code: string): ActionLabelKey | null {

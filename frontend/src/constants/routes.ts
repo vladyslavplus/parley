@@ -15,6 +15,7 @@ export const ROUTES = {
   tasks: "/app/tasks",
   campaigns: "/app/campaigns",
   campaignNew: "/app/campaigns/new",
+  notifications: "/app/notifications",
   settingsProfile: "/app/settings/profile",
   settingsOrganization: "/app/settings/organization",
   settingsMembers: "/app/settings/members",
@@ -23,6 +24,8 @@ export const ROUTES = {
   settingsAudit: "/app/settings/audit",
   settingsCustomFields: "/app/settings/custom-fields",
   settingsMl: "/app/settings/ml",
+  settingsMlModels: "/app/settings/ml/models",
+  settingsNotifications: "/app/settings/notifications",
   devTokens: "/dev/tokens",
 } as const;
 

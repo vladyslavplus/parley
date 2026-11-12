@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "UpliftFeatures": {
+      "additionalProperties": false,
+      "properties": {
+        "avg_order_value": {
+          "minimum": 0,
+          "title": "Avg Order Value",
+          "type": "number"
+        },
+        "has_open_deal": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Has Open Deal",
+          "type": "integer"
+        },
+        "order_count": {
+          "minimum": 0,
+          "title": "Order Count",
+          "type": "integer"
+        },
+        "orders_365d": {
+          "minimum": 0,
+          "title": "Orders 365D",
+          "type": "integer"
+        },
+        "orders_90d": {
+          "minimum": 0,
+          "title": "Orders 90D",
+          "type": "integer"
+        },
+        "recency_days": {
+          "minimum": 0,
+          "title": "Recency Days",
+          "type": "integer"
+        },
+        "tenure_days": {
+          "minimum": 0,
+          "title": "Tenure Days",
+          "type": "integer"
+        },
+        "value_365d": {
+          "minimum": 0,
+          "title": "Value 365D",
+          "type": "number"
+        }
+      },
+      "required": [
+        "recency_days",
+        "tenure_days",
+        "orders_90d",
+        "orders_365d",
+        "order_count",
+        "value_365d",
+        "avg_order_value",
+        "has_open_deal"
+      ],
+      "title": "UpliftFeatures",
+      "type": "object"
+    },
+    "UpliftItem": {
+      "additionalProperties": false,
+      "properties": {
+        "features": {
+          "$ref": "#/$defs/UpliftFeatures"
+        },
+        "subject_id": {
+          "format": "uuid",
+          "title": "Subject Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject_id",
+        "features"
+      ],
+      "title": "UpliftItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "feature_schema_version": {
+      "minimum": 0,
+      "title": "Feature Schema Version",
+      "type": "integer"
+    },
+    "items": {
+      "description": "Each element is validated as UpliftItem; invalid elements are rejected, not the batch.",
+      "items": {
+        "$ref": "#/$defs/UpliftItem"
+      },
+      "type": "array"
+    },
+    "model_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Exact version to score with. Omitted: the service default for the kind.",
+      "title": "Model Version"
+    }
+  },
+  "required": [
+    "feature_schema_version",
+    "items"
+  ],
+  "title": "UpliftScoreRequest",
+  "type": "object"
+}

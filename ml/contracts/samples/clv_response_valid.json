@@ -1,0 +1,25 @@
+{
+  "feature_schema_version": 1,
+  "model_name": "clv_bgnbd_gg",
+  "model_version": "clv_bgnbd_gg-20261110-8358355",
+  "provenance": "stub",
+  "rejected": [],
+  "scores": [
+    {
+      "clv": 944.9288199335,
+      "expected_avg_value": 210.7426894038,
+      "expected_purchases": 4.483803555,
+      "horizon_days": 365,
+      "p_alive": 0.9814765879,
+      "subject_id": "0192f5a1-0000-7000-8000-000000000001"
+    },
+    {
+      "clv": 944.9288199335,
+      "expected_avg_value": 210.7426894038,
+      "expected_purchases": 4.483803555,
+      "horizon_days": 365,
+      "p_alive": 0.9814765879,
+      "subject_id": "0192f5a1-0000-7000-8000-000000000002"
+    }
+  ]
+}

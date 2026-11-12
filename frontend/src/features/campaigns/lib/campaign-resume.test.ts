@@ -20,6 +20,9 @@ const campaign: Campaign = {
   targetingMode: "top_uplift",
   targetingShareBps: 2500,
   audienceFrozenAt: null,
+  targetingModelName: null,
+  targetingModelVersion: null,
+  targetingProvenance: null,
   version: "42",
   source: "user",
 };

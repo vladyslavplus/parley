@@ -12,7 +12,7 @@ namespace Parley.Insights.Features.Priority.Read;
 /// </summary>
 public sealed class InsightsPriorityReader(InsightsDbContext dbContext) : IPriorityReader
 {
-    public async Task<IReadOnlyList<PriorityEntry>> ReadTopAsync(Guid? ownerUserId, int limit, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<PriorityEntry>> ReadTopAsync(IReadOnlyCollection<Guid>? ownerUserIds, int limit, CancellationToken cancellationToken)
     {
         var day = await DailyRunStamps.LatestPriorityDayAsync(dbContext, cancellationToken);
         if (day is null)
@@ -21,9 +21,10 @@ public sealed class InsightsPriorityReader(InsightsDbContext dbContext) : IPrior
         }
 
         var items = dbContext.PriorityItems.AsNoTracking().Where(item => item.AsOf == day.Value);
-        if (ownerUserId is { } owner)
+        if (ownerUserIds is not null)
         {
-            items = items.Where(item => item.OwnerUserId == owner);
+            var owners = ownerUserIds.ToArray();
+            items = items.Where(item => item.OwnerUserId != null && owners.Contains(item.OwnerUserId.Value));
         }
 
         var rows = await items

@@ -9,6 +9,7 @@ using Parley.Api.Networking;
 using Parley.Campaigns.Options;
 using Parley.Identity.Contracts.Errors;
 using Parley.Identity.Options.RateLimiting;
+using Parley.Notifications.Options;
 using Parley.SharedKernel.Results;
 
 namespace Parley.Api.RateLimiting;
@@ -44,9 +45,33 @@ public static class AuthRateLimiting
             AddPolicy(limiter, AuthRateLimitPolicies.InvitationCreate, options => options.InvitationCreate);
             AddPolicy(limiter, AuthRateLimitPolicies.InvitationAccept, options => options.InvitationAccept);
             AddUnsubscribePolicy(limiter);
+            AddTelegramWebhookPolicy(limiter);
         });
 
         return services;
+    }
+
+    /// <summary>
+    /// The Telegram webhook is public and carries no sign-in. Telegram sends from a few addresses, so the limit is per client
+    /// address with a window sized to a busy chat, and it stops a flood before any body is read.
+    /// </summary>
+    private static void AddTelegramWebhookPolicy(RateLimiterOptions limiter)
+    {
+        limiter.AddPolicy<string>(TelegramRateLimitPolicies.Webhook, httpContext =>
+        {
+            var settings = httpContext.RequestServices.GetRequiredService<IOptions<TelegramOptions>>().Value;
+            var resolver = httpContext.RequestServices.GetRequiredService<ClientAddressResolver>();
+            var address = resolver.Resolve(httpContext)?.ToString() ?? AuthRateLimitPolicies.UnknownClientAddress;
+            return RateLimitPartition.GetFixedWindowLimiter(
+                $"{TelegramRateLimitPolicies.Webhook}:{address}",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = settings.WebhookPermitLimit,
+                    Window = settings.WebhookWindow,
+                    QueueLimit = QueueLimit,
+                    AutoReplenishment = true,
+                });
+        });
     }
 
     /// <summary>Unsubscribe links are public and carry no sign-in, so they are limited per client address like the auth endpoints.</summary>

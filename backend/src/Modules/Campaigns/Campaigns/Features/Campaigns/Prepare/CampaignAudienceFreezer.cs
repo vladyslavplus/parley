@@ -103,9 +103,10 @@ public sealed class CampaignAudienceFreezer(
                 .ExecuteUpdateAsync(setters => setters.SetProperty(campaign => campaign.PrepareAsOf, asOfUtc), cancellationToken);
         }
 
+        ScoringRunModel? pinnedRun;
         try
         {
-            await WriteRecipientsAsync(input, asOfUtc, cancellationToken);
+            pinnedRun = await WriteRecipientsAsync(input, asOfUtc, cancellationToken);
         }
         catch
         {
@@ -120,11 +121,15 @@ public sealed class CampaignAudienceFreezer(
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(campaign => campaign.Status, CampaignStatuses.Ready)
-                    .SetProperty(campaign => campaign.AudienceFrozenAt, timeProvider.GetUtcNow().UtcDateTime),
+                    .SetProperty(campaign => campaign.AudienceFrozenAt, timeProvider.GetUtcNow().UtcDateTime)
+                    .SetProperty(campaign => campaign.TargetingModelName, pinnedRun?.ModelName)
+                    .SetProperty(campaign => campaign.TargetingModelVersion, pinnedRun?.ModelVersion)
+                    .SetProperty(campaign => campaign.TargetingProvenance, pinnedRun?.Provenance),
                 cancellationToken);
     }
 
-    private async Task WriteRecipientsAsync(CampaignFreezeInput input, DateTime asOfUtc, CancellationToken cancellationToken)
+    /// <summary>Writes the audience rows and returns the scoring run the ML scores came from, or null when the campaign does not target by score.</summary>
+    private async Task<ScoringRunModel?> WriteRecipientsAsync(CampaignFreezeInput input, DateTime asOfUtc, CancellationToken cancellationToken)
     {
         // Rewritten from scratch on every run: rows of an earlier run that never reached the commit point are dropped here,
         // so a resumed or repeated freeze cannot mix two rankings or keep a contact that was suppressed since.
@@ -146,6 +151,17 @@ public sealed class CampaignAudienceFreezer(
 
         // One RFM day for the whole audience: every batch below reads the same complete day, so the freeze is never half of one day.
         var rfmDay = await scoreReader.ReadLatestRfmDayAsync(cancellationToken);
+
+        // The ML scores come from one completed run, resolved once: every batch below reads that run, so the audience never mixes two runs.
+        Guid? scoringRunId = null;
+        ScoringRunModel? pinnedRun = null;
+        if (scoreKind is not null && scoreKind != ScoreKinds.Rfm)
+        {
+            scoringRunId = await scoreReader.ReadLatestScoringRunAsync(scoreKind, cancellationToken)
+                ?? throw new InvalidOperationException("No completed scoring run exists for the targeting score kind.");
+            pinnedRun = await scoreReader.ReadScoringRunModelAsync(scoringRunId.Value, cancellationToken)
+                ?? throw new InvalidOperationException("The pinned scoring run no longer exists.");
+        }
 
         Guid? afterContactId = null;
         while (true)
@@ -174,6 +190,7 @@ public sealed class CampaignAudienceFreezer(
                     scoreKind,
                     eligible.Select(row => row.ContactId).ToList(),
                     rfmDay,
+                    scoringRunId,
                     cancellationToken);
                 foreach (var (contactId, score) in batchScores)
                 {
@@ -228,6 +245,8 @@ public sealed class CampaignAudienceFreezer(
                 RecipientInsertSql.Insert(tenantContext.OrganizationId, input.Id, now, RecipientInsertSql.Serialize(chunk)),
                 cancellationToken);
         }
+
+        return pinnedRun;
     }
 
     private static RecipientInsertRow ToRow(

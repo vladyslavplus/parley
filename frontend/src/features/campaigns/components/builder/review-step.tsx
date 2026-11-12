@@ -21,6 +21,7 @@ import {
 } from "@/features/campaigns/lib/campaign-draft";
 import { bpsToPercent } from "@/features/campaigns/lib/holdout-math";
 import { CAMPAIGN_STATUSES, toNumber } from "@/features/campaigns/types";
+import { ProvenanceBadge } from "@/features/insights/components/provenance-badge";
 import { toApiError } from "@/lib/errors";
 
 interface Props {
@@ -31,6 +32,14 @@ interface Props {
   onEditTargeting: () => void;
   // False for a viewer: the review stays readable but nothing can be started.
   canAct?: boolean;
+  // The model the campaign's scores were taken from; null until the audience is frozen.
+  snapshot?: CampaignModelSnapshot | null;
+}
+
+export interface CampaignModelSnapshot {
+  name: string;
+  version: string;
+  provenance: string | null;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
@@ -50,6 +59,7 @@ export function ReviewStep({
   flush,
   onEditTargeting,
   canAct = true,
+  snapshot = null,
 }: Props) {
   const t = useTranslations("campaigns.builder.review");
   const locale = useLocale();
@@ -136,6 +146,24 @@ export function ReviewStep({
         />
         <Stat label={t("status")} value={t(`statuses.${status as "draft"}`)} />
       </dl>
+
+      {draft.targetingMode === "top_uplift" ? (
+        snapshot ? (
+          <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span>
+              {t("scoreModel", {
+                name: snapshot.name,
+                version: snapshot.version,
+              })}
+            </span>
+            <ProvenanceBadge provenance={snapshot.provenance} />
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            {t("scoreModelPending")}
+          </p>
+        )
+      ) : null}
 
       {prepareError ? (
         <Alert tone="error">

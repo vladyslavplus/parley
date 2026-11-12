@@ -19,6 +19,8 @@ public sealed class LatestScore
 
     public string Payload { get; set; } = "{}";
 
+    public string ModelName { get; set; } = string.Empty;
+
     public string ModelVersion { get; set; } = string.Empty;
 
     public DateTime ScoredAt { get; set; }

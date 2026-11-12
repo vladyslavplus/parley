@@ -23,6 +23,7 @@ namespace Parley.Crm.Features.Deals.Update;
 public sealed class UpdateDealCommandHandler(
     CrmDbContext dbContext,
     ITenantContext tenantContext,
+    ICurrentUser currentUser,
     IDataScope dataScope,
     OwnerDirectory ownerDirectory,
     IPermissionChecker permissionChecker,
@@ -31,6 +32,7 @@ public sealed class UpdateDealCommandHandler(
 {
     public async ValueTask<Result<DealView>> Handle(UpdateDealCommand command, CancellationToken cancellationToken)
     {
+        var actorId = currentUser.RequireUserId();
         var scope = await dataScope.ForPermissionAsync(Permissions.DealsWrite, cancellationToken);
         var deal = await DealLookup.FindTrackedAsync(dbContext, command.Id, scope, cancellationToken);
         if (deal is null)
@@ -75,7 +77,7 @@ public sealed class UpdateDealCommandHandler(
         deal.CustomFields = customFields.Value!;
         if (ownerChanged)
         {
-            outbox.Add(new DealAssigned { DealId = deal.Id, OwnerUserId = ownerId, OccurredAt = timeProvider.GetUtcNow() });
+            outbox.Add(new DealAssigned { DealId = deal.Id, OwnerUserId = ownerId, ActorUserId = actorId, OccurredAt = timeProvider.GetUtcNow() });
         }
 
         // The stale-write check: the UPDATE matches the client's row version, so a changed row affects nothing.

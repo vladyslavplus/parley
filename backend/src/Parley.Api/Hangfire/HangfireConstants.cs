@@ -25,6 +25,16 @@ public static class HangfireConstants
 
     public const string InsightsDailySweepJobName = "insights-daily-sweep";
 
+    public const string InsightsModelSyncJobName = "insights-scoring-models-sync";
+
+    /// <summary>Every 30 minutes: the registry changes when a model is retrained, so an hour-old registry is acceptable.</summary>
+    public const string InsightsModelSyncCron = "*/30 * * * *";
+
+    public const string InsightsScoringRunSweepJobName = "insights-scoring-run-sweep";
+
+    /// <summary>Every 10 minutes: an abandoned run blocks its kind until the sweep fails it, so the sweep runs often.</summary>
+    public const string InsightsScoringRunSweepCron = "*/10 * * * *";
+
     /// <summary>Cron of the daily attribution sweep, 04:00 UTC.</summary>
     public const string DailyAttributionCron = "0 4 * * *";
 

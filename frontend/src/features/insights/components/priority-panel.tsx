@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpRight, Layers, ListTodo } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsString, useQueryState } from "nuqs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { DataTable, useKeysetPaging } from "@/components/data-table";
 import {
@@ -28,12 +28,15 @@ import {
   reasonLabelKey,
   SEGMENT_CODES,
   segmentLabelKey,
+  upliftSegmentLabelKey,
 } from "@/features/insights/lib/codes";
 import {
   useRfmSegments,
   usePriority,
 } from "@/features/insights/hooks/use-insights";
+import { isStaleCursorError } from "@/features/insights/lib/priority-cursor";
 import type { PriorityItem } from "@/features/insights/types";
+import { toApiError } from "@/lib/errors";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +57,7 @@ export function PriorityPanel() {
   // Segment counts stay zero until the first RFM calculation, so whether any
   // contact exists decides between a new organization and a waiting list.
   const canReadContacts = useCan(PERMISSIONS.contactsRead);
+  const canRunScoring = useCan(PERMISSIONS.insightsMlRun);
   const anyContact = useContacts({ limit: 1 }, { enabled: canReadContacts });
   const [taskFor, setTaskFor] = useState<PriorityItem | null>(null);
 
@@ -63,8 +67,23 @@ export function PriorityPanel() {
     true,
   );
 
+  // A stale cursor restarts the list from the first page (see priority-cursor.ts).
+  const staleCursor =
+    query.isError &&
+    isStaleCursorError(paging.after, toApiError(query.error).code);
+  const { resetPaging } = paging;
+  useEffect(() => {
+    if (staleCursor) resetPaging();
+  }, [staleCursor, resetPaging]);
+
   function segmentText(code: string): string | null {
     const key = segmentLabelKey(code);
+    return key ? t(key) : null;
+  }
+
+  // ML mode ranks by uplift segments; they are labeled next to RFM codes.
+  function upliftText(code: string): string | null {
+    const key = upliftSegmentLabelKey(code);
     return key ? t(key) : null;
   }
 
@@ -160,7 +179,8 @@ export function PriorityPanel() {
       header: t("home.priority.columns.segment"),
       enableSorting: false,
       cell: ({ row }) => {
-        const text = segmentText(row.original.segment);
+        const text =
+          segmentText(row.original.segment) ?? upliftText(row.original.segment);
         return text ? (
           <span className="text-xs text-foreground">{text}</span>
         ) : (
@@ -205,7 +225,7 @@ export function PriorityPanel() {
     },
   ];
 
-  if (query.isError && !query.data) {
+  if (query.isError && !query.data && !staleCursor) {
     return <Alert tone="error">{errorText(query.error)}</Alert>;
   }
 
@@ -219,11 +239,17 @@ export function PriorityPanel() {
           {t("home.priority.title")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          {t("home.priority.subtitle")}
+          {query.data?.mode === "ml"
+            ? t("home.priority.subtitleMl")
+            : t("home.priority.subtitle")}
         </p>
       </div>
 
-      <ModeIndicator />
+      <ModeIndicator
+        mode={query.data?.mode}
+        mlStatus={query.data?.mlStatus}
+        canRun={canRunScoring}
+      />
 
       {newOrganization ? (
         <NewOrganizationEmpty />

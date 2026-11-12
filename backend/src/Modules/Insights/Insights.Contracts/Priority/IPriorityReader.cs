@@ -6,6 +6,9 @@ namespace Parley.Insights.Contracts.Priority;
 /// </summary>
 public interface IPriorityReader
 {
-    /// <summary>The best entries of the latest build; <paramref name="ownerUserId"/> null means the whole organization.</summary>
-    Task<IReadOnlyList<PriorityEntry>> ReadTopAsync(Guid? ownerUserId, int limit, CancellationToken cancellationToken);
+    /// <summary>
+    /// The best entries of the latest build. <paramref name="ownerUserIds"/> null means the whole organization; a collection
+    /// limits the entries to contacts owned by one of its members, so the limit applies to what the caller may see.
+    /// </summary>
+    Task<IReadOnlyList<PriorityEntry>> ReadTopAsync(IReadOnlyCollection<Guid>? ownerUserIds, int limit, CancellationToken cancellationToken);
 }

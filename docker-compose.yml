@@ -30,10 +30,40 @@ services:
     volumes:
       - valkey-data:/data
 
-  # Profile `ml` is reserved for the FastAPI scoring service. Its service is
-  # added with the ML step so this file does not pull a placeholder image.
+  # Scoring service (profile `ml`). Internal network for service-to-service calls, plus one edge network so the
+  # host can reach it on 127.0.0.1 only. Artifacts are mounted read-only; no training data is mounted.
+  # LOCAL DEVELOPMENT DEFAULT KEY: `local-development-only-key` below is for this machine only. Set PARLEY_ML_KEY in
+  # `.env` (or the environment) to any other value; the service refuses to start without a key.
+  ml:
+    profiles:
+      - ml
+    build:
+      context: ./ml
+      dockerfile: Dockerfile.serve
+    environment:
+      PARLEY_ML_KEY: ${PARLEY_ML_KEY:-local-development-only-key}
+      PARLEY_ML_ARTIFACTS_DIR: /artifacts/models
+    volumes:
+      - ./ml/artifacts/models:/artifacts/models:ro
+    ports:
+      - "127.0.0.1:8090:8000"
+    networks:
+      - ml-internal
+      - ml-edge
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).status == 200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+
   # Profile `app` is reserved for the deployment containers (API + web). The
   # API and frontend run on the host in development.
+
+networks:
+  ml-internal:
+    internal: true
+  ml-edge: {}
 
 volumes:
   pgdata:

@@ -5,6 +5,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Parley.Api.Options;
+using Parley.Notifications.Telegram.Bot;
 using Parley.SharedKernel.Logging;
 using Parley.SharedKernel.Observability;
 
@@ -25,7 +26,10 @@ public static class ObservabilityServiceCollectionExtensions
             .ConfigureResource(resource => resource.AddService(ApiConstants.ServiceName))
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
+                .AddHttpClientInstrumentation(http =>
+                    // Telegram puts the bot token in the request path: the recorded URL is rewritten before the span is exported.
+                    http.EnrichWithHttpRequestMessage = (activity, request) =>
+                        TelegramTraceRedaction.Redact(activity, request.RequestUri))
                 .AddSource(OrganizationTelemetry.ActivitySourceName)
                 .AddOtlpExporter())
             .WithMetrics(metrics => metrics

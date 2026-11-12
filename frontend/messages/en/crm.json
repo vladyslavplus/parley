@@ -175,10 +175,6 @@
         "deals": {
           "title": "No active deals",
           "description": "Pipeline opportunities associated with this contact will appear here."
-        },
-        "scores": {
-          "title": "No scores calculated",
-          "description": "Uplift and customer lifetime value insights will display here once scored."
         }
       }
     },

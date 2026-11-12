@@ -3,6 +3,7 @@ using Parley.Campaigns.Persistence;
 using Parley.Crm.Persistence;
 using Parley.Identity.Persistence;
 using Parley.Insights.Persistence;
+using Parley.Notifications.Persistence;
 
 namespace Parley.Api.Startup;
 
@@ -20,6 +21,7 @@ public sealed class PendingMigrationsGuard(IServiceScopeFactory scopeFactory, IH
         ("crm", typeof(CrmDbContext)),
         ("campaigns", typeof(CampaignsDbContext)),
         ("insights", typeof(InsightsDbContext)),
+        ("notifications", typeof(NotificationsDbContext)),
     ];
 
     public async Task StartAsync(CancellationToken cancellationToken)

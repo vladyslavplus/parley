@@ -10,6 +10,8 @@ using Parley.Campaigns.Options;
 using Parley.Crm.Exports;
 using Parley.Crm.Tasks;
 using Parley.Insights.Features.Daily;
+using Parley.Insights.Features.Scoring.Models;
+using Parley.Insights.Features.Scoring.Run;
 using Parley.SharedKernel.BackgroundJobs;
 
 namespace Parley.Api.Hangfire;
@@ -154,6 +156,31 @@ public sealed class HangfireSchemaInitializer(
             logger.LogWarning(
                 exception,
                 "Recurring insights daily sweep registration was deferred until the database is available.");
+        }
+
+        try
+        {
+            recurringJobs.AddOrUpdate(
+                HangfireConstants.InsightsModelSyncJobName,
+                Job.FromExpression<ScoringModelsSyncJob>(job => job.ExecuteAsync(null, CancellationToken.None)),
+                HangfireConstants.InsightsModelSyncCron,
+                new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+            // A fresh start syncs the registry now, so a model is usable before the first scheduled tick.
+            recurringJobs.Trigger(HangfireConstants.InsightsModelSyncJobName);
+
+            // Fails scoring runs whose job was lost, so their kind is never blocked for good.
+            recurringJobs.AddOrUpdate(
+                HangfireConstants.InsightsScoringRunSweepJobName,
+                Job.FromExpression<ScoringRunSweepJob>(job => job.ExecuteAsync(null, CancellationToken.None)),
+                HangfireConstants.InsightsScoringRunSweepCron,
+                new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(
+                exception,
+                "Recurring scoring model sync registration was deferred until the database is available.");
         }
 
         try

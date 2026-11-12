@@ -6,6 +6,9 @@ public static class InsightsLimits
     /// <summary>Short codes: scoring kind, mode, status, segment, suggested action, provenance.</summary>
     public const int CodeMaximumLength = 32;
 
+    /// <summary>Stable error codes of a scoring run, such as insights.scoring.model_unavailable.</summary>
+    public const int ErrorCodeMaximumLength = 64;
+
     /// <summary>Model names and versions.</summary>
     public const int VersionMaximumLength = 64;
 
@@ -23,4 +26,7 @@ public static class InsightsLimits
 
     /// <summary>Text form of an organization day in job arguments.</summary>
     public const string DayFormat = "yyyy-MM-dd";
+
+    /// <summary>How long a priority rebuild waits before it retries after its day was busy with another run.</summary>
+    public static readonly TimeSpan PriorityRebuildRetryDelay = TimeSpan.FromMinutes(1);
 }

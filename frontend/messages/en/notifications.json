@@ -1,0 +1,109 @@
+{
+  "title": "Notifications",
+  "subtitle": "Events that need you, newest first.",
+  "bell": {
+    "label": "Notifications",
+    "unreadCount": "{count, plural, =0 {No unread notifications} one {# unread notification} other {# unread notifications}}",
+    "cappedCount": "{count}+",
+    "empty": "You are all caught up.",
+    "markAllRead": "Mark all read",
+    "viewAll": "View all",
+    "loadFailed": "Notifications could not be loaded."
+  },
+  "types": {
+    "taskAssigned": "A task was assigned to you.",
+    "taskDueSoon": "A task is due soon, at {dueAt}.",
+    "dealAssigned": "A deal was assigned to you.",
+    "campaignCompleted": "A campaign finished. Its results are ready to read.",
+    "scoringRunCompleted": "Scores were recalculated.",
+    "memberActivated": "A new member joined your organization.",
+    "unknown": "You have a new notification."
+  },
+  "list": {
+    "filterLabel": "Show",
+    "filterAll": "All",
+    "filterUnread": "Unread",
+    "statusUnread": "Unread",
+    "statusRead": "Read",
+    "markRead": "Mark as read",
+    "markAllRead": "Mark all read",
+    "allMarkedRead": "All notifications are marked as read.",
+    "emptyTitle": "No notifications yet",
+    "emptyDescription": "Tasks assigned to you, deals, finished campaigns and new members show up here.",
+    "emptyUnreadTitle": "No unread notifications",
+    "emptyUnreadDescription": "You are all caught up.",
+    "openSettings": "Notification settings"
+  },
+  "preferences": {
+    "title": "Notification settings",
+    "subtitle": "Choose which events reach your inbox.",
+    "explanation": "Turning a type off stops new notifications of that type. Notifications you already have stay in your inbox.",
+    "stateOn": "On",
+    "stateOff": "Off",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Notification settings saved.",
+    "conflict": "These settings were changed elsewhere. Your choices are kept: save again to apply them.",
+    "loadFailed": "The settings could not be loaded.",
+    "items": {
+      "taskAssigned": {
+        "label": "Task assigned to you",
+        "description": "When someone gives you a task."
+      },
+      "taskDueSoon": {
+        "label": "Task due soon",
+        "description": "A reminder before a task of yours is due."
+      },
+      "dealAssigned": {
+        "label": "Deal assigned to you",
+        "description": "When a deal is handed to you."
+      },
+      "campaignCompleted": {
+        "label": "Campaign finished",
+        "description": "When a campaign has sent and its results are ready."
+      },
+      "scoringRunCompleted": {
+        "label": "Scores recalculated",
+        "description": "When the scores your team uses are updated."
+      },
+      "memberActivated": {
+        "label": "New member joined",
+        "description": "When someone accepts an invitation to your organization."
+      }
+    },
+    "columns": {
+      "inApp": "In app",
+      "telegram": "Telegram"
+    }
+  },
+  "telegram": {
+    "title": "Telegram",
+    "subtitle": "Get the same notifications in a Telegram chat. Optional.",
+    "notLinked": "Not connected yet.",
+    "linkedSince": "Connected since {when}.",
+    "connect": "Connect Telegram",
+    "openBot": "Open in Telegram",
+    "codeLabel": "Your code",
+    "copyCode": "Copy code",
+    "copied": "Code copied.",
+    "codeHint": "Open the bot and send this code, or use the button above. The code works once.",
+    "codeExpiresIn": "Expires in {time}.",
+    "codeExpired": "This code has expired. Create a new one.",
+    "newCode": "New code",
+    "disconnect": "Disconnect",
+    "disconnectTitle": "Disconnect Telegram?",
+    "disconnectDescription": "Telegram notifications stop. In-app notifications stay.",
+    "disconnected": "Telegram disconnected.",
+    "linked": "Telegram connected.",
+    "switchHint": "Connect Telegram above to turn these on.",
+    "loadFailed": "Telegram status could not be loaded.",
+    "errors": {
+      "notConfigured": "Telegram is not set up on this server.",
+      "linkAlreadyExists": "This account is already connected to Telegram.",
+      "rateLimited": "Too many codes requested. Wait a few minutes and try again.",
+      "codeInvalid": "This code is invalid or already used. Create a new one.",
+      "chatAlreadyLinked": "This Telegram chat is already connected to another account.",
+      "linkNotFound": "No Telegram connection was found."
+    }
+  }
+}

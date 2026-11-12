@@ -119,7 +119,7 @@ public sealed class CreateDealCommandHandler(
             ChangedByUserId = actorId,
             ChangedAt = now.UtcDateTime,
         });
-        outbox.Add(new DealAssigned { DealId = deal.Id, OwnerUserId = ownerId, OccurredAt = now });
+        outbox.Add(new DealAssigned { DealId = deal.Id, OwnerUserId = ownerId, ActorUserId = actorId, OccurredAt = now });
         if (PipelineStageKinds.IsTerminal(stage.Kind))
         {
             outbox.Add(new DealClosed { DealId = deal.Id, OwnerUserId = ownerId, Status = stage.Kind, OccurredAt = now });

@@ -8,6 +8,8 @@ const server: MlSettings = {
   activeUpliftVersion: null,
   activeClvVersion: null,
   version: 7,
+  effectiveUpliftVersion: null,
+  effectiveClvVersion: null,
 };
 
 describe("ML settings version conflict", () => {

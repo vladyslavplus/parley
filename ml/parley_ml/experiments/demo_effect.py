@@ -12,16 +12,8 @@ from typing import Any, Final, Mapping
 
 import yaml
 
-FEATURE_FIELDS: Final[tuple[str, ...]] = (
-    "recency_days",
-    "tenure_days",
-    "orders_90d",
-    "orders_365d",
-    "order_count",
-    "value_365d",
-    "avg_order_value",
-    "has_open_deal",
-)
+from parley_ml.features.crm import FEATURE_FIELDS
+
 OPERATORS: Final[tuple[str, ...]] = ("eq", "lt", "lte", "gt", "gte")
 
 

@@ -349,6 +349,21 @@ namespace Parley.Campaigns.Migrations
                         .HasColumnType("character varying(32)")
                         .HasColumnName("targeting_mode");
 
+                    b.Property<string>("TargetingModelName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("targeting_model_name");
+
+                    b.Property<string>("TargetingModelVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("targeting_model_version");
+
+                    b.Property<string>("TargetingProvenance")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("targeting_provenance");
+
                     b.Property<int?>("TargetingShareBps")
                         .HasColumnType("integer")
                         .HasColumnName("targeting_share_bps");
