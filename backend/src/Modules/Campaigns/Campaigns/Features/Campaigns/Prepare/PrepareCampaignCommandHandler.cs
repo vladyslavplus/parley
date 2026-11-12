@@ -19,7 +19,8 @@ public sealed class PrepareCampaignCommandHandler(
     ICurrentUser currentUser,
     IPermissionChecker permissions,
     IScoreReader scoreReader,
-    CampaignPrepareScheduler scheduler)
+    CampaignPrepareScheduler scheduler,
+    TimeProvider timeProvider)
     : IRequestHandler<PrepareCampaignCommand, Result<CampaignView>>
 {
     public async ValueTask<Result<CampaignView>> Handle(PrepareCampaignCommand command, CancellationToken cancellationToken)
@@ -63,7 +64,8 @@ public sealed class PrepareCampaignCommandHandler(
                 return Result<CampaignView>.Failure(Error.NotFound(CampaignsErrorCodes.SegmentNotFound));
             }
 
-            if (SegmentAudienceRules.NeedsRfm(SegmentDefinitionRules.Normalize(definition)))
+            if (SegmentAudienceRules.NeedsRfm(SegmentDefinitionRules.Normalize(definition))
+                && !await scoreReader.HasScoresAsync(ScoreKinds.Rfm, cancellationToken))
             {
                 return Result<CampaignView>.Failure(Error.Validation(CampaignsErrorCodes.SegmentRfmNotAvailable));
             }
@@ -75,7 +77,9 @@ public sealed class PrepareCampaignCommandHandler(
             return Result<CampaignView>.Failure(Error.Conflict(CampaignsErrorCodes.CampaignScoresUnavailable));
         }
 
+        // The inputs are pinned here: every run of this preparation ranks and filters at this instant.
         campaign.Status = CampaignStatuses.Preparing;
+        campaign.PrepareAsOf = timeProvider.GetUtcNow().UtcDateTime;
         try
         {
             await dbContext.SaveChangesAsync(cancellationToken);

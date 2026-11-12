@@ -1,0 +1,226 @@
+{
+  "home": {
+    "title": "Today",
+    "subtitle": "Who to contact now, and how the business is doing.",
+    "sectionDashboard": "Business at a glance",
+    "priority": {
+      "title": "Priority today",
+      "subtitle": "Ranked for you from recent orders, order history, open tasks and stale deals.",
+      "columns": {
+        "contact": "Contact",
+        "reasons": "Why",
+        "segment": "Segment",
+        "next": "Next step"
+      },
+      "openContact": "Open contact",
+      "createTask": "Create task",
+      "empty": "Nobody needs a call today.",
+      "preparingTitle": "The priority list is not ready yet",
+      "preparingDescription": "It fills in after the first daily calculation of your contacts.",
+      "subtitleMl": "Ranked by the uplift model: contacts most likely to respond to outreach, with the reasons shown."
+    },
+    "newOrganization": {
+      "title": "Start with your contacts",
+      "description": "The priority list and the dashboard fill in as contacts, orders, deals and tasks arrive.",
+      "addContact": "Add a contact",
+      "openContacts": "Open contacts",
+      "openDeals": "Open deals"
+    }
+  },
+  "mode": {
+    "rfm": {
+      "title": "RFM mode",
+      "body": "The ranking uses only recency, frequency and value of orders, plus open tasks and stale deals. No machine learning is involved. The list shows who to contact; it does not predict what a contact will do."
+    },
+    "ml": {
+      "title": "ML ranking",
+      "body": "The ranking uses uplift scores from a demo model. The reasons say why a contact is listed. The scores are estimates, not proof of an effect."
+    }
+  },
+  "filters": {
+    "segment": "Segment",
+    "allSegments": "All segments",
+    "searchSegments": "Find a segment",
+    "noSegments": "No segment matches",
+    "help": "Segments compare each customer with the other customers of your organization.",
+    "tooLarge": "This segment is too large to filter; narrow the list with another filter first"
+  },
+  "dashboard": {
+    "pipeline": {
+      "title": "Pipeline value by stage",
+      "subtitle": "Open deals in each stage.",
+      "total": "{amount} in {count, plural, one {# open deal} few {# open deals} many {# open deals} other {# open deals}}",
+      "empty": "No open deals yet.",
+      "stageRow": "{count, plural, one {# deal} few {# deals} many {# deals} other {# deals}}, {amount}",
+      "chartLabel": "Pipeline value by stage: {total}"
+    },
+    "tasks": {
+      "title": "Tasks due",
+      "count": "{count, plural, =0 {No tasks due} one {# task due} few {# tasks due} many {# tasks due} other {# tasks due}}",
+      "description": "Open tasks due now or earlier.",
+      "open": "Open tasks"
+    },
+    "campaign": {
+      "title": "Latest campaign",
+      "name": "{name}",
+      "empty": "No completed campaign yet.",
+      "open": "Open campaign",
+      "lift": "{lift} percentage points",
+      "interval": "95% interval from {low} to {high} percentage points",
+      "provisional": "Provisional: the window is still open",
+      "finalizing": "The window has closed; final figures are being calculated.",
+      "description": "Describes what happened in this campaign. It does not show what caused it.",
+      "verdict": {
+        "measurable_lift": "A difference is measurable in this campaign",
+        "no_measurable_effect": "No measurable difference in this campaign",
+        "too_early": "Too early to draw a conclusion",
+        "unreliable": "Not reliable: group sizes differ from the plan"
+      },
+      "demo": "Demo",
+      "simulated": "Simulated effect"
+    },
+    "loadFailed": "The dashboard could not be loaded."
+  },
+  "ml": {
+    "title": "Machine learning",
+    "subtitle": "Whether this organization uses machine learning. Admins only.",
+    "explanation": "When ML is on, you can run scoring with the active model. After a run completes, the priority list and campaign targeting can use its scores. Every score shows its model, version and data source. Turning ML off returns the priority list to RFM.",
+    "switchLabel": "Machine learning enabled",
+    "state": {
+      "on": "On",
+      "off": "Off"
+    },
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Machine learning setting saved.",
+    "conflict": "This setting was changed elsewhere. It is now {state}. Your choice ({desired}) is kept: save again to apply it.",
+    "loadFailed": "The setting could not be loaded.",
+    "model": {
+      "label": "Active uplift model",
+      "help": "The model that scores contacts for uplift. Newest is picked automatically when you do not choose one.",
+      "newest": "Use newest automatically",
+      "inUse": "in use",
+      "effective": "In use now: {version}",
+      "none": "No uplift model is available yet. Sync the models from the registry."
+    },
+    "errors": {
+      "modelUnknown": "That model is not available. Pick another model or use the newest one."
+    }
+  },
+  "reasons": {
+    "highValue": "High value",
+    "recentOrder": "Recent order",
+    "atRisk": "At risk",
+    "taskDue": "Task due",
+    "dealStale": "Stale deal",
+    "persuadable": "Persuadable",
+    "upliftHigh": "High uplift"
+  },
+  "segments": {
+    "champions": "Champions",
+    "loyal": "Loyal",
+    "promising": "Promising",
+    "needsAttention": "Needs attention",
+    "atRisk": "At risk",
+    "hibernating": "Hibernating",
+    "lost": "Lost",
+    "regular": "Regular",
+    "noOrders": "No orders"
+  },
+  "actions": {
+    "call": "Call",
+    "reviewDeal": "Review deal",
+    "winBack": "Win back",
+    "reward": "Reward",
+    "nurture": "Nurture"
+  },
+  "scoring": {
+    "errors": {
+      "mlDisabled": "ML scoring is off. Turn it on in ML settings to run scoring.",
+      "runInProgress": "A scoring run is already in progress. Wait for it to finish.",
+      "kindUnknown": "This kind of scoring is not supported.",
+      "runNotFound": "The scoring run was not found.",
+      "serviceUnavailable": "The scoring service cannot be reached right now. Existing scores are unchanged.",
+      "serviceRejected": "The scoring service rejected the request. Existing scores are unchanged.",
+      "modelUnavailable": "No model is available for this kind yet. Check the model registry.",
+      "modelMismatch": "The scoring service runs a different model version than the registry. Sync the models and try again.",
+      "tooManyRejected": "Too many contacts could not be scored, so the run stopped. Existing scores are unchanged.",
+      "runFailed": "The scoring run failed. Existing scores are unchanged.",
+      "cancelled": "The scoring run was cancelled. Existing scores are unchanged.",
+      "runAbandoned": "The scoring run was abandoned before it finished. Existing scores are unchanged."
+    },
+    "provenance": {
+      "publicDataset": "Public dataset model",
+      "semiSynthetic": "Semi-synthetic demo data",
+      "stub": "Stub model: placeholder output, not a real model",
+      "unknown": "Unknown model source"
+    },
+    "mlStatus": {
+      "disabled": "ML is off for this organization, so the list ranks by RFM.",
+      "noModel": "ML is on, but no model is active yet. The list ranks by RFM.",
+      "noScores": "ML is on, but no scores exist yet. Run scoring to rank by ML.",
+      "runLink": "Open the model registry to run scoring"
+    },
+    "upliftSegments": {
+      "persuadable": "Persuadable",
+      "sureThing": "Sure thing",
+      "lostCause": "Lost cause",
+      "doNotDisturb": "Do not disturb"
+    },
+    "scores": {
+      "title": "Scores",
+      "notScored": "Not scored yet",
+      "rfmSegment": "RFM segment",
+      "upliftSegment": "Uplift segment",
+      "upliftValue": "Uplift score",
+      "clvValue": "Expected value (CLV)",
+      "model": "Model {name} · {version}",
+      "scoredAt": "Scored {when}",
+      "numbersHidden": "Numbers are visible to managers and marketers.",
+      "honestNote": "Scores estimate how a contact may respond, based on a demo model. They are not proof of an effect and do not show cause."
+    },
+    "registry": {
+      "title": "Model registry",
+      "subtitle": "Scoring models the service can run, and the one in use.",
+      "columns": {
+        "model": "Model",
+        "version": "Version",
+        "kind": "Kind",
+        "provenance": "Source",
+        "trained": "Trained",
+        "synced": "Synced",
+        "active": "In use",
+        "metrics": "Metrics"
+      },
+      "kinds": {
+        "uplift": "Uplift",
+        "clv": "Lifetime value"
+      },
+      "activeYes": "In use",
+      "activeNo": "Available",
+      "empty": "No models are synced yet.",
+      "noMetrics": "No metrics",
+      "metricsCount": "{count, plural, one {# metric} other {# metrics}}",
+      "featureSchema": "Feature schema {version}",
+      "loadFailed": "Could not load the models.",
+      "sync": {
+        "button": "Sync models",
+        "syncing": "Syncing...",
+        "synced": "{count, plural, one {# model synced} other {# models synced}}"
+      }
+    },
+    "run": {
+      "title": "Run scoring",
+      "uplift": "Score uplift",
+      "clv": "Score lifetime value",
+      "running": "Scoring...",
+      "queued": "Waiting to start",
+      "progress": "{scored} of {total} scored, {rejected} rejected",
+      "completed": "Scoring finished: {scored} contacts scored, {rejected} rejected.",
+      "failed": "Scoring did not finish. Existing scores are unchanged.",
+      "started": "Scoring started.",
+      "disabledMlOff": "Turn ML on in ML settings first.",
+      "disabledNoModel": "No model is available for this kind yet."
+    }
+  }
+}

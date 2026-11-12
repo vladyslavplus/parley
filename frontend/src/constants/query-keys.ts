@@ -1,5 +1,27 @@
 export const queryKeys = {
   all: ["api"] as const,
+  insightsPriority: (filters: Record<string, unknown>) =>
+    [...queryKeys.all, "insights", "priority", filters] as const,
+  insightsRfmSegments: () =>
+    [...queryKeys.all, "insights", "rfm-segments"] as const,
+  notificationsList: (filters: Record<string, unknown>) =>
+    [...queryKeys.all, "notifications", "list", filters] as const,
+  notificationsUnreadCount: () =>
+    [...queryKeys.all, "notifications", "unread-count"] as const,
+  notificationsPreferences: () =>
+    [...queryKeys.all, "notifications", "preferences"] as const,
+  insightsMlStatus: () => [...queryKeys.all, "insights", "ml-status"] as const,
+  insightsModels: () => [...queryKeys.all, "insights", "models"] as const,
+  insightsScoringRun: (id: string) =>
+    [...queryKeys.all, "insights", "scoring-run", id] as const,
+  contactScores: (contactId: string) =>
+    [...queryKeys.all, "contacts", "scores", contactId] as const,
+  telegramStatus: () => [...queryKeys.all, "telegram", "status"] as const,
+  telegramLink: () => [...queryKeys.all, "telegram", "link"] as const,
+  insightsMlSettings: () =>
+    [...queryKeys.all, "insights", "ml-settings"] as const,
+  dashboardOverview: () =>
+    [...queryKeys.all, "dashboards", "overview"] as const,
   health: () => [...queryKeys.all, "health"] as const,
   me: () => [...queryKeys.all, "me"] as const,
   myOrganizations: () => [...queryKeys.all, "me", "organizations"] as const,
@@ -66,6 +88,29 @@ export const queryKeys = {
   notesList: (subject: Record<string, unknown>) =>
     [...queryKeys.all, "notes", "list", subject] as const,
   note: (id: string) => [...queryKeys.all, "notes", "detail", id] as const,
+  templatesAll: () => [...queryKeys.all, "templates"] as const,
+  templatesList: (filters?: Record<string, unknown>) =>
+    [...queryKeys.all, "templates", "list", filters] as const,
+  segmentsAll: () => [...queryKeys.all, "segments"] as const,
+  segmentsList: (filters?: Record<string, unknown>) =>
+    [...queryKeys.all, "segments", "list", filters] as const,
+  segmentPreview: (definition: unknown) =>
+    [...queryKeys.all, "segments", "preview", definition] as const,
+  templatePreview: (id: string, version: number | string) =>
+    [...queryKeys.all, "templates", "preview", id, version] as const,
+  campaignsAll: () => [...queryKeys.all, "campaigns"] as const,
+  campaignsList: (filters?: Record<string, unknown>) =>
+    [...queryKeys.all, "campaigns", "list", filters] as const,
+  campaign: (id: string) =>
+    [...queryKeys.all, "campaigns", "detail", id] as const,
+  campaignProgress: (id: string) =>
+    [...queryKeys.all, "campaigns", "progress", id] as const,
+  campaignResults: (id: string) =>
+    [...queryKeys.all, "campaigns", "results", id] as const,
+  campaignRecipients: (id: string, filters: Record<string, unknown>) =>
+    [...queryKeys.all, "campaigns", "recipients", id, filters] as const,
+  campaignReview: (id: string) =>
+    [...queryKeys.all, "campaigns", "review", id] as const,
   ordersAll: () => [...queryKeys.all, "orders"] as const,
   ordersList: (filters?: Record<string, unknown>) =>
     [...queryKeys.all, "orders", "list", filters] as const,

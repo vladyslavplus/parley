@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CloudCheck, Loader2 } from "lucide-react";
+import { Check, CloudAlert, CloudCheck, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
@@ -13,7 +13,7 @@ export interface StepItem {
   description?: string;
 }
 
-export type AutosaveStatus = "saved" | "saving" | "idle";
+export type AutosaveStatus = "saved" | "saving" | "idle" | "error";
 
 export interface StepperProps {
   steps: StepItem[];
@@ -23,6 +23,13 @@ export interface StepperProps {
   children: ReactNode;
   onComplete?: () => void;
   isSubmitting?: boolean;
+  // Blocks "Next" while the current step is incomplete.
+  canAdvance?: boolean;
+  // Label and availability of the last-step action; hidden when null.
+  finishLabel?: string | null;
+  finishDisabled?: boolean;
+  // Highest step a header button may jump to; defaults to the current step.
+  maxStepIndex?: number;
 }
 
 export function Stepper({
@@ -33,6 +40,10 @@ export function Stepper({
   children,
   onComplete,
   isSubmitting = false,
+  canAdvance = true,
+  finishLabel,
+  finishDisabled = false,
+  maxStepIndex,
 }: StepperProps) {
   const t = useTranslations("forms.stepper");
   const tCommon = useTranslations("common");
@@ -56,15 +67,15 @@ export function Stepper({
               <div key={step.id} className="flex items-center gap-2">
                 <button
                   type="button"
-                  disabled={!isCompleted && !isCurrent}
+                  disabled={idx > Math.max(currentStepIndex, maxStepIndex ?? 0)}
                   onClick={() => onStepChange(idx)}
                   className={cn(
                     "flex items-center gap-2 rounded-[var(--radius-control)] px-2.5 py-1 text-xs font-medium transition-colors",
                     isCurrent && "bg-muted text-foreground font-semibold",
-                    isCompleted &&
+                    !isCurrent &&
+                      idx <= Math.max(currentStepIndex, maxStepIndex ?? 0) &&
                       "text-muted-foreground hover:text-foreground cursor-pointer",
-                    !isCompleted &&
-                      !isCurrent &&
+                    idx > Math.max(currentStepIndex, maxStepIndex ?? 0) &&
                       "text-muted-foreground opacity-50",
                   )}
                   aria-current={isCurrent ? "step" : undefined}
@@ -96,6 +107,11 @@ export function Stepper({
               <Loader2 className="h-3.5 w-3.5 animate-spin text-info" />
               <span>{t("autosave.saving")}</span>
             </>
+          ) : autosaveStatus === "error" ? (
+            <>
+              <CloudAlert className="h-3.5 w-3.5 text-destructive" />
+              <span>{t("autosave.error")}</span>
+            </>
           ) : (
             <>
               <CloudCheck className="h-3.5 w-3.5 text-success" />
@@ -119,16 +135,21 @@ export function Stepper({
         </Button>
 
         {isLastStep ? (
-          <Button
-            variant="primary"
-            disabled={isSubmitting}
-            onClick={onComplete}
-          >
-            {t("finish")}
-          </Button>
+          finishLabel === null ? (
+            <span />
+          ) : (
+            <Button
+              variant="primary"
+              disabled={isSubmitting || finishDisabled}
+              onClick={onComplete}
+            >
+              {finishLabel ?? t("finish")}
+            </Button>
+          )
         ) : (
           <Button
             variant="primary"
+            disabled={!canAdvance}
             onClick={() => onStepChange(currentStepIndex + 1)}
           >
             {t("next")}

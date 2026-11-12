@@ -27,6 +27,10 @@ internal static class CampaignLookup
                 campaign.TargetingMode,
                 campaign.TargetingShareBps,
                 campaign.AudienceFrozenAt,
-                EF.Property<uint>(campaign, PersistenceConstants.XminPropertyName)))
+                EF.Property<uint>(campaign, PersistenceConstants.XminPropertyName),
+                campaign.Source,
+                campaign.TargetingModelName,
+                campaign.TargetingModelVersion,
+                campaign.TargetingProvenance))
             .FirstOrDefaultAsync(cancellationToken);
 }

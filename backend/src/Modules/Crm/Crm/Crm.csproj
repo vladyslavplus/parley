@@ -6,7 +6,9 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\Crm.Contracts\Crm.Contracts.csproj" />
+    <ProjectReference Include="..\..\Campaigns\Campaigns.Contracts\Campaigns.Contracts.csproj" />
     <ProjectReference Include="..\..\Identity\Identity.Contracts\Identity.Contracts.csproj" />
+    <ProjectReference Include="..\..\Insights\Insights.Contracts\Insights.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Parley.SharedKernel\Parley.SharedKernel.csproj" />
   </ItemGroup>
   <ItemGroup>

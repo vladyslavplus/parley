@@ -1,0 +1,479 @@
+{
+  "title": "Campaigns",
+  "subtitle": "Email campaigns with a built-in holdout, plus the templates and audiences they use.",
+  "hub": {
+    "newCampaign": "New campaign",
+    "templates": "Templates",
+    "segments": "Segments",
+    "viewLabel": "Campaign library",
+    "campaigns": "Campaigns"
+  },
+  "library": {
+    "retry": "Try again"
+  },
+  "templates": {
+    "new": "New template",
+    "newTitle": "New template",
+    "editTitle": "Edit template",
+    "dialogDescription": "Write the subject and the HTML body. Variables are filled in per contact when the email is sent.",
+    "edit": "Edit template",
+    "archive": "Archive template",
+    "archived": "Template archived.",
+    "archiveConfirm": {
+      "title": "Archive this template?",
+      "description": "\"{name}\" will no longer be offered for new campaigns. Campaigns already using it are not affected."
+    },
+    "searchPlaceholder": "Search templates",
+    "loadError": "Templates could not be loaded.",
+    "empty": {
+      "title": "No templates yet",
+      "description": "Create a template to write the email a campaign sends."
+    },
+    "columns": {
+      "name": "Name",
+      "locale": "Language"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Spring offer",
+      "locale": "Language",
+      "subject": "Subject",
+      "subjectPlaceholder": "A note for {{ contact.first_name }}",
+      "body": "HTML body"
+    },
+    "variables": {
+      "title": "Variables",
+      "hint": "Select a variable to insert it at the cursor."
+    },
+    "help": {
+      "title": "Template syntax",
+      "intro": "Templates use a safe subset of Liquid. Anything else is rejected with the line and column.",
+      "tags": "Allowed tags",
+      "filters": "Allowed filters",
+      "noIncludes": "Includes and custom tags are not available."
+    },
+    "preview": {
+      "title": "Preview",
+      "hint": "Rendered by the server with sample data from the saved template.",
+      "subject": "Subject",
+      "frameTitle": "Email preview",
+      "saveFirst": "Save the template to see a preview.",
+      "unsaved": "You have unsaved changes. The preview shows the last saved version."
+    },
+    "save": "Save changes",
+    "create": "Create template",
+    "created": "Template created.",
+    "updated": "Template saved."
+  },
+  "segments": {
+    "new": "New segment",
+    "newTitle": "New segment",
+    "editTitle": "Edit segment",
+    "dialogDescription": "Choose who belongs to this audience. The count updates as you change the filters.",
+    "edit": "Edit segment",
+    "archive": "Archive segment",
+    "archived": "Segment archived.",
+    "archiveConfirm": {
+      "title": "Archive this segment?",
+      "description": "\"{name}\" will no longer be offered for new campaigns. Campaigns already using it are not affected."
+    },
+    "searchPlaceholder": "Search segments",
+    "loadError": "Segments could not be loaded.",
+    "empty": {
+      "title": "No segments yet",
+      "description": "Create a segment to target a part of your contacts. Without one, a campaign goes to everyone with an email address."
+    },
+    "columns": {
+      "name": "Name"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Customers in Poland"
+    },
+    "save": "Save segment",
+    "create": "Create segment",
+    "created": "Segment created.",
+    "updated": "Segment saved."
+  },
+  "audience": {
+    "countLabel": "{count, plural, one {contact matches} other {contacts match}}",
+    "fields": {
+      "owners": "Owners",
+      "ownersHint": "Contacts owned by any of the chosen people.",
+      "addOwner": "Add owner",
+      "ownerFallback": "Unknown owner",
+      "countries": "Countries",
+      "countriesHint": "Two-letter country codes, for example PL or UA.",
+      "countryPlaceholder": "PL",
+      "countryInvalid": "Use a two-letter country code.",
+      "tags": "Tags",
+      "tagsHint": "Contacts with any of the chosen tags.",
+      "noTags": "No tags yet.",
+      "daysSinceLastOrder": "Days since last order",
+      "daysSinceLastOrderHint": "Contacts whose last order is at least this many days old. Leave empty to ignore.",
+      "daysPlaceholder": "90",
+      "removeValue": "Remove {value}",
+      "rfm": {
+        "title": "RFM segments",
+        "unavailable": "Not available yet. RFM filters appear once customer scoring has run."
+      }
+    }
+  },
+  "builder": {
+    "title": "New campaign",
+    "subtitle": "Your draft is saved automatically while you work.",
+    "backToList": "All campaigns",
+    "retry": "Try again",
+    "conflict": "This draft was changed somewhere else, so autosave is paused. Your edits here are kept.",
+    "saveAsNew": "Save as a new draft",
+    "steps": {
+      "template": "Template",
+      "audience": "Audience",
+      "experiment": "Experiment",
+      "targeting": "Targeting",
+      "review": "Review"
+    },
+    "template": {
+      "name": "Campaign name",
+      "nameHint": "Only your team sees this.",
+      "namePlaceholder": "Spring offer",
+      "choose": "Email template",
+      "chooseHint": "Pick the email this campaign sends.",
+      "search": "Search templates",
+      "noSelection": "Choose a template to see how the email looks.",
+      "previewTitle": "Preview"
+    },
+    "audience": {
+      "choose": "Audience",
+      "chooseHint": "Pick a saved segment, or send to everyone with an email address.",
+      "search": "Search segments",
+      "everyone": "Everyone with an email address",
+      "rfmUnavailable": "RFM filters are not available yet. They appear once customer scoring has run."
+    },
+    "experiment": {
+      "sliderLabel": "Holdout size",
+      "whyTitle": "Why keep some people out?",
+      "whyBody": "The holdout is a random group that deliberately gets no email. Comparing it with the people who did receive the email shows the difference in purchases between the two groups.",
+      "tradeoff": "A larger holdout gives a more reliable result but reaches fewer people now.",
+      "previewTitle": "What this means",
+      "receive": "Will receive the email",
+      "holdout": "Kept as holdout",
+      "mde": "Rough guide: a difference of about {percent} percentage points in conversion could be detected.",
+      "mdeNote": "After the audience is frozen, the estimate uses the real group sizes; it still assumes a 20% baseline conversion.",
+      "emptyAudience": "This audience has no contacts yet, so there is nothing to compare.",
+      "loading": "Counting the audience..."
+    },
+    "targeting": {
+      "title": "Who gets the email",
+      "noPermission": "You need permission to run predictions to use this option.",
+      "shareLabel": "Share of the audience to email",
+      "scoresNote": "Uses the latest scores. If none are available, you will be told when you prepare the campaign.",
+      "modes": {
+        "all": {
+          "title": "Everyone in the audience",
+          "description": "Every contact in the audience is eligible."
+        },
+        "top_uplift": {
+          "title": "Top by predicted uplift",
+          "description": "Email only the contacts the model predicts will show the largest difference in response to the email."
+        },
+        "top_rfm": {
+          "title": "Top by RFM score",
+          "description": "Email only the most recent, frequent and valuable customers."
+        }
+      },
+      "uplift": {
+        "checking": "Checking scores...",
+        "notReady": "Run scoring first. Top uplift needs scores from a completed uplift run.",
+        "model": "Scores from {name} {version}"
+      }
+    },
+    "review": {
+      "name": "Campaign",
+      "holdout": "Holdout",
+      "targeting": "Targeting",
+      "everyone": "Everyone",
+      "topUplift": "Top uplift",
+      "topRfm": "Top RFM",
+      "status": "Status",
+      "statuses": {
+        "draft": "Draft",
+        "preparing": "Preparing",
+        "ready": "Ready",
+        "sending": "Sending",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "failed": "Failed"
+      },
+      "prepareHint": "Preparing freezes the audience and the holdout split. After that they cannot be changed.",
+      "prepare": "Prepare campaign",
+      "preparingAction": "Preparing...",
+      "preparing": "Freezing the audience. This page updates on its own.",
+      "frozen": "Audience frozen",
+      "treatment": "Email group",
+      "treatmentTargeted": "Targeted",
+      "holdoutCount": "Holdout group",
+      "srmWarning": "The split between the groups looks uneven compared with what was planned. Check the audience before relying on the result.",
+      "scoresUnavailable": "No scores are available yet for this targeting.",
+      "changeTargeting": "Change targeting",
+      "mdeLine": "Detectable difference: about {percent} percentage points (assumes 20% baseline conversion).",
+      "holdoutTargeted": "Holdout targeted",
+      "resume": "Resume preparing",
+      "resuming": "Resuming...",
+      "stopped": "Preparing stopped before it finished. Resume to continue; the people already assigned keep their group.",
+      "saveFailed": "Your latest changes are not saved yet, so the campaign was not prepared. Fix the save problem above and try again.",
+      "scoreModel": "Scores from {name} {version}",
+      "scoreModelPending": "The model is fixed when the audience is frozen."
+    },
+    "editTitle": "Edit campaign",
+    "loadLatest": "Load the latest version"
+  },
+  "status": {
+    "draft": "Draft",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "sending": "Sending",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "failed": "Failed"
+  },
+  "list": {
+    "create": "New campaign",
+    "demoBadge": "Demo data",
+    "searchPlaceholder": "Search campaigns",
+    "retry": "Try again",
+    "loadError": "Campaigns could not be loaded.",
+    "empty": {
+      "title": "No campaigns yet",
+      "description": "Create a campaign to send an email to part of your contacts and measure what it really changed."
+    },
+    "emptyFiltered": {
+      "title": "No campaigns match",
+      "description": "Try a different search or clear the filters."
+    },
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "holdout": "Holdout",
+      "targeting": "Targeting",
+      "started": "Started"
+    },
+    "filters": {
+      "status": "Status",
+      "statusSearch": "Search statuses",
+      "statusEmpty": "No matching status"
+    }
+  },
+  "detail": {
+    "title": "Campaign",
+    "demoBadge": "Demo data",
+    "readOnly": "This campaign can no longer be edited.",
+    "template": "Template",
+    "audience": "Audience",
+    "everyone": "Everyone with an email address",
+    "notFound": {
+      "title": "Campaign not found",
+      "description": "It may have been removed, or the link is wrong."
+    }
+  },
+  "unsubscribe": {
+    "title": "Unsubscribe",
+    "description": "Stop receiving marketing emails from this sender.",
+    "confirm": {
+      "body": "Do you want to stop receiving these emails?",
+      "action": "Unsubscribe"
+    },
+    "pending": "Unsubscribing...",
+    "done": {
+      "title": "You are unsubscribed",
+      "body": "You will not receive more of these emails. You can close this page."
+    },
+    "invalid": {
+      "title": "This link no longer works",
+      "body": "The unsubscribe link is invalid or has expired. Use the link in a more recent email, or reply to the sender."
+    },
+    "rateLimited": {
+      "title": "Too many attempts",
+      "body": "Please wait a moment, then try again.",
+      "retry": "Try again"
+    },
+    "failed": "Something went wrong. Please try again."
+  },
+  "send": {
+    "start": "Start sending",
+    "test": "Send me a test email",
+    "testSending": "Sending test...",
+    "testSent": "Test email sent to your address.",
+    "testRateLimited": "Too many test emails were sent. Try again later.",
+    "started": "Sending has started.",
+    "testHint": "The test email goes only to you, with sample data. Nobody in the audience receives anything until you start sending.",
+    "confirm": {
+      "title": "Start sending now?",
+      "description": "{count, plural, one {# email goes} other {# emails go}} out as soon as you confirm. Emails cannot be recalled or stopped once they are sent. The holdout group receives nothing.",
+      "descriptionUnknown": "Emails go out as soon as you confirm. They cannot be recalled once they are sent. The holdout group receives nothing.",
+      "action": "Send now"
+    }
+  },
+  "progress": {
+    "title": "Sending progress",
+    "running": "Sending is in progress. This page updates on its own.",
+    "finished": "Sending has finished.",
+    "barLabel": "Share of recipients processed",
+    "barText": "{processed} of {total} processed",
+    "counts": {
+      "queued": {
+        "label": "Queued",
+        "help": "Waiting for their turn to be sent."
+      },
+      "sent": {
+        "label": "Sent",
+        "help": "Handed to the mail server."
+      },
+      "failed": {
+        "label": "Failed",
+        "help": "Could not be sent. Retries ran out or the problem is permanent."
+      },
+      "unknown": {
+        "label": "Unknown",
+        "help": "The send was interrupted, so we cannot tell whether it went out. We did not retry, to avoid sending twice."
+      },
+      "suppressed": {
+        "label": "Suppressed",
+        "help": "Not sent because the address unsubscribed or is on the suppression list."
+      }
+    }
+  },
+  "results": {
+    "title": "Results",
+    "simulated": "Demo: simulated effect",
+    "provisional": "Provisional",
+    "final": "Final",
+    "refresh": "Refresh results",
+    "refreshing": "Refreshing...",
+    "refreshQueued": "Refresh requested. The figures update in a moment.",
+    "notCalculated": "Results are not calculated yet.",
+    "verdict": {
+      "closesOn": "The comparison is shown when the window closes on {date}.",
+      "finalizing": "The window has closed; final figures are being calculated.",
+      "unreliable": "The group sizes differ from the planned split by more than chance explains, so this comparison is not reliable and no conclusion is drawn.",
+      "inconclusive": "No conclusion can be drawn from this comparison.",
+      "notStarted": "This campaign has not been sent yet, so there is nothing to compare.",
+      "noNumbers": "The comparison cannot be calculated from the data available.",
+      "measurableLift": "In this group, {treatment}% of the people who received the email converted, against {holdout}% in the holdout: a difference of {lift} percentage points. The data are consistent with a difference between {low} and {high} percentage points (95% interval). This describes what happened in this campaign; it does not by itself explain why.",
+      "noMeasurableEffect": "In this group, the difference was {lift} percentage points, and the 95% interval ({low} to {high}) includes zero. These data cannot tell an effect from chance.",
+      "noMeasurableEffectMde": "With this holdout, only differences of about {mde} percentage points or more could have been detected, so a smaller effect cannot be ruled out."
+    },
+    "simulatedNote": "This is a demo campaign. Its orders and its effect were generated by a simulation, not by real customers.",
+    "demo": "Demo",
+    "demoNote": "Historic demo campaign: no email was sent; the groups are compared on the dataset's real orders.",
+    "revenueNote": "Revenue difference × group size is the difference in mean revenue between the two groups, multiplied by the size of the email group. It describes the gap in this data, not a proven cause.",
+    "table": {
+      "caption": "Conversion and revenue of the email group and the holdout group",
+      "group": "Group",
+      "targeted": "People",
+      "converted": "Converted",
+      "rate": "Conversion",
+      "revenue": "Revenue",
+      "treatment": "Received the email",
+      "holdout": "Holdout (no email)",
+      "treatmentDemo": "Email group (demo, not sent)"
+    },
+    "chart": {
+      "title": "Difference between the groups",
+      "alt": "Difference between the groups: {lift} percentage points, 95% interval from {low} to {high} percentage points.",
+      "caption": "Difference in conversion between the email group and the holdout, in percentage points, with its 95% interval.",
+      "noDifference": "No difference"
+    },
+    "noInterval": "The interval cannot be drawn because the data are insufficient.",
+    "stats": {
+      "difference": "Difference",
+      "points": "percentage points",
+      "interval": "95% interval",
+      "pValue": "p-value",
+      "revenueDifference": "Revenue difference × group size",
+      "mde": "Smallest detectable difference",
+      "srm": "Group size check",
+      "window": "Attribution window",
+      "computed": "Figures computed"
+    },
+    "srm": {
+      "ok": "No problem found",
+      "alarm": "Alarm"
+    },
+    "window": {
+      "open": "Open until {date}",
+      "closed": "Closed on {date}",
+      "notStarted": "Not started"
+    },
+    "mdeCaution": "A small holdout can only detect large differences. The smallest difference this campaign could detect is shown above; a smaller real effect would not show up as measurable."
+  },
+  "recipients": {
+    "title": "Recipients",
+    "subtitle": "Everyone in the audience, whether they got the email, and what they did afterwards.",
+    "searchPlaceholder": "Search by contact name",
+    "empty": "No recipients match these filters.",
+    "columns": {
+      "contact": "Contact",
+      "group": "Group",
+      "targeted": "Targeted",
+      "sendStatus": "Send status",
+      "conversion": "Conversion",
+      "revenue": "Revenue",
+      "email": "Email"
+    },
+    "filters": {
+      "allGroups": "All groups",
+      "allTargeting": "Targeted and not",
+      "targetedOnly": "Targeted only",
+      "notTargetedOnly": "Not targeted only",
+      "allSendStatuses": "All send statuses",
+      "allConversions": "All conversions",
+      "convertedOnly": "Converted only",
+      "notConvertedOnly": "Not converted only",
+      "search": "Find an option",
+      "empty": "Nothing matches"
+    },
+    "arm": {
+      "treatment": "Received the email",
+      "holdout": "Holdout",
+      "treatmentDemo": "Email group (demo, not sent)"
+    },
+    "holdoutNote": "No email by design",
+    "targeted": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "sendStatus": {
+      "claimed": "Being sent",
+      "demo": "Demo, not sent",
+      "sent": "Sent",
+      "retryable_failed": "Failed, will retry",
+      "failed": "Failed",
+      "skipped_suppressed": "Suppressed",
+      "unknown": "Unknown"
+    },
+    "conversion": {
+      "converted": "Converted",
+      "not_converted": "No purchase",
+      "pending": "Waiting for results",
+      "not_targeted": "Not targeted",
+      "not_visible": "Hidden",
+      "deleted": "Contact deleted"
+    },
+    "contactRemoved": "Contact removed",
+    "contactHidden": "Name hidden",
+    "visibility": {
+      "hidden": "Hidden",
+      "hiddenNote": "Some names, conversions and revenue are hidden because your access does not include all contacts."
+    },
+    "scanning": {
+      "title": "Still searching",
+      "description": "No matching recipients on this part of the list yet. Load the next part to keep searching.",
+      "loadMore": "Load more"
+    },
+    "email": {
+      "hidden": "Hidden",
+      "hiddenNote": "Some email addresses are hidden because your access does not include all contacts."
+    }
+  }
+}

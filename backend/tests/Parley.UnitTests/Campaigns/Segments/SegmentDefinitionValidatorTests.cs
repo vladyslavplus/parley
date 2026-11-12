@@ -21,6 +21,17 @@ public sealed class SegmentDefinitionValidatorTests
     }
 
     [Fact]
+    public void Validate_RejectsNullList_InsteadOfThrowing()
+    {
+        var definition = new SegmentDefinition { CountryCodes = null! };
+
+        var result = _validator.Validate(definition);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle(error => error.PropertyName == nameof(SegmentDefinition.CountryCodes));
+    }
+
+    [Fact]
     public void Validate_RejectsEmptyOwnerIdentifier()
     {
         var definition = new SegmentDefinition { OwnerUserIds = [Guid.Empty] };

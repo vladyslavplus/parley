@@ -1,0 +1,113 @@
+# Demo effect for the injected-effect campaign and the semi-synthetic crm_uplift fixture.
+# Read by parley_ml.experiments.demo_effect. Values are fixed here; nothing is tuned after a demo run has been inspected.
+
+# Demo seed. Fixed before any demo output was looked at. Re-seeding with the same value gives identical demo rows.
+seed: 20261115
+
+# Last date of the source data (Online Retail II). Campaign send times are measured back from this date.
+dataset_end: "2011-12-09"
+
+campaigns:
+  # A/A campaign: no effect at all (tau is not applied). Outcomes are the real orders only.
+  aa:
+    send_offset_days: 60   # sent this many days before dataset_end
+    window_days: 30        # an order counts when it falls in (send_time, send_time + window_days]
+    holdout_share_bps: 1000  # 10 % of targeted recipients go to the holdout
+    apply_effect: false
+  # Injected-effect campaign: extra simulated orders for treatment-arm recipients, drawn from tau below.
+  injected:
+    send_offset_days: 30
+    window_days: 30
+    holdout_share_bps: 1000
+    apply_effect: true
+
+# Semi-synthetic crm_uplift fixture. Covariates and baseline outcomes are real; the injected effect is the only synthetic part.
+fixture:
+  # Start of the baseline window T0 (2011-06-10). Features use orders up to T0 minus one second (inclusive instant).
+  # Y0 is any purchase in (T0, T0 + baseline_window_days].
+  t0: "2011-06-10"
+  baseline_window_days: 30
+  # Assignment share for the fixture (50 % so both arms have enough rows).
+  holdout_share_bps: 5000
+  # Text seed of the shared holdout algorithm (parley_ml.experiments.holdout). Changing it reshuffles the arms.
+  assignment_seed: "crm-uplift-demo-assignment-v1"
+  # Seed of the uniform draws that turn Y0 into the simulated treated outcome.
+  outcome_seed: 20261116
+  # Population: customers with a purchase before T0 and non-negative net value and average value
+  # (parley_ml.features.crm.eligible_contacts). The service validates the same rule.
+
+# Customer-level split of the fixture. Stratified by arm and observed outcome. No customer is in two splits.
+split:
+  seed: 20261117
+  validation_share: 0.10
+  test_share: 0.20
+
+# T-learner: one XGBoost model per arm. Hyperparameters are fixed here, before any model output was looked at.
+model:
+  seed: 20261118
+  xgboost:
+    objective: binary:logistic
+    eval_metric: logloss
+    tree_method: hist
+    device: cpu
+    max_bin: 256
+    max_depth: 3
+    eta: 0.1
+  early_stopping_rounds: 30
+  max_rounds: 500
+
+# Segment thresholds of the served model. Chosen on the validation split only, by maximising the macro F1 of the four
+# segments against the known segments. The test split is scored once, after these values are frozen.
+selection:
+  do_not_disturb_uplift_below: [-0.05, -0.03, -0.02, -0.01]
+  persuadable_uplift_at_least: [0.02, 0.05, 0.08, 0.10]
+  sure_thing_control_rate_at_least: [0.15, 0.25, 0.35]
+
+evaluation:
+  bootstrap_replicates: 200
+  bootstrap_seed: 20261119
+  # Share of the test split in the top of the ranking, for the "mean true tau" check.
+  top_share: 0.20
+
+artifact:
+  root: "artifacts/models"
+  # Date in the version name and manifest. Fixed in config so the same run gives the same name.
+  trained_at: "2026-11-10"
+  demo_export_dir: "artifacts/demo_export"
+  results_md: "results/crm_uplift_demo.md"
+
+# Effect function tau(x). Segments are checked in the order listed; the first match wins.
+# Feature names are the 8 fields of feature_schema_version 1 (recency_days, orders_365d, order_count, value_365d, ...).
+effect:
+  segments:
+    - name: do_not_disturb
+      # Recent single-purchase customers: buying again is unlikely to be caused by a message.
+      tau: -0.03
+      when:
+        order_count: {eq: 1}
+        recency_days: {lte: 30}
+    - name: lost_cause
+      # Long inactive customers: a message does little.
+      tau: 0.01
+      when:
+        recency_days: {gt: 365}
+    - name: sure_thing
+      # Top RFM customers buy anyway. Approximates the champions rule of the RFM fallback: quintile tiers need population
+      # statistics, so this fixed threshold set stands in for R >= 4, F >= 4, M >= 4.
+      tau: 0.0
+      when:
+        recency_days: {lte: 30}
+        orders_365d: {gte: 6}
+        value_365d: {gte: 1000}
+    - name: persuadable
+      # Mid-recency, low-to-mid frequency customers: the message changes their decision.
+      tau: 0.15
+      when:
+        recency_days: {gt: 30, lte: 180}
+        orders_365d: {gte: 2, lte: 3}
+  # Any customer that matches no segment has tau 0.
+  default_tau: 0.0
+  # Outcome rule for the treated arm (documented here, implemented in demo_effect.treated_outcome):
+  #   tau > 0: a non-buyer becomes a buyer with probability tau; an existing buyer stays a buyer.
+  #   tau < 0: an existing buyer stops buying with probability |tau|; a non-buyer stays a non-buyer.
+  outcome_rule: "positive tau adds a conversion with probability tau; negative tau removes one with probability |tau|"

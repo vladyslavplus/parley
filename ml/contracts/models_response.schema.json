@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "ModelEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "error_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Model status code (ml.model.*) when unavailable, else null.",
+          "title": "Error Code"
+        },
+        "feature_schema_version": {
+          "minimum": 0,
+          "title": "Feature Schema Version",
+          "type": "integer"
+        },
+        "kind": {
+          "description": "uplift or clv; unknown when the manifest is unreadable.",
+          "title": "Kind",
+          "type": "string"
+        },
+        "metrics": {
+          "additionalProperties": true,
+          "description": "Evaluation metrics from the manifest; empty when unavailable.",
+          "title": "Metrics",
+          "type": "object"
+        },
+        "model_name": {
+          "title": "Model Name",
+          "type": "string"
+        },
+        "provenance": {
+          "description": "public_dataset, semi_synthetic, stub, or unknown when the manifest is unreadable.",
+          "title": "Provenance",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "available",
+            "unavailable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "trained_at": {
+          "title": "Trained At",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_name",
+        "version",
+        "kind",
+        "feature_schema_version",
+        "provenance",
+        "trained_at",
+        "metrics",
+        "status",
+        "error_code"
+      ],
+      "title": "ModelEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "models": {
+      "items": {
+        "$ref": "#/$defs/ModelEntry"
+      },
+      "title": "Models",
+      "type": "array"
+    }
+  },
+  "required": [
+    "models"
+  ],
+  "title": "ModelsResponse",
+  "type": "object"
+}

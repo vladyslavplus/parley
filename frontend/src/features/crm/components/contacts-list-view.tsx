@@ -1,7 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Download, Plus, RefreshCw } from "lucide-react";
+import { Download, Layers, Plus, RefreshCw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
@@ -13,7 +13,10 @@ import {
   DataTableSearchFilterBar,
   useKeysetPaging,
 } from "@/components/data-table";
+import { useStaticFilter } from "@/components/filters/use-static-filter";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { ERROR_CODES } from "@/constants/error-codes";
 import { LIMITS } from "@/constants/limits";
 import { PERMISSIONS } from "@/constants/permissions";
 import { companyRecordRoute, contactRecordRoute } from "@/constants/routes";
@@ -30,16 +33,19 @@ import {
 } from "@/features/crm/filters/use-filter-dimensions";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import { useTags } from "@/features/crm/hooks/use-tags";
+import { SEGMENT_CODES, segmentLabelKey } from "@/features/insights/lib/codes";
 import type { Contact } from "@/features/crm/types";
 import { Can } from "@/features/session/components/can";
 import { Link } from "@/i18n/navigation";
 import { formatDate } from "@/lib/formatters";
+import { toApiError } from "@/lib/errors";
 import { showSuccessToast, useUndoToast } from "@/lib/toasts";
 
 export function ContactsListView() {
   const t = useTranslations("crm.contacts");
   const tCrm = useTranslations("crm");
   const tFilters = useTranslations("crm.filters");
+  const tInsights = useTranslations("insights");
   const tTable = useTranslations("table");
   const locale = useLocale();
   const undoToast = useUndoToast();
@@ -66,6 +72,10 @@ export function ContactsListView() {
   );
   const [ownerUserId, setOwnerUserId] = useQueryState(
     "ownerUserId",
+    parseAsString.withDefault(""),
+  );
+  const [segment, setSegment] = useQueryState(
+    "segment",
     parseAsString.withDefault(""),
   );
 
@@ -106,9 +116,29 @@ export function ContactsListView() {
     order: order || undefined,
     tagId: tagId || undefined,
     ownerUserId: ownerUserId || undefined,
+    segment: segment || undefined,
     after: after || undefined,
     limit: pageSize,
   });
+
+  // A segment the server refuses comes back as a 400: too large to filter
+  // (its own code) or unknown (a validation error on the `segment` field, which
+  // the server names in PascalCase, so the match ignores case).
+  const segmentRejection = contactsQuery.isError
+    ? segmentRejectionKey(toApiError(contactsQuery.error))
+    : null;
+
+  function segmentRejectionKey(
+    error: ReturnType<typeof toApiError>,
+  ): "segmentTooLarge" | "segmentFilterRejected" | null {
+    if (error.code === ERROR_CODES.contactsSegmentTooLarge) {
+      return "segmentTooLarge";
+    }
+    const onSegment = Object.keys(error.fieldErrors).some(
+      (field) => field.toLowerCase() === "segment",
+    );
+    return onSegment ? "segmentFilterRejected" : null;
+  }
 
   const tagsQuery = useTags();
   const { bulkAssignContactOwner, bulkDeleteContacts, restoreContact } =
@@ -140,11 +170,34 @@ export function ContactsListView() {
     },
   });
 
+  const segmentFilter = useStaticFilter({
+    key: "segment",
+    label: t("columns.segment"),
+    icon: Layers,
+    value: segment,
+    onChange: (value) => {
+      void setSegment(value);
+      resetPaging();
+    },
+    options: SEGMENT_CODES.map((code) => ({
+      id: code,
+      label: segmentText(code) ?? code,
+    })),
+    searchPlaceholder: tInsights("filters.searchSegments"),
+    emptyLabel: tInsights("filters.noSegments"),
+  });
+
+  function segmentText(code: string): string | null {
+    const key = segmentLabelKey(code);
+    return key ? tInsights(key) : null;
+  }
+
   function handleFilterReset() {
     setSearchInput("");
     void setQ("");
     void setTagId("");
     void setOwnerUserId("");
+    void setSegment("");
     resetPaging();
   }
 
@@ -303,6 +356,26 @@ export function ContactsListView() {
       },
     },
     {
+      id: "segment",
+      header: t("columns.segment"),
+      enableSorting: false,
+      cell: ({ row }) => {
+        const code = row.original.segment;
+        if (!code) {
+          return (
+            <span className="text-xs text-muted-foreground">
+              {t("segmentNotCalculated")}
+            </span>
+          );
+        }
+        return (
+          <span className="text-xs text-foreground">
+            {segmentText(code) ?? code}
+          </span>
+        );
+      },
+    },
+    {
       id: "created",
       accessorKey: "createdAt",
       header: t("columns.created"),
@@ -338,6 +411,13 @@ export function ContactsListView() {
         </Can>
       </div>
 
+      {segmentRejection ? (
+        <Alert tone="warning">{t(segmentRejection)}</Alert>
+      ) : null}
+      <p className="text-xs text-muted-foreground">
+        {tInsights("filters.help")}
+      </p>
+
       {/* Main Data Table */}
       <DataTable
         data={contacts}
@@ -358,8 +438,10 @@ export function ContactsListView() {
               resetPaging();
             }}
             searchPlaceholder={t("searchPlaceholder")}
-            filters={[tagDimension, ownerDimension]}
-            hasActiveFilters={Boolean(q || tagId || ownerUserId || after)}
+            filters={[tagDimension, ownerDimension, segmentFilter]}
+            hasActiveFilters={Boolean(
+              q || tagId || ownerUserId || segment || after,
+            )}
             onResetFilters={handleFilterReset}
             actions={
               <>

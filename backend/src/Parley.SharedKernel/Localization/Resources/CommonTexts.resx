@@ -405,7 +405,181 @@
   <data name="campaigns.campaign.scores_unavailable" xml:space="preserve">
     <value>No scores are available yet, so this targeting mode cannot be prepared.</value>
   </data>
+  <data name="campaigns.send.mail_unavailable" xml:space="preserve">
+    <value>The mail server did not accept the connection. The send will be retried.</value>
+  </data>
+  <data name="campaigns.send.result_unknown" xml:space="preserve">
+    <value>The result of the send is unknown, so the email will not be sent again.</value>
+  </data>
+  <data name="campaigns.send.recipient_unavailable" xml:space="preserve">
+    <value>The recipient is no longer available for sending.</value>
+  </data>
+  <data name="campaigns.send.test_failed" xml:space="preserve">
+    <value>The test email could not be sent. Try again later.</value>
+  </data>
+  <data name="campaigns.send.test_address_missing" xml:space="preserve">
+    <value>Your account has no email address to receive the test email.</value>
+  </data>
+  <data name="campaigns.unsubscribe.token_invalid" xml:space="preserve">
+    <value>This unsubscribe link is not valid.</value>
+  </data>
+  <data name="campaigns.unsubscribe.token_expired" xml:space="preserve">
+    <value>This unsubscribe link has expired.</value>
+  </data>
   <data name="campaigns.segment.version_conflict" xml:space="preserve">
     <value>The segment was changed by someone else. Reload it and try again.</value>
+  </data>
+  <data name="insights.ml_settings.version_conflict" xml:space="preserve">
+    <value>The ML settings were changed by someone else. Reload them and try again.</value>
+  </data>
+  <data name="insights.scoring.ml_disabled" xml:space="preserve">
+    <value>ML scoring is off for this organization. Turn it on in the ML settings.</value>
+  </data>
+  <data name="insights.scoring.run_abandoned" xml:space="preserve">
+    <value>The scoring run stopped responding and was ended. Start it again; the previous scores are kept.</value>
+  </data>
+  <data name="insights.scoring.run_in_progress" xml:space="preserve">
+    <value>A scoring run of this kind is already running. Wait for it to finish.</value>
+  </data>
+  <data name="insights.scoring.kind_unknown" xml:space="preserve">
+    <value>This score kind cannot be scored. Choose uplift or CLV.</value>
+  </data>
+  <data name="insights.scoring.run_not_found" xml:space="preserve">
+    <value>The scoring run was not found.</value>
+  </data>
+  <data name="insights.scoring.service_unavailable" xml:space="preserve">
+    <value>The scoring service is not reachable right now. Scores were not changed; try again later.</value>
+  </data>
+  <data name="insights.scoring.service_rejected" xml:space="preserve">
+    <value>The scoring service refused the request. Check the ML service configuration.</value>
+  </data>
+  <data name="insights.scoring.model_unavailable" xml:space="preserve">
+    <value>No usable model is active for this score kind. Sync the models and choose an active version.</value>
+  </data>
+  <data name="insights.scoring.model_mismatch" xml:space="preserve">
+    <value>The scoring service used a different model than the one selected. Scores were not changed.</value>
+  </data>
+  <data name="insights.scoring.too_many_rejected" xml:space="preserve">
+    <value>The scoring service rejected too many contacts. Scores were not changed.</value>
+  </data>
+  <data name="insights.scoring.run_failed" xml:space="preserve">
+    <value>The scoring run failed unexpectedly. Scores were not changed.</value>
+  </data>
+  <data name="insights.scoring.cancelled" xml:space="preserve">
+    <value>The scoring run was cancelled. Scores were not changed.</value>
+  </data>
+  <data name="campaigns.test_send.rate_limited" xml:space="preserve">
+    <value>Too many test emails were sent. Try again later.</value>
+  </data>
+  <data name="crm.contacts.segment_too_large" xml:space="preserve">
+    <value>The segment has too many contacts to filter here. Narrow the list with another filter.</value>
+  </data>
+  <data name="notifications.notification.not_found" xml:space="preserve">
+    <value>The notification was not found.</value>
+  </data>
+  <data name="notifications.preferences.version_conflict" xml:space="preserve">
+    <value>The notification settings were changed by someone else. Reload them and try again.</value>
+  </data>
+  <data name="notifications.preferences.type_unknown" xml:space="preserve">
+    <value>The notification type is unknown.</value>
+  </data>
+  <data name="telegram.not_configured" xml:space="preserve">
+    <value>Telegram is not configured on this server.</value>
+  </data>
+  <data name="telegram.link_code.invalid" xml:space="preserve">
+    <value>The link code is invalid, already used, or expired. Create a new code in the app.</value>
+  </data>
+  <data name="telegram.link_code.rate_limited" xml:space="preserve">
+    <value>Too many link codes were requested. Try again later.</value>
+  </data>
+  <data name="telegram.link.already_exists" xml:space="preserve">
+    <value>Your account already has a linked Telegram chat in this organization. Send /unlink in that chat first.</value>
+  </data>
+  <data name="telegram.chat.already_linked" xml:space="preserve">
+    <value>This chat is already linked to another user in this organization.</value>
+  </data>
+  <data name="telegram.link.not_found" xml:space="preserve">
+    <value>No Telegram chat is linked to your account in this organization.</value>
+  </data>
+  <data name="telegram.delivery.blocked" xml:space="preserve">
+    <value>The chat blocked the bot, so its link was switched off.</value>
+  </data>
+  <data name="telegram.delivery.rejected" xml:space="preserve">
+    <value>Telegram refused the message.</value>
+  </data>
+  <data name="telegram.delivery.unavailable" xml:space="preserve">
+    <value>Telegram was unavailable and the retries ran out.</value>
+  </data>
+  <data name="telegram.delivery.rate_limited" xml:space="preserve">
+    <value>Telegram asked to wait before the next message.</value>
+  </data>
+  <data name="telegram.webhook.secret_invalid" xml:space="preserve">
+    <value>The webhook secret does not match.</value>
+  </data>
+  <data name="telegram.bot.help" xml:space="preserve">
+    <value>Commands: /today shows today's priority list, /unlink ends this link. To link this chat, create a code in the app and send it here as /start [code].</value>
+  </data>
+  <data name="telegram.bot.linked" xml:space="preserve">
+    <value>This chat is linked. You will receive the notifications you turned on for Telegram.</value>
+  </data>
+  <data name="telegram.bot.unlinked" xml:space="preserve">
+    <value>The link is ended. This chat will not receive more messages from the app.</value>
+  </data>
+  <data name="telegram.bot.not_linked" xml:space="preserve">
+    <value>This chat is not linked to any account. Create a code in the app first.</value>
+  </data>
+  <data name="telegram.bot.choose_organization" xml:space="preserve">
+    <value>This chat is linked to {0} organizations. Choose one by sending its number:</value>
+  </data>
+  <data name="telegram.bot.today_header" xml:space="preserve">
+    <value>Today's priority list:</value>
+  </data>
+  <data name="telegram.bot.today_empty" xml:space="preserve">
+    <value>Nothing is on the priority list today.</value>
+  </data>
+  <data name="telegram.bot.no_access" xml:space="preserve">
+    <value>Your role does not allow the priority list in this organization.</value>
+  </data>
+  <data name="telegram.bot.membership_ended" xml:space="preserve">
+    <value>Your membership in this organization has ended, so this link was switched off.</value>
+  </data>
+  <data name="telegram.bot.insights_footer" xml:space="preserve">
+    <value>Open the insights page: {0}</value>
+  </data>
+  <data name="telegram.action.call" xml:space="preserve">
+    <value>Call the contact.</value>
+  </data>
+  <data name="telegram.action.review_deal" xml:space="preserve">
+    <value>Review the stale deal.</value>
+  </data>
+  <data name="telegram.action.win_back" xml:space="preserve">
+    <value>Win the contact back.</value>
+  </data>
+  <data name="telegram.action.reward" xml:space="preserve">
+    <value>Reward the contact.</value>
+  </data>
+  <data name="telegram.action.nurture" xml:space="preserve">
+    <value>Nurture the contact.</value>
+  </data>
+  <data name="telegram.notification.task_assigned" xml:space="preserve">
+    <value>A task was assigned to you.</value>
+  </data>
+  <data name="telegram.notification.task_due_soon" xml:space="preserve">
+    <value>A task is due soon.</value>
+  </data>
+  <data name="telegram.notification.deal_assigned" xml:space="preserve">
+    <value>A deal was assigned to you.</value>
+  </data>
+  <data name="telegram.notification.campaign_completed" xml:space="preserve">
+    <value>A campaign has finished sending.</value>
+  </data>
+  <data name="telegram.notification.scoring_run_completed" xml:space="preserve">
+    <value>New scores are ready.</value>
+  </data>
+  <data name="telegram.notification.member_activated" xml:space="preserve">
+    <value>A new member joined the organization.</value>
+  </data>
+  <data name="notifications.preferences.channel_unknown" xml:space="preserve">
+    <value>The notification channel is unknown.</value>
   </data>
 </root>

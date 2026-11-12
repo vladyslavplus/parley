@@ -22,6 +22,7 @@ namespace Parley.Crm.Features.Tasks.Update;
 public sealed class UpdateTaskCommandHandler(
     CrmDbContext dbContext,
     ITenantContext tenantContext,
+    ICurrentUser currentUser,
     IDataScope dataScope,
     OwnerDirectory ownerDirectory,
     IPermissionChecker permissionChecker,
@@ -30,6 +31,7 @@ public sealed class UpdateTaskCommandHandler(
 {
     public async ValueTask<Result<TaskView>> Handle(UpdateTaskCommand command, CancellationToken cancellationToken)
     {
+        var actorId = currentUser.RequireUserId();
         var scope = await dataScope.ForPermissionAsync(Permissions.TasksWrite, cancellationToken);
         var task = await TaskLookup.FindTrackedAsync(dbContext, command.Id, scope, cancellationToken);
         if (task is null)
@@ -67,7 +69,7 @@ public sealed class UpdateTaskCommandHandler(
         task.CompanyId = command.CompanyId;
         if (assigneeChanged)
         {
-            outbox.Add(new TaskAssigned { TaskId = task.Id, AssigneeUserId = assigneeId, OccurredAt = timeProvider.GetUtcNow() });
+            outbox.Add(new TaskAssigned { TaskId = task.Id, AssigneeUserId = assigneeId, ActorUserId = actorId, OccurredAt = timeProvider.GetUtcNow() });
         }
 
         // The stale-write check: the UPDATE matches the client's row version, so a changed row affects nothing.

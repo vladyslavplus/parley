@@ -1,0 +1,4 @@
+# Scoring service limits. Secrets and paths come from the environment, never from this file.
+# PARLEY_ML_KEY: shared key checked on every score and model endpoint (required).
+# PARLEY_ML_ARTIFACTS_DIR: directory with one sub-directory per model version (defaults to artifacts/models).
+max_batch_size: 1000

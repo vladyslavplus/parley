@@ -10,16 +10,29 @@ public sealed class SegmentDefinitionValidator : AbstractValidator<SegmentDefini
 {
     public SegmentDefinitionValidator()
     {
+        // A list that JSON sets to null is an input error. NotNull stops the cascade, so the count below never sees null.
         RuleFor(definition => definition.OwnerUserIds)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithErrorCode(ErrorCodes.ValidationFailed)
             .Must(owners => owners.Count <= CampaignsLimits.SegmentListMaximumCount && owners.All(IsIdentifier))
             .WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(definition => definition.TagIds)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithErrorCode(ErrorCodes.ValidationFailed)
             .Must(tags => tags.Count <= CampaignsLimits.SegmentListMaximumCount && tags.All(IsIdentifier))
             .WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(definition => definition.CountryCodes)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithErrorCode(ErrorCodes.ValidationFailed)
             .Must(codes => codes.Count <= CampaignsLimits.SegmentListMaximumCount && codes.All(IsCountryCode))
             .WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(definition => definition.RfmSegments)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithErrorCode(ErrorCodes.ValidationFailed)
             .Must(segments => segments.Count <= CampaignsLimits.SegmentListMaximumCount
                 && segments.All(segment => !string.IsNullOrWhiteSpace(segment)
                     && segment.Length <= CampaignsLimits.SegmentRfmSegmentMaximumLength))

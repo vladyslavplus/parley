@@ -58,7 +58,7 @@ public sealed class CreateTaskCommandHandler(
             CompanyId = command.CompanyId,
         };
         dbContext.Tasks.Add(task);
-        outbox.Add(new TaskAssigned { TaskId = task.Id, AssigneeUserId = assigneeId, OccurredAt = now });
+        outbox.Add(new TaskAssigned { TaskId = task.Id, AssigneeUserId = assigneeId, ActorUserId = actorId, OccurredAt = now });
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

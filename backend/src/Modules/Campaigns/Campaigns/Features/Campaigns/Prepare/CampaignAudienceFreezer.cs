@@ -15,12 +15,12 @@ using Parley.SharedKernel.Tenancy.Abstractions;
 namespace Parley.Campaigns.Features.Campaigns.Prepare;
 
 /// <summary>
-/// Freezes the audience of a campaign (domain model 7.2). Pass one reads the eligible contacts in batches, drops the
-/// suppressed ones, assigns the arm of each, and reads the scores. Ranking then runs across both arms, so
-/// <c>is_targeted</c> is known before any arm-specific behavior. Pass two inserts the recipients in batches with
-/// <c>ON CONFLICT DO NOTHING</c>. The commit point is the last statement: it sets <c>audience_frozen_at</c> and moves
-/// the campaign to <c>ready</c>. Until then the rows are invisible to sending, and a failed run is resumed by running
-/// the freeze again.
+/// Freezes the audience of a campaign (domain model 7.2). One run at a time per campaign: the run takes a session
+/// advisory lock, and a second run that cannot take it exits. The run then reads the pinned inputs (<c>prepare_as_of</c>),
+/// deletes the recipients an earlier run left unfrozen, and writes the audience again from scratch: eligible contacts in
+/// batches, minus the suppressed ones, arm and bucket of each, ranks across both arms, and the insert in batches. The
+/// commit point is the last statement: it sets <c>audience_frozen_at</c> and moves the campaign to <c>ready</c>. Until
+/// then the rows are invisible to sending and to the review.
 /// </summary>
 public sealed class CampaignAudienceFreezer(
     CampaignsDbContext dbContext,
@@ -32,12 +32,44 @@ public sealed class CampaignAudienceFreezer(
 {
     public async Task FreezeAsync(Guid campaignId, CancellationToken cancellationToken)
     {
+        // The session lock belongs to this connection, so the connection stays open for the whole run.
+        await dbContext.Database.OpenConnectionAsync(cancellationToken);
+        try
+        {
+            var acquired = await dbContext.Database
+                .SqlQuery<bool>(CampaignAudienceLockSql.TryAcquire(campaignId))
+                .SingleAsync(cancellationToken);
+            if (!acquired)
+            {
+                return;
+            }
+
+            try
+            {
+                await FreezeLockedAsync(campaignId, cancellationToken);
+            }
+            finally
+            {
+                await dbContext.Database
+                    .SqlQuery<bool>(CampaignAudienceLockSql.Release(campaignId))
+                    .SingleAsync(CancellationToken.None);
+            }
+        }
+        finally
+        {
+            await dbContext.Database.CloseConnectionAsync();
+        }
+    }
+
+    private async Task FreezeLockedAsync(Guid campaignId, CancellationToken cancellationToken)
+    {
         var input = await dbContext.Campaigns
             .AsNoTracking()
             .Where(campaign => campaign.Id == campaignId)
             .Select(campaign => new CampaignFreezeInput(
                 campaign.Id,
                 campaign.Status,
+                campaign.PrepareAsOf,
                 campaign.AudienceFrozenAt,
                 campaign.SegmentId,
                 campaign.TemplateId,
@@ -62,13 +94,23 @@ public sealed class CampaignAudienceFreezer(
             return;
         }
 
+        // A campaign prepared before the as-of instant was pinned gets it now, once; every later run reads the same value.
+        var asOfUtc = input.PrepareAsOf ?? timeProvider.GetUtcNow().UtcDateTime;
+        if (input.PrepareAsOf is null)
+        {
+            await dbContext.Campaigns
+                .Where(campaign => campaign.Id == campaignId && campaign.PrepareAsOf == null)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(campaign => campaign.PrepareAsOf, asOfUtc), cancellationToken);
+        }
+
+        ScoringRunModel? pinnedRun;
         try
         {
-            await WriteRecipientsAsync(input, cancellationToken);
+            pinnedRun = await WriteRecipientsAsync(input, asOfUtc, cancellationToken);
         }
         catch
         {
-            // The rows already written stay: a resumed run keeps them. Hangfire retries the job after the failed state is set.
+            // The rows written so far stay until the next run deletes them. Hangfire retries the job after the failed state is set.
             await MarkFailedAsync(campaignId, CancellationToken.None);
             throw;
         }
@@ -79,12 +121,22 @@ public sealed class CampaignAudienceFreezer(
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(campaign => campaign.Status, CampaignStatuses.Ready)
-                    .SetProperty(campaign => campaign.AudienceFrozenAt, timeProvider.GetUtcNow().UtcDateTime),
+                    .SetProperty(campaign => campaign.AudienceFrozenAt, timeProvider.GetUtcNow().UtcDateTime)
+                    .SetProperty(campaign => campaign.TargetingModelName, pinnedRun?.ModelName)
+                    .SetProperty(campaign => campaign.TargetingModelVersion, pinnedRun?.ModelVersion)
+                    .SetProperty(campaign => campaign.TargetingProvenance, pinnedRun?.Provenance),
                 cancellationToken);
     }
 
-    private async Task WriteRecipientsAsync(CampaignFreezeInput input, CancellationToken cancellationToken)
+    /// <summary>Writes the audience rows and returns the scoring run the ML scores came from, or null when the campaign does not target by score.</summary>
+    private async Task<ScoringRunModel?> WriteRecipientsAsync(CampaignFreezeInput input, DateTime asOfUtc, CancellationToken cancellationToken)
     {
+        // Rewritten from scratch on every run: rows of an earlier run that never reached the commit point are dropped here,
+        // so a resumed or repeated freeze cannot mix two rankings or keep a contact that was suppressed since.
+        await dbContext.Recipients
+            .Where(recipient => recipient.CampaignId == input.Id)
+            .ExecuteDeleteAsync(cancellationToken);
+
         var definition = await LoadDefinitionAsync(input.SegmentId, cancellationToken);
         var locale = await dbContext.Templates
             .AsNoTracking()
@@ -93,10 +145,23 @@ public sealed class CampaignAudienceFreezer(
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw new InvalidOperationException("The campaign template no longer exists.");
 
-        var asOfUtc = timeProvider.GetUtcNow().UtcDateTime;
         var scoreKind = CampaignTargetingModes.ScoreKindOf(input.TargetingMode);
         var candidates = new List<CampaignFreezeCandidate>();
         var scores = new Dictionary<Guid, ContactScore>();
+
+        // One RFM day for the whole audience: every batch below reads the same complete day, so the freeze is never half of one day.
+        var rfmDay = await scoreReader.ReadLatestRfmDayAsync(cancellationToken);
+
+        // The ML scores come from one completed run, resolved once: every batch below reads that run, so the audience never mixes two runs.
+        Guid? scoringRunId = null;
+        ScoringRunModel? pinnedRun = null;
+        if (scoreKind is not null && scoreKind != ScoreKinds.Rfm)
+        {
+            scoringRunId = await scoreReader.ReadLatestScoringRunAsync(scoreKind, cancellationToken)
+                ?? throw new InvalidOperationException("No completed scoring run exists for the targeting score kind.");
+            pinnedRun = await scoreReader.ReadScoringRunModelAsync(scoringRunId.Value, cancellationToken)
+                ?? throw new InvalidOperationException("The pinned scoring run no longer exists.");
+        }
 
         Guid? afterContactId = null;
         while (true)
@@ -107,10 +172,16 @@ public sealed class CampaignAudienceFreezer(
                 break;
             }
 
-            var matched = batch.Where(row => SegmentAudienceRules.Matches(row, definition, asOfUtc)).ToList();
-            var suppressed = await SuppressedEmailsAsync(matched, cancellationToken);
+            var matched = (await RfmSegmentFilter.ApplyAsync(
+                batch.Where(row => SegmentAudienceRules.Matches(row, definition, asOfUtc)).ToList(),
+                definition,
+                scoreReader,
+                rfmDay,
+                cancellationToken)).ToList();
+            var suppression = await ReadSuppressionAsync(matched, cancellationToken);
             var eligible = matched
-                .Where(row => row.EmailNormalized is null || !suppressed.Contains(row.EmailNormalized))
+                .Where(row => !suppression.Contacts.Contains(row.ContactId)
+                    && (row.EmailNormalized is null || !suppression.Emails.Contains(row.EmailNormalized)))
                 .ToList();
 
             if (scoreKind is not null && eligible.Count > 0)
@@ -118,6 +189,8 @@ public sealed class CampaignAudienceFreezer(
                 var batchScores = await scoreReader.ReadLatestScoresAsync(
                     scoreKind,
                     eligible.Select(row => row.ContactId).ToList(),
+                    rfmDay,
+                    scoringRunId,
                     cancellationToken);
                 foreach (var (contactId, score) in batchScores)
                 {
@@ -172,6 +245,8 @@ public sealed class CampaignAudienceFreezer(
                 RecipientInsertSql.Insert(tenantContext.OrganizationId, input.Id, now, RecipientInsertSql.Serialize(chunk)),
                 cancellationToken);
         }
+
+        return pinnedRun;
     }
 
     private static RecipientInsertRow ToRow(
@@ -218,28 +293,34 @@ public sealed class CampaignAudienceFreezer(
         return SegmentDefinitionRules.Normalize(definition);
     }
 
-    private async Task<HashSet<string>> SuppressedEmailsAsync(IReadOnlyList<CrmAudienceRow> rows, CancellationToken cancellationToken)
+    /// <summary>Suppressions that apply to a batch: by contact id, or by normalized address.</summary>
+    private async Task<SuppressedAudience> ReadSuppressionAsync(IReadOnlyList<CrmAudienceRow> rows, CancellationToken cancellationToken)
     {
+        if (rows.Count == 0)
+        {
+            return new SuppressedAudience([], []);
+        }
+
+        var contactIds = rows.Select(row => row.ContactId).Distinct().ToList();
         var emails = rows
             .Where(row => row.EmailNormalized is not null)
             .Select(row => row.EmailNormalized!)
             .Distinct()
             .ToList();
-        if (emails.Count == 0)
-        {
-            return [];
-        }
-
         var found = await dbContext.Suppressions
             .AsNoTracking()
-            .Where(suppression => emails.Contains(suppression.EmailNormalized))
-            .Select(suppression => suppression.EmailNormalized)
+            .Where(suppression => contactIds.Contains(suppression.ContactId) || emails.Contains(suppression.EmailNormalized))
+            .Select(suppression => new { suppression.ContactId, suppression.EmailNormalized })
             .ToListAsync(cancellationToken);
-        return found.ToHashSet();
+        return new SuppressedAudience(
+            found.Select(row => row.ContactId).ToHashSet(),
+            found.Select(row => row.EmailNormalized).ToHashSet());
     }
 
     private async Task MarkFailedAsync(Guid campaignId, CancellationToken cancellationToken) =>
         await dbContext.Campaigns
             .Where(campaign => campaign.Id == campaignId && campaign.Status == CampaignStatuses.Preparing && campaign.AudienceFrozenAt == null)
             .ExecuteUpdateAsync(setters => setters.SetProperty(campaign => campaign.Status, CampaignStatuses.Failed), cancellationToken);
+
+    private sealed record SuppressedAudience(HashSet<Guid> Contacts, HashSet<string> Emails);
 }

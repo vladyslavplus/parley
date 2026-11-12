@@ -108,6 +108,9 @@
     "create": "New Contact",
     "searchPlaceholder": "Search by name, email or phone...",
     "loadError": "Failed to load contacts.",
+    "segmentFilterRejected": "This segment cannot filter the contacts right now. Pick another segment or clear the filter.",
+    "segmentTooLarge": "This segment is too large to filter; narrow the list with another filter first",
+    "segmentNotCalculated": "Not calculated yet",
     "resetPaging": "Reset paging",
     "retry": "Retry",
     "columns": {
@@ -118,6 +121,7 @@
       "company": "Company",
       "owner": "Owner",
       "tags": "Tags",
+      "segment": "Segment",
       "created": "Created"
     },
     "empty": {
@@ -171,10 +175,6 @@
         "deals": {
           "title": "No active deals",
           "description": "Pipeline opportunities associated with this contact will appear here."
-        },
-        "scores": {
-          "title": "No scores calculated",
-          "description": "Uplift and customer lifetime value insights will display here once scored."
         }
       }
     },

@@ -12,6 +12,7 @@ import pytest
 import xarray as xr
 
 from parley_ml.clv.artifact import write_artifact
+from parley_ml.serving.artifacts import CODE_CHECKSUM_MISMATCH, ArtifactError, load_model_directory
 from parley_ml.serving.clv import (
     REASON_FREQUENCY_NOT_INTEGER,
     REASON_FREQUENCY_RANGE,
@@ -21,7 +22,6 @@ from parley_ml.serving.clv import (
     GammaGammaParameters,
     expected_purchases,
     expected_spend,
-    load_artifact,
     probability_alive,
     validate_items,
 )
@@ -200,13 +200,15 @@ def test_load_artifact_rejects_a_changed_parameter_file(tmp_path: Path) -> None:
         evaluation_run="clv_eval-test",
     )
 
-    loaded = load_artifact(directory)
+    loaded = load_model_directory(directory)
     assert loaded.version == "clv_bgnbd_gg-20261109-14e62fd"
-    assert loaded.transactions.alpha == pytest.approx(BG.alpha)
+    assert loaded.available
+    assert loaded.payload.transactions.alpha == pytest.approx(BG.alpha)
 
     parameters_path = directory / "parameters.json"
     tampered = json.loads(parameters_path.read_text(encoding="utf-8"))
     tampered["bg_nbd"]["alpha"] = 1.0
     parameters_path.write_text(json.dumps(tampered), encoding="utf-8", newline="\n")
-    with pytest.raises(ValueError, match="checksum"):
-        load_artifact(directory)
+    with pytest.raises(ArtifactError) as refused:
+        load_model_directory(directory)
+    assert refused.value.code == CODE_CHECKSUM_MISMATCH

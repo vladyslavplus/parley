@@ -1,0 +1,58 @@
+{
+  "feature_schema_version": 1,
+  "items": [
+    {
+      "features": {
+        "avg_order_value": 203.1,
+        "has_open_deal": 0,
+        "order_count": 9,
+        "orders_365d": 4,
+        "orders_90d": 1,
+        "recency_days": 43,
+        "tenure_days": 610,
+        "value_365d": 812.5
+      },
+      "subject_id": "0192f5a1-0000-7000-8000-000000000001"
+    },
+    {
+      "features": {
+        "avg_order_value": 203.1,
+        "has_open_deal": 0,
+        "order_count": 9,
+        "orders_365d": 4,
+        "orders_90d": 1,
+        "recency_days": 44,
+        "tenure_days": 610,
+        "value_365d": 812.5
+      },
+      "subject_id": "not-a-uuid"
+    },
+    {
+      "features": {
+        "avg_order_value": 203.1,
+        "has_open_deal": 0,
+        "order_count": 9,
+        "orders_365d": 4,
+        "orders_90d": 1,
+        "recency_days": -1,
+        "tenure_days": 610,
+        "value_365d": 812.5
+      },
+      "subject_id": "0192f5a1-0000-7000-8000-000000000003"
+    },
+    {
+      "features": {
+        "avg_order_value": 203.1,
+        "has_open_deal": 0,
+        "order_count": 9,
+        "orders_365d": 4,
+        "orders_90d": 1,
+        "recency_days": 43,
+        "tenure_days": 610,
+        "value_365d": 812.5
+      },
+      "subject_id": "0192f5a1-0000-7000-8000-000000000001"
+    }
+  ],
+  "model_version": "crm_uplift-20261110-8a4e785"
+}

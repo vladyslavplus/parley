@@ -11,9 +11,11 @@ public sealed class CampaignsAnalysisOptions
 
     private const double DefaultSrmAlarmP = 0.001;
 
-    private const double DefaultZAlpha = 1.959964;
+    /// <summary>Phi^-1(0.975), the exact quantile. Rounded values would move the intervals beyond the fixture tolerance.</summary>
+    private const double DefaultZAlpha = 1.959963984540054;
 
-    private const double DefaultZBeta = 0.841621;
+    /// <summary>Phi^-1(0.8), the exact quantile.</summary>
+    private const double DefaultZBeta = 0.8416212335729143;
 
     private const int DefaultPreviewBaselineRateBps = 2000;
 

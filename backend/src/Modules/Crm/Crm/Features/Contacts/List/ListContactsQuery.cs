@@ -19,6 +19,7 @@ namespace Parley.Crm.Features.Contacts.List;
 /// <param name="OwnerUserId">Only contacts owned by this user.</param>
 /// <param name="CreatedFrom">First creation day, inclusive, UTC.</param>
 /// <param name="CreatedTo">Last creation day, inclusive, UTC.</param>
+/// <param name="Segment">Only contacts in this RFM segment on the latest snapshot day; a name outside the rule table is a validation failure.</param>
 /// <param name="Sort">Sort field: <c>name</c> (default) or <c>created</c>.</param>
 /// <param name="Order">Sort direction: <c>asc</c> (default) or <c>desc</c>.</param>
 [RequiresPermission(Permissions.ContactsRead)]
@@ -31,5 +32,6 @@ public sealed record ListContactsQuery(
     Guid? OwnerUserId,
     DateOnly? CreatedFrom,
     DateOnly? CreatedTo,
+    string? Segment,
     string? Sort,
     string? Order) : IRequest<Result<KeysetCursorPage<ContactView>>>;

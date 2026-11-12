@@ -24,5 +24,7 @@ public sealed record Error(
 
     public static Error Conflict(string code) => new(code, ErrorType.Conflict);
 
+    public static Error RateLimited(string code) => new(code, ErrorType.RateLimited);
+
     public static Error Failure(string code) => new(code, ErrorType.Failure);
 }

@@ -1,0 +1,32 @@
+{
+  "feature_schema_version": 1,
+  "model_name": "crm_uplift",
+  "model_version": "crm_uplift-20261110-8a4e785",
+  "provenance": "stub",
+  "rejected": [
+    {
+      "code": "ml.request.invalid_subject_id",
+      "detail": "subject_id must be a UUID",
+      "subject_id": "not-a-uuid"
+    },
+    {
+      "code": "ml.request.invalid_features",
+      "detail": "invalid field features.recency_days",
+      "subject_id": "0192f5a1-0000-7000-8000-000000000003"
+    },
+    {
+      "code": "ml.request.duplicate_subject",
+      "detail": "subject_id repeats an earlier item",
+      "subject_id": "0192f5a1-0000-7000-8000-000000000001"
+    }
+  ],
+  "scores": [
+    {
+      "p_control": 0.1500435472,
+      "p_treated": 0.2653440535,
+      "segment": "persuadable",
+      "subject_id": "0192f5a1-0000-7000-8000-000000000001",
+      "uplift": 0.1153005064
+    }
+  ]
+}

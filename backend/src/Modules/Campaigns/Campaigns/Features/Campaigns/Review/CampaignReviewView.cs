@@ -4,7 +4,8 @@ namespace Parley.Campaigns.Features.Campaigns.Review;
 /// The experiment review. <paramref name="SrmPValue"/> is null until the audience exists; <paramref name="SrmWarning"/>
 /// means the arm split contradicts the configured holdout share, so the lift cannot be trusted.
 /// <paramref name="MinimumDetectableEffectBps"/> is the smallest targeted-arm difference the counts can detect, at the
-/// preview baseline rate.
+/// preview baseline rate. The targeting fields are the frozen snapshot of the scoring model the audience was chosen with; they
+/// are null for a campaign that does not target by score.
 /// </summary>
 public sealed record CampaignReviewView(
     Guid CampaignId,
@@ -15,4 +16,7 @@ public sealed record CampaignReviewView(
     CampaignArmSummary Holdout,
     double? SrmPValue,
     bool SrmWarning,
-    int? MinimumDetectableEffectBps);
+    int? MinimumDetectableEffectBps,
+    string? TargetingModelName,
+    string? TargetingModelVersion,
+    string? TargetingProvenance);

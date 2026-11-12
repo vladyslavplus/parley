@@ -4,6 +4,1164 @@
  */
 
 export interface paths {
+    "/telegram/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TelegramStatusView"];
+                        "application/json": components["schemas"]["TelegramStatusView"];
+                        "text/json": components["schemas"]["TelegramStatusView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/telegram/link-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TelegramLinkCodeView"];
+                        "application/json": components["schemas"]["TelegramLinkCodeView"];
+                        "text/json": components["schemas"]["TelegramLinkCodeView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/telegram/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TelegramLinkView"];
+                        "application/json": components["schemas"]["TelegramLinkView"];
+                        "text/json": components["schemas"]["TelegramLinkView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/telegram/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Payload Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    after?: string;
+                    limit?: number | string;
+                    unreadOnly?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfNotificationView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfNotificationView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfNotificationView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["UnreadCountView"];
+                        "application/json": components["schemas"]["UnreadCountView"];
+                        "text/json": components["schemas"]["UnreadCountView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["NotificationView"];
+                        "application/json": components["schemas"]["NotificationView"];
+                        "text/json": components["schemas"]["NotificationView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ReadAllView"];
+                        "application/json": components["schemas"]["ReadAllView"];
+                        "text/json": components["schemas"]["ReadAllView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["NotificationPreferencesView"];
+                        "application/json": components["schemas"]["NotificationPreferencesView"];
+                        "text/json": components["schemas"]["NotificationPreferencesView"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["UpdateNotificationPreferencesRequest"];
+                    "text/json": null | components["schemas"]["UpdateNotificationPreferencesRequest"];
+                    "application/*+json": null | components["schemas"]["UpdateNotificationPreferencesRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["NotificationPreferencesView"];
+                        "application/json": components["schemas"]["NotificationPreferencesView"];
+                        "text/json": components["schemas"]["NotificationPreferencesView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/insights/priority": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    after?: string;
+                    limit?: number | string;
+                    segment?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PriorityListPageView"];
+                        "application/json": components["schemas"]["PriorityListPageView"];
+                        "text/json": components["schemas"]["PriorityListPageView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/insights/rfm/segments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Counts of the RFM segments on the latest complete day. Segments are relative to the organization's own customers: a segment says where a contact stands among that organization's buyers. With fewer than five buyers the tiers are coarse. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["RfmSegmentCountView"][];
+                        "application/json": components["schemas"]["RfmSegmentCountView"][];
+                        "text/json": components["schemas"]["RfmSegmentCountView"][];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/insights/ml-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MlSettingsView"];
+                        "application/json": components["schemas"]["MlSettingsView"];
+                        "text/json": components["schemas"]["MlSettingsView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["MlSettingsRequest"];
+                    "text/json": null | components["schemas"]["MlSettingsRequest"];
+                    "application/*+json": null | components["schemas"]["MlSettingsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MlSettingsView"];
+                        "application/json": components["schemas"]["MlSettingsView"];
+                        "text/json": components["schemas"]["MlSettingsView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/insights/models/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ScoringModelsSyncView"];
+                        "application/json": components["schemas"]["ScoringModelsSyncView"];
+                        "text/json": components["schemas"]["ScoringModelsSyncView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/insights/scoring-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["ScoringRunRequest"];
+                    "text/json": null | components["schemas"]["ScoringRunRequest"];
+                    "application/*+json": null | components["schemas"]["ScoringRunRequest"];
+                };
+            };
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ScoringRunView"];
+                        "application/json": components["schemas"]["ScoringRunView"];
+                        "text/json": components["schemas"]["ScoringRunView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/insights/scoring-runs/{scoringRunId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    scoringRunId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ScoringRunView"];
+                        "application/json": components["schemas"]["ScoringRunView"];
+                        "text/json": components["schemas"]["ScoringRunView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/insights/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ScoringModelView"][];
+                        "application/json": components["schemas"]["ScoringModelView"][];
+                        "text/json": components["schemas"]["ScoringModelView"][];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contacts/{contactId}/scores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The segments of a contact, and its score entries. The score values and payloads are returned only to a caller with the ML view; any other caller gets the segment chips and the model provenance. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    contactId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ContactScoresView"];
+                        "application/json": components["schemas"]["ContactScoresView"];
+                        "text/json": components["schemas"]["ContactScoresView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/audit-events": {
         parameters: {
             query?: never;
@@ -1353,6 +2511,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dashboards/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DashboardOverviewView"];
+                        "application/json": components["schemas"]["DashboardOverviewView"];
+                        "text/json": components["schemas"]["DashboardOverviewView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/activities": {
         parameters: {
             query?: never;
@@ -1376,7 +2582,7 @@ export interface paths {
                     /** @description Only records of this company (GUID). */
                     companyId?: string;
                     /** @description Only timeline entries of this type. */
-                    type?: "contact_created" | "deal_stage_changed" | "deal_closed" | "note_added" | "task_completed" | "order_recorded";
+                    type?: "contact_created" | "deal_stage_changed" | "deal_closed" | "note_added" | "task_completed" | "order_recorded" | "campaign_email_sent" | "unsubscribed";
                     /** @description Sort direction: asc or desc. */
                     order?: "asc" | "desc";
                 };
@@ -2169,6 +3375,7 @@ export interface paths {
                     ownerUserId?: string;
                     createdFrom?: string;
                     createdTo?: string;
+                    segment?: string;
                     /** @description Field to sort by. The allowed values are listed per endpoint. */
                     sort?: "name" | "created";
                     /** @description Sort direction: asc or desc. */
@@ -5490,6 +6697,1596 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/campaigns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    after?: string;
+                    limit?: number | string;
+                    q?: string;
+                    status?: string;
+                    sort?: string;
+                    order?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfCampaignSummaryView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfCampaignSummaryView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfCampaignSummaryView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["CampaignRequest"];
+                    "text/json": null | components["schemas"]["CampaignRequest"];
+                    "application/*+json": null | components["schemas"]["CampaignRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CampaignView"];
+                        "application/json": components["schemas"]["CampaignView"];
+                        "text/json": components["schemas"]["CampaignView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CampaignView"];
+                        "application/json": components["schemas"]["CampaignView"];
+                        "text/json": components["schemas"]["CampaignView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["CampaignRequest"];
+                    "text/json": null | components["schemas"]["CampaignRequest"];
+                    "application/*+json": null | components["schemas"]["CampaignRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CampaignView"];
+                        "application/json": components["schemas"]["CampaignView"];
+                        "text/json": components["schemas"]["CampaignView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}/prepare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CampaignView"];
+                        "application/json": components["schemas"]["CampaignView"];
+                        "text/json": components["schemas"]["CampaignView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CampaignReviewView"];
+                        "application/json": components["schemas"]["CampaignReviewView"];
+                        "text/json": components["schemas"]["CampaignReviewView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CampaignView"];
+                        "application/json": components["schemas"]["CampaignView"];
+                        "text/json": components["schemas"]["CampaignView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CampaignProgressView"];
+                        "application/json": components["schemas"]["CampaignProgressView"];
+                        "text/json": components["schemas"]["CampaignProgressView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CampaignResultsView"];
+                        "application/json": components["schemas"]["CampaignResultsView"];
+                        "text/json": components["schemas"]["CampaignResultsView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}/results/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Queues a fresh attribution of a completed campaign. The result is written by the job; poll the results endpoint. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}/recipients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One keyset page of the recipients of a campaign, in freeze order. Filters: arm, targeted, send status, converted,
+         *     and a search by contact name. The address is shown only to callers who see the contact's address at organization
+         *     scope; the rest get it as null. Empty until the audience is frozen.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    after?: string;
+                    limit?: number | string;
+                    q?: string;
+                    arm?: string;
+                    targeted?: boolean;
+                    sendStatus?: string;
+                    converted?: boolean;
+                    sort?: string;
+                    order?: string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfCampaignRecipientView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfCampaignRecipientView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfCampaignRecipientView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campaigns/{id}/test-send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/segments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    after?: string;
+                    limit?: number | string;
+                    q?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfSegmentSummaryView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfSegmentSummaryView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfSegmentSummaryView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["SegmentRequest"];
+                    "text/json": null | components["schemas"]["SegmentRequest"];
+                    "application/*+json": null | components["schemas"]["SegmentRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SegmentView"];
+                        "application/json": components["schemas"]["SegmentView"];
+                        "text/json": components["schemas"]["SegmentView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/segments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SegmentView"];
+                        "application/json": components["schemas"]["SegmentView"];
+                        "text/json": components["schemas"]["SegmentView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["SegmentRequest"];
+                    "text/json": null | components["schemas"]["SegmentRequest"];
+                    "application/*+json": null | components["schemas"]["SegmentRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SegmentView"];
+                        "application/json": components["schemas"]["SegmentView"];
+                        "text/json": components["schemas"]["SegmentView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/segments/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["SegmentDefinitionRequest"];
+                    "text/json": null | components["schemas"]["SegmentDefinitionRequest"];
+                    "application/*+json": null | components["schemas"]["SegmentDefinitionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SegmentPreviewView"];
+                        "application/json": components["schemas"]["SegmentPreviewView"];
+                        "text/json": components["schemas"]["SegmentPreviewView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    after?: string;
+                    limit?: number | string;
+                    q?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["KeysetCursorPageOfTemplateSummaryView"];
+                        "application/json": components["schemas"]["KeysetCursorPageOfTemplateSummaryView"];
+                        "text/json": components["schemas"]["KeysetCursorPageOfTemplateSummaryView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["TemplateRequest"];
+                    "text/json": null | components["schemas"]["TemplateRequest"];
+                    "application/*+json": null | components["schemas"]["TemplateRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TemplateView"];
+                        "application/json": components["schemas"]["TemplateView"];
+                        "text/json": components["schemas"]["TemplateView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/templates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TemplateView"];
+                        "application/json": components["schemas"]["TemplateView"];
+                        "text/json": components["schemas"]["TemplateView"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": null | components["schemas"]["TemplateRequest"];
+                    "text/json": null | components["schemas"]["TemplateRequest"];
+                    "application/*+json": null | components["schemas"]["TemplateRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TemplateView"];
+                        "application/json": components["schemas"]["TemplateView"];
+                        "text/json": components["schemas"]["TemplateView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/templates/{id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TemplatePreviewView"];
+                        "application/json": components["schemas"]["TemplatePreviewView"];
+                        "text/json": components["schemas"]["TemplatePreviewView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/unsubscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    token?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/register": {
         parameters: {
             query?: never;
@@ -6178,6 +8975,373 @@ export interface components {
             /** Format: uuid */
             ownerUserId: null | string;
         };
+        /** @description Recipient counts of one arm. */
+        CampaignArmSummary: {
+            /** @description Arm name. */
+            arm: string;
+            /**
+             * Format: int32
+             * @description Recipients in the arm, targeted or not.
+             */
+            count: number | string;
+            /**
+             * Format: int32
+             * @description Recipients in the arm that the ranking targeted.
+             */
+            targetedCount: number | string;
+        };
+        /**
+         * @description Send counts of a campaign. `Total` is the targeted treatment recipients. `Queued` is every recipient
+         *     without a final outcome yet (not claimed, claimed, or waiting for a retry), so the five counts add up to the total.
+         */
+        CampaignProgressView: {
+            /** Format: int32 */
+            total: number | string;
+            /** Format: int32 */
+            queued: number | string;
+            /** Format: int32 */
+            sent: number | string;
+            /** Format: int32 */
+            failed: number | string;
+            /** Format: int32 */
+            unknown: number | string;
+            /** Format: int32 */
+            suppressed: number | string;
+        };
+        /**
+         * @description One recipient of a campaign as the recipients list shows it. The conversion is the stored outcome only: no rate and no
+         *     lift, so the page never recomputes a statistic. A contact outside the caller's contacts scope, or one that no longer
+         *     exists, shows no name, no conversion and no revenue: bool CampaignRecipientView.NameVisible is false and the conversion reads
+         *     `not_visible`. The address is present only when the caller may see the contact's address through the contacts
+         *     permission at organization scope; otherwise it is null and bool CampaignRecipientView.EmailVisible is false.
+         */
+        CampaignRecipientView: {
+            /**
+             * Format: uuid
+             * @description The recipient row.
+             */
+            recipientId: string;
+            /**
+             * Format: uuid
+             * @description The contact.
+             */
+            contactId: string;
+            /** @description Display name of the contact; null when it is not visible to the caller. */
+            contactName: null | string;
+            /** @description Whether the name, the conversion and the revenue of this contact are shown to the caller. */
+            nameVisible: boolean;
+            /** @description `treatment` or `holdout`. */
+            arm: string;
+            /** @description Whether the recipient is in the targeted population of the comparison. */
+            isTargeted: boolean;
+            /** @description Status of the send; null for holdout and not targeted recipients. */
+            sendStatus: null | string;
+            /** @description One of CampaignRecipientConversions. */
+            conversion: string;
+            /**
+             * Format: date-time
+             * @description First conversion instant in the window; null without a conversion, an outcome, or visibility.
+             */
+            firstConversionAt: null | string;
+            /**
+             * Format: double
+             * @description Net revenue in the window; null without an outcome, or without visibility.
+             */
+            revenue: null | number | string;
+            /** @description Whether the address below is shown. */
+            emailVisible: boolean;
+            /** @description The address frozen with the audience, when visible; otherwise null. */
+            email: null | string;
+        };
+        /**
+         * @description Body of a campaign create or update request. Missing required fields fail validation; the holdout share and the
+         *     targeting share fall back to the configured defaults when omitted.
+         */
+        CampaignRequest: {
+            /** @description Campaign name. */
+            name: null | string;
+            /**
+             * Format: uuid
+             * @description Template to send.
+             */
+            templateId: null | string;
+            /**
+             * Format: uuid
+             * @description Segment of the audience; omit for every contact with an address.
+             */
+            segmentId: null | string;
+            /**
+             * Format: int32
+             * @description Holdout share in basis points; omit for the default.
+             */
+            holdoutShareBps: null | number | string;
+            /** @description `all`, `top_uplift` or `top_rfm`; omit for `all`. */
+            targetingMode: null | string;
+            /**
+             * Format: int32
+             * @description Share a ranking targets; required for ranking modes.
+             */
+            targetingShareBps: null | number | string;
+            /**
+             * Format: uint32
+             * @description Row version the client read; required on update, ignored on create.
+             */
+            version: null | number | string;
+        };
+        /** @description One arm: frozen recipients, targeted recipients, conversions, the conversion rate and the net revenue. */
+        CampaignResultsArmView: {
+            /**
+             * Format: int64
+             * @description Frozen recipients in the arm, targeted or not.
+             */
+            assigned: number | string;
+            /**
+             * Format: int64
+             * @description Targeted recipients in the arm: the population of the comparison.
+             */
+            targeted: number | string;
+            /**
+             * Format: int64
+             * @description Converted targeted recipients.
+             */
+            converted: number | string;
+            /**
+             * Format: double
+             * @description Conversion rate; null without targeted recipients.
+             */
+            rate: null | number | string;
+            /**
+             * Format: double
+             * @description Net revenue of the targeted recipients in the window: the sum of the order totals in each order's stored currency, with no
+             *     conversion. The platform does not enforce one currency on orders, so a mixed-currency organization gets a mixed sum.
+             */
+            revenue: number | string;
+        };
+        /**
+         * @description The result of a campaign as the product shows it. Every number and the verdict are computed on the server; the client
+         *     only displays them. Null statistics are undefined by the data.
+         */
+        CampaignResultsView: {
+            /**
+             * Format: uuid
+             * @description The campaign.
+             */
+            campaignId: string;
+            /** @description Campaign status. */
+            status: string;
+            /** @description Who created the campaign: `user` or `demo_seed`. */
+            source: string;
+            /** @description `not_started`, `open`, `awaiting_final` (the window has ended but the figures were not yet computed after its end, so they are still provisional) or `closed` (final). */
+            windowState: string;
+            /** @description True only when the figures were computed at or after the window end. Before that every figure is provisional and no verdict is claimed. */
+            isFinal: boolean;
+            /**
+             * Format: date-time
+             * @description Send time of both arms, UTC.
+             */
+            startedAt: null | string;
+            /**
+             * Format: date-time
+             * @description Completion instant, UTC.
+             */
+            completedAt: null | string;
+            /**
+             * Format: int32
+             * @description Length of the attribution window.
+             */
+            attributionWindowDays: number | string;
+            /**
+             * Format: date-time
+             * @description Completion plus the window length: the instant the result becomes final.
+             */
+            windowEndsAt: null | string;
+            /**
+             * Format: date-time
+             * @description When the attribution job last computed the figures; null when it never ran.
+             */
+            computedAt: null | string;
+            /** @description True when the window holds simulated orders. The UI labels the campaign as a demo with a simulated effect. */
+            simulated: boolean;
+            /** @description `measurable_lift`, `no_measurable_effect`, `unreliable` (final, but the sample ratio alarms, so no conclusion is drawn) or `too_early` (not final yet). */
+            verdict: string;
+            /** @description True when the sample ratio check alarms: a final result is then labeled `unreliable`. */
+            srmWarning: boolean;
+            /**
+             * Format: int32
+             * @description Share of the audience in the holdout.
+             */
+            holdoutShareBps: number | string;
+            /** @description The treatment arm. */
+            treatment: components["schemas"]["CampaignResultsArmView"];
+            /** @description The holdout arm. */
+            holdout: components["schemas"]["CampaignResultsArmView"];
+            /**
+             * Format: double
+             * @description Treatment rate minus holdout rate.
+             */
+            lift: null | number | string;
+            /**
+             * Format: double
+             * @description Lower bound of the 95 % interval of the lift.
+             */
+            liftCiLow: null | number | string;
+            /**
+             * Format: double
+             * @description Upper bound of the 95 % interval of the lift.
+             */
+            liftCiHigh: null | number | string;
+            /**
+             * Format: double
+             * @description Two-sided p-value of the pooled z-test.
+             */
+            pValue: null | number | string;
+            /**
+             * Format: double
+             * @description Sample ratio mismatch p-value.
+             */
+            srmPValue: null | number | string;
+            /**
+             * Format: double
+             * @description Smallest lift this sample can detect (4.9 percentage points in the reference example).
+             */
+            minimumDetectableEffect: null | number | string;
+            /**
+             * Format: double
+             * @description Incremental revenue of the treatment arm.
+             */
+            incrementalRevenue: null | number | string;
+        };
+        /**
+         * @description The experiment review. SrmPValue is null until the audience exists; SrmWarning
+         *     means the arm split contradicts the configured holdout share, so the lift cannot be trusted.
+         *     MinimumDetectableEffectBps is the smallest targeted-arm difference the counts can detect, at the
+         *     preview baseline rate. The targeting fields are the frozen snapshot of the scoring model the audience was chosen with; they
+         *     are null for a campaign that does not target by score.
+         */
+        CampaignReviewView: {
+            /** Format: uuid */
+            campaignId: string;
+            status: string;
+            /** Format: date-time */
+            audienceFrozenAt: null | string;
+            /** Format: int32 */
+            holdoutShareBps: number | string;
+            treatment: components["schemas"]["CampaignArmSummary"];
+            holdout: components["schemas"]["CampaignArmSummary"];
+            /** Format: double */
+            srmPValue: null | number | string;
+            srmWarning: boolean;
+            /** Format: int32 */
+            minimumDetectableEffectBps: null | number | string;
+            targetingModelName: null | string;
+            targetingModelVersion: null | string;
+            targetingProvenance: null | string;
+        };
+        /** @description A campaign row of the campaign list: the fields the list and the status views need, without the holdout seed. */
+        CampaignSummaryView: {
+            /**
+             * Format: uuid
+             * @description Campaign identifier.
+             */
+            id: string;
+            /** @description Campaign name. */
+            name: string;
+            /** @description Lifecycle state. */
+            status: string;
+            /**
+             * Format: int32
+             * @description Share kept out of the email, in basis points.
+             */
+            holdoutShareBps: number | string;
+            /** @description How the audience is targeted. */
+            targetingMode: string;
+            /**
+             * Format: date-time
+             * @description Set once the audience is frozen; null while the campaign is a draft.
+             */
+            audienceFrozenAt: null | string;
+            /**
+             * Format: date-time
+             * @description Set when the campaign started sending; null before that.
+             */
+            startedAt: null | string;
+            /**
+             * Format: date-time
+             * @description Set when every targeted recipient has an outcome; null before that.
+             */
+            completedAt: null | string;
+            /**
+             * Format: uint32
+             * @description Row version to send back on update.
+             */
+            version: number | string;
+            /**
+             * Format: uuid
+             * @description Template the campaign sends.
+             */
+            templateId: string;
+            /**
+             * Format: uuid
+             * @description Segment the audience comes from; null means every contact with an address.
+             */
+            segmentId: null | string;
+            /** @description Who created the campaign: `user` or `demo_seed`. A demo campaign is labeled as such before it completes. */
+            source: string;
+        };
+        /** @description A campaign as the builder shows it. */
+        CampaignView: {
+            /**
+             * Format: uuid
+             * @description Campaign identifier.
+             */
+            id: string;
+            /** @description Name shown in the campaign list. */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Template the campaign sends.
+             */
+            templateId: string;
+            /**
+             * Format: uuid
+             * @description Segment the audience comes from; null means every contact with an address.
+             */
+            segmentId: null | string;
+            /** @description Lifecycle state. */
+            status: string;
+            /**
+             * Format: int32
+             * @description Share kept out of the email, in basis points.
+             */
+            holdoutShareBps: number | string;
+            /** @description Seed of the holdout assignment; fixed at creation. */
+            holdoutSeed: string;
+            /** @description How the audience is targeted. */
+            targetingMode: string;
+            /**
+             * Format: int32
+             * @description Share a score ranking targets; null when every recipient is targeted.
+             */
+            targetingShareBps: null | number | string;
+            /**
+             * Format: date-time
+             * @description Set once the audience is frozen; the audience is immutable from then on.
+             */
+            audienceFrozenAt: null | string;
+            /**
+             * Format: uint32
+             * @description Row version to send back on update; a changed row answers 409.
+             */
+            version: number | string;
+            /** @description Who created the campaign: `user` or `demo_seed`. A demo campaign is labeled as such before it completes. */
+            source: string;
+            /** @description Scoring model the frozen audience was ranked with; null for a campaign that does not target by score. */
+            targetingModelName: null | string;
+            /** @description Version of that model, frozen with the audience; null when the audience is not frozen by score. */
+            targetingModelVersion: null | string;
+            /** @description Provenance of that model version as the registry held it at the freeze; null when not targeted by score. */
+            targetingProvenance: null | string;
+        };
         /** @description Body of `PUT /members/{id}/role`. */
         ChangeRoleRequest: {
             roleCode: null | string;
@@ -6282,6 +9446,26 @@ export interface components {
             ownerUserId: null | string;
             customFields: null | Record<string, never>;
         };
+        /** @description One score entry. Value and payload are null for a caller without the ML view. */
+        ContactScoreItemView: {
+            kind: string;
+            modelName: string;
+            modelVersion: string;
+            provenance: null | string;
+            /** Format: date-time */
+            scoredAt: string;
+            /** Format: double */
+            value: null | number | string;
+            payload: null | components["schemas"]["JsonElement"];
+        };
+        /** @description The scores of a contact: its segments as chips, and the score entries the caller may see. */
+        ContactScoresView: {
+            /** Format: uuid */
+            contactId: string;
+            rfmSegment: null | string;
+            upliftSegment: null | string;
+            scores: components["schemas"]["ContactScoreItemView"][];
+        };
         /**
          * @description A contact as the API returns it. uint ContactView.Version is the row version: clients send it
          *     back as `version` on update, and a stale value returns 409.
@@ -6341,6 +9525,8 @@ export interface components {
             ownerEmail: null | string;
             /** @description Company name, or null when unset or when the caller cannot read that company. */
             companyName: null | string;
+            /** @description RFM segment on the latest snapshot day. Set on the contact list only; null on other contact responses and when there is no snapshot. */
+            segment: null | string;
         };
         /** @description The organization the session acts for, as the signed-in user sees it. */
         CurrentOrganizationView: {
@@ -6411,6 +9597,52 @@ export interface components {
             isRequired: boolean;
             /** Format: int32 */
             position: number | string;
+        };
+        /** @description The dashboard aggregate. Totals only: the view never carries a record or a recomputed statistic. */
+        DashboardOverviewView: {
+            /** @description Open deals per pipeline stage, in stage order. */
+            stages: components["schemas"]["DashboardPipelineStageView"][];
+            /**
+             * Format: double
+             * @description Sum of the amounts of the open deals in the stages.
+             */
+            openAmount: number | string;
+            /**
+             * Format: int32
+             * @description Count of the open deals in the stages.
+             */
+            openDeals: number | string;
+            /**
+             * Format: int32
+             * @description Open tasks due now or earlier, within the caller's task scope.
+             */
+            tasksDue: number | string;
+            latestCampaign: null | components["schemas"]["LatestCampaignView"];
+        };
+        /** @description One stage of the open pipeline. */
+        DashboardPipelineStageView: {
+            /**
+             * Format: uuid
+             * @description The stage.
+             */
+            stageId: string;
+            /** @description Display name of the stage. */
+            stageName: string;
+            /**
+             * Format: int32
+             * @description Order of the stage.
+             */
+            position: number | string;
+            /**
+             * Format: int32
+             * @description Open deals in the stage.
+             */
+            dealCount: number | string;
+            /**
+             * Format: double
+             * @description Sum of their amounts.
+             */
+            amount: number | string;
         };
         /** @description Body of deal create. The owner defaults to the caller and the stage to the first open stage when omitted. */
         DealRequest: {
@@ -6568,6 +9800,26 @@ export interface components {
          * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
          *     encodes the sort value and identifier of the last item, and is null on the last page.
          */
+        KeysetCursorPageOfCampaignRecipientView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["CampaignRecipientView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfCampaignSummaryView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["CampaignSummaryView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
         KeysetCursorPageOfCompanyView: {
             /** @description Rows of this page, in list order. */
             items: components["schemas"]["CompanyView"][];
@@ -6638,6 +9890,16 @@ export interface components {
          * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
          *     encodes the sort value and identifier of the last item, and is null on the last page.
          */
+        KeysetCursorPageOfNotificationView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["NotificationView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
         KeysetCursorPageOfOrderView: {
             /** @description Rows of this page, in list order. */
             items: components["schemas"]["OrderView"][];
@@ -6651,6 +9913,16 @@ export interface components {
         KeysetCursorPageOfPipelineSummaryView: {
             /** @description Rows of this page, in list order. */
             items: components["schemas"]["PipelineSummaryView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfSegmentSummaryView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["SegmentSummaryView"][];
             /** @description Opaque cursor for the following page, or null when this is the last page. */
             nextCursor: null | string;
         };
@@ -6684,6 +9956,56 @@ export interface components {
             /** @description Opaque cursor for the following page, or null when this is the last page. */
             nextCursor: null | string;
         };
+        /**
+         * @description One page of a keyset list whose sort key is not a bare identifier. string? KeysetCursorPage&lt;TItem&gt;.NextCursor
+         *     encodes the sort value and identifier of the last item, and is null on the last page.
+         */
+        KeysetCursorPageOfTemplateSummaryView: {
+            /** @description Rows of this page, in list order. */
+            items: components["schemas"]["TemplateSummaryView"][];
+            /** @description Opaque cursor for the following page, or null when this is the last page. */
+            nextCursor: null | string;
+        };
+        /** @description The lift summary of the latest completed campaign, as decided by the campaigns module. */
+        LatestCampaignView: {
+            /**
+             * Format: uuid
+             * @description The campaign.
+             */
+            campaignId: string;
+            /** @description Display name of the campaign. */
+            name: string;
+            /** @description Who created the campaign: `user` or `demo_seed`. The dashboard labels a demo campaign. */
+            source: string;
+            /** @description One of `measurable_lift`, `no_measurable_effect`, `unreliable`, `too_early`. Final-only, as on the results endpoint. */
+            verdict: string;
+            /** @description True when the result includes simulated demo orders. */
+            simulated: boolean;
+            /** @description `open`, `awaiting_final` or `closed` (final). */
+            windowState: string;
+            /** @description True only when the figures behind the verdict are final. */
+            isFinal: boolean;
+            /**
+             * Format: date-time
+             * @description Completion instant, UTC.
+             */
+            completedAt: null | string;
+            /**
+             * Format: double
+             * @description Lift over the holdout; null when undefined.
+             */
+            lift: null | number | string;
+            /**
+             * Format: double
+             * @description Lower bound of the interval of the lift.
+             */
+            liftCiLow: null | number | string;
+            /**
+             * Format: double
+             * @description Upper bound of the interval of the lift.
+             */
+            liftCiHigh: null | number | string;
+        };
         /** @description A member of the current organization as the administrator sees it. */
         MemberView: {
             /** Format: uuid */
@@ -6698,6 +10020,39 @@ export interface components {
             status: string;
             /** Format: date-time */
             joinedAt: string;
+        };
+        /** @description Body of an ML settings change. */
+        MlSettingsRequest: {
+            /** @description The new state of the switch; required. */
+            mlEnabled: null | boolean;
+            /**
+             * Format: uint32
+             * @description Row version the client read; 0 or omitted when the organization had no row.
+             */
+            version: null | number | string;
+            /**
+             * @description The uplift model to use. Omitted keeps the stored choice, null resets to the newest synced uplift model, and a string
+             *     selects that version (it must be an uplift model in the registry).
+             */
+            activeUpliftVersion: components["schemas"]["JsonElement"];
+        };
+        /** @description The ML switch of the organization, the stored model choices, the model each kind scores with now, and the row version. */
+        MlSettingsView: {
+            /** @description True when ML scoring is switched on. */
+            mlEnabled: boolean;
+            /** @description Uplift model the organization chose; null means the newest synced uplift model. */
+            activeUpliftVersion: null | string;
+            /** @description CLV model the organization chose; null means the newest synced CLV model. */
+            activeClvVersion: null | string;
+            /**
+             * Format: uint32
+             * @description Row version; 0 while the organization has no settings row yet.
+             */
+            version: number | string;
+            /** @description Uplift version the runs and the priority list use now; null when the registry holds none. */
+            effectiveUpliftVersion: null | string;
+            /** @description CLV version the runs use now; null when the registry holds none. */
+            effectiveClvVersion: null | string;
         };
         /** @description Body of a deal move: target stage, zero-based place in that stage, and the row version the client read. */
         MoveDealRequest: {
@@ -6784,6 +10139,51 @@ export interface components {
              * @description Row version to send back on update.
              */
             version: number | string;
+        };
+        /** @description One requested switch: the notification type and whether it reaches the user in the app. */
+        NotificationPreferenceChangeRequest: {
+            type: null | string;
+            channel: null | string;
+            enabled: null | boolean;
+        };
+        /** @description The addressee's preference list with its version. A write must send the version it read. */
+        NotificationPreferencesView: {
+            /**
+             * Format: int64
+             * @description Version of the set; changes whenever any switch of the user changes.
+             */
+            version: number | string;
+            /** @description One switch for every notification type. */
+            items: components["schemas"]["NotificationPreferenceView"][];
+        };
+        /** @description One switch of the preference list: whether a type reaches the user on a channel. */
+        NotificationPreferenceView: {
+            type: string;
+            channel: string;
+            enabled: boolean;
+        };
+        /** @description One in-app notification as the addressee sees it. Carries codes and values; the frontend renders the text. */
+        NotificationView: {
+            /**
+             * Format: uuid
+             * @description Notification identifier.
+             */
+            id: string;
+            /** @description Notification type code. */
+            type: string;
+            /** @description Identifiers and values the text needs. */
+            parameters: {
+                [key: string]: string;
+            };
+            /** @description Page code the notification links to; null when it links nowhere. */
+            linkRoute: null | string;
+            /** @description True once the addressee marked it read. */
+            isRead: boolean;
+            /**
+             * Format: date-time
+             * @description When the notification was created, UTC.
+             */
+            createdAt: string;
         };
         /** @description An order as the API returns it. Amounts are net; a cancellation is negative and flagged. */
         OrderView: {
@@ -6996,6 +10396,52 @@ export interface components {
              */
             version: number | string;
         };
+        /** @description One contact of the priority list, as the list endpoint returns it. Names only: no address, no statistic. */
+        PriorityItemView: {
+            /**
+             * Format: uuid
+             * @description The contact.
+             */
+            contactId: string;
+            /** @description First and last name of the contact. */
+            displayName: string;
+            /** @description Name of the contact's company; null when there is none. */
+            companyName: null | string;
+            /**
+             * Format: uuid
+             * @description Owner of the contact; null when unowned.
+             */
+            ownerUserId: null | string;
+            /**
+             * Format: int32
+             * @description Rank among the owner's contacts on the build day.
+             */
+            rank: number | string;
+            /**
+             * Format: double
+             * @description Priority value; higher ranks first. Null unless the caller holds the ML view permission: the value of an ML row is derived from the scores.
+             */
+            value: null | number | string;
+            /** @description Scoring mode of the value. */
+            mode: string;
+            /** @description RFM segment code. */
+            segment: string;
+            /** @description Reason codes that explain the value. */
+            reasonCodes: string[];
+            /** @description Next action code. */
+            suggestedAction: string;
+        };
+        /**
+         * @description One keyset page of the priority list, with the mode the list was built in and the ML status that explains it. The
+         *     `items` and `nextCursor` keys are those of a keyset page; `mode` is `ml` or `rfm`, and
+         *     `mlStatus` is one of the values of the priority ML status.
+         */
+        PriorityListPageView: {
+            items: components["schemas"]["PriorityItemView"][];
+            nextCursor: null | string;
+            mode: string;
+            mlStatus: string;
+        };
         ProblemDetails: {
             type?: null | string;
             title?: null | string;
@@ -7010,6 +10456,14 @@ export interface components {
             locale: null | string;
             timeZone: null | string;
             theme: null | string;
+        };
+        /** @description Result of marking every unread notification read. */
+        ReadAllView: {
+            /**
+             * Format: int32
+             * @description How many notifications changed to read.
+             */
+            marked: number | string;
         };
         /** @description Body of `refresh`, `logout` and organization switch. */
         RefreshRequest: {
@@ -7042,6 +10496,64 @@ export interface components {
             token: null | string;
             newPassword: null | string;
         };
+        /** @description One RFM segment and the number of contacts in it, within the caller's scope. */
+        RfmSegmentCountView: {
+            /** @description Segment code. */
+            segment: string;
+            /**
+             * Format: int32
+             * @description Contacts in the segment.
+             */
+            count: number | string;
+        };
+        /** @description The outcome of an admin refresh of the model registry. */
+        ScoringModelsSyncView: {
+            /**
+             * Format: int32
+             * @description Number of available models the scoring service reported and the registry now holds.
+             */
+            synced: number | string;
+        };
+        /** @description One registry entry. The metrics are the evaluation numbers of the model's manifest, as the service reports them. */
+        ScoringModelView: {
+            modelName: string;
+            version: string;
+            kind: string;
+            /** Format: int32 */
+            featureSchemaVersion: number | string;
+            provenance: string;
+            /** Format: date-time */
+            trainedAt: string;
+            /** Format: date-time */
+            syncedAt: string;
+            metrics: components["schemas"]["JsonElement"];
+            isActive: boolean;
+        };
+        /** @description Body of a scoring run start. */
+        ScoringRunRequest: {
+            /** @description The score kind to run: uplift or clv; required. */
+            kind: null | string;
+        };
+        /** @description One scoring run as the API shows it: its kind, the pinned model, its state and its counts. */
+        ScoringRunView: {
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            modelName: string;
+            modelVersion: string;
+            status: string;
+            /** Format: int32 */
+            contactsTotal: number | string;
+            /** Format: int32 */
+            contactsScored: number | string;
+            /** Format: int32 */
+            contactsRejected: number | string;
+            errorCode: null | string;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            finishedAt: null | string;
+        };
         /** @description Global search result, best match first, capped by the search result limit. */
         SearchResponse: {
             items: components["schemas"]["SearchResultItem"][];
@@ -7058,6 +10570,92 @@ export interface components {
             id: string;
             title: string;
             subtitle: null | string;
+        };
+        /**
+         * @description Typed filter tree of a segment. An empty list (or a null day count) leaves that filter open; a contact must pass
+         *     every filter that is set.
+         */
+        SegmentDefinition: {
+            /** @description Owners whose contacts match. Empty means any owner, including none. */
+            ownerUserIds?: string[];
+            /** @description ISO 3166-1 alpha-2 codes whose contacts match. Empty means any country. */
+            countryCodes?: string[];
+            /** @description Tags a contact must carry; a contact must have every listed tag. */
+            tagIds?: string[];
+            /** @description RFM segment names. Not evaluated until the insights module provides RFM data; the preview reports this. */
+            rfmSegments?: string[];
+            /**
+             * Format: int32
+             * @description Contacts whose last order is at most this many days before the evaluation instant.
+             */
+            daysSinceLastOrder?: null | number | string;
+        };
+        /** @description Filter definition of a segment as sent by the client. Missing lists mean open filters. */
+        SegmentDefinitionRequest: {
+            /** @description Owners whose contacts match. */
+            ownerUserIds: null | string[];
+            /** @description ISO alpha-2 country codes whose contacts match. */
+            countryCodes: null | string[];
+            /** @description Tags a contact must carry. */
+            tagIds: null | string[];
+            /** @description RFM segment names. */
+            rfmSegments: null | string[];
+            /**
+             * Format: int32
+             * @description Recency filter in days.
+             */
+            daysSinceLastOrder: null | number | string;
+        };
+        /**
+         * @description Size of the audience a definition selects, and a sample of contact identifiers. The preview carries no contact
+         *     names or addresses.
+         */
+        SegmentPreviewView: {
+            /**
+             * Format: int32
+             * @description Number of eligible contacts the definition matches.
+             */
+            count: number | string;
+            /** @description Identifiers of the first matching contacts, in contact id order. */
+            sample: string[];
+        };
+        /** @description Body of a segment create or replace request. */
+        SegmentRequest: {
+            /** @description Segment name. */
+            name: null | string;
+            definition: null | components["schemas"]["SegmentDefinitionRequest"];
+            /**
+             * Format: uint32
+             * @description Row version the client read; required on replace, ignored on create.
+             */
+            version: null | number | string;
+        };
+        /** @description A segment row of the library list. */
+        SegmentSummaryView: {
+            /**
+             * Format: uuid
+             * @description Segment identifier.
+             */
+            id: string;
+            /** @description Segment name. */
+            name: string;
+        };
+        /** @description A segment with its filter definition. */
+        SegmentView: {
+            /**
+             * Format: uuid
+             * @description Segment identifier.
+             */
+            id: string;
+            /** @description Name shown in the segment library. */
+            name: string;
+            /** @description The typed filter tree. */
+            definition: components["schemas"]["SegmentDefinition"];
+            /**
+             * Format: uint32
+             * @description Row version to send back on update; a changed row answers 409.
+             */
+            version: number | string;
         };
         /** @description Body of `login`. */
         SignInRequest: {
@@ -7182,6 +10780,98 @@ export interface components {
             id: string;
             name: string;
         };
+        /** @description A new link code, shown once. The caller opens string TelegramLinkCodeView.DeepLink or sends the code to the bot before DateTime TelegramLinkCodeView.ExpiresAt. */
+        TelegramLinkCodeView: {
+            /** @description The code. Only its hash is stored. */
+            code: string;
+            /** @description The bot link that starts the chat with the code. */
+            deepLink: string;
+            /**
+             * Format: date-time
+             * @description Instant after which the code is refused.
+             */
+            expiresAt: string;
+        };
+        /** @description Whether the signed-in user has a Telegram chat linked in the current organization. */
+        TelegramLinkView: {
+            /** @description True when an active link exists. */
+            linked: boolean;
+            /**
+             * Format: date-time
+             * @description When the link was made; null when none exists.
+             */
+            linkedAt: null | string;
+        };
+        /** @description Whether the Telegram channel runs here. Carries no secret: the token and the webhook secret are never returned. */
+        TelegramStatusView: {
+            /** @description True when a token is configured and the channel is switched on. */
+            enabled: boolean;
+            /** @description How updates arrive: `polling` or `webhook`. */
+            mode: string;
+            /** @description The bot's username for the deep link; null when the channel is off. */
+            botUsername: null | string;
+        };
+        /** @description A template rendered with sample recipient data. The body is HTML-escaped; the subject is plain text. */
+        TemplatePreviewView: {
+            /** @description Rendered subject. */
+            subject: string;
+            /** @description Rendered body. */
+            body: string;
+        };
+        /** @description Body of a template create or replace request. Missing fields fail validation. */
+        TemplateRequest: {
+            /** @description Template name. */
+            name: null | string;
+            /** @description Subject source. */
+            subjectLiquid: null | string;
+            /** @description Body source. */
+            bodyLiquid: null | string;
+            /** @description Culture code, `en` or `uk`. */
+            locale: null | string;
+            /**
+             * Format: uint32
+             * @description Row version the client read; required on replace, ignored on create.
+             */
+            version: null | number | string;
+        };
+        /** @description A template row of the library list. */
+        TemplateSummaryView: {
+            /**
+             * Format: uuid
+             * @description Template identifier.
+             */
+            id: string;
+            /** @description Template name. */
+            name: string;
+            /** @description Culture code the template is written in. */
+            locale: string;
+        };
+        /** @description A template with its subject and body source. */
+        TemplateView: {
+            /**
+             * Format: uuid
+             * @description Template identifier.
+             */
+            id: string;
+            /** @description Name shown in the template library. */
+            name: string;
+            /** @description Subject source. */
+            subjectLiquid: string;
+            /** @description Body source. */
+            bodyLiquid: string;
+            /** @description Culture code the template is written in. */
+            locale: string;
+            /**
+             * Format: uint32
+             * @description Row version to send back on update; a changed row answers 409.
+             */
+            version: number | string;
+        };
+        /** @description How many of the addressee's notifications are unread. */
+        UnreadCountView: {
+            /** Format: int32 */
+            count: number | string;
+        };
         /**
          * @description Body of company update. `version` is the row version read from the company; a stale value
          *     returns 409. The owner changes through the bulk owner endpoint.
@@ -7244,6 +10934,12 @@ export interface components {
             /** Format: uint32 */
             version: number | string;
             body: null | string;
+        };
+        /** @description Body of the preference update: the version the client read, and the switches to change. */
+        UpdateNotificationPreferencesRequest: {
+            /** Format: int64 */
+            version: null | number | string;
+            items: null | components["schemas"]["NotificationPreferenceChangeRequest"][];
         };
         /** @description Body of `PUT /organizations/{id}`. */
         UpdateOrganizationRequest: {

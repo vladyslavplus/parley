@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Parley.Campaigns.Domain.Attribution;
 using Parley.Campaigns.Domain.Campaigns;
 using Parley.Campaigns.Domain.Recipients;
 using Parley.Campaigns.Domain.Segments;
+using Parley.Campaigns.Domain.Sends;
 using Parley.Campaigns.Domain.Suppressions;
 using Parley.Campaigns.Domain.Templates;
 using Parley.SharedKernel.Idempotency.Persistence;
@@ -31,6 +33,12 @@ public sealed class CampaignsDbContext(DbContextOptions<CampaignsDbContext> opti
     public DbSet<Recipient> Recipients => Set<Recipient>();
 
     public DbSet<Suppression> Suppressions => Set<Suppression>();
+
+    public DbSet<SendRecord> Sends => Set<SendRecord>();
+
+    public DbSet<RecipientOutcome> RecipientOutcomes => Set<RecipientOutcome>();
+
+    public DbSet<CampaignResult> CampaignResults => Set<CampaignResult>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

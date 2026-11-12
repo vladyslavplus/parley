@@ -9,6 +9,7 @@ public static class CrmErrorCodes
     public const string ContactNotFound = "crm.contact.not_found";
     public const string ContactEmailTaken = "crm.contact.email_taken";
     public const string ContactNotDeleted = "crm.contact.not_deleted";
+    public const string ContactSegmentTooLarge = "crm.contacts.segment_too_large";
     public const string ContactCompanyNotFound = "crm.contact.company_not_found";
     public const string ContactOwnerNotAllowed = "crm.contact.owner_not_allowed";
     public const string CompanyNotFound = "crm.company.not_found";

@@ -2,14 +2,7 @@
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Bell,
-  LogOut,
-  Menu,
-  Plus,
-  Search,
-  User as UserIcon,
-} from "lucide-react";
+import { LogOut, Menu, Plus, Search, User as UserIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -17,6 +10,7 @@ import { LocaleToggle } from "@/components/layout/locale-toggle";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { API_ROUTES, ROUTES } from "@/constants/routes";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
 import { OrganizationSwitcher } from "@/features/organization/components/organization-switcher";
 import { Link } from "@/i18n/navigation";
 import { bffFetch } from "@/lib/api/bff-client";
@@ -105,16 +99,7 @@ export function TopBar({ onOpenSearch, onOpenCreate, onToggleSidebar }: Props) {
           />
         ) : null}
 
-        {/* Notifications slot */}
-        <Button
-          variant="secondary"
-          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground relative"
-          aria-label={tShell("notifications.label")}
-          title={tShell("notifications.empty")}
-        >
-          <Bell className="h-4 w-4" />
-          <span className="sr-only">{tShell("notifications.label")}</span>
-        </Button>
+        <NotificationBell />
 
         <LocaleToggle />
         <ThemeToggle />

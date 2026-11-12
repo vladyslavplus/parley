@@ -39,9 +39,27 @@ public static class CampaignsLimits
     /// <summary>Contact identifiers returned as the sample of a segment preview.</summary>
     public const int SegmentPreviewSampleSize = 20;
 
+    /// <summary>
+    /// Most recipient rows one recipients-list request scans, whatever the filters match. A filter that matches few rows
+    /// returns the items found so far with a cursor at the scan position, so the client asks for the next part.
+    /// </summary>
+    public const int RecipientScanCap = 1000;
+
     public const int StatusMaximumLength = 32;
 
     public const int HoldoutSeedMaximumLength = 64;
 
     public const int EmailMaximumLength = 320;
+
+    /// <summary>Longest deterministic message id: two guids, a separator, and a domain of at most 253 characters.</summary>
+    public const int MessageIdMaximumLength = 400;
+
+    /// <summary>Longest stored error code.</summary>
+    public const int ErrorCodeMaximumLength = 100;
+
+    /// <summary>Longest stored scoring model version, as the registry allows it.</summary>
+    public const int TargetingModelVersionMaximumLength = 64;
+
+    /// <summary>Longest stored model provenance, as the registry allows it.</summary>
+    public const int TargetingProvenanceMaximumLength = 32;
 }

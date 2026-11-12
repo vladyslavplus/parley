@@ -33,10 +33,7 @@ import { PERMISSIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
 import { CompanyPicker } from "@/features/crm/components/company-picker";
 import { CrmCustomFieldsRender } from "@/features/crm/components/crm-custom-fields-render";
-import {
-  DealsPlaceholder,
-  ScoresPlaceholder,
-} from "@/features/crm/components/crm-placeholders";
+import { DealsPlaceholder } from "@/features/crm/components/crm-placeholders";
 import { OrdersPanel } from "@/features/orders/components/orders-panel";
 import { TasksPanel } from "@/features/tasks/components/tasks-panel";
 import { ActivityTimeline } from "@/features/timeline/components/activity-timeline";
@@ -51,6 +48,7 @@ import { useCustomFields } from "@/features/crm/hooks/use-custom-fields";
 import { useSoftDeleteWithUndo } from "@/features/crm/hooks/use-soft-delete-with-undo";
 import { useTags } from "@/features/crm/hooks/use-tags";
 import { Can, useCan } from "@/features/session/components/can";
+import { ContactScoresPanel } from "@/features/insights/components/contact-scores-panel";
 import { Link, useRouter } from "@/i18n/navigation";
 import { toApiError } from "@/lib/errors";
 import { formatDate } from "@/lib/formatters";
@@ -331,7 +329,7 @@ export function ContactRecordView({ id }: { id: string }) {
     {
       key: "scores" as const,
       label: t("record.sections.scores"),
-      content: <ScoresPlaceholder />,
+      content: <ContactScoresPanel contactId={id} />,
     },
   ];
 

@@ -15,6 +15,7 @@
     <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="Hangfire.Core" />
+    <PackageReference Include="MailKit" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Fluid.Core" />

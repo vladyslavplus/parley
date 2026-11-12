@@ -16,4 +16,9 @@ public static class CampaignStatuses
     public const string Cancelled = "cancelled";
 
     public const string Failed = "failed";
+
+    public static IReadOnlyList<string> All { get; } = [Draft, Preparing, Ready, Sending, Completed, Cancelled, Failed];
+
+    /// <summary>True when the value names one of the campaign states.</summary>
+    public static bool IsKnown(string? value) => value is not null && All.Contains(value, StringComparer.Ordinal);
 }

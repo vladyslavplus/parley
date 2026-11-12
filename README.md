@@ -60,7 +60,8 @@ reference is at `http://localhost:5000/scalar/v1` in Development.
 
 Settings resolve in this order: `appsettings.json` (placeholders), then
 `appsettings.Development.json` in the Development environment, then environment
-variables such as `Auth__SigningKey` (the highest priority).
+variables such as `Auth__SigningKey` (the highest priority). `dotnet run` reads these files from the
+build output folder, so edits to `appsettings.Development.json` need a rebuild (`dotnet run` builds first).
 
 ## Rate limits behind the web BFF
 
@@ -175,6 +176,45 @@ Configuration is bound from `appsettings.json` and
 Real SMTP credentials are never committed: set `Email__Username` and
 `Email__Password` from the deployment environment. Send attempts log only
 the template key and culture, never the recipient address or body.
+
+## Telegram bot
+
+Users can receive their notifications in a Telegram chat. The channel is
+off until a bot token is configured; without one the API runs normally and
+`GET /telegram/status` reports `enabled: false`.
+
+1. In Telegram, open `@BotFather`, send `/newbot`, and follow the prompts.
+   Keep the token it returns and the bot's username (without the `@`).
+2. Set the secrets from the environment, never in a committed file:
+   `Telegram__BotToken` (the token) and `Telegram__BotUsername` (the
+   username). Also set `Notifications__PublicWebBaseUrl` to the web app
+   address, because the messages link to it.
+3. Choose how updates arrive with `Telegram__Mode`:
+   - `Polling` (default): the API asks Telegram for updates. It works on a
+     local machine with no public address.
+   - `Webhook`: Telegram posts updates to `POST /telegram/webhook`. Set
+     `Telegram__WebhookSecret` to a long random value, register the address
+     with the Bot API `setWebhook` call, and pass the same value as
+     `secret_token`. Telegram then sends it in the
+     `X-Telegram-Bot-Api-Secret-Token` header, and requests without it are
+     refused.
+4. Link a chat: sign in to the web app, create a link code, and open the
+   returned deep link (`https://t.me/<bot>?start=<code>`). The code works once
+   and expires after ten minutes. Then turn the Telegram switch on for the
+   notification types you want in the notification preferences.
+
+Local test: start the API in polling mode with a test bot token, create a
+code in the app, send `/start <code>` to your bot, and send `/today` to see
+the priority list. Use `/unlink` to end the link. Tests never call Telegram:
+they use a fake bot client.
+
+| Environment variable | Configuration key | Purpose |
+| --- | --- | --- |
+| `Telegram__BotToken` | `Telegram:BotToken` | Bot token; never logged or returned |
+| `Telegram__BotUsername` | `Telegram:BotUsername` | Username for the deep link |
+| `Telegram__WebhookSecret` | `Telegram:WebhookSecret` | Secret of the webhook header |
+| `Telegram__Mode` | `Telegram:Mode` | `Polling` or `Webhook` |
+| `Notifications__PublicWebBaseUrl` | `Notifications:PublicWebBaseUrl` | Web app address for message links |
 
 ## Frontend
 

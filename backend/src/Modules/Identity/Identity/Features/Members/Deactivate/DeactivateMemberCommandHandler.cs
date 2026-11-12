@@ -2,6 +2,7 @@ using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Parley.Identity.Contracts.Audit;
 using Parley.Identity.Contracts.Errors;
+using Parley.Identity.Contracts.Events;
 using Parley.Identity.Contracts.Memberships;
 using Parley.Identity.Features.Members.Shared;
 using Parley.Identity.Persistence;
@@ -56,6 +57,8 @@ public sealed class DeactivateMemberCommandHandler(
 
         membership.Status = MembershipStatuses.Deactivated;
         outbox.AddAuditRecorded(actorId, organizationId, AuditActions.MemberDeactivated, timeProvider, AuditTargetTypes.Member, membership.Id);
+        // Same transaction as the status change: consumers end what the member could still reach through the organization.
+        outbox.Add(new MemberDeactivated { UserId = membership.UserId });
         await dbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return Result.Success();

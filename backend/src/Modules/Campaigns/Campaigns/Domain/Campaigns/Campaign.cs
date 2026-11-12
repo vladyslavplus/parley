@@ -32,8 +32,24 @@ public sealed class Campaign : BusinessEntity
 
     public string ConversionRule { get; set; } = CampaignConversionRules.AnyOrder;
 
+    /// <summary>
+    /// The instant the audience is ranked and filtered at. Pinned when the campaign enters <c>preparing</c>, so every run of
+    /// the freeze, resumed or repeated, sees the same CRM day counts.
+    /// </summary>
+    public DateTime? PrepareAsOf { get; set; }
+
     /// <summary>The commit point of the freeze. Null until the recipients are complete; set once and never cleared.</summary>
     public DateTime? AudienceFrozenAt { get; set; }
+
+    /// <summary>
+    /// The scoring model the audience was ranked with, pinned at the freeze together with the audience. Null for a campaign that
+    /// does not target by score. Read by the review, so it shows the model the recipients were chosen with, not the newest one.
+    /// </summary>
+    public string? TargetingModelName { get; set; }
+
+    public string? TargetingModelVersion { get; set; }
+
+    public string? TargetingProvenance { get; set; }
 
     public DateTime? StartedAt { get; set; }
 

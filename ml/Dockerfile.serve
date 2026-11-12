@@ -1,27 +1,46 @@
-# Scoring service image: minimal CPU-only environment for the FastAPI service.
+# Scoring service image. Only the `serve` dependency group: FastAPI, XGBoost on CPU, scipy. No PyMC, CausalML or
+# statsmodels, no CUDA/NCCL libraries (xgboost's Linux wheel pulls nvidia-nccl; excluded, the service uses device=cpu),
+# and no training code, data or artifacts are copied in. Artifacts come from a read-only volume.
 FROM python:3.12-slim
 
-ENV DEBIAN_FRONTEND=noninteractive \
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
     UV_NO_DEV=1 \
     UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=never \
     VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH=/app \
+    PARLEY_ML_ARTIFACTS_DIR=/artifacts/models
 
 COPY --from=ghcr.io/astral-sh/uv:0.13.6 /uv /uvx /bin/
 
+RUN groupadd --system --gid 10001 ml \
+ && useradd --system --uid 10001 --gid ml --home-dir /app --shell /usr/sbin/nologin ml
+
 WORKDIR /app
 
-# Install dependencies first so this layer survives source-only changes.
+# Dependencies first, so this layer survives source-only changes.
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=uv.lock,target=uv.lock \
-    uv sync --locked --group serve --no-install-project
+    uv sync --locked --group serve --no-install-project --no-install-package nvidia-nccl-cu13
 
-COPY . /app
+# Only what the service imports: the serving package, the checksum helper it uses, and the serving limits.
+COPY pyproject.toml uv.lock ./
+COPY parley_ml/__init__.py ./parley_ml/__init__.py
+COPY parley_ml/serving ./parley_ml/serving
+COPY parley_ml/datasets/__init__.py parley_ml/datasets/checksums.py ./parley_ml/datasets/
+COPY configs/serving.yaml ./configs/serving.yaml
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --group serve
+    uv sync --locked --group serve --no-install-project --no-install-package nvidia-nccl-cu13
+
+USER ml
 
 EXPOSE 8000
 
-CMD ["python", "-c", "print('ML scoring service placeholder')"]
+HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=3 \
+  CMD ["python", "-c", "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).status == 200 else 1)"]
+
+CMD ["uvicorn", "parley_ml.serving.service:create_app_from_env", "--factory", "--host", "0.0.0.0", "--port", "8000"]

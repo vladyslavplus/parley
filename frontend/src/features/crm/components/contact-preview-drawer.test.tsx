@@ -73,6 +73,7 @@ describe("ContactPreviewDrawer", () => {
           city: "Kyiv",
           tagIds: ["t-1"],
           customFields: {},
+          segment: null,
           createdAt: "2026-02-01T10:00:00Z",
           updatedAt: "2026-02-01T10:00:00Z",
           version: 1,

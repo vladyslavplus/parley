@@ -1,0 +1,5 @@
+{
+  "code": "ml.score.unknown_model_version",
+  "detail": "model version 'crm_uplift-20991231-0000000' is not available",
+  "trace_id": "sample-uplift-request-unknown-version"
+}

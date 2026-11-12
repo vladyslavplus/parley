@@ -26,17 +26,12 @@ value, so the individual term does not apply to the others.
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Final
+from typing import Final
 
 import numpy as np
 from scipy.special import expit, hyp2f1
 
-from parley_ml.datasets.checksums import sha256_file
-
-MANIFEST_FILE: Final = "manifest.json"
 MAX_TENURE_DAYS: Final = 36_500
 MAX_HORIZON_DAYS: Final = 3_650
 
@@ -228,28 +223,3 @@ def expected_value_over_horizon(
     return purchases * expected_spend(spend, frequency, mean_repeat_value)
 
 
-@dataclass(frozen=True)
-class ClvArtifact:
-    """A loaded CLV artifact: MAP parameters plus the manifest that describes them."""
-
-    version: str
-    transactions: BetaGeoParameters
-    spend: GammaGammaParameters
-    manifest: dict[str, Any]
-
-
-def load_artifact(directory: Path) -> ClvArtifact:
-    """Read ``manifest.json`` and ``parameters.json`` and check the parameter file against its manifest checksum."""
-    manifest = json.loads((directory / MANIFEST_FILE).read_text(encoding="utf-8"))
-    parameters_path = directory / manifest["parameters_file"]
-    if sha256_file(parameters_path) != manifest["parameters_sha256"]:
-        raise ValueError(f"{parameters_path} differs from the checksum in {MANIFEST_FILE}")
-    parameters = json.loads(parameters_path.read_text(encoding="utf-8"))
-    bg = parameters["bg_nbd"]
-    gg = parameters["gamma_gamma"]
-    return ClvArtifact(
-        version=manifest["version"],
-        transactions=BetaGeoParameters(alpha=bg["alpha"], r=bg["r"], a=bg["a"], b=bg["b"]),
-        spend=GammaGammaParameters(p=gg["p"], q=gg["q"], v=gg["v"]),
-        manifest=manifest,
-    )

@@ -1,4 +1,5 @@
 using Parley.Api.Idempotency;
+using Parley.Campaigns.Persistence;
 using Parley.Crm.Persistence;
 using Parley.SharedKernel.Idempotency;
 
@@ -12,6 +13,7 @@ public static class IdempotencyServiceCollectionExtensions
     public static IServiceCollection AddIdempotency(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IdempotencyKeyFilter<CrmDbContext>>();
+        services.AddScoped<IdempotencyKeyFilter<CampaignsDbContext>>();
         services.AddOptions<IdempotencyOptions>()
             .Bind(configuration.GetSection(IdempotencyOptions.SectionName))
             .Validate(options => options.KeyLifetime > IdempotencyOptions.ZeroLifetime && options.KeyLifetime <= IdempotencyOptions.MaximumLifetime, "Idempotency key lifetime is out of range.")

@@ -10,5 +10,6 @@ public enum ErrorType
     Forbidden,
     NotFound,
     Conflict,
+    RateLimited,
     Failure,
 }

@@ -405,7 +405,181 @@
   <data name="campaigns.campaign.scores_unavailable" xml:space="preserve">
     <value>Оцінок ще немає, тому цей режим таргетингу не можна підготувати.</value>
   </data>
+  <data name="campaigns.send.mail_unavailable" xml:space="preserve">
+    <value>Поштовий сервер не прийняв з'єднання. Відправку буде повторено.</value>
+  </data>
+  <data name="campaigns.send.result_unknown" xml:space="preserve">
+    <value>Результат відправлення невідомий, тому лист не буде надіслано повторно.</value>
+  </data>
+  <data name="campaigns.send.recipient_unavailable" xml:space="preserve">
+    <value>Одержувач більше недоступний для відправлення.</value>
+  </data>
+  <data name="campaigns.send.test_failed" xml:space="preserve">
+    <value>Тестовий лист не вдалося надіслати. Спробуйте пізніше.</value>
+  </data>
+  <data name="campaigns.send.test_address_missing" xml:space="preserve">
+    <value>Для вашого облікового запису не вказано адресу електронної пошти для тестового листа.</value>
+  </data>
+  <data name="campaigns.unsubscribe.token_invalid" xml:space="preserve">
+    <value>Це посилання для відписки недійсне.</value>
+  </data>
+  <data name="campaigns.unsubscribe.token_expired" xml:space="preserve">
+    <value>Термін дії цього посилання для відписки минув.</value>
+  </data>
   <data name="campaigns.segment.version_conflict" xml:space="preserve">
     <value>Сегмент змінив інший користувач. Оновіть його і спробуйте ще раз.</value>
+  </data>
+  <data name="insights.ml_settings.version_conflict" xml:space="preserve">
+    <value>Налаштування ML змінив інший користувач. Оновіть їх і спробуйте ще раз.</value>
+  </data>
+  <data name="insights.scoring.ml_disabled" xml:space="preserve">
+    <value>ML-оцінка вимкнена для цієї організації. Увімкніть її в налаштуваннях ML.</value>
+  </data>
+  <data name="insights.scoring.run_abandoned" xml:space="preserve">
+    <value>Оцінка перестала відповідати і була завершена. Запустіть її знову; попередні оцінки збережено.</value>
+  </data>
+  <data name="insights.scoring.run_in_progress" xml:space="preserve">
+    <value>Оцінка такого типу вже виконується. Дочекайтеся завершення.</value>
+  </data>
+  <data name="insights.scoring.kind_unknown" xml:space="preserve">
+    <value>Цей тип оцінки не можна обчислити. Оберіть uplift або CLV.</value>
+  </data>
+  <data name="insights.scoring.run_not_found" xml:space="preserve">
+    <value>Запуск оцінки не знайдено.</value>
+  </data>
+  <data name="insights.scoring.service_unavailable" xml:space="preserve">
+    <value>Сервіс оцінки зараз недоступний. Оцінки не змінено; спробуйте пізніше.</value>
+  </data>
+  <data name="insights.scoring.service_rejected" xml:space="preserve">
+    <value>Сервіс оцінки відхилив запит. Перевірте налаштування ML-сервісу.</value>
+  </data>
+  <data name="insights.scoring.model_unavailable" xml:space="preserve">
+    <value>Для цього типу оцінки немає активної придатної моделі. Синхронізуйте моделі й оберіть активну версію.</value>
+  </data>
+  <data name="insights.scoring.model_mismatch" xml:space="preserve">
+    <value>Сервіс оцінки використав іншу модель, ніж обрана. Оцінки не змінено.</value>
+  </data>
+  <data name="insights.scoring.too_many_rejected" xml:space="preserve">
+    <value>Сервіс оцінки відхилив забагато контактів. Оцінки не змінено.</value>
+  </data>
+  <data name="insights.scoring.run_failed" xml:space="preserve">
+    <value>Запуск оцінки завершився несподівано. Оцінки не змінено.</value>
+  </data>
+  <data name="insights.scoring.cancelled" xml:space="preserve">
+    <value>Запуск оцінки скасовано. Оцінки не змінено.</value>
+  </data>
+  <data name="campaigns.test_send.rate_limited" xml:space="preserve">
+    <value>Забагато тестових листів. Спробуйте пізніше.</value>
+  </data>
+  <data name="crm.contacts.segment_too_large" xml:space="preserve">
+    <value>Сегмент має забагато контактів для фільтра тут. Звузьте список іншим фільтром.</value>
+  </data>
+  <data name="notifications.notification.not_found" xml:space="preserve">
+    <value>Сповіщення не знайдено.</value>
+  </data>
+  <data name="notifications.preferences.version_conflict" xml:space="preserve">
+    <value>Налаштування сповіщень змінили інші. Оновіть їх і спробуйте знову.</value>
+  </data>
+  <data name="notifications.preferences.type_unknown" xml:space="preserve">
+    <value>Невідомий тип сповіщення.</value>
+  </data>
+  <data name="telegram.not_configured" xml:space="preserve">
+    <value>Telegram не налаштовано на цьому сервері.</value>
+  </data>
+  <data name="telegram.link_code.invalid" xml:space="preserve">
+    <value>Код прив'язки недійсний, уже використаний або прострочений. Створіть новий код у застосунку.</value>
+  </data>
+  <data name="telegram.link_code.rate_limited" xml:space="preserve">
+    <value>Забагато кодів прив'язки за короткий час. Спробуйте пізніше.</value>
+  </data>
+  <data name="telegram.link.already_exists" xml:space="preserve">
+    <value>Ваш обліковий запис уже має прив'язаний чат Telegram в цій організації. Спочатку надішліть /unlink у цьому чаті.</value>
+  </data>
+  <data name="telegram.chat.already_linked" xml:space="preserve">
+    <value>Цей чат уже прив'язано до іншого користувача в цій організації.</value>
+  </data>
+  <data name="telegram.link.not_found" xml:space="preserve">
+    <value>До вашого облікового запису в цій організації не прив'язано жодного чату Telegram.</value>
+  </data>
+  <data name="telegram.delivery.blocked" xml:space="preserve">
+    <value>Чат заблокував бота, тож його прив'язку вимкнено.</value>
+  </data>
+  <data name="telegram.delivery.rejected" xml:space="preserve">
+    <value>Telegram відхилив повідомлення.</value>
+  </data>
+  <data name="telegram.delivery.unavailable" xml:space="preserve">
+    <value>Telegram був недоступний, і спроби надсилання вичерпано.</value>
+  </data>
+  <data name="telegram.delivery.rate_limited" xml:space="preserve">
+    <value>Telegram попросив зачекати перед наступним повідомленням.</value>
+  </data>
+  <data name="telegram.webhook.secret_invalid" xml:space="preserve">
+    <value>Секрет вебхука не збігається.</value>
+  </data>
+  <data name="telegram.bot.help" xml:space="preserve">
+    <value>Команди: /today показує список пріоритетів на сьогодні, /unlink завершує прив'язку. Щоб прив'язати цей чат, створіть код у застосунку й надішліть його сюди як /start [код].</value>
+  </data>
+  <data name="telegram.bot.linked" xml:space="preserve">
+    <value>Чат прив'язано. Ви отримуватимете сповіщення, які увімкнули для Telegram.</value>
+  </data>
+  <data name="telegram.bot.unlinked" xml:space="preserve">
+    <value>Прив'язку завершено. Цей чат більше не отримуватиме повідомлень із застосунку.</value>
+  </data>
+  <data name="telegram.bot.not_linked" xml:space="preserve">
+    <value>Цей чат не прив'язано до жодного облікового запису. Спочатку створіть код у застосунку.</value>
+  </data>
+  <data name="telegram.bot.choose_organization" xml:space="preserve">
+    <value>Цей чат прив'язано до організацій: {0}. Оберіть одну, надіславши її номер:</value>
+  </data>
+  <data name="telegram.bot.today_header" xml:space="preserve">
+    <value>Список пріоритетів на сьогодні:</value>
+  </data>
+  <data name="telegram.bot.today_empty" xml:space="preserve">
+    <value>Сьогодні в списку пріоритетів порожньо.</value>
+  </data>
+  <data name="telegram.bot.no_access" xml:space="preserve">
+    <value>Ваша роль не дозволяє переглядати список пріоритетів в цій організації.</value>
+  </data>
+  <data name="telegram.bot.membership_ended" xml:space="preserve">
+    <value>Ваше членство в цій організації завершилося, тож прив'язку вимкнено.</value>
+  </data>
+  <data name="telegram.bot.insights_footer" xml:space="preserve">
+    <value>Відкрити сторінку інсайтів: {0}</value>
+  </data>
+  <data name="telegram.action.call" xml:space="preserve">
+    <value>Зателефонуйте контакту.</value>
+  </data>
+  <data name="telegram.action.review_deal" xml:space="preserve">
+    <value>Перегляньте застарілу угоду.</value>
+  </data>
+  <data name="telegram.action.win_back" xml:space="preserve">
+    <value>Поверніть контакт.</value>
+  </data>
+  <data name="telegram.action.reward" xml:space="preserve">
+    <value>Відзначте контакт.</value>
+  </data>
+  <data name="telegram.action.nurture" xml:space="preserve">
+    <value>Підтримуйте контакт.</value>
+  </data>
+  <data name="telegram.notification.task_assigned" xml:space="preserve">
+    <value>Вам призначено завдання.</value>
+  </data>
+  <data name="telegram.notification.task_due_soon" xml:space="preserve">
+    <value>Незабаром настає термін завдання.</value>
+  </data>
+  <data name="telegram.notification.deal_assigned" xml:space="preserve">
+    <value>Вам призначено угоду.</value>
+  </data>
+  <data name="telegram.notification.campaign_completed" xml:space="preserve">
+    <value>Кампанія завершила надсилання.</value>
+  </data>
+  <data name="telegram.notification.scoring_run_completed" xml:space="preserve">
+    <value>Нові оцінки готові.</value>
+  </data>
+  <data name="telegram.notification.member_activated" xml:space="preserve">
+    <value>До організації приєднався новий учасник.</value>
+  </data>
+  <data name="notifications.preferences.channel_unknown" xml:space="preserve">
+    <value>Канал сповіщень невідомий.</value>
   </data>
 </root>

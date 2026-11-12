@@ -1,0 +1,30 @@
+{
+  "models": [
+    {
+      "error_code": null,
+      "feature_schema_version": 1,
+      "kind": "clv",
+      "metrics": {
+        "status": "stub, not evaluated"
+      },
+      "model_name": "clv_bgnbd_gg",
+      "provenance": "stub",
+      "status": "available",
+      "trained_at": "2026-11-10",
+      "version": "clv_bgnbd_gg-20261110-8358355"
+    },
+    {
+      "error_code": null,
+      "feature_schema_version": 1,
+      "kind": "uplift",
+      "metrics": {
+        "status": "stub, not evaluated"
+      },
+      "model_name": "crm_uplift",
+      "provenance": "stub",
+      "status": "available",
+      "trained_at": "2026-11-10",
+      "version": "crm_uplift-20261110-8a4e785"
+    }
+  ]
+}

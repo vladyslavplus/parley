@@ -2,11 +2,12 @@ import type { Ref, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export type AlertTone = "error" | "info" | "success" | "warning";
+export type AlertTone = "error" | "info" | "neutral" | "success" | "warning";
 
 const TONE_CLASSES: Record<AlertTone, string> = {
   error: "border-destructive/40 bg-destructive/10 text-destructive",
   info: "border-info/40 bg-info/10 text-info",
+  neutral: "border-border bg-muted/50 text-foreground",
   success: "border-success/40 bg-success/10 text-success",
   warning: "border-warning/40 bg-warning/10 text-warning",
 };

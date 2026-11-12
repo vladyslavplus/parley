@@ -6,7 +6,12 @@ using Parley.Api.Hangfire;
 using Parley.Api.Health;
 using Parley.Api.Startup;
 
-var builder = WebApplication.CreateBuilder(args);
+// The content root is the folder of the assembly, so appsettings.json beside the published API loads from any working directory.
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = AppContext.BaseDirectory,
+});
 
 // The seed verb uses the full host for its services, but never serves traffic on a fixed port and never runs jobs.
 var isSeedDemo = args.Length > 0 && args[0] == SeedDemoCommandConstants.Verb;
@@ -31,6 +36,12 @@ builder.Services.AddAuthenticationAndAuthorization();
 builder.Services.AddBackgroundProcessing(runJobs: !isSeedDemo);
 builder.Services.AddMediatorPipeline();
 builder.Services.AddHealthEndpoints();
+
+// The seed verb applies migrations through its own host start, so the pending check guards only the API host.
+if (!isSeedDemo)
+{
+    builder.Services.AddHostedService<PendingMigrationsGuard>();
+}
 
 var app = builder.Build();
 

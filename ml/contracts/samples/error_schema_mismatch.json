@@ -1,0 +1,5 @@
+{
+  "code": "ml.score.feature_schema_mismatch",
+  "detail": "model expects feature schema 1",
+  "trace_id": "sample-uplift-request-schema-mismatch"
+}

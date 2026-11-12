@@ -25,10 +25,13 @@ public sealed class TaskDueSoonJob(
     protected override async Task RunAsync(CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
+        var windowStart = now.Subtract(options.Value.DueSoonWindow).UtcDateTime;
         var windowEnd = now.Add(options.Value.DueSoonWindow).UtcDateTime;
+
+        // The lower bound keeps the first run after a deploy from announcing every task that went overdue long ago.
         var due = await dbContext.Tasks
             .Where(task => task.CompletedAt == null && task.DeletedAt == null && task.ReminderSentAt == null
-                && task.DueAt != null && task.DueAt <= windowEnd)
+                && task.DueAt != null && task.DueAt >= windowStart && task.DueAt <= windowEnd)
             .OrderBy(task => task.DueAt)
             .ThenBy(task => task.Id)
             .Take(CrmLimits.TaskDueSoonBatchSize)
