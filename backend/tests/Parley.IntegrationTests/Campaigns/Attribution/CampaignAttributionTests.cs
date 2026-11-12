@@ -432,7 +432,7 @@ public sealed class CampaignAttributionTests(PostgresFixture postgres, MailpitFi
         command.Parameters.AddWithValue(ParameterReference, $"attribution-{contactId:N}-{orderedAt.ToUnixTimeSeconds()}");
         command.Parameters.AddWithValue(ParameterOrderedAt, orderedAt);
         command.Parameters.AddWithValue(ParameterAmount, OrderAmount);
-        command.Parameters.AddWithValue(ParameterCurrency, CrmDemoContract.ExportCurrency);
+        command.Parameters.AddWithValue(ParameterCurrency, CrmDemoContract.DemoCurrency);
         command.Parameters.AddWithValue(ParameterSource, OrderSources.Manual);
         await command.ExecuteNonQueryAsync(cancellationToken);
     }

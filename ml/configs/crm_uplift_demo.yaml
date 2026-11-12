@@ -21,25 +21,40 @@ campaigns:
     holdout_share_bps: 1000
     apply_effect: true
 
-# Semi-synthetic crm_uplift fixture. Covariates and baseline outcomes are real; the injected effect is the only synthetic part.
+# Semi-synthetic crm_uplift fixture. Covariates and baseline outcomes are real; the injected effect is the only
+# synthetic part. Choose the effect strength here, before any model output is looked at.
 fixture:
-  # Start of the baseline window T0 (2011-06-10). Features use orders up to T0 minus one second (inclusive instant).
-  # Y0 is any purchase in (T0, T0 + baseline_window_days].
-  t0: "2011-06-10"
+  # Time-ordered snapshots, one row set per snapshot. The last snapshot is the primary one: its test split is the only
+  # test split. Earlier snapshots are stacked as extra training rows, but only for customers whose primary snapshot
+  # split is train, so a customer never crosses splits. Each snapshot has its own assignment seed (arms) and outcome
+  # seed (simulated treated outcome); the split seed is shared.
+  snapshots:
+    - t0: "2010-09-10"
+      assignment_seed: "crm-uplift-demo-assignment-2010-09-10"
+      outcome_seed: 20261121
+    - t0: "2010-12-10"
+      assignment_seed: "crm-uplift-demo-assignment-2010-12-10"
+      outcome_seed: 20261122
+    - t0: "2011-03-10"
+      assignment_seed: "crm-uplift-demo-assignment-2011-03-10"
+      outcome_seed: 20261123
+    - t0: "2011-06-10"
+      assignment_seed: "crm-uplift-demo-assignment-v1"
+      outcome_seed: 20261116
   baseline_window_days: 30
   # Assignment share for the fixture (50 % so both arms have enough rows).
   holdout_share_bps: 5000
-  # Text seed of the shared holdout algorithm (parley_ml.experiments.holdout). Changing it reshuffles the arms.
-  assignment_seed: "crm-uplift-demo-assignment-v1"
-  # Seed of the uniform draws that turn Y0 into the simulated treated outcome.
-  outcome_seed: 20261116
   # Population: customers with a purchase before T0 and non-negative net value and average value
   # (parley_ml.features.crm.eligible_contacts). The service validates the same rule.
 
-# Customer-level split of the fixture. Stratified by arm and observed outcome. No customer is in two splits.
+# Customer-level split of the primary snapshot. Stratified by arm and observed outcome. No customer is in two splits.
+# The validation rows have two separate uses: early stopping for the boosters, and the segment thresholds. Each use
+# gets its own part, so a threshold is never chosen on the rows that stopped the trees.
 split:
   seed: 20261117
-  validation_share: 0.10
+  validation_share: 0.20
+  # Share of the validation rows used for the segment thresholds; the rest stops the boosters.
+  validation_selection_share: 0.50
   test_share: 0.20
 
 # T-learner: one XGBoost model per arm. Hyperparameters are fixed here, before any model output was looked at.
@@ -56,36 +71,60 @@ model:
   early_stopping_rounds: 30
   max_rounds: 500
 
-# Segment thresholds of the served model. Chosen on the validation split only, by maximising the macro F1 of the four
-# segments against the known segments. The test split is scored once, after these values are frozen.
+# Segment thresholds of the served model. Chosen on the validation-selection part only. The test split is scored once
+# per run, after these values are frozen.
+# The do-not-disturb label needs a precision floor: a contact is never labeled do_not_disturb when the threshold does
+# not reach the floor on validation. With no threshold at the floor the label is switched off (threshold -1, below any
+# possible uplift), so the model never emits it. The served label is advisory in the product: hard exclusion is a
+# backend decision, not a demo-model decision.
 selection:
-  do_not_disturb_uplift_below: [-0.05, -0.03, -0.02, -0.01]
-  persuadable_uplift_at_least: [0.02, 0.05, 0.08, 0.10]
+  do_not_disturb_uplift_below: [-0.20, -0.15, -0.10, -0.05, -0.02]
+  do_not_disturb_precision_floor: 0.50
+  persuadable_uplift_at_least: [0.05, 0.10, 0.15, 0.20]
   sure_thing_control_rate_at_least: [0.15, 0.25, 0.35]
 
 evaluation:
   bootstrap_replicates: 200
   bootstrap_seed: 20261119
-  # Share of the test split in the top of the ranking, for the "mean true tau" check.
+  # Share of the test split in the top of the ranking, for the tau-based checks.
   top_share: 0.20
+  # Reference rows: random scores, mean and 97.5th percentile over this many draws on the same test rows.
+  random_reference_draws: 300
+  random_reference_seed: 20261120
+  # Seed table: outcome and split seeds are shifted by seed_stride per run, the primary run is seed 0. Ten runs
+  # (the primary one included) give mean and range without choosing anything on the test split.
+  seed_count: 10
+  seed_stride: 1000
+  # Success criterion, fixed before the run and never tuned towards on test rows.
+  success:
+    share_of_perfect_gain_at_least: 0.50
+    auc_persuadable_at_least: 0.80
 
 artifact:
   root: "artifacts/models"
   # Date in the version name and manifest. Fixed in config so the same run gives the same name.
-  trained_at: "2026-11-10"
+  trained_at: "2026-11-12"
   demo_export_dir: "artifacts/demo_export"
   results_md: "results/crm_uplift_demo.md"
+  # Appended before the test split is read. A rerun with the same config needs --reproduce; a changed config is
+  # refused, so the test split cannot be reused while the procedure is being tuned.
+  test_access: "artifacts/crm_uplift_demo_test_access.json"
 
 # Effect function tau(x). Segments are checked in the order listed; the first match wins.
 # Feature names are the 8 fields of feature_schema_version 1 (recency_days, orders_365d, order_count, value_365d, ...).
+# The true effect of a row is not tau itself: the outcome rule below makes it tau * (1 - P(y0)) for positive tau and
+# tau * P(y0) for negative tau, where P(y0) is the snapshot's observed baseline purchase rate. Reports use that true
+# effect, not tau.
 effect:
   segments:
     - name: do_not_disturb
-      # Recent single-purchase customers: buying again is unlikely to be caused by a message.
-      tau: -0.03
+      # Recent customers with exactly one purchase: they have not formed a repeat habit, and a message does not create
+      # one. Enlarged from the earlier 2 % group (recency <= 30) to about 5-6 % and from -0.03 to -0.30 raw tau so the
+      # effect is learnable at this row count; a group no model can learn can only produce false labels.
+      tau: -0.30
       when:
         order_count: {eq: 1}
-        recency_days: {lte: 30}
+        recency_days: {lte: 90}
     - name: lost_cause
       # Long inactive customers: a message does little.
       tau: 0.01
@@ -100,8 +139,9 @@ effect:
         orders_365d: {gte: 6}
         value_365d: {gte: 1000}
     - name: persuadable
-      # Mid-recency, low-to-mid frequency customers: the message changes their decision.
-      tau: 0.15
+      # Mid-recency, low-to-mid frequency customers: the message changes their decision. Raised from 0.15 to 0.30 so
+      # the injected effect is above the noise of this row count; the pipeline check is about recovery, not realism.
+      tau: 0.30
       when:
         recency_days: {gt: 30, lte: 180}
         orders_365d: {gte: 2, lte: 3}

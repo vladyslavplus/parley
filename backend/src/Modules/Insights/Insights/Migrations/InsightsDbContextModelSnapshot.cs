@@ -85,6 +85,12 @@ namespace Parley.Insights.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("feature_schema_version");
 
+                    b.Property<bool>("IsAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_available");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasMaxLength(32)

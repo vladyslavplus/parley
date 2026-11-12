@@ -414,7 +414,7 @@ public sealed class CampaignSendTests(PostgresFixture postgres, MailpitFixture m
         return (string)(await command.ExecuteScalarAsync(cancellationToken))!;
     }
 
-    /// <summary>Writes a claim whose lease ended ten minutes ago and that never reached an outcome.</summary>
+    /// <summary>Writes a claim that was submitted, then lost its worker and its lease ten minutes ago without an outcome.</summary>
     private async Task InsertExpiredClaimAsync(Guid campaignId, Guid contactId, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
@@ -422,9 +422,9 @@ public sealed class CampaignSendTests(PostgresFixture postgres, MailpitFixture m
         await using var command = new NpgsqlCommand(
             """
             INSERT INTO campaigns.send_records (id, organization_id, created_at, updated_at, campaign_id, contact_id, recipient_id,
-                status, attempt_count, claimed_at, lease_expires_at, message_id)
+                status, attempt_count, claimed_at, lease_expires_at, submitted_at, message_id)
             SELECT gen_random_uuid(), r.organization_id, now(), now(), r.campaign_id, r.contact_id, r.id,
-                'claimed', 1, now() - interval '10 minutes', now() - interval '1 minute', @message
+                'claimed', 1, now() - interval '10 minutes', now() - interval '1 minute', now() - interval '10 minutes', @message
             FROM campaigns.recipients r
             WHERE r.campaign_id = @campaign AND r.contact_id = @contact
             """,

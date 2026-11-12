@@ -21,7 +21,7 @@ public sealed class CampaignConfiguration : IEntityTypeConfiguration<Campaign>
         builder.Property(campaign => campaign.TargetingModelName).HasMaxLength(CampaignsLimits.NameMaximumLength);
         builder.Property(campaign => campaign.TargetingModelVersion).HasMaxLength(CampaignsLimits.TargetingModelVersionMaximumLength);
         builder.Property(campaign => campaign.TargetingProvenance).HasMaxLength(CampaignsLimits.TargetingProvenanceMaximumLength);
-        foreach (var instant in new[] { nameof(Campaign.PrepareAsOf), nameof(Campaign.AudienceFrozenAt), nameof(Campaign.StartedAt), nameof(Campaign.CompletedAt) })
+        foreach (var instant in new[] { nameof(Campaign.PrepareAsOf), nameof(Campaign.AudienceFrozenAt), nameof(Campaign.ScheduledAt), nameof(Campaign.StartedAt), nameof(Campaign.CompletedAt) })
         {
             builder.Property(instant).HasColumnType("timestamptz").HasConversion(CampaignsUtcValueConverters.Optional);
         }

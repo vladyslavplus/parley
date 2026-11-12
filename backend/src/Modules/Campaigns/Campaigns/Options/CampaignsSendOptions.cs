@@ -33,7 +33,10 @@ public sealed class CampaignsSendOptions
 
     public const int MaximumMessageIdDomainLength = 253;
 
-    public static readonly TimeSpan DefaultLeaseDuration = TimeSpan.FromMinutes(5);
+    /// <summary>
+    /// Default lease of a claim. It covers a full batch at the default SMTP timeout (`50 * (30 s + 0.1 s)` ≈ 25 min).
+    /// </summary>
+    public static readonly TimeSpan DefaultLeaseDuration = TimeSpan.FromMinutes(30);
 
     public static readonly TimeSpan MinimumLeaseDuration = TimeSpan.FromMinutes(1);
 

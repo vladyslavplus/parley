@@ -43,8 +43,8 @@ public sealed class GetContactScoresQueryHandler(
             .Select(row => new { row.ScoreKind, row.ModelName, row.ModelVersion, row.Value, row.Payload, row.ScoredAt })
             .ToListAsync(cancellationToken);
 
-        var versions = rows.Select(row => row.ModelVersion).Distinct().ToArray();
-        var provenance = versions.Length == 0
+        var versions = rows.Select(row => row.ModelVersion).Distinct().ToList();
+        var provenance = versions.Count == 0
             ? new Dictionary<(string, string), string>()
             : (await dbContext.ModelVersions.AsNoTracking()
                 .Where(model => versions.Contains(model.Version))

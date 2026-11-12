@@ -319,6 +319,10 @@ namespace Parley.Campaigns.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("prepare_as_of");
 
+                    b.Property<DateTime?>("ScheduledAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("scheduled_at");
+
                     b.Property<Guid?>("SegmentId")
                         .HasColumnType("uuid")
                         .HasColumnName("segment_id");
@@ -517,6 +521,10 @@ namespace Parley.Campaigns.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
                         .HasColumnName("status");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("submitted_at");
 
                     b.HasIndex("CampaignId", "ContactId")
                         .IsUnique()

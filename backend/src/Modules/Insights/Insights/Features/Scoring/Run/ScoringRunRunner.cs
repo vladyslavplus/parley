@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -32,10 +33,20 @@ public sealed class ScoringRunRunner(
     TimeProvider timeProvider,
     ILogger<ScoringRunRunner> logger)
 {
-    private const string SwapLatestSql =
-        "INSERT INTO insights.latest_scores (organization_id, contact_id, score_kind, score_id, value, payload, model_name, model_version, scored_at) "
+    /// <summary>
+    /// Copies the run's rows into the live table. The organization is the first predicate and every name comes from the
+    /// schema constants, so the statement cannot drift from the mappings. The names are concatenated, not interpolated:
+    /// an interpolated name would travel as a parameter.
+    /// </summary>
+    private static readonly string SwapLatestStatement =
+        "INSERT INTO \"" + InsightsSchemaNames.Schema + "\".\"" + InsightsSchemaNames.LatestScoresTable + "\" "
+        + "(organization_id, contact_id, score_kind, score_id, value, payload, model_name, model_version, scored_at) "
         + "SELECT organization_id, contact_id, score_kind, id, value, payload, model_name, model_version, scored_at "
-        + "FROM insights.scores WHERE scoring_run_id = {0} AND score_kind = {1}";
+        + "FROM \"" + InsightsSchemaNames.Schema + "\".\"" + InsightsSchemaNames.ScoresTable + "\" "
+        + "WHERE organization_id = {0} AND scoring_run_id = {1} AND score_kind = {2}";
+
+    private static FormattableString SwapLatestSql(Guid organizationId, Guid runId, string kind) =>
+        FormattableStringFactory.Create(SwapLatestStatement, organizationId, runId, kind);
 
     /// <summary>Runs the scoring run. Never throws for a scoring failure: the run ends failed with its code. Cancellation is recorded, then rethrown.</summary>
     public async Task RunAsync(Guid runId, CancellationToken cancellationToken)
@@ -95,8 +106,8 @@ public sealed class ScoringRunRunner(
 
         var settings = options.Value;
         var startedAt = timeProvider.GetUtcNow().UtcDateTime;
-        await dbContext.ScoringRuns
-            .Where(row => row.Id == runId)
+        var started = await dbContext.ScoringRuns
+            .Where(row => row.Id == runId && (row.Status == ScoringRunStatuses.Queued || row.Status == ScoringRunStatuses.Running))
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(row => row.Status, ScoringRunStatuses.Running)
@@ -105,6 +116,11 @@ public sealed class ScoringRunRunner(
                     .SetProperty(row => row.FeatureSchemaVersion, model.FeatureSchemaVersion)
                     .SetProperty(row => row.StartedAt, startedAt),
                 cancellationToken);
+        if (started != 1)
+        {
+            // The run ended between the first read and this write: it is not this attempt's to run.
+            return;
+        }
 
         // A run that is started again begins from nothing: rows an earlier attempt wrote are removed first.
         await dbContext.Scores.Where(row => row.ScoringRunId == runId).ExecuteDeleteAsync(cancellationToken);
@@ -274,7 +290,9 @@ public sealed class ScoringRunRunner(
 
     /// <summary>
     /// The commit point of a run: the live scores of the kind are replaced by this run's rows, and the run is completed, in
-    /// one transaction with the event. A failure before the commit leaves the live scores untouched.
+    /// one transaction with the event. The first statement completes the run only from <c>running</c>: a run that another
+    /// worker or the sweep already ended changes no row and swaps nothing. The inserted count must equal the scored count,
+    /// so a partial run is failed instead of published. A failure before the commit leaves the live scores untouched.
     /// </summary>
     private async Task SwapAsync(
         Guid runId,
@@ -288,10 +306,8 @@ public sealed class ScoringRunRunner(
     {
         var finishedAt = timeProvider.GetUtcNow().UtcDateTime;
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        await dbContext.LatestScores.Where(row => row.ScoreKind == kind).ExecuteDeleteAsync(cancellationToken);
-        await dbContext.Database.ExecuteSqlRawAsync(SwapLatestSql, new object[] { runId, kind }, cancellationToken);
-        await dbContext.ScoringRuns
-            .Where(row => row.Id == runId)
+        var completed = await dbContext.ScoringRuns
+            .Where(row => row.Id == runId && row.Status == ScoringRunStatuses.Running)
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(row => row.Status, ScoringRunStatuses.Completed)
@@ -300,6 +316,32 @@ public sealed class ScoringRunRunner(
                     .SetProperty(row => row.ContactsRejected, rejected)
                     .SetProperty(row => row.FinishedAt, finishedAt),
                 cancellationToken);
+        if (completed != 1)
+        {
+            // The run left running while this attempt worked: it is not this attempt's to complete.
+            await transaction.RollbackAsync(cancellationToken);
+            var endedFailed = await dbContext.ScoringRuns.AsNoTracking()
+                .Where(row => row.Id == runId && row.Status == ScoringRunStatuses.Failed)
+                .AnyAsync(CancellationToken.None);
+            if (endedFailed)
+            {
+                // The run ended failed elsewhere: this attempt's rows are not the run's outcome and must not stay.
+                dbContext.ChangeTracker.Clear();
+                await dbContext.Scores.Where(row => row.ScoringRunId == runId).ExecuteDeleteAsync(CancellationToken.None);
+            }
+
+            return;
+        }
+
+        await dbContext.LatestScores.Where(row => row.ScoreKind == kind).ExecuteDeleteAsync(cancellationToken);
+        var inserted = await dbContext.Database.ExecuteSqlAsync(
+            SwapLatestSql(tenantContext.OrganizationId, runId, kind),
+            cancellationToken);
+        if (inserted != scored)
+        {
+            throw new InvalidOperationException("The score swap inserted a different number of rows than the run scored.");
+        }
+
         outbox.Add(new ScoringRunCompleted
         {
             ScoringRunId = runId,
@@ -312,13 +354,17 @@ public sealed class ScoringRunRunner(
         dbContext.ChangeTracker.Clear();
     }
 
-    /// <summary>Marks the run failed and removes its own rows. Runs with a fresh token: a cancelled run must still record its end.</summary>
+    /// <summary>
+    /// Marks the run failed and removes its own rows, in one transaction. The status update runs first and is conditional on
+    /// the run still being queued or running: a run another worker already completed keeps its status and its rows, which
+    /// pinned readers need. Runs with a fresh token: a cancelled run must still record its end.
+    /// </summary>
     private async Task FailAsync(Guid runId, string code)
     {
         var finishedAt = timeProvider.GetUtcNow().UtcDateTime;
         dbContext.ChangeTracker.Clear();
-        await dbContext.Scores.Where(row => row.ScoringRunId == runId).ExecuteDeleteAsync(CancellationToken.None);
-        await dbContext.ScoringRuns
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(CancellationToken.None);
+        var failed = await dbContext.ScoringRuns
             .Where(row => row.Id == runId && (row.Status == ScoringRunStatuses.Queued || row.Status == ScoringRunStatuses.Running))
             .ExecuteUpdateAsync(
                 setters => setters
@@ -326,6 +372,15 @@ public sealed class ScoringRunRunner(
                     .SetProperty(row => row.ErrorCode, code)
                     .SetProperty(row => row.FinishedAt, finishedAt),
                 CancellationToken.None);
+        if (failed != 1)
+        {
+            // The run already ended, and another worker's outcome stands.
+            await transaction.RollbackAsync(CancellationToken.None);
+            return;
+        }
+
+        await dbContext.Scores.Where(row => row.ScoringRunId == runId).ExecuteDeleteAsync(CancellationToken.None);
+        await transaction.CommitAsync(CancellationToken.None);
     }
 
     private readonly record struct BatchOutcome(int Rejected, int Written);

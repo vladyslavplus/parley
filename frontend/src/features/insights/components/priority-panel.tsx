@@ -23,9 +23,9 @@ import { useContacts } from "@/features/crm/hooks/use-contacts";
 import { useCan } from "@/features/session/components/can";
 import { ModeIndicator } from "@/features/insights/components/mode-indicator";
 import { NewOrganizationEmpty } from "@/features/insights/components/new-organization-empty";
+import { ReasonChips } from "@/features/insights/components/reason-chips";
 import {
   actionLabelKey,
-  reasonLabelKey,
   SEGMENT_CODES,
   segmentLabelKey,
   upliftSegmentLabelKey,
@@ -154,25 +154,7 @@ export function PriorityPanel() {
       id: "reasons",
       header: t("home.priority.columns.reasons"),
       enableSorting: false,
-      cell: ({ row }) => (
-        <ul
-          className="flex flex-wrap gap-1"
-          aria-label={t("home.priority.columns.reasons")}
-        >
-          {row.original.reasonCodes.map((code) => {
-            const key = reasonLabelKey(code);
-            if (!key) return null;
-            return (
-              <li
-                key={code}
-                className="rounded-full border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-foreground"
-              >
-                {t(key)}
-              </li>
-            );
-          })}
-        </ul>
-      ),
+      cell: ({ row }) => <ReasonChips codes={row.original.reasonCodes} />,
     },
     {
       id: "segment",
@@ -248,6 +230,7 @@ export function PriorityPanel() {
       <ModeIndicator
         mode={query.data?.mode}
         mlStatus={query.data?.mlStatus}
+        modelProvenance={query.data?.modelProvenance}
         canRun={canRunScoring}
       />
 

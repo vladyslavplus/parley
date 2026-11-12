@@ -7,6 +7,7 @@ import {
   REASON_LABEL_KEYS,
   SEGMENT_LABEL_KEYS,
   actionLabelKey,
+  isCautionReason,
   reasonLabelKey,
   segmentLabelKey,
 } from "@/features/insights/lib/codes";
@@ -21,6 +22,7 @@ const BACKEND_REASON_CODES = [
   "reason.deal_stale",
   "reason.persuadable",
   "reason.uplift_high",
+  "reason.do_not_disturb",
 ];
 const BACKEND_SEGMENT_CODES = [
   "champions",
@@ -39,6 +41,7 @@ const BACKEND_ACTION_CODES = [
   "action.win_back",
   "action.reward",
   "action.nurture",
+  "action.hold",
 ];
 
 function leafValue(
@@ -88,6 +91,16 @@ describe("insights code labels", () => {
       expect(leafValue(en, key), `en ${key}`).toEqual(expect.any(String));
       expect(leafValue(uk, key), `uk ${key}`).toEqual(expect.any(String));
     }
+  });
+
+  it("marks do-not-disturb as a caution and the rest as facts", () => {
+    expect(isCautionReason("reason.do_not_disturb")).toBe(true);
+    expect(isCautionReason("reason.persuadable")).toBe(false);
+    expect(isCautionReason("reason.unknown_future")).toBe(false);
+  });
+
+  it("maps the hold action of a do-not-disturb contact", () => {
+    expect(actionLabelKey("action.hold")).toBe("actions.hold");
   });
 
   it("hides a code it does not know instead of printing it", () => {

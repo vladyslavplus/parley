@@ -16,6 +16,7 @@ public static class TelegramNotificationText
             return sentence;
         }
 
-        return $"{sentence}\n{publicWebBaseUrl.TrimEnd('/')}/{culture}/{linkRoute}";
+        var path = NotificationWebPaths.ForLinkRoute(linkRoute);
+        return $"{sentence}\n{NotificationWebPaths.BuildUrl(publicWebBaseUrl, culture, path)}";
     }
 }

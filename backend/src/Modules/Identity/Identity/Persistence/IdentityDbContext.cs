@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Parley.Identity.Authorization.Seed;
 using Parley.Identity.Domain.Audit;
+using Parley.Identity.Domain.DemoSeed;
 using Parley.Identity.Domain.Invitations;
 using Parley.Identity.Domain.Memberships;
 using Parley.Identity.Domain.Organizations;
@@ -41,6 +42,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     private const string TeamsTable = "teams";
     private const string InvitationsTable = "invitations";
     private const string AuditEventsTable = "audit_events";
+    private const string DemoSeedStatesTable = "demo_seed_states";
     private const string TokenHashIndex = "ix_refresh_tokens_token_hash";
     private const string FamilyIndex = "ix_refresh_tokens_family_id";
     private const string UserIndex = "ix_refresh_tokens_user_id";
@@ -98,6 +100,8 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     public DbSet<Invitation> Invitations => Set<Invitation>();
 
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
+
+    public DbSet<DemoSeedState> DemoSeedStates => Set<DemoSeedState>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -246,6 +250,14 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             entity.Property(auditEvent => auditEvent.Metadata).HasColumnType("jsonb").IsRequired();
             entity.Property(auditEvent => auditEvent.OccurredAt).HasColumnType("timestamptz").HasConversion(UtcConverter);
             entity.HasIndex(auditEvent => auditEvent.SourceEventId).IsUnique().HasDatabaseName(AuditEventIndex);
+        });
+
+        builder.Entity<DemoSeedState>(entity =>
+        {
+            entity.ToTable(DemoSeedStatesTable);
+            entity.HasKey(state => state.OrganizationId);
+            entity.Property(state => state.OrganizationId).HasColumnName("organization_id").ValueGeneratedNever();
+            entity.Property(state => state.SeededAt).HasColumnName("seeded_at").HasColumnType("timestamptz").HasConversion(UtcConverter);
         });
     }
 }

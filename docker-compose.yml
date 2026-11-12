@@ -30,10 +30,9 @@ services:
     volumes:
       - valkey-data:/data
 
-  # Scoring service (profile `ml`). Internal network for service-to-service calls, plus one edge network so the
-  # host can reach it on 127.0.0.1 only. Artifacts are mounted read-only; no training data is mounted.
-  # LOCAL DEVELOPMENT DEFAULT KEY: `local-development-only-key` below is for this machine only. Set PARLEY_ML_KEY in
-  # `.env` (or the environment) to any other value; the service refuses to start without a key.
+  # Scoring service (profile `ml`). Internal network for service-to-service calls. Artifacts are mounted read-only;
+  # no training data is mounted. The key is required: the service and this file have no fallback. Local development
+  # publishes the port and sets the key in docker-compose.override.yml (see docker-compose.override.example.yml).
   ml:
     profiles:
       - ml
@@ -41,12 +40,10 @@ services:
       context: ./ml
       dockerfile: Dockerfile.serve
     environment:
-      PARLEY_ML_KEY: ${PARLEY_ML_KEY:-local-development-only-key}
+      PARLEY_ML_KEY: ${PARLEY_ML_KEY:?Set PARLEY_ML_KEY in .env or the environment}
       PARLEY_ML_ARTIFACTS_DIR: /artifacts/models
     volumes:
       - ./ml/artifacts/models:/artifacts/models:ro
-    ports:
-      - "127.0.0.1:8090:8000"
     networks:
       - ml-internal
       - ml-edge

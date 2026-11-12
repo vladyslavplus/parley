@@ -21,6 +21,7 @@ import {
 } from "@/features/campaigns/lib/campaign-draft";
 import { bpsToPercent } from "@/features/campaigns/lib/holdout-math";
 import { CAMPAIGN_STATUSES, toNumber } from "@/features/campaigns/types";
+import type { CampaignModelSnapshot } from "@/features/campaigns/components/targeting-model";
 import { ProvenanceBadge } from "@/features/insights/components/provenance-badge";
 import { toApiError } from "@/lib/errors";
 
@@ -34,12 +35,6 @@ interface Props {
   canAct?: boolean;
   // The model the campaign's scores were taken from; null until the audience is frozen.
   snapshot?: CampaignModelSnapshot | null;
-}
-
-export interface CampaignModelSnapshot {
-  name: string;
-  version: string;
-  provenance: string | null;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {

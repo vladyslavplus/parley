@@ -135,7 +135,7 @@ public static class Module
         services.AddScoped<IDataScope, DataScopeService>();
         services.AddScoped<IUserDirectory, UserDirectory>();
         services.AddScoped<IOrganizationDirectory, OrganizationDirectory>();
-        services.AddScoped<IIdentityDemoDataImporter, IdentityDemoDataImporter>();
+        services.AddScoped<IIdentityDemoSeeder, IdentityDemoSeeder>();
 
         return services;
     }

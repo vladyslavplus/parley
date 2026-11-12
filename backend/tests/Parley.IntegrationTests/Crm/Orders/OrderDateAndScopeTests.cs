@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Parley.Crm.Contracts.DemoSeed;
 using Parley.Identity.Authorization.Seed;
-using Parley.IntegrationTests.Crm.DemoSeed.Support;
 using Parley.IntegrationTests.Crm.Support;
 using Parley.IntegrationTests.Identity.Support;
 using Parley.IntegrationTests.Infrastructure.Fixtures;
@@ -35,8 +34,6 @@ public sealed class OrderDateAndScopeTests(PostgresFixture postgres, MailpitFixt
 
     private IdentityApiFactory _factory = null!;
 
-    private string _directory = null!;
-
     private OrganizationOwner _owner = null!;
 
     private CrmApi.Member _rep = null!;
@@ -47,9 +44,6 @@ public sealed class OrderDateAndScopeTests(PostgresFixture postgres, MailpitFixt
     {
         await postgres.ResetDataAsync(TestContext.Current.CancellationToken);
         _factory = new IdentityApiFactory(postgres, mailpit);
-        _directory = DemoExportFiles.WriteWorkspace(
-            Path.Combine(Path.GetTempPath(), "parley-order-scope-" + Guid.CreateVersion7().ToString("N")),
-            CustomerCount);
 
         var token = TestContext.Current.CancellationToken;
         _owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
@@ -58,19 +52,31 @@ public sealed class OrderDateAndScopeTests(PostgresFixture postgres, MailpitFixt
         _otherRepUserId = other.UserId;
 
         using var scope = _factory.Services.CreateScope();
-        await scope.ServiceProvider.GetRequiredService<ICrmDemoDataImporter>().ImportAsync(
-            new CrmDemoImportRequest(_owner.OrganizationId, _directory, CrmDemoContract.ExportCurrency, CultureCodes.Ukrainian, [_rep.UserId, _otherRepUserId]),
+        var profile = new CrmDemoProfile
+        {
+            Contacts = CustomerCount,
+            OrderMonths = 12,
+            DealSharePercent = 0,
+            TaskSharePercent = 0,
+            NoteSharePercent = 0,
+            TagSharePercent = 0,
+            NoOrdersPercent = 0,
+        };
+        await scope.ServiceProvider.GetRequiredService<ICrmDemoSeeder>().SeedAsync(
+            new CrmDemoImportRequest(
+                _owner.OrganizationId,
+                CrmDemoContract.DemoCurrency,
+                CultureCodes.Ukrainian,
+                [_rep.UserId, _otherRepUserId],
+                11,
+                _factory.Clock.GetUtcNow(),
+                profile),
             token);
     }
 
     public ValueTask DisposeAsync()
     {
         _factory.Dispose();
-        if (Directory.Exists(_directory))
-        {
-            Directory.Delete(_directory, recursive: true);
-        }
-
         return ValueTask.CompletedTask;
     }
 
@@ -80,7 +86,7 @@ public sealed class OrderDateAndScopeTests(PostgresFixture postgres, MailpitFixt
         var token = TestContext.Current.CancellationToken;
         var ownOrders = await CountOrdersOwnedByAsync(_rep.UserId, token);
         var otherOrders = await CountOrdersOwnedByAsync(_otherRepUserId, token);
-        ownOrders.Should().BeGreaterThan(0).And.BeLessThan(CustomerCount);
+        ownOrders.Should().BeGreaterThan(0);
         otherOrders.Should().BeGreaterThan(0);
 
         using var repClient = CrmApi.Client(_factory, _rep.AccessToken);
@@ -104,7 +110,8 @@ public sealed class OrderDateAndScopeTests(PostgresFixture postgres, MailpitFixt
 
         var listed = await ListAllAsync(client, "orders?limit=100", token);
 
-        listed.Should().HaveCount(CustomerCount);
+        var total = await CountOrdersOwnedByAsync(_rep.UserId, token) + await CountOrdersOwnedByAsync(_otherRepUserId, token);
+        listed.Should().HaveCount(total);
     }
 
     [Fact]
@@ -118,8 +125,7 @@ public sealed class OrderDateAndScopeTests(PostgresFixture postgres, MailpitFixt
         fromInstant.Should().ContainSingle("an order exactly at the lower bound is included");
 
         var toInstant = await ListAllAsync(client, $"orders?orderedFrom={Instant(instant.AddHours(-1))}&orderedTo={Instant(instant)}", token);
-        toInstant.Should().ContainSingle("an order exactly at the upper bound is excluded")
-            .Which.Should().NotBe(fromInstant.Single());
+        toInstant.Should().NotContain(fromInstant.Single(), "an order exactly at the upper bound is excluded");
     }
 
     [Fact]
@@ -170,7 +176,8 @@ public sealed class OrderDateAndScopeTests(PostgresFixture postgres, MailpitFixt
     {
         await using var connection = await OpenAsync(cancellationToken);
         await using var command = new NpgsqlCommand(
-            "SELECT ordered_at FROM crm.orders WHERE organization_id = @org AND source = @source ORDER BY ordered_at OFFSET @offset LIMIT 1",
+            "SELECT ordered_at FROM crm.orders WHERE organization_id = @org AND source = @source "
+            + "GROUP BY ordered_at HAVING COUNT(*) = 1 ORDER BY ordered_at OFFSET @offset LIMIT 1",
             connection);
         command.Parameters.AddWithValue("org", _owner.OrganizationId);
         command.Parameters.AddWithValue("source", DemoSource);

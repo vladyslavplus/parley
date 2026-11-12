@@ -133,8 +133,8 @@ def write_stub_uplift(root: Path) -> Path:
     return directory
 
 
-def trained_uplift_versions(root: Path) -> list[str]:
-    """Versions of non-stub ``crm_uplift`` artifacts under ``root``. Unreadable manifests are not counted."""
+def _uplift_versions(root: Path, stub: bool) -> list[str]:
+    """Versions of ``crm_uplift`` artifacts under ``root``, either the stubs or the trained ones."""
     if not root.is_dir():
         return []
     found: list[str] = []
@@ -143,9 +143,31 @@ def trained_uplift_versions(root: Path) -> list[str]:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        if isinstance(manifest, dict) and manifest.get("model_name") == MODEL_NAME and manifest.get("provenance") != PROVENANCE:
+        if not isinstance(manifest, dict) or manifest.get("model_name") != MODEL_NAME:
+            continue
+        if (manifest.get("provenance") == PROVENANCE) == stub:
             found.append(str(manifest.get("version", manifest_path.parent.name)))
     return found
+
+
+def trained_uplift_versions(root: Path) -> list[str]:
+    """Versions of non-stub ``crm_uplift`` artifacts under ``root``. Unreadable manifests are not counted."""
+    return _uplift_versions(root, stub=False)
+
+
+def stub_uplift_versions(root: Path) -> list[str]:
+    """Versions of stub ``crm_uplift`` artifacts under ``root``. Unreadable manifests are not counted."""
+    return _uplift_versions(root, stub=True)
+
+
+def refuse_stub_in_artifact_root(root: Path) -> None:
+    """Training refuses to add a trained model beside a stub, so the stub is removed by a person, not silently mixed in."""
+    stubs = stub_uplift_versions(root)
+    if stubs:
+        raise ValueError(
+            f"refusing to train {MODEL_NAME}: stub artifact(s) {stubs} already exist in {root}; "
+            "remove the stub before training so a placeholder can never sit beside a trained model"
+        )
 
 
 def write_stub_into(root: Path) -> Path:

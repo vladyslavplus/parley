@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 
 from parley_ml.serving.artifacts import (
     CODE_CHECKSUM_MISMATCH,
+    CODE_FEATURE_ORDER_MISMATCH,
     CODE_FILE_MISSING,
     CODE_MANIFEST_INVALID,
     CODE_PROVENANCE_NOT_SERVED,
@@ -545,3 +546,54 @@ def test_the_stub_is_written_into_an_empty_folder_and_rewritten_over_itself(tmp_
 
     assert first == second
     assert json.loads((first / MANIFEST_FILE).read_text(encoding="utf-8"))["provenance"] == "stub"
+
+
+def _copy_as_trained(stub_root: Path, destination: Path, trained_at: str) -> str:
+    """A valid trained-looking artifact built from the stub boosters: checksums stay right, provenance changes."""
+    source = next(path for path in stub_root.iterdir() if path.name.startswith("crm_uplift-"))
+    version = "crm_uplift-20260101-abcdef0"
+    target = destination / version
+    shutil.copytree(source, target)
+    manifest = json.loads((target / MANIFEST_FILE).read_text(encoding="utf-8"))
+    manifest["version"] = version
+    manifest["provenance"] = "semi_synthetic"
+    manifest["trained_at"] = trained_at
+    (target / MANIFEST_FILE).write_text(json.dumps(manifest), encoding="utf-8")
+    return version
+
+
+@pytest.mark.parametrize("trained_at", ["2020-01-01", "2030-01-01"])
+@pytest.mark.parametrize("creation_order", ["stub_first", "trained_first"])
+def test_the_service_default_prefers_a_trained_model_over_a_stub(
+    stub_root: Path, tmp_path: Path, trained_at: str, creation_order: str
+) -> None:
+    root = tmp_path / "models"
+    root.mkdir()
+    if creation_order == "stub_first":
+        write_stub_uplift(root)
+        trained_version = _copy_as_trained(stub_root, root, trained_at)
+    else:
+        trained_version = _copy_as_trained(stub_root, root, trained_at)
+        write_stub_uplift(root)
+
+    registry = load_registry(root)
+
+    assert len(registry.available("uplift")) == 2
+    assert registry.default("uplift") is not None
+    assert registry.default("uplift").version == trained_version
+    assert registry.default("uplift").provenance == "semi_synthetic"
+
+
+def test_an_uplift_artifact_with_a_reordered_feature_order_is_refused(stub_root: Path, tmp_path: Path) -> None:
+    root = tmp_path / "models"
+    shutil.copytree(stub_root, root)
+    uplift_dir = next(path for path in root.iterdir() if path.name.startswith("crm_uplift-"))
+    manifest = json.loads((uplift_dir / MANIFEST_FILE).read_text(encoding="utf-8"))
+    manifest["feature_order"] = list(reversed(manifest["feature_order"]))
+    (uplift_dir / MANIFEST_FILE).write_text(json.dumps(manifest), encoding="utf-8")
+
+    entry = next(model for model in load_registry(root).models if model.kind == "uplift")
+
+    assert entry.available is False
+    assert entry.error_code == CODE_FEATURE_ORDER_MISMATCH
+    assert load_registry(root).default("uplift") is None

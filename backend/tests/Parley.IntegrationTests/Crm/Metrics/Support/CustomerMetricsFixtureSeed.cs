@@ -16,7 +16,7 @@ public static class CustomerMetricsFixtureSeed
 
     private const string FixtureDealTitle = "Fixture deal";
 
-    private const string FixtureCurrency = CrmDemoContract.ExportCurrency;
+    private const string FixtureCurrency = CrmDemoContract.DemoCurrency;
 
     private const string FixturePipelineName = "Fixture pipeline";
 

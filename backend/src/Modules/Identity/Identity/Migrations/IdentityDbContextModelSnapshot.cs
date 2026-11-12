@@ -104,6 +104,22 @@ namespace Parley.Identity.Migrations
                     b.ToTable("user_tokens", "identity");
                 });
 
+            modelBuilder.Entity("Parley.Identity.Domain.DemoSeed.DemoSeedState", b =>
+                {
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTime>("SeededAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("seeded_at");
+
+                    b.HasKey("OrganizationId")
+                        .HasName("pk_demo_seed_states");
+
+                    b.ToTable("demo_seed_states", "identity");
+                });
+
             modelBuilder.Entity("Parley.Identity.Domain.Organizations.Organization", b =>
                 {
                     b.Property<Guid>("Id")

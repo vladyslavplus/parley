@@ -110,6 +110,22 @@ def tau(features: ContactFeatures, config: EffectConfig) -> float:
     return config.default_tau
 
 
+def expected_effect(y0_probability: float, effect: float) -> float:
+    """Expected change in the outcome probability under :func:`treated_outcome`.
+
+    A positive effect converts non-buyers only, so the expected change is ``effect * (1 - P(y0))``. A negative effect
+    removes buyers only, so it is ``effect * P(y0)``. ``P(y0)`` is the baseline purchase probability; on the fixture
+    it is the snapshot's observed baseline purchase rate. The raw ``tau`` is therefore not the true effect of a row.
+    """
+    if not 0.0 <= y0_probability <= 1.0:
+        raise ValueError("y0_probability must be in [0, 1]")
+    if effect > 0.0:
+        return effect * (1.0 - y0_probability)
+    if effect < 0.0:
+        return effect * y0_probability
+    return 0.0
+
+
 def treated_outcome(y0: int, effect: float, draw: float) -> int:
     """Outcome under treatment from the baseline outcome, the effect and a uniform draw in [0, 1).
 

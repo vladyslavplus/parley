@@ -4,18 +4,22 @@ import { useTranslations } from "next-intl";
 
 import { ROUTES } from "@/constants/routes";
 import { Link } from "@/i18n/navigation";
+import { ProvenanceBadge } from "@/features/insights/components/provenance-badge";
 import { mlStatusKey } from "@/features/insights/lib/scoring";
 
 // Says which ranking the list uses and why. In RFM mode the text states plainly
 // that no machine learning is involved; in ML mode it says where the scores come
-// from. An ML status that keeps the list on RFM is explained beside it.
+// from and badges the provenance of the active model. An ML status that keeps
+// the list on RFM is explained beside it.
 export function ModeIndicator({
   mode,
   mlStatus,
+  modelProvenance,
   canRun,
 }: {
   mode: string | undefined;
   mlStatus: string | undefined;
+  modelProvenance: string | null | undefined;
   canRun: boolean;
 }) {
   const t = useTranslations("insights.mode");
@@ -31,6 +35,11 @@ export function ModeIndicator({
       <p className="mt-0.5 text-xs text-muted-foreground">
         {t(`${section}.body`)}
       </p>
+      {ml && modelProvenance ? (
+        <div className="mt-1">
+          <ProvenanceBadge provenance={modelProvenance} />
+        </div>
+      ) : null}
       {!ml && statusKey ? (
         <p className="mt-1 text-xs text-muted-foreground">
           {tScoring(statusKey)}

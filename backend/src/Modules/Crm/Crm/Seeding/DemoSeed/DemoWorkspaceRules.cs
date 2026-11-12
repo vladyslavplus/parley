@@ -26,10 +26,16 @@ public static class DemoWorkspaceRules
     /// <summary>Length of the window before the seed instant in which a customer counts as recently active.</summary>
     public const int RecentActivityDays = 90;
 
-    /// <summary>Task due dates spread over this many days, centred on the seed instant.</summary>
-    public const int TaskDueSpreadDays = 25;
+    /// <summary>Task due dates spread over this many days, centred on the seed instant: -30 to +30 days.</summary>
+    public const int TaskDueSpreadDays = 61;
 
-    public const int TaskDueCenterDays = 12;
+    public const int TaskDueCenterDays = 30;
+
+    /// <summary>Open deals set an expected close date from this many days before the seed instant...</summary>
+    public const int ExpectedCloseDaysBefore = 30;
+
+    /// <summary>...to this many days after it.</summary>
+    public const int ExpectedCloseDaysAfter = 90;
 
     /// <summary>Position of the first stage of the default pipeline, where every deal starts.</summary>
     public const int FirstStageIndex = 0;

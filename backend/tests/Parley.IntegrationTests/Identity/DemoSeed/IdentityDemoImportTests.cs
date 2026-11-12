@@ -16,10 +16,12 @@ namespace Parley.IntegrationTests.Identity.DemoSeed;
 
 /// <summary>
 /// The identity step of the demo seed is all-or-nothing: a failure in the middle leaves no organization, team or account
-/// behind, so a re-run creates the whole catalogue and returns every password.
+/// behind, so a re-run creates the whole catalogue and returns the shared password.
 /// </summary>
 public sealed class IdentityDemoImportTests(PostgresFixture postgres) : IAsyncLifetime
 {
+    private const string SharedPassword = "test1234";
+
     private static readonly string BlockedEmail = DemoAccountCatalog.EmailOf(DemoAccountCatalog.Accounts[6]);
 
     private readonly Guid _organizationId = Guid.CreateVersion7();
@@ -30,7 +32,7 @@ public sealed class IdentityDemoImportTests(PostgresFixture postgres) : IAsyncLi
         "parley-demo-" + _organizationId.ToString("N")[..8],
         "Europe/Kyiv",
         CultureCodes.Ukrainian,
-        CrmDemoContract.ExportCurrency);
+        CrmDemoContract.DemoCurrency);
 
     public async ValueTask InitializeAsync() => await postgres.ResetDataAsync(TestContext.Current.CancellationToken);
 
@@ -41,7 +43,7 @@ public sealed class IdentityDemoImportTests(PostgresFixture postgres) : IAsyncLi
     {
         var blocker = await CreateBlockingUserAsync();
 
-        var failed = () => ImportAsync();
+        var failed = () => SeedAsync();
         await failed.Should().ThrowAsync<InvalidOperationException>();
 
         await using (var scope = postgres.Factory.Services.CreateAsyncScope())
@@ -56,34 +58,39 @@ public sealed class IdentityDemoImportTests(PostgresFixture postgres) : IAsyncLi
 
         await DeleteAsync(blocker);
 
-        var rerun = await ImportAsync();
+        var rerun = await SeedAsync();
 
         rerun.OrganizationCreated.Should().BeTrue();
         rerun.UsersCreated.Should().Be(DemoAccountCatalog.Accounts.Count);
         rerun.Accounts.Should().HaveCount(DemoAccountCatalog.Accounts.Count);
-        rerun.Accounts.All(account => account.Password is not null).Should().BeTrue("every created account returns its password");
+        rerun.Accounts.Should().OnlyContain(account => account.Password == SharedPassword);
     }
 
     [Fact]
-    public async Task A_successful_run_commits_every_account_and_membership()
+    public async Task A_successful_run_commits_every_account_membership_and_the_marker()
     {
-        var result = await ImportAsync();
+        var result = await SeedAsync();
 
         result.UsersCreated.Should().Be(DemoAccountCatalog.Accounts.Count);
         result.MembershipsCreated.Should().Be(DemoAccountCatalog.Accounts.Count);
-        result.Accounts.All(account => account.Password is not null).Should().BeTrue();
+        result.Accounts.Should().OnlyContain(account => account.Password == SharedPassword);
 
         await using var scope = postgres.Factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         (await db.Users.CountAsync(row => row.Email!.EndsWith("@" + DemoAccountCatalog.EmailDomain), TestContext.Current.CancellationToken))
-            .Should().Be(DemoAccountCatalog.Accounts.Count);
+            .Should().Be(DemoAccountCatalog.Accounts.Count - 1, "the local administrator uses its own domain");
+
+        var seededAt = new DateTime(2026, 11, 12, 10, 0, 0, DateTimeKind.Utc);
+        await scope.ServiceProvider.GetRequiredService<IIdentityDemoSeeder>().MarkSeededAsync(_organizationId, seededAt, TestContext.Current.CancellationToken);
+        (await scope.ServiceProvider.GetRequiredService<IIdentityDemoSeeder>().ReadSeededAtAsync(_organizationId, TestContext.Current.CancellationToken))
+            .Should().Be(seededAt);
     }
 
-    private async Task<IdentityDemoSeedResult> ImportAsync()
+    private async Task<IdentityDemoSeedResult> SeedAsync()
     {
         await using var scope = postgres.Factory.Services.CreateAsyncScope();
-        return await scope.ServiceProvider.GetRequiredService<IIdentityDemoDataImporter>()
-            .ImportAsync(Profile, resetPasswords: false, TestContext.Current.CancellationToken);
+        return await scope.ServiceProvider.GetRequiredService<IIdentityDemoSeeder>()
+            .EnsureAsync(Profile, SharedPassword, TestContext.Current.CancellationToken);
     }
 
     /// <summary>A user that owns the username of the seventh demo account but has another address, so creating that account fails.</summary>
@@ -102,7 +109,7 @@ public sealed class IdentityDemoImportTests(PostgresFixture postgres) : IAsyncLi
             Locale = CultureCodes.English,
             TimeZone = "UTC",
         };
-        var result = await userManager.CreateAsync(blocker, DemoPasswordGenerator.Generate(DemoAccountCatalog.PasswordLength));
+        var result = await userManager.CreateAsync(blocker, SharedPassword + "-blocker");
         result.Succeeded.Should().BeTrue();
         return blocker;
     }

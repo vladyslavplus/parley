@@ -40,3 +40,20 @@ jobs:
       - name: Run tests
         # Explicit group, so a change to uv's default groups cannot drop causalml or PyMC-Marketing from the run.
         run: uv run --group train pytest
+
+      - name: Regenerate the contract and require no diff
+        # The schemas and samples are committed; a Pydantic change without regeneration fails here.
+        run: |
+          uv run --group train python scripts/generate_contracts.py
+          git diff --exit-code -- contracts
+
+  serve-image:
+    name: Serving image builds with the serve group
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the serving image
+        # The image installs the serve group alone; a serving import that needs a training package fails here.
+        run: docker build --file ml/Dockerfile.serve --tag parley-ml-serve:ci ml

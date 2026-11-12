@@ -24,7 +24,7 @@ public sealed class FakeScoringService : HttpMessageHandler
 
     private const string ExpectedKey = "test-key";
 
-    private const string ProvenanceStub = "stub";
+    private const string ProvenanceTrained = "semi_synthetic";
 
     private const string SegmentPersuadable = "persuadable";
 
@@ -53,6 +53,15 @@ public sealed class FakeScoringService : HttpMessageHandler
     /// <summary>When set, the model registry request is refused with this status.</summary>
     public HttpStatusCode? RefuseModelsWith { get; set; }
 
+    /// <summary>When true, the registry answers with no models: the service no longer serves what it served before.</summary>
+    public bool HideModels { get; set; }
+
+    /// <summary>
+    /// Runs once before the next uplift response. A test uses it to change the run while the runner works, for example to
+    /// end the run as failed before the swap.
+    /// </summary>
+    public Func<Task>? BeforeUpliftResponseAsync { get; set; }
+
     /// <summary>Number of items of each uplift request, in order.</summary>
     public IReadOnlyList<int> UpliftBatchSizes => _uplifts.ToArray();
 
@@ -71,7 +80,7 @@ public sealed class FakeScoringService : HttpMessageHandler
         {
             ("GET", "models") => RefuseModelsWith is { } refusal
                 ? Error(refusal, "ml.models.unavailable")
-                : Json(HttpStatusCode.OK, Models()),
+                : Json(HttpStatusCode.OK, HideModels ? EmptyModels() : Models()),
             ("POST", "score/uplift") => await ScoreUpliftAsync(request, cancellationToken),
             ("POST", "score/clv") => Error(HttpStatusCode.NotFound, "ml.score.unknown_model_version"),
             _ => Error(HttpStatusCode.NotFound, "ml.request.not_found"),
@@ -83,6 +92,12 @@ public sealed class FakeScoringService : HttpMessageHandler
         if (RefuseWith is { } refusal)
         {
             return Error(refusal, refusal == HttpStatusCode.NotFound ? "ml.score.unknown_model_version" : "ml.score.feature_schema_mismatch");
+        }
+
+        if (BeforeUpliftResponseAsync is { } hook)
+        {
+            BeforeUpliftResponseAsync = null;
+            await hook();
         }
 
         using var document = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(cancellationToken));
@@ -120,11 +135,13 @@ public sealed class FakeScoringService : HttpMessageHandler
             ["model_name"] = ModelName,
             ["model_version"] = requestedVersion ?? ModelVersion,
             ["feature_schema_version"] = FeatureSchemaVersion,
-            ["provenance"] = ProvenanceStub,
+            ["provenance"] = ProvenanceTrained,
             ["scores"] = scores,
             ["rejected"] = rejected,
         });
     }
+
+    private static Dictionary<string, object?> EmptyModels() => new() { ["models"] = Array.Empty<object>() };
 
     private static Dictionary<string, object?> Models() => new()
     {
@@ -136,7 +153,7 @@ public sealed class FakeScoringService : HttpMessageHandler
                 ["version"] = ModelVersion,
                 ["kind"] = "uplift",
                 ["feature_schema_version"] = FeatureSchemaVersion,
-                ["provenance"] = ProvenanceStub,
+                ["provenance"] = ProvenanceTrained,
                 ["trained_at"] = "2026-11-01T00:00:00Z",
                 ["metrics"] = new Dictionary<string, object?>(),
                 ["status"] = "available",

@@ -14,9 +14,10 @@ namespace Parley.Notifications.Telegram.Today;
 
 /// <summary>
 /// Answers <c>/today</c> for a chat. The answer honors the scope and permission of the linked membership: a deactivated member
-/// gets nothing and loses the link, and a member without the insights permission gets a refusal. When the chat is linked to
-/// several organizations, the chat chooses one by its number. The answer names no contact: it lists next actions and links to
-/// the insights page.
+/// gets nothing and loses the link, and a member without the insights permission gets a refusal. The permission is
+/// <c>insights.view</c>; the visible records follow the <c>contacts.read</c> scope of the member, as the web list does. When
+/// the chat is linked to several organizations, the chat chooses one by its number. The answer names no contact: it lists
+/// next actions and links each one to the contact's record in the web app.
 /// </summary>
 public sealed class TelegramTodayComposer(
     NotificationsDbContext dbContext,
@@ -71,7 +72,14 @@ public sealed class TelegramTodayComposer(
             return TelegramTexts.Get(TelegramTextKeys.MembershipEnded, locale);
         }
 
-        var scope = await scopeReader.ReadAsync(link.UserId, link.OrganizationId, Permissions.InsightsView, cancellationToken);
+        // The insights permission gates the answer; the record scope comes from the contacts permission, exactly like the
+        // priority list on the web. Reading the scope of insights.view would give every role the organization-wide list.
+        if (!await permissionChecker.HasPermissionAsync(link.UserId, link.OrganizationId, Permissions.InsightsView, cancellationToken))
+        {
+            return TelegramTexts.Get(TelegramTextKeys.NoAccess, locale);
+        }
+
+        var scope = await scopeReader.ReadAsync(link.UserId, link.OrganizationId, Permissions.ContactsRead, cancellationToken);
         if (scope.Level == DataScopeLevel.None)
         {
             return TelegramTexts.Get(TelegramTextKeys.NoAccess, locale);
@@ -99,19 +107,29 @@ public sealed class TelegramTodayComposer(
             _ => scope.OwnerUserIds?.ToArray(),
         };
         var pool = await priorityReader.ReadTopAsync(owners, limit, cancellationToken);
-        return TelegramTodayVisibility.SelectVisible(scope, userId, pool, limit);
+        // A do-not-disturb caution is not an action: the chat never gets "call this contact" for one. The reader drops
+        // such rows too; this keeps the rule in the channel for any reader implementation.
+        return TelegramTodayVisibility.SelectVisible(scope, userId, pool, limit)
+            .Where(entry => !entry.ReasonCodes.Contains(PriorityReasonCodes.DoNotDisturb))
+            .Take(limit)
+            .ToArray();
     }
 
     private string ListText(IReadOnlyList<PriorityEntry> entries, string locale)
     {
+        var baseUrl = notificationsOptions.Value.PublicWebBaseUrl;
         var lines = new List<string> { TelegramTexts.Get(TelegramTextKeys.TodayHeader, locale) };
         for (var index = 0; index < entries.Count; index++)
         {
-            var action = TelegramTexts.Get(TelegramTextKeys.ActionPrefix + entries[index].SuggestedAction, locale);
-            lines.Add($"{(index + 1).ToString(CultureInfo.InvariantCulture)}. {action}");
+            var entry = entries[index];
+            var action = TelegramTexts.Get(TelegramTextKeys.ActionPrefix + entry.SuggestedAction, locale);
+
+            // The action text stays free of personal data; the link opens the contact's record for the name and history.
+            var recordUrl = NotificationWebPaths.BuildUrl(baseUrl, locale, NotificationWebPaths.ContactRecord(entry.ContactId));
+            lines.Add($"{(index + 1).ToString(CultureInfo.InvariantCulture)}. {action}\n{recordUrl}");
         }
 
-        var insightsUrl = $"{notificationsOptions.Value.PublicWebBaseUrl.TrimEnd('/')}/{locale}/insights";
+        var insightsUrl = NotificationWebPaths.BuildUrl(baseUrl, locale, NotificationWebPaths.AppHome);
         lines.Add(TelegramTexts.Format(TelegramTextKeys.InsightsFooter, locale, insightsUrl));
         return string.Join('\n', lines);
     }

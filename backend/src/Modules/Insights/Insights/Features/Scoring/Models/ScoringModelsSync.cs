@@ -8,19 +8,27 @@ using Parley.Insights.Persistence;
 namespace Parley.Insights.Features.Scoring.Models;
 
 /// <summary>
-/// Upserts every model the scoring service reports as available into <c>model_versions</c>. Unavailable models are not
-/// stored, so a version the service cannot score with is never pinned. Used by the scheduled sync, by the sync that a run
-/// start queues when no model is known, and by the admin refresh. Throws <see cref="ScoringServiceException"/> when the
-/// service cannot answer; the caller decides whether that is a log line or a failed request.
+/// Upserts every model the scoring service reports as available into <c>model_versions</c>. A row the last successful sync
+/// did not report becomes unavailable: it stays in the registry as history, but the resolver never pins it and the admin
+/// cannot activate it. Used by the scheduled sync, by the sync that a run start queues when no model is known, and by the
+/// admin refresh. Throws <see cref="ScoringServiceException"/> when the service cannot answer; the caller decides whether
+/// that is a log line or a failed request.
 /// </summary>
 public sealed class ScoringModelsSync(ScoringServiceClient client, InsightsDbContext dbContext, TimeProvider timeProvider)
 {
     /// <summary>Syncs the registry and returns the number of available models the service reported.</summary>
     public async Task<int> SyncAsync(CancellationToken cancellationToken)
     {
+        // The call runs before any write: a service that cannot answer leaves the last successful registry as it was.
         var response = await client.ReadModelsAsync(cancellationToken);
         var syncedAt = timeProvider.GetUtcNow().UtcDateTime;
         var available = response.Models.Where(entry => entry.Status == ScoringModelStatuses.Available).ToList();
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await dbContext.ModelVersions
+            .ExecuteUpdateAsync(setters => setters.SetProperty(row => row.IsAvailable, false), cancellationToken);
+        // The bulk update bypasses the tracker: a previously loaded row must not write its old availability back.
+        dbContext.ChangeTracker.Clear();
 
         foreach (var entry in available)
         {
@@ -33,6 +41,7 @@ public sealed class ScoringModelsSync(ScoringServiceClient client, InsightsDbCon
             target.TrainedAt = ParseInstant(entry.TrainedAt, syncedAt);
             target.Metrics = JsonSerializer.Serialize(entry.Metrics);
             target.SyncedAt = syncedAt;
+            target.IsAvailable = true;
             if (existing is null)
             {
                 dbContext.ModelVersions.Add(target);
@@ -40,6 +49,7 @@ public sealed class ScoringModelsSync(ScoringServiceClient client, InsightsDbCon
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return available.Count;
     }
 

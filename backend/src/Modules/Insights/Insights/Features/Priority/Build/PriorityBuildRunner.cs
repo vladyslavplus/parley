@@ -17,9 +17,10 @@ namespace Parley.Insights.Features.Priority.Build;
 /// <summary>
 /// Builds the priority list of one organization day from the RFM snapshot of that day, the CRM facts of the contacts and,
 /// when the ML scores are usable, the uplift of each contact. A contact with an uplift score is ranked in the ML mode; a
-/// contact without one keeps the RFM rules, so a partly scored base still gets a full list. A contact the uplift model marks
-/// do-not-disturb is left out. Streams the snapshot in keyset batches, keeps the best entries of each owner, and replaces the
-/// rows of the day in one transaction. A repeated build leaves the same rows.
+/// contact without one uses the same ML scale with a zero uplift and keeps the RFM label, so a partly scored base still gets
+/// a full list. A contact the uplift model marks do-not-disturb stays on the list, ranked last, with a caution reason.
+/// Streams the snapshot in keyset batches, keeps the best entries of each owner, and replaces the rows of the day in one
+/// transaction. A repeated build leaves the same rows.
 /// </summary>
 public sealed class PriorityBuildRunner(
     InsightsDbContext dbContext,
@@ -75,22 +76,30 @@ public sealed class PriorityBuildRunner(
                     ? new RfmTiers(recency, frequency, monetary)
                     : (RfmTiers?)null;
 
-                if (upliftByContact.TryGetValue(row.ContactId, out var uplift))
+                if (mlMode)
                 {
-                    var mlScore = PriorityRules.ScoreMl(
-                        row.Segment,
-                        tiers,
-                        contactFacts,
-                        uplift.Value,
-                        uplift.Segment ?? string.Empty,
-                        mlOptions);
-                    if (mlScore is null)
+                    if (upliftByContact.TryGetValue(row.ContactId, out var uplift))
                     {
-                        // Do-not-disturb: the uplift model says this contact must not be contacted, so it is not on the list.
+                        var mlScore = PriorityRules.ScoreMl(
+                            row.Segment,
+                            tiers,
+                            contactFacts,
+                            uplift.Value,
+                            uplift.Segment ?? string.Empty,
+                            mlOptions);
+                        AddIfRankable(buckets, row, mlScore, PriorityModes.Ml);
                         continue;
                     }
 
-                    AddIfPositive(buckets, row, mlScore, PriorityModes.Ml);
+                    // The same ML scale with a zero uplift: a contact without a score never outranks a scored one by mode.
+                    var unscored = PriorityRules.ScoreMl(
+                        row.Segment,
+                        tiers,
+                        contactFacts,
+                        0m,
+                        string.Empty,
+                        mlOptions);
+                    AddIfRankable(buckets, row, unscored, PriorityModes.Rfm);
                     continue;
                 }
 
@@ -101,7 +110,7 @@ public sealed class PriorityBuildRunner(
                     priority.Weights,
                     priority.TaskDueBonus,
                     priority.StaleDealBonus);
-                AddIfPositive(buckets, row, score, PriorityModes.Rfm);
+                AddIfRankable(buckets, row, score, PriorityModes.Rfm);
             }
 
             if (batch.Count < InsightsLimits.PriorityBatchSize)
@@ -160,9 +169,13 @@ public sealed class PriorityBuildRunner(
         return items.Count;
     }
 
-    private static void AddIfPositive(PriorityBuckets buckets, PriorityInputRow row, PriorityScore score, string mode)
+    /// <summary>
+    /// Adds a candidate when it ranks: a positive value, or a do-not-disturb caution that the list keeps at the bottom so the
+    /// user sees why the contact should not be contacted now.
+    /// </summary>
+    private static void AddIfRankable(PriorityBuckets buckets, PriorityInputRow row, PriorityScore score, string mode)
     {
-        if (score.Value <= 0)
+        if (score.Value <= 0 && !score.ReasonCodes.Contains(PriorityReasons.DoNotDisturb))
         {
             return;
         }

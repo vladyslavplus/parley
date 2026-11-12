@@ -15,9 +15,10 @@ from parley_ml.serving.clv import (
     expected_spend,
     probability_alive,
 )
+from parley_ml.serving.schemas import UPLIFT_FEATURE_ORDER as SCHEMA_FEATURE_ORDER
 from parley_ml.serving.schemas import UpliftFeatures
 
-UPLIFT_FEATURE_ORDER: Final[tuple[str, ...]] = tuple(UpliftFeatures.model_fields)
+UPLIFT_FEATURE_ORDER: Final[tuple[str, ...]] = SCHEMA_FEATURE_ORDER
 SEGMENT_DO_NOT_DISTURB: Final = "do_not_disturb"
 SEGMENT_PERSUADABLE: Final = "persuadable"
 SEGMENT_SURE_THING: Final = "sure_thing"

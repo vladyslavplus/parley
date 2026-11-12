@@ -27,6 +27,14 @@ public sealed class TelegramBotIntegrationTests(PostgresFixture postgres, Mailpi
 
     private const long SecondChat = 501;
 
+    private const long RepresentativeChat = 600;
+
+    private const long TeamChat = 601;
+
+    private const string CallAction = "action.call";
+
+    private const string WinBackAction = "action.win_back";
+
     private const string StatusEnabledProperty = "enabled";
 
     private const string StatusModeProperty = "mode";
@@ -161,8 +169,10 @@ public sealed class TelegramBotIntegrationTests(PostgresFixture postgres, Mailpi
         using var member = CrmApi.Client(_factory, owner.AccessToken);
         await TelegramHost.LinkChatAsync(_factory, member, updateId: 1, OwnerChat, token);
 
-        TelegramHost.Priority(_factory).Entries.Add(TestEntries.Action(owner.UserId, "action.call"));
-        TelegramHost.Priority(_factory).Entries.Add(TestEntries.Action(null, "action.nurture"));
+        var own = TestEntries.Action(owner.UserId, CallAction);
+        var unowned = TestEntries.Action(null, "action.nurture");
+        TelegramHost.Priority(_factory).Entries.Add(own);
+        TelegramHost.Priority(_factory).Entries.Add(unowned);
 
         (await TelegramHost.PostUpdateAsync(_factory, 2, OwnerChat, "/today", cancellationToken: token))
             .StatusCode.Should().Be(HttpStatusCode.OK);
@@ -170,7 +180,83 @@ public sealed class TelegramBotIntegrationTests(PostgresFixture postgres, Mailpi
         var reply = TelegramHost.LastText(_factory);
         reply.Should().Contain("1. Call the contact.");
         reply.Should().Contain("2. Nurture the contact.");
-        reply.Should().Contain("https://app.parley.test/en/insights", "the answer links to the insights page, not to a contact");
+        reply.Should().Contain($"https://app.parley.test/en/app/contacts/{own.ContactId:D}", "each action links to its record");
+        reply.Should().Contain($"https://app.parley.test/en/app/contacts/{unowned.ContactId:D}");
+        reply.Should().Contain("https://app.parley.test/en/app", "the footer links to the app home, where the list lives");
+        reply.Should().NotContain("https://app.parley.test/en/insights", "the old link led to a missing page");
+    }
+
+    [Fact]
+    public async Task Today_LeavesOutADoNotDisturbCaution()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var member = CrmApi.Client(_factory, owner.AccessToken);
+        await TelegramHost.LinkChatAsync(_factory, member, updateId: 1, OwnerChat, token);
+
+        var positive = TestEntries.Action(owner.UserId, CallAction);
+        var caution = TestEntries.Caution(owner.UserId);
+        TelegramHost.Priority(_factory).Entries.Add(caution);
+        TelegramHost.Priority(_factory).Entries.Add(positive);
+
+        (await TelegramHost.PostUpdateAsync(_factory, 2, OwnerChat, "/today", cancellationToken: token))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var reply = TelegramHost.LastText(_factory);
+        reply.Should().Contain(positive.ContactId.ToString("D"));
+        reply.Should().NotContain(caution.ContactId.ToString("D"), "a do-not-disturb contact is not a suggested action");
+        reply.Should().Contain("Call the contact.");
+    }
+
+    [Fact]
+    public async Task Today_ASalesRep_GetsOnlyTheirOwnEntries()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var representative = await CrmApi.AddMemberAsync(_factory, owner.OrganizationId, SystemRoleSeed.SalesRepRoleId, token);
+        using var representativeClient = CrmApi.Client(_factory, representative.AccessToken);
+        await TelegramHost.LinkChatAsync(_factory, representativeClient, updateId: 1, RepresentativeChat, token);
+
+        var own = TestEntries.Action(representative.UserId, CallAction);
+        var owners = TestEntries.Action(owner.UserId, WinBackAction);
+        TelegramHost.Priority(_factory).Entries.Add(own);
+        TelegramHost.Priority(_factory).Entries.Add(owners);
+
+        (await TelegramHost.PostUpdateAsync(_factory, 2, RepresentativeChat, "/today", cancellationToken: token))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var reply = TelegramHost.LastText(_factory);
+        reply.Should().Contain(own.ContactId.ToString("D"), "a rep sees the entry of the contact they own");
+        reply.Should().NotContain(owners.ContactId.ToString("D"), "a rep never gets the organization-wide list");
+        reply.Should().NotContain("Win back the contact.");
+    }
+
+    [Fact]
+    public async Task Today_ATeamScopedManager_GetsTheTeamEntries_AndNotTheOrganizations()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var manager = await CrmApi.AddMemberAsync(_factory, owner.OrganizationId, SystemRoleSeed.SalesManagerRoleId, token);
+        var teammate = await CrmApi.AddMemberAsync(_factory, owner.OrganizationId, SystemRoleSeed.SalesRepRoleId, token);
+        await CrmApi.CreateTeamAsync(_factory, admin, owner.OrganizationId, [manager.UserId, teammate.UserId], token);
+        using var managerClient = CrmApi.Client(_factory, manager.AccessToken);
+        await TelegramHost.LinkChatAsync(_factory, managerClient, updateId: 1, TeamChat, token);
+
+        var managers = TestEntries.Action(manager.UserId, CallAction);
+        var teammates = TestEntries.Action(teammate.UserId, WinBackAction);
+        var outside = TestEntries.Action(owner.UserId, "action.nurture");
+        TelegramHost.Priority(_factory).Entries.Add(managers);
+        TelegramHost.Priority(_factory).Entries.Add(teammates);
+        TelegramHost.Priority(_factory).Entries.Add(outside);
+
+        (await TelegramHost.PostUpdateAsync(_factory, 2, TeamChat, "/today", cancellationToken: token))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var reply = TelegramHost.LastText(_factory);
+        reply.Should().Contain(managers.ContactId.ToString("D"));
+        reply.Should().Contain(teammates.ContactId.ToString("D"));
+        reply.Should().NotContain(outside.ContactId.ToString("D"), "team scope stops at the members of the team");
     }
 
     [Fact]

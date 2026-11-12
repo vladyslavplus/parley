@@ -23,6 +23,7 @@ public sealed class SendRecordConfiguration : IEntityTypeConfiguration<SendRecor
         builder.Property(record => record.Status).HasMaxLength(CampaignsLimits.StatusMaximumLength).IsRequired();
         builder.Property(record => record.ClaimedAt).HasColumnType("timestamptz");
         builder.Property(record => record.LeaseExpiresAt).HasColumnType("timestamptz").HasConversion(CampaignsUtcValueConverters.Optional);
+        builder.Property(record => record.SubmittedAt).HasColumnType("timestamptz").HasConversion(CampaignsUtcValueConverters.Optional);
         builder.Property(record => record.SentAt).HasColumnType("timestamptz").HasConversion(CampaignsUtcValueConverters.Optional);
         builder.Property(record => record.MessageId).HasMaxLength(CampaignsLimits.MessageIdMaximumLength).IsRequired();
         builder.Property(record => record.ErrorCode).HasMaxLength(CampaignsLimits.ErrorCodeMaximumLength);

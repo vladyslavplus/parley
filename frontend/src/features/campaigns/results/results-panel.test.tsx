@@ -114,6 +114,24 @@ describe("ResultsPanel", () => {
     expect(screen.getByText("stats.mde")).toBeInTheDocument();
   });
 
+  it("names the targeting model and its provenance after the freeze", () => {
+    current = computed;
+    render(
+      <ResultsPanel
+        campaignId="c-1"
+        enabled
+        snapshot={{
+          name: "crm_uplift",
+          version: "crm_uplift-20261110-b2fb7b5",
+          provenance: "stub",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("scoreModel")).toBeInTheDocument();
+    expect(screen.getByText("provenance.stub")).toHaveClass("text-warning");
+  });
+
   it("never prints interval wording for a sample ratio alarm, and withholds the comparison", () => {
     current = {
       ...computed,

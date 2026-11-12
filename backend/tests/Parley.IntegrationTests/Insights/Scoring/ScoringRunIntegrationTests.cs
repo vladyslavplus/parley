@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text.Json;
 using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@ using Parley.Crm.Contracts.DemoSeed;
 using Parley.Crm.Domain.Orders;
 using Parley.Identity.Authorization.Seed;
 using Parley.Insights.Contracts.Errors;
+using Parley.Insights.Contracts.Priority;
 using Parley.Insights.Contracts.Scores;
 using Parley.Insights.Domain.Ml;
 using Parley.Insights.Features.Daily;
@@ -59,6 +61,8 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
 
     private const string UnnamedScoresSql = "SELECT count(*) FROM insights.scores WHERE organization_id = @org AND (model_name = '' OR model_version = '')";
 
+    private const string ScoresOfRunSql = "SELECT count(*) FROM insights.scores WHERE organization_id = @org AND scoring_run_id = @run";
+
     private const string ParameterOrganization = "org";
 
     private const string ParameterContact = "contact";
@@ -95,6 +99,10 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
 
     private const string IsActiveProperty = "isActive";
 
+    private const string IsAvailableProperty = "isAvailable";
+
+    private const string EffectiveUpliftVersionProperty = "effectiveUpliftVersion";
+
     private const string ItemsProperty = "items";
 
     private const string ContactIdProperty = "contactId";
@@ -112,6 +120,10 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
     private const string Persuadable = "persuadable";
 
     private const string ReasonPersuadable = "reason.persuadable";
+
+    private const string ReasonDoNotDisturb = "reason.do_not_disturb";
+
+    private const string ModelProvenanceProperty = "modelProvenance";
 
     private const string RunSucceeded = "completed";
 
@@ -197,6 +209,58 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         run.GetProperty(StatusProperty).GetString().Should().Be(RunFailed);
         run.GetProperty(ErrorCodeProperty).GetString().Should().Be(InsightsErrorCodes.ScoringTooManyRejected);
         (await ReadLatestIdsAsync(owner.OrganizationId, token)).Should().Equal(liveBefore, "a failed run swaps nothing in");
+    }
+
+    [Fact]
+    public async Task Swap_WhenTheRunEndedWhileItWorked_LeavesTheLiveScoresAsTheyWere()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var admin = CrmApi.Client(_factory, owner.AccessToken);
+        await EnableMlAsync(admin, token);
+        await SyncModelsAsync(token);
+        await CreateOrderedContactsAsync(admin, owner.OrganizationId, 3, null, token);
+        await RunJobAsync(owner.OrganizationId, await StartRunAsync(admin, UpliftKind, token), token);
+        var liveBefore = await ReadLatestIdsAsync(owner.OrganizationId, token);
+
+        // A newer contact joins the next run, so a swap would change the live set. While the runner waits on the service,
+        // the sweep fails the run; the guarded swap must not publish the partial result or flip the run to completed.
+        await CreateOrderedContactsAsync(admin, owner.OrganizationId, 1, null, token);
+        var runId = await StartRunAsync(admin, UpliftKind, token);
+        _scoring.BeforeUpliftResponseAsync = () => MarkRunFailedAsync(runId, token);
+
+        await RunJobAsync(owner.OrganizationId, runId, token);
+
+        (await ReadRunAsync(admin, runId, token)).GetProperty(StatusProperty).GetString().Should().Be(RunFailed);
+        (await ReadLatestIdsAsync(owner.OrganizationId, token)).Should().Equal(liveBefore, "a run that left running swaps nothing in");
+    }
+
+    [Fact]
+    public async Task FailureOfACompletedRun_DoesNotDeleteItsScores()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var admin = CrmApi.Client(_factory, owner.AccessToken);
+        await EnableMlAsync(admin, token);
+        await SyncModelsAsync(token);
+        await CreateOrderedContactsAsync(admin, owner.OrganizationId, 3, null, token);
+        var runId = await StartRunAsync(admin, UpliftKind, token);
+        await RunJobAsync(owner.OrganizationId, runId, token);
+        var scoresBefore = await CountScoresOfRunAsync(owner.OrganizationId, runId, token);
+        scoresBefore.Should().Be(3);
+
+        // A duplicate worker that was still in flight reaches its failure path after the run completed. The failure must
+        // change nothing: the rows of the completed run are what pinned readers read.
+        using (var scope = _factory.Services.CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<IMutableTenantContext>().Set(owner.OrganizationId);
+            var runner = scope.ServiceProvider.GetRequiredService<ScoringRunRunner>();
+            var failure = typeof(ScoringRunRunner).GetMethod("FailAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            await ((Task)failure.Invoke(runner, [runId, InsightsErrorCodes.ScoringRunFailed])!).WaitAsync(token);
+        }
+
+        (await ReadRunAsync(admin, runId, token)).GetProperty(StatusProperty).GetString().Should().Be(RunSucceeded);
+        (await CountScoresOfRunAsync(owner.OrganizationId, runId, token)).Should().Be(scoresBefore, "a no-op failure keeps the run's rows");
     }
 
     [Theory]
@@ -296,7 +360,7 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
     }
 
     [Fact]
-    public async Task MlPriority_ReportsTheMlMode_AndLeavesOutADoNotDisturbContact()
+    public async Task MlPriority_ReportsTheMlMode_AndKeepsADoNotDisturbContactLastWithACaution()
     {
         var token = TestContext.Current.CancellationToken;
         var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
@@ -304,10 +368,10 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         await EnableMlAsync(admin, token);
         await SyncModelsAsync(token);
         var kept = await CreateContactAsync(admin, "Kept", null, token);
-        var excluded = await CreateContactAsync(admin, "Excluded", null, token);
+        var caution = await CreateContactAsync(admin, "Caution", null, token);
         await InsertOrderAsync(owner.OrganizationId, kept, token);
-        await InsertOrderAsync(owner.OrganizationId, excluded, token);
-        _scoring.DoNotDisturbSubjects.Add(excluded.ToString("D"));
+        await InsertOrderAsync(owner.OrganizationId, caution, token);
+        _scoring.DoNotDisturbSubjects.Add(caution.ToString("D"));
         await RunJobAsync(owner.OrganizationId, await StartRunAsync(admin, UpliftKind, token), token);
 
         await RunDailyJobAsync(owner.OrganizationId, token);
@@ -315,12 +379,22 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         var page = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Priority, token), token);
         page.GetProperty(ModeProperty).GetString().Should().Be("ml");
         page.GetProperty(MlStatusProperty).GetString().Should().Be("ready");
+        page.GetProperty(ModelProvenanceProperty).GetString().Should().Be("semi_synthetic", "the list names the model that ranked it");
         var items = page.GetProperty(ItemsProperty).EnumerateArray().ToList();
-        items.Select(item => item.GetProperty(ContactIdProperty).GetGuid()).Should().Contain(kept);
-        items.Select(item => item.GetProperty(ContactIdProperty).GetGuid()).Should().NotContain(excluded);
-        items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == kept)
-            .GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
+        var keptItem = items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == kept);
+        var cautionItem = items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == caution);
+        keptItem.GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
             .Should().Contain(ReasonPersuadable);
+        cautionItem.GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
+            .Should().Contain(ReasonDoNotDisturb, "the list keeps the contact and explains the caution");
+        cautionItem.GetProperty(ValueProperty).GetDecimal().Should().Be(0m);
+        cautionItem.GetProperty("rank").GetInt32().Should().BeGreaterThan(keptItem.GetProperty("rank").GetInt32());
+
+        // The notification channel source leaves the caution out, so a chat is never told to call a do-not-disturb contact.
+        using var scope = _factory.Services.CreateScope();
+        scope.ServiceProvider.GetRequiredService<IMutableTenantContext>().Set(owner.OrganizationId);
+        var channelEntries = await scope.ServiceProvider.GetRequiredService<IPriorityReader>().ReadTopAsync(null, 10, token);
+        channelEntries.Select(entry => entry.ContactId).Should().Contain(kept).And.NotContain(caution);
     }
 
     [Fact]
@@ -336,6 +410,7 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         var page = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Priority, token), token);
         page.GetProperty(ModeProperty).GetString().Should().Be("rfm");
         page.GetProperty(MlStatusProperty).GetString().Should().Be("disabled");
+        page.GetProperty(ModelProvenanceProperty).ValueKind.Should().Be(JsonValueKind.Null);
     }
 
     [Fact]
@@ -360,6 +435,37 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
             .Single(item => item.GetProperty(ContactIdProperty).GetGuid() == kept)
             .GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
             .Should().Contain(ReasonPersuadable);
+    }
+
+    [Fact]
+    public async Task MlPriority_RanksAScoredContactAboveAnUnscoredContactOfAHigherWeightSegment()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var admin = CrmApi.Client(_factory, owner.AccessToken);
+        await EnableMlAsync(admin, token);
+        await SyncModelsAsync(token);
+        var scored = await CreateContactAsync(admin, "Scored", null, token);
+        var unscored = await CreateContactAsync(admin, "Unscored", null, token);
+        await InsertOrderAsync(owner.OrganizationId, scored, token);
+        await RunJobAsync(owner.OrganizationId, await StartRunAsync(admin, UpliftKind, token), token);
+
+        // The unscored contact gets its activity only after the run, so no uplift row exists for it. The segments are pinned
+        // after the daily snapshot: scored is a champions contact (weight 60), unscored an at-risk one (weight 90).
+        await InsertOrderAsync(owner.OrganizationId, unscored, token);
+        await RunDailyJobAsync(owner.OrganizationId, token);
+        await SetSnapshotSegmentAsync(owner.OrganizationId, scored, "champions", token);
+        await SetSnapshotSegmentAsync(owner.OrganizationId, unscored, "at_risk", token);
+        await RunRebuildJobAsync(owner.OrganizationId, token);
+
+        var page = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Priority, token), token);
+        var items = page.GetProperty(ItemsProperty).EnumerateArray().ToList();
+        var scoredItem = items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == scored);
+        var unscoredItem = items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == unscored);
+        scoredItem.GetProperty(ModeProperty).GetString().Should().Be("ml");
+        unscoredItem.GetProperty(ModeProperty).GetString().Should().Be("rfm", "the contact without a score keeps the RFM label");
+        scoredItem.GetProperty("rank").GetInt32().Should().BeLessThan(unscoredItem.GetProperty("rank").GetInt32(),
+            "30.6 (scored, 60/90 weight) ranks above 27 (unscored, 90/90 weight)");
     }
 
     [Fact]
@@ -517,6 +623,36 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
+    private static DateOnly TodayOf(IdentityApiFactory factory) => DateOnly.FromDateTime(factory.Clock.GetUtcNow().UtcDateTime);
+
+    /// <summary>Pins the segment of one snapshot row, so a test does not depend on the quintile tiers of a tiny fixture.</summary>
+    private async Task SetSnapshotSegmentAsync(Guid organizationId, Guid contactId, string segment, CancellationToken cancellationToken)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new NpgsqlCommand(
+            "UPDATE insights.rfm_snapshots SET segment = @segment WHERE organization_id = @org AND contact_id = @contact AND as_of = @day",
+            connection);
+        command.Parameters.AddWithValue("segment", segment);
+        command.Parameters.AddWithValue(ParameterOrganization, organizationId);
+        command.Parameters.AddWithValue(ParameterContact, contactId);
+        command.Parameters.AddWithValue("day", TodayOf(_factory));
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    /// <summary>Ends a running run as failed, the way a stale sweep that raced with a live worker would.</summary>
+    private async Task MarkRunFailedAsync(Guid runId, CancellationToken cancellationToken)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new NpgsqlCommand(
+            "UPDATE insights.scoring_runs SET status = 'failed', error_code = @code, finished_at = now() WHERE id = @id",
+            connection);
+        command.Parameters.AddWithValue("code", InsightsErrorCodes.ScoringRunAbandoned);
+        command.Parameters.AddWithValue("id", runId);
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
     private async Task BackdateRunStartAsync(Guid runId, DateTime startedAt, CancellationToken cancellationToken)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
@@ -536,16 +672,17 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         await EnableMlAsync(admin, token);
         await SyncModelsAsync(token);
         var kept = await CreateContactAsync(admin, "Kept", null, token);
-        var excluded = await CreateContactAsync(admin, "Excluded", null, token);
+        var caution = await CreateContactAsync(admin, "Caution", null, token);
         await InsertOrderAsync(owner.OrganizationId, kept, token);
-        await InsertOrderAsync(owner.OrganizationId, excluded, token);
-        _scoring.DoNotDisturbSubjects.Add(excluded.ToString("D"));
+        await InsertOrderAsync(owner.OrganizationId, caution, token);
+        _scoring.DoNotDisturbSubjects.Add(caution.ToString("D"));
 
         // The daily run builds the list before any scoring run exists: RFM rows, and the status says why.
         await RunDailyJobAsync(owner.OrganizationId, token);
         var before = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Priority, token), token);
         before.GetProperty(ModeProperty).GetString().Should().Be("rfm");
         before.GetProperty(MlStatusProperty).GetString().Should().Be("no_scores");
+        before.GetProperty(ModelProvenanceProperty).ValueKind.Should().Be(JsonValueKind.Null, "the RFM list used no model");
 
         // The run completes; the rebuild its completion queues ranks the same day by the new scores.
         await RunJobAsync(owner.OrganizationId, await StartRunAsync(admin, UpliftKind, token), token);
@@ -555,10 +692,13 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         after.GetProperty(ModeProperty).GetString().Should().Be("ml");
         after.GetProperty(MlStatusProperty).GetString().Should().Be("ready");
         var items = after.GetProperty(ItemsProperty).EnumerateArray().ToList();
-        items.Select(item => item.GetProperty(ContactIdProperty).GetGuid()).Should().Contain(kept).And.NotContain(excluded);
+        items.Select(item => item.GetProperty(ContactIdProperty).GetGuid()).Should().Contain([kept, caution]);
         items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == kept)
             .GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
             .Should().Contain(ReasonPersuadable);
+        items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == caution)
+            .GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
+            .Should().Contain(ReasonDoNotDisturb);
     }
 
     [Fact]
@@ -636,6 +776,35 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         finally
         {
             _scoring.RefuseModelsWith = null;
+        }
+    }
+
+    [Fact]
+    public async Task ModelsSync_MarksAVersionTheServiceNoLongerServes_AsUnavailable()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var admin = CrmApi.Client(_factory, owner.AccessToken);
+        await SyncModelsAsync(token);
+        var initial = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Models, token), token);
+        initial[0].GetProperty(IsAvailableProperty).GetBoolean().Should().BeTrue();
+
+        // The service stops reporting the model. The row stays as history, but no run may pin it and no admin may activate it.
+        _scoring.HideModels = true;
+        try
+        {
+            await SyncModelsAsync(token);
+
+            var models = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Models, token), token);
+            var stale = models[0];
+            stale.GetProperty(IsAvailableProperty).GetBoolean().Should().BeFalse();
+            stale.GetProperty(IsActiveProperty).GetBoolean().Should().BeFalse();
+            var settings = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.MlSettings, token), token);
+            settings.GetProperty(EffectiveUpliftVersionProperty).ValueKind.Should().Be(JsonValueKind.Null);
+        }
+        finally
+        {
+            _scoring.HideModels = false;
         }
     }
 
@@ -743,7 +912,7 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         command.Parameters.AddWithValue(ParameterReference, $"scoring-{Guid.NewGuid():N}");
         command.Parameters.AddWithValue(ParameterOrderedAt, orderedAt);
         command.Parameters.AddWithValue(ParameterAmount, 100m);
-        command.Parameters.AddWithValue(ParameterCurrency, CrmDemoContract.ExportCurrency);
+        command.Parameters.AddWithValue(ParameterCurrency, CrmDemoContract.DemoCurrency);
         command.Parameters.AddWithValue(ParameterSource, OrderSources.Manual);
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
@@ -771,6 +940,16 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         var day = DateOnly.FromDateTime(_factory.Clock.GetUtcNow().UtcDateTime).ToString(InsightsLimits.DayFormat, CultureInfo.InvariantCulture);
         using var scope = _factory.Services.CreateScope();
         await scope.ServiceProvider.GetRequiredService<InsightsOrganizationDailyJob>().ExecuteAsync(organizationId, day, cancellationToken);
+    }
+
+    private async Task<long> CountScoresOfRunAsync(Guid organizationId, Guid runId, CancellationToken cancellationToken)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new NpgsqlCommand(ScoresOfRunSql, connection);
+        command.Parameters.AddWithValue(ParameterOrganization, organizationId);
+        command.Parameters.AddWithValue("run", runId);
+        return (long)(await command.ExecuteScalarAsync(cancellationToken))!;
     }
 
     private async Task<List<string>> ReadLatestIdsAsync(Guid organizationId, CancellationToken cancellationToken)

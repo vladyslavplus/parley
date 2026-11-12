@@ -33,10 +33,10 @@ public static class DemoEffect
 
     private static readonly DemoSegment[] Segments =
     [
-        new(DoNotDisturb, -0.03, features => features.OrderCount == 1 && features.RecencyDays <= 30),
+        new(DoNotDisturb, -0.30, features => features.OrderCount == 1 && features.RecencyDays <= 90),
         new(LostCause, 0.01, features => features.RecencyDays > 365),
         new(SureThing, 0d, features => features.RecencyDays <= 30 && features.Orders365Days >= 6 && features.Value365Days >= 1000),
-        new(Persuadable, 0.15, features => features.RecencyDays > 30 && features.RecencyDays <= 180
+        new(Persuadable, 0.30, features => features.RecencyDays > 30 && features.RecencyDays <= 180
             && features.Orders365Days >= 2 && features.Orders365Days <= 3),
     ];
 

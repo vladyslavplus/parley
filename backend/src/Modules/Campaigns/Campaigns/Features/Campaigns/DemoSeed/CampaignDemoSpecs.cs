@@ -40,9 +40,37 @@ internal static class CampaignDemoSpecs
 
     public const string TemplateLabel = "parley-demo:template:historic";
 
+    public const string UkrainianTemplateLabel = "parley-demo:template:ukrainian";
+
+    public const string UkrainianTemplateName = "Демо: український лист";
+
+    public const string UkrainianTemplateSubject = "Вітаємо, {{ contact.first_name }}";
+
+    public const string UkrainianTemplateBody =
+        "<p>Добрий день, {{ contact.first_name }} {{ contact.last_name }}. <a href=\"{{ unsubscribe_url }}\">Відписатися</a></p>";
+
     public const string AaLabel = "parley-demo:campaign:aa";
 
     public const string InjectedLabel = "parley-demo:campaign:injected";
+
+    public const string DraftLabel = "parley-demo:campaign:draft";
+
+    public const string ScheduledLabel = "parley-demo:campaign:scheduled";
+
+    public const string DraftName = "Демо: чернетка для at-risk";
+
+    public const string ScheduledName = "Demo: scheduled follow-up";
+
+    public const string DraftSegmentLabel = "parley-demo:segment:at-risk";
+
+    public const string DraftSegmentName = "Демо: at-risk";
+
+    public const string ScheduledSegmentLabel = "parley-demo:segment:all";
+
+    public const string ScheduledSegmentName = "Demo: all contacts";
+
+    /// <summary>Days after the seed instant the prepared demo campaign is planned for.</summary>
+    public const int ScheduledOffsetDays = 3;
 
     public const string OutcomeDrawPurpose = "treated_outcome";
 

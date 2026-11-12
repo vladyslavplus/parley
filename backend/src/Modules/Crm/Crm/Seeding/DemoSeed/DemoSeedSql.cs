@@ -34,6 +34,8 @@ public static class DemoSeedSql
 
     private static readonly string Activities = Table(CrmSchemaNames.ActivitiesTable);
 
+    private static readonly string Tags = Table(CrmSchemaNames.TagsTable);
+
     private static readonly string ContactsStaging = DemoSeedConstants.ContactsStagingTable;
 
     private static readonly string OrdersStaging = DemoSeedConstants.OrdersStagingTable;
@@ -41,9 +43,9 @@ public static class DemoSeedSql
     public const string CreateContactsStaging =
         "CREATE TEMP TABLE " + DemoSeedConstants.ContactsStagingTable + " ("
         + "id uuid NOT NULL, customer_ref text NOT NULL, first_name text NOT NULL, last_name text NOT NULL, "
-        + "email text NOT NULL, phone text NOT NULL, job_title text NOT NULL, country text NULL, "
+        + "email text NOT NULL, phone text NOT NULL, job_title text NOT NULL, country text NULL, city text NULL, "
         + "owner_user_id uuid NOT NULL, company_id uuid NULL, company_name text NULL, "
-        + "deal_stage_index integer NULL, deal_title text NULL, deal_lost_reason text NULL, "
+        + "deal_stage_index integer NULL, deal_title text NULL, deal_lost_reason text NULL, deal_expected_close_on date NULL, "
         + "task_title text NULL, task_due_at timestamptz NULL, task_completed boolean NULL, note_body text NULL) ON COMMIT DROP";
 
     public const string CreateOrdersStaging =
@@ -53,8 +55,9 @@ public static class DemoSeedSql
 
     public const string CopyContacts =
         "COPY " + DemoSeedConstants.ContactsStagingTable
-        + " (id, customer_ref, first_name, last_name, email, phone, job_title, country, owner_user_id, company_id, company_name, "
-        + "deal_stage_index, deal_title, deal_lost_reason, task_title, task_due_at, task_completed, note_body) FROM STDIN (FORMAT BINARY)";
+        + " (id, customer_ref, first_name, last_name, email, phone, job_title, country, city, owner_user_id, company_id, company_name, "
+        + "deal_stage_index, deal_title, deal_lost_reason, deal_expected_close_on, task_title, task_due_at, task_completed, note_body) "
+        + "FROM STDIN (FORMAT BINARY)";
 
     public const string CopyOrders =
         "COPY " + DemoSeedConstants.OrdersStagingTable
@@ -92,9 +95,9 @@ public static class DemoSeedSql
     /// </summary>
     public static readonly string InsertContacts = $"""
         INSERT INTO {Contacts}
-            (id, organization_id, first_name, last_name, email, email_normalized, phone, job_title, country,
+            (id, organization_id, first_name, last_name, email, email_normalized, phone, job_title, country, city,
              owner_user_id, company_id, source, external_ref, custom_fields, created_at, updated_at)
-        SELECT s.id, @org, s.first_name, s.last_name, s.email, lower(s.email), s.phone, s.job_title, s.country,
+        SELECT s.id, @org, s.first_name, s.last_name, s.email, lower(s.email), s.phone, s.job_title, s.country, s.city,
                s.owner_user_id, s.company_id, @source, s.customer_ref, CAST(@empty_json AS jsonb),
                COALESCE((SELECT MIN(o.ordered_at) FROM {OrdersStaging} o WHERE o.customer_ref = s.customer_ref), @now), @now
         FROM {ContactsStaging} s
@@ -156,7 +159,7 @@ public static class DemoSeedSql
                     WHEN st.kind = '{PipelineStageKinds.Lost}' THEN '{DealStatuses.Lost}'
                     ELSE '{DealStatuses.Open}' END,
                CASE WHEN st.kind = '{PipelineStageKinds.Lost}' THEN s.deal_lost_reason END,
-               NULL,
+               CASE WHEN st.kind = '{PipelineStageKinds.Open}' THEN s.deal_expected_close_on END,
                CASE WHEN st.kind IN ('{PipelineStageKinds.Won}', '{PipelineStageKinds.Lost}')
                     THEN LEAST(@now, c.last_order_at + INTERVAL '2 days') END,
                ROW_NUMBER() OVER (PARTITION BY st.id ORDER BY s.customer_ref) * 1024,
@@ -283,6 +286,42 @@ public static class DemoSeedSql
             JOIN {Contacts} c ON c.id = t.contact_id
             WHERE t.organization_id = @org AND c.source = @source AND t.completed_at IS NOT NULL
         ) e
+        ON CONFLICT DO NOTHING
+        """;
+
+    /// <summary>Fixed tags of the demo workspace. The names match the palette index of the tag row.</summary>
+    public static IReadOnlyList<string> TagNames { get; } = ["VIP", "Wholesale", "Seasonal", "Newsletter", "Priority"];
+
+    private const string TagShareParameter = "@tag_share";
+
+    private static readonly string TagValues = string.Join(
+        ", ",
+        TagNames.Select((name, index) => $"('{name.Replace("'", "''", StringComparison.Ordinal)}', {index})"));
+
+    private static readonly string TagCount = TagNames.Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary>Creates the demo tags of the organization; a re-run finds the same names.</summary>
+    public static readonly string InsertTags = $"""
+        INSERT INTO {Tags} (id, organization_id, created_at, updated_at, name, color_index)
+        SELECT md5('demo-tag:' || t.name)::uuid, @org, @now, @now, t.name, t.color_index
+        FROM (VALUES {TagValues}) AS t(name, color_index)
+        ON CONFLICT (organization_id, name_normalized) DO NOTHING
+        """;
+
+    /// <summary>
+    /// Links one tag to the share of demo contacts that gets one. The choice is a stable hash of the contact id, so a re-run
+    /// links the same pairs.
+    /// </summary>
+    public static readonly string InsertContactTags = $"""
+        INSERT INTO "{CrmSchemaNames.Schema}"."{CrmSchemaNames.ContactTagsTable}"
+            (organization_id, contact_id, tag_id)
+        SELECT @org, c.id, t.id
+        FROM {Contacts} c
+        CROSS JOIN (SELECT md5('demo-tag:' || name)::uuid AS id, color_index AS tag_index
+                    FROM (VALUES {TagValues}) AS v(name, color_index)) t
+        WHERE c.organization_id = @org AND c.source = @source
+          AND (abs(hashtext(c.id::text)) % 100) < {TagShareParameter}
+          AND t.tag_index = (abs(hashtext(c.id::text)) / 100) % {TagCount}
         ON CONFLICT DO NOTHING
         """;
 

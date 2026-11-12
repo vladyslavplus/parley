@@ -23,4 +23,17 @@ public static class PriorityMlStatusResolver
         var activeRun = await ActiveScoringRuns.FindActiveRunIdAsync(dbContext, ScoreKinds.Uplift, cancellationToken);
         return PriorityMlStatus.Resolve(setting?.MlEnabled ?? false, model?.Version, activeRun is not null);
     }
+
+    /// <summary>
+    /// Provenance of the uplift model in use now, for the badge of the list. Null when no uplift model is available; the
+    /// caller reports it only for a list that ranked by uplift scores.
+    /// </summary>
+    public static async Task<string?> ReadActiveUpliftProvenanceAsync(InsightsDbContext dbContext, CancellationToken cancellationToken)
+    {
+        var version = await dbContext.MlSettings.AsNoTracking()
+            .Select(row => row.ActiveUpliftVersion)
+            .FirstOrDefaultAsync(cancellationToken);
+        var model = await ActiveModelResolver.FindAsync(dbContext, ScoreKinds.Uplift, version, cancellationToken);
+        return model?.Provenance;
+    }
 }

@@ -104,7 +104,10 @@ public sealed class ListPriorityQueryHandler(
             .Where(row => names.ContainsKey(row.ContactId))
             .Select(row => ToView(row, names[row.ContactId], showValue))
             .ToArray();
-        return Result<PriorityListPageView>.Success(new PriorityListPageView(views, page.NextCursor, mode, mlStatus));
+        var provenance = mode == PriorityModes.Ml
+            ? await PriorityMlStatusResolver.ReadActiveUpliftProvenanceAsync(dbContext, cancellationToken)
+            : null;
+        return Result<PriorityListPageView>.Success(new PriorityListPageView(views, page.NextCursor, mode, mlStatus, provenance));
     }
 
     /// <summary>
@@ -135,7 +138,7 @@ public sealed class ListPriorityQueryHandler(
     private static string FormatRank(int? rank) => rank?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
 
     private static Result<PriorityListPageView> Empty((string Mode, string MlStatus) status) =>
-        Result<PriorityListPageView>.Success(new PriorityListPageView([], null, status.Mode, status.MlStatus));
+        Result<PriorityListPageView>.Success(new PriorityListPageView([], null, status.Mode, status.MlStatus, null));
 
     private static Result<PriorityListPageView> Invalid() =>
         Result<PriorityListPageView>.Failure(Error.Validation(ErrorCodes.ValidationFailed));

@@ -17,6 +17,7 @@ public sealed class ModelVersionConfiguration : IEntityTypeConfiguration<ModelVe
         builder.Property(version => version.Provenance).HasMaxLength(InsightsLimits.CodeMaximumLength).IsRequired();
         builder.Property(version => version.TrainedAt).HasColumnType("timestamptz");
         builder.Property(version => version.SyncedAt).HasColumnType("timestamptz");
+        builder.Property(version => version.IsAvailable).HasDefaultValue(true);
         builder.Property(version => version.Metrics).HasColumnType("jsonb");
         builder.HasIndex(nameof(ModelVersion.ModelName), nameof(ModelVersion.Version))
             .IsUnique()

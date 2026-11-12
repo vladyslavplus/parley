@@ -85,10 +85,13 @@ public sealed class UpdateMlSettingsCommandHandler(
         return Result<MlSettingsView>.Success(await MlSettingsLookup.FindViewAsync(dbContext, cancellationToken));
     }
 
-    /// <summary>True when the registry holds the version as an uplift model. Only synced models are stored, so a stored row is available.</summary>
+    /// <summary>True when the last successful sync reported the version as an available uplift model.</summary>
     private Task<bool> IsUpliftModelAsync(string version, CancellationToken cancellationToken) =>
         dbContext.ModelVersions.AnyAsync(
-            model => model.ModelName == ScoringModelNames.Uplift && model.Kind == ScoreKinds.Uplift && model.Version == version,
+            model => model.ModelName == ScoringModelNames.Uplift
+                && model.Kind == ScoreKinds.Uplift
+                && model.Version == version
+                && model.IsAvailable,
             cancellationToken);
 
     private static Result<MlSettingsView> Conflict() =>

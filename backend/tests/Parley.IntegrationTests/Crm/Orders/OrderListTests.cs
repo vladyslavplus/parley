@@ -7,7 +7,6 @@ using Parley.Crm.Contracts.DemoSeed;
 using Parley.Crm.Contracts.Errors;
 using Parley.Crm.Domain.Contacts;
 using Parley.Crm.Persistence;
-using Parley.IntegrationTests.Crm.DemoSeed.Support;
 using Parley.IntegrationTests.Crm.Support;
 using Parley.IntegrationTests.Identity.Support;
 using Parley.IntegrationTests.Infrastructure.Fixtures;
@@ -27,29 +26,19 @@ public sealed class OrderListTests(PostgresFixture postgres, MailpitFixture mail
 
     private const string ErrorCodeProperty = "code";
 
-    private const string FirstCustomerRef = "101";
-
-    private const int FirstCustomerInvoiceCount = 3;
+    private const string FirstCustomerRef = "000000";
 
     private IdentityApiFactory _factory = null!;
-
-    private string _directory = null!;
 
     public async ValueTask InitializeAsync()
     {
         await postgres.ResetDataAsync(TestContext.Current.CancellationToken);
         _factory = new IdentityApiFactory(postgres, mailpit);
-        _directory = DemoExportFiles.WriteSample(Path.Combine(Path.GetTempPath(), "parley-orders-" + Guid.CreateVersion7().ToString("N")));
     }
 
     public ValueTask DisposeAsync()
     {
         _factory.Dispose();
-        if (Directory.Exists(_directory))
-        {
-            Directory.Delete(_directory, recursive: true);
-        }
-
         return ValueTask.CompletedTask;
     }
 
@@ -66,8 +55,9 @@ public sealed class OrderListTests(PostgresFixture postgres, MailpitFixture mail
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         using var list = JsonDocument.Parse(await listResponse.Content.ReadAsStringAsync(token));
         var items = list.RootElement.GetProperty(ItemsProperty).EnumerateArray().ToArray();
-        items.Should().HaveCount(FirstCustomerInvoiceCount);
-        items[0].GetProperty("totalAmount").GetDecimal().Should().Be(-20m);
+        items.Should().NotBeEmpty();
+        items.Select(item => item.GetProperty("totalAmount").GetDecimal())
+            .Should().BeInAscendingOrder("the amount sort is ascending");
 
         var invoiceId = items[0].GetProperty("id").GetGuid();
         using var getResponse = await client.GetAsync($"orders/{invoiceId:D}", token);
@@ -98,9 +88,25 @@ public sealed class OrderListTests(PostgresFixture postgres, MailpitFixture mail
     private async Task ImportIntoAsync(Guid organizationId, CancellationToken cancellationToken)
     {
         using var scope = _factory.Services.CreateScope();
-        var importer = scope.ServiceProvider.GetRequiredService<ICrmDemoDataImporter>();
-        await importer.ImportAsync(
-            new CrmDemoImportRequest(organizationId, _directory, CrmDemoContract.ExportCurrency, CultureCodes.Ukrainian, [Guid.CreateVersion7()]),
+        var profile = new CrmDemoProfile
+        {
+            Contacts = 3,
+            OrderMonths = 6,
+            DealSharePercent = 0,
+            TaskSharePercent = 0,
+            NoteSharePercent = 0,
+            TagSharePercent = 0,
+            NoOrdersPercent = 0,
+        };
+        await scope.ServiceProvider.GetRequiredService<ICrmDemoSeeder>().SeedAsync(
+            new CrmDemoImportRequest(
+                organizationId,
+                CrmDemoContract.DemoCurrency,
+                CultureCodes.Ukrainian,
+                [Guid.CreateVersion7()],
+                5,
+                _factory.Clock.GetUtcNow(),
+                profile),
             cancellationToken);
     }
 

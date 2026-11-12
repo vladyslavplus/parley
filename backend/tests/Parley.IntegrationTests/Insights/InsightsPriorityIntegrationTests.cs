@@ -465,7 +465,7 @@ public sealed class InsightsPriorityIntegrationTests(PostgresFixture postgres, M
         command.Parameters.AddWithValue(ParameterReference, $"insights-{Guid.NewGuid():N}");
         command.Parameters.AddWithValue(ParameterOrderedAt, orderedAt);
         command.Parameters.AddWithValue(ParameterAmount, amount);
-        command.Parameters.AddWithValue(ParameterCurrency, CrmDemoContract.ExportCurrency);
+        command.Parameters.AddWithValue(ParameterCurrency, CrmDemoContract.DemoCurrency);
         command.Parameters.AddWithValue(ParameterSource, OrderSources.Manual);
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
