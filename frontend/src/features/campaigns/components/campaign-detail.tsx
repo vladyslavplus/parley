@@ -18,6 +18,7 @@ import { ResultsPanel } from "@/features/campaigns/results/results-panel";
 import { ReviewStep } from "@/features/campaigns/components/builder/review-step";
 import { CampaignBuilder } from "@/features/campaigns/components/campaign-builder";
 import { CampaignStatusBadge } from "@/features/campaigns/components/campaign-status-badge";
+import { CampaignTargetingModel } from "@/features/campaigns/components/targeting-model";
 import { useCampaign } from "@/features/campaigns/hooks/use-campaign-api";
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
 import {
@@ -60,6 +61,16 @@ function CampaignReadOnly({ campaign }: { campaign: Campaign }) {
   const canRead = useCan(PERMISSIONS.campaignsRead);
   // Seeded from the historic dataset in every status: no email was sent.
   const isDemo = campaign.source === CAMPAIGN_SOURCES.demoSeed;
+  // The ranking model is pinned with the audience; it is null for a campaign
+  // that does not target by score.
+  const targetingSnapshot =
+    campaign.targetingModelName && campaign.targetingModelVersion
+      ? {
+          name: campaign.targetingModelName,
+          version: campaign.targetingModelVersion,
+          provenance: campaign.targetingProvenance,
+        }
+      : null;
 
   return (
     <div className="space-y-4">
@@ -101,7 +112,12 @@ function CampaignReadOnly({ campaign }: { campaign: Campaign }) {
       <SendControls campaignId={campaign.id} status={campaign.status} />
 
       {hasDelivery(campaign.status) ? (
-        <ProgressPanel campaignId={campaign.id} status={campaign.status} />
+        <>
+          {campaign.status === CAMPAIGN_STATUSES.completed ? null : (
+            <CampaignTargetingModel snapshot={targetingSnapshot} />
+          )}
+          <ProgressPanel campaignId={campaign.id} status={campaign.status} />
+        </>
       ) : (
         <ReviewStep
           draft={draft}
@@ -109,20 +125,16 @@ function CampaignReadOnly({ campaign }: { campaign: Campaign }) {
           flush={() => Promise.resolve(true)}
           canAct={canManage}
           onEditTargeting={() => undefined}
-          snapshot={
-            campaign.targetingModelName && campaign.targetingModelVersion
-              ? {
-                  name: campaign.targetingModelName,
-                  version: campaign.targetingModelVersion,
-                  provenance: campaign.targetingProvenance,
-                }
-              : null
-          }
+          snapshot={targetingSnapshot}
         />
       )}
 
       {campaign.status === CAMPAIGN_STATUSES.completed ? (
-        <ResultsPanel campaignId={campaign.id} enabled />
+        <ResultsPanel
+          campaignId={campaign.id}
+          enabled
+          snapshot={targetingSnapshot}
+        />
       ) : null}
 
       {canRead && campaign.audienceFrozenAt ? (

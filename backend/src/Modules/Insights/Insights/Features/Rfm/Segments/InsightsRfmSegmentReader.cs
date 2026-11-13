@@ -14,9 +14,9 @@ public sealed class InsightsRfmSegmentReader(InsightsDbContext dbContext) : IRfm
         IReadOnlyCollection<Guid> contactIds,
         CancellationToken cancellationToken)
     {
-        var ids = contactIds.ToArray();
+        var ids = contactIds.ToList();
         var day = await DailyRunStamps.LatestRfmDayAsync(dbContext, cancellationToken);
-        if (ids.Length == 0 || day is null)
+        if (ids.Count == 0 || day is null)
         {
             return new Dictionary<Guid, string>();
         }
@@ -44,7 +44,7 @@ public sealed class InsightsRfmSegmentReader(InsightsDbContext dbContext) : IRfm
             .Where(snapshot => snapshot.AsOf == day.Value && snapshot.Segment == segment);
         if (visibleOwnerUserIds is not null)
         {
-            var owners = visibleOwnerUserIds.ToArray();
+            var owners = visibleOwnerUserIds.ToList();
             members = members.Where(snapshot => snapshot.OwnerUserId != null && owners.Contains(snapshot.OwnerUserId.Value));
         }
 

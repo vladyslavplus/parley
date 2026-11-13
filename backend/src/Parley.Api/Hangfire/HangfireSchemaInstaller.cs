@@ -7,7 +7,7 @@ namespace Parley.Api.Hangfire;
 
 /// <summary>
 /// Installs the Hangfire storage schema and its autovacuum tuning, once per database, under an advisory lock so concurrent
-/// starts do not race. Both the API host and the seed command call it, because the seed runs no hosted services.
+/// starts do not race. The API host calls it before the background server starts.
 /// </summary>
 public static class HangfireSchemaInstaller
 {

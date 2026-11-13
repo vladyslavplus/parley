@@ -26,8 +26,10 @@ public sealed class CampaignSendClaimer(
     private readonly CampaignsSendOptions _options = options.Value;
 
     /// <summary>
-    /// Turns every claim whose lease has ended into <c>unknown</c>. Such a claim may or may not have reached the server,
-    /// so it is never sent again.
+    /// Resolves every claim whose lease has ended. A claim stamped as submitted may or may not have reached the server, so it
+    /// becomes <c>unknown</c> and is never sent again. A claim without the stamp was never handed to the server: while
+    /// attempts remain it goes back to the retry pool due at once, and the last attempt makes it failed with a stable code,
+    /// so a never-submitted claim can never stay in limbo.
     /// </summary>
     public async Task ExpireLeasesAsync(Guid campaignId, CancellationToken cancellationToken)
     {
@@ -35,6 +37,7 @@ public sealed class CampaignSendClaimer(
         await dbContext.Sends
             .Where(send => send.CampaignId == campaignId
                 && send.Status == SendStatuses.Claimed
+                && send.SubmittedAt != null
                 && send.LeaseExpiresAt != null
                 && send.LeaseExpiresAt <= now)
             .ExecuteUpdateAsync(setters => setters
@@ -42,32 +45,61 @@ public sealed class CampaignSendClaimer(
                 .SetProperty(send => send.ErrorCode, CampaignsErrorCodes.SendResultUnknown)
                 .SetProperty(send => send.LeaseExpiresAt, (DateTime?)null)
                 .SetProperty(send => send.UpdatedAt, now), cancellationToken);
+        await dbContext.Sends
+            .Where(send => send.CampaignId == campaignId
+                && send.Status == SendStatuses.Claimed
+                && send.SubmittedAt == null
+                && send.AttemptCount < _options.MaxAttempts
+                && send.LeaseExpiresAt != null
+                && send.LeaseExpiresAt <= now)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(send => send.Status, SendStatuses.RetryableFailed)
+                .SetProperty(send => send.ErrorCode, (string?)null)
+                .SetProperty(send => send.LeaseExpiresAt, (DateTime?)null)
+                .SetProperty(send => send.UpdatedAt, now.Subtract(_options.RetryBackoff)), cancellationToken);
+        await dbContext.Sends
+            .Where(send => send.CampaignId == campaignId
+                && send.Status == SendStatuses.Claimed
+                && send.SubmittedAt == null
+                && send.AttemptCount >= _options.MaxAttempts
+                && send.LeaseExpiresAt != null
+                && send.LeaseExpiresAt <= now)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(send => send.Status, SendStatuses.Failed)
+                .SetProperty(send => send.ErrorCode, CampaignsErrorCodes.SendMailUnavailable)
+                .SetProperty(send => send.LeaseExpiresAt, (DateTime?)null)
+                .SetProperty(send => send.UpdatedAt, now), cancellationToken);
     }
 
     /// <summary>
-    /// Renews the lease of one claim just before its mail is submitted. The renewal is conditional on the claim still being
-    /// <c>claimed</c> with a lease that has not ended, so a claim whose lease ran out while its batch was waiting is not
-    /// renewed and must not be submitted. Returns false when nothing was renewed.
+    /// Renews the lease of one claim just before its mail is submitted and stamps the submission. The attempt number is the
+    /// claim generation: a claim re-claimed by another worker has a higher attempt count, so the stale holder matches no row
+    /// and must not submit. The renewal is also conditional on the claim still being <c>claimed</c> with a lease that has not
+    /// ended. Returns false when nothing was renewed.
     /// </summary>
-    public async Task<bool> RenewLeaseAsync(Guid sendId, CancellationToken cancellationToken)
+    public async Task<bool> RenewLeaseAsync(ClaimedSend claim, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(claim);
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var renewed = await dbContext.Sends
-            .Where(send => send.Id == sendId
+            .Where(send => send.Id == claim.SendId
                 && send.Status == SendStatuses.Claimed
+                && send.AttemptCount == claim.AttemptCount
                 && send.LeaseExpiresAt != null
                 && send.LeaseExpiresAt > now)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(send => send.LeaseExpiresAt, now.Add(_options.LeaseDuration))
+                .SetProperty(send => send.SubmittedAt, now)
                 .SetProperty(send => send.UpdatedAt, now), cancellationToken);
         return renewed == 1;
     }
 
     /// <summary>
     /// Claims up to one batch: new recipients first, then retries that still have attempts left. Returns the claims this
-    /// worker holds, without the suppressed ones. An empty result means nothing is claimable right now.
+    /// worker holds together with the sendable ones; a suppressed recipient is claimed and skipped, so the claimed count can
+    /// be above the sendable count. A zero claimed count means nothing is claimable right now.
     /// </summary>
-    public async Task<IReadOnlyList<ClaimedSend>> ClaimBatchAsync(Guid campaignId, CancellationToken cancellationToken)
+    public async Task<ClaimedSendBatch> ClaimBatchAsync(Guid campaignId, CancellationToken cancellationToken)
     {
         var organizationId = tenantContext.OrganizationId;
         var now = timeProvider.GetUtcNow();
@@ -112,6 +144,7 @@ public sealed class CampaignSendClaimer(
                         .SetProperty(send => send.AttemptCount, send => send.AttemptCount + 1)
                         .SetProperty(send => send.ClaimedAt, now.UtcDateTime)
                         .SetProperty(send => send.LeaseExpiresAt, leaseEnd.UtcDateTime)
+                        .SetProperty(send => send.SubmittedAt, (DateTime?)null)
                         .SetProperty(send => send.ErrorCode, (string?)null)
                         .SetProperty(send => send.UpdatedAt, now.UtcDateTime), cancellationToken);
                 claimIds.AddRange(retryIds);
@@ -121,7 +154,7 @@ public sealed class CampaignSendClaimer(
         if (claimIds.Count == 0)
         {
             await transaction.CommitAsync(cancellationToken);
-            return [];
+            return new ClaimedSendBatch([], 0);
         }
 
         var claims = await dbContext.Sends
@@ -175,7 +208,7 @@ public sealed class CampaignSendClaimer(
 
         await transaction.CommitAsync(cancellationToken);
 
-        return claims
+        var sendable = claims
             .Where(claim => !suppressedIds.Contains(claim.Id))
             .Select(claim =>
             {
@@ -190,6 +223,7 @@ public sealed class CampaignSendClaimer(
                     recipient.Locale);
             })
             .ToArray();
+        return new ClaimedSendBatch(sendable, claimIds.Count);
     }
 
     private static bool IsSuppressed(string? address, IReadOnlySet<string> suppressed) =>

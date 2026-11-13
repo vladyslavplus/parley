@@ -10,8 +10,8 @@ using Xunit;
 namespace Parley.IntegrationTests.Campaigns.Attribution;
 
 /// <summary>
-/// The guard of the simulated demo orders: the writer refuses every target that is not a demo environment on a demo
-/// database, and it writes nothing when it refuses. The test database is never a demo database, so every case must refuse.
+/// The guard of the simulated demo orders: the writer refuses every host that is not Development, and it writes nothing
+/// when it refuses. In Development the guard passes; the test uses a contact that does not exist, so nothing is written.
 /// </summary>
 public sealed class DemoSimulatedOrderGuardTests(PostgresFixture postgres) : IAsyncLifetime
 {
@@ -33,10 +33,10 @@ public sealed class DemoSimulatedOrderGuardTests(PostgresFixture postgres) : IAs
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Theory]
-    [InlineData(ProductionEnvironment)]
-    [InlineData(DevelopmentEnvironment)]
-    [InlineData(DemoEnvironment)]
-    public async Task Writer_RefusesEveryTarget_OutsideTheDemoSeed_AndWritesNothing(string environmentName)
+    [InlineData(ProductionEnvironment, true)]
+    [InlineData(DemoEnvironment, true)]
+    [InlineData(DevelopmentEnvironment, false)]
+    public async Task Writer_RefusesEveryHostThatIsNotDevelopment_AndWritesNothing(string environmentName, bool refused)
     {
         var token = TestContext.Current.CancellationToken;
         await using var dataSource = NpgsqlDataSource.Create(postgres.ConnectionString);
@@ -45,7 +45,15 @@ public sealed class DemoSimulatedOrderGuardTests(PostgresFixture postgres) : IAs
 
         var act = () => writer.WriteAsync(Guid.NewGuid(), [order], token);
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        if (refused)
+        {
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+        else
+        {
+            await act.Should().NotThrowAsync("the guard allows only a Development host");
+        }
+
         (await CountDemoOrdersAsync(token)).Should().Be(0);
     }
 

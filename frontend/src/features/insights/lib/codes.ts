@@ -9,7 +9,14 @@ export const REASON_LABEL_KEYS = {
   "reason.deal_stale": "reasons.dealStale",
   "reason.persuadable": "reasons.persuadable",
   "reason.uplift_high": "reasons.upliftHigh",
+  "reason.do_not_disturb": "reasons.doNotDisturb",
 } as const;
+
+// Reasons that warn about the next step instead of naming a positive signal.
+// They render as a calm caution chip, never as an error.
+export const CAUTION_REASON_CODES: ReadonlySet<string> = new Set([
+  "reason.do_not_disturb",
+]);
 
 export const SEGMENT_LABEL_KEYS = {
   champions: "segments.champions",
@@ -38,6 +45,7 @@ export const ACTION_LABEL_KEYS = {
   "action.win_back": "actions.winBack",
   "action.reward": "actions.reward",
   "action.nurture": "actions.nurture",
+  "action.hold": "actions.hold",
 } as const;
 
 export type ReasonLabelKey =
@@ -64,6 +72,10 @@ function lookup<T extends Record<string, string>>(
 
 export function reasonLabelKey(code: string): ReasonLabelKey | null {
   return lookup(REASON_LABEL_KEYS, code);
+}
+
+export function isCautionReason(code: string): boolean {
+  return CAUTION_REASON_CODES.has(code);
 }
 
 export function segmentLabelKey(code: string): SegmentLabelKey | null {

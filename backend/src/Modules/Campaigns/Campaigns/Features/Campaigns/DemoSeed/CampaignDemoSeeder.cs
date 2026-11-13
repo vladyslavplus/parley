@@ -4,6 +4,8 @@ using Parley.Campaigns.Contracts.Results;
 using Parley.Campaigns.Domain.Campaigns;
 using Parley.Campaigns.Domain.DemoSimulation;
 using Parley.Campaigns.Domain.Recipients;
+using Parley.Campaigns.Domain.Segments;
+using Parley.Campaigns.Domain.Suppressions;
 using Parley.Campaigns.Domain.Templates;
 using Parley.Campaigns.Features.Campaigns.Attribution;
 using Parley.Campaigns.Features.Campaigns.Dispatch.Job;
@@ -32,7 +34,8 @@ public sealed class CampaignDemoSeeder(
     ICampaignResultsReader results,
     ICrmCustomerMetricsReader metrics,
     ICrmOutcomeReader outcomes,
-    ICrmDemoSimulatedOrderWriter simulatedOrders) : ICampaignDemoSeeder
+    ICrmDemoSimulatedOrderWriter simulatedOrders,
+    TimeProvider timeProvider) : ICampaignDemoSeeder
 {
     public async Task<CampaignDemoSeedReport> SeedAsync(Guid organizationId, DateTimeOffset datasetEnd, CancellationToken cancellationToken)
     {
@@ -54,6 +57,9 @@ public sealed class CampaignDemoSeeder(
         await attributionJob.ExecuteAsync(organizationId, injectedId, cancellationToken);
         var injectedResults = await ReadResultsAsync(injectedId, cancellationToken);
 
+        await EnsureSuppressionsAsync(organizationId, aaId, cancellationToken);
+        await EnsurePlannedCampaignsAsync(organizationId, templateId, datasetEnd, cancellationToken);
+
         return new CampaignDemoSeedReport(
             aaResults,
             injectedResults,
@@ -64,9 +70,26 @@ public sealed class CampaignDemoSeeder(
             effect.ExpectedWrittenLift);
     }
 
-    private async Task<Guid> EnsureTemplateAsync(Guid organizationId, CancellationToken cancellationToken)
+    private async Task<Guid> EnsureTemplateAsync(Guid organizationId, CancellationToken cancellationToken) =>
+        await EnsureTemplateAsync(
+            organizationId,
+            CampaignDemoSpecs.TemplateLabel,
+            CampaignDemoSpecs.TemplateName,
+            CampaignDemoSpecs.TemplateSubject,
+            CampaignDemoSpecs.TemplateBody,
+            CampaignDemoSpecs.TemplateLocale,
+            cancellationToken);
+
+    private async Task<Guid> EnsureTemplateAsync(
+        Guid organizationId,
+        string label,
+        string name,
+        string subject,
+        string body,
+        string locale,
+        CancellationToken cancellationToken)
     {
-        var templateId = CampaignDemoSpecs.StableId(CampaignDemoSpecs.TemplateLabel);
+        var templateId = CampaignDemoSpecs.StableId(label);
         if (await dbContext.Templates.AnyAsync(template => template.Id == templateId, cancellationToken))
         {
             return templateId;
@@ -76,13 +99,161 @@ public sealed class CampaignDemoSeeder(
         {
             Id = templateId,
             OrganizationId = organizationId,
-            Name = CampaignDemoSpecs.TemplateName,
-            SubjectLiquid = CampaignDemoSpecs.TemplateSubject,
-            BodyLiquid = CampaignDemoSpecs.TemplateBody,
-            Locale = CampaignDemoSpecs.TemplateLocale,
+            Name = name,
+            SubjectLiquid = subject,
+            BodyLiquid = body,
+            Locale = locale,
         });
         await dbContext.SaveChangesAsync(cancellationToken);
         return templateId;
+    }
+
+    /// <summary>
+    /// A draft with a Ukrainian template and an RFM segment, and a prepared campaign planned a few days after the seed. The
+    /// domain has no separate scheduled state: a prepared campaign with a future <see cref="Campaign.ScheduledAt"/> is the
+    /// scheduled one.
+    /// </summary>
+    private async Task EnsurePlannedCampaignsAsync(
+        Guid organizationId,
+        Guid templateId,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var ukrainianTemplateId = await EnsureTemplateAsync(
+            organizationId,
+            CampaignDemoSpecs.UkrainianTemplateLabel,
+            CampaignDemoSpecs.UkrainianTemplateName,
+            CampaignDemoSpecs.UkrainianTemplateSubject,
+            CampaignDemoSpecs.UkrainianTemplateBody,
+            "uk",
+            cancellationToken);
+        var draftSegmentId = await EnsureSegmentAsync(
+            organizationId,
+            CampaignDemoSpecs.DraftSegmentLabel,
+            CampaignDemoSpecs.DraftSegmentName,
+            new SegmentDefinition { RfmSegments = ["at_risk"] },
+            cancellationToken);
+        var scheduledSegmentId = await EnsureSegmentAsync(
+            organizationId,
+            CampaignDemoSpecs.ScheduledSegmentLabel,
+            CampaignDemoSpecs.ScheduledSegmentName,
+            new SegmentDefinition(),
+            cancellationToken);
+
+        var draftId = CampaignDemoSpecs.StableId(CampaignDemoSpecs.DraftLabel);
+        if (!await dbContext.Campaigns.AnyAsync(campaign => campaign.Id == draftId, cancellationToken))
+        {
+            dbContext.Campaigns.Add(new Campaign
+            {
+                Id = draftId,
+                OrganizationId = organizationId,
+                Name = CampaignDemoSpecs.DraftName,
+                TemplateId = ukrainianTemplateId,
+                SegmentId = draftSegmentId,
+                Status = CampaignStatuses.Draft,
+                HoldoutShareBps = CampaignDemoSpecs.HoldoutShareBps,
+                TargetingMode = CampaignTargetingModes.All,
+                AttributionWindowDays = CampaignDemoSpecs.WindowDays,
+                ConversionRule = CampaignConversionRules.AnyOrder,
+                Source = CampaignSources.DemoSeed,
+                HoldoutSeed = draftId.ToString("D"),
+            });
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        var scheduledId = CampaignDemoSpecs.StableId(CampaignDemoSpecs.ScheduledLabel);
+        if (await dbContext.Campaigns.AnyAsync(campaign => campaign.Id == scheduledId, cancellationToken))
+        {
+            return;
+        }
+
+        dbContext.Campaigns.Add(new Campaign
+        {
+            Id = scheduledId,
+            OrganizationId = organizationId,
+            Name = CampaignDemoSpecs.ScheduledName,
+            TemplateId = templateId,
+            SegmentId = scheduledSegmentId,
+            Status = CampaignStatuses.Draft,
+            HoldoutShareBps = CampaignDemoSpecs.HoldoutShareBps,
+            TargetingMode = CampaignTargetingModes.All,
+            AttributionWindowDays = CampaignDemoSpecs.WindowDays,
+            ConversionRule = CampaignConversionRules.AnyOrder,
+            Source = CampaignSources.DemoSeed,
+            HoldoutSeed = scheduledId.ToString("D"),
+        });
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Campaigns
+            .Where(campaign => campaign.Id == scheduledId && campaign.Status == CampaignStatuses.Draft)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(campaign => campaign.Status, CampaignStatuses.Preparing)
+                .SetProperty(campaign => campaign.PrepareAsOf, now.UtcDateTime), cancellationToken);
+        await prepareJob.ExecuteAsync(organizationId, scheduledId, cancellationToken);
+        await dbContext.Campaigns
+            .Where(campaign => campaign.Id == scheduledId && campaign.Status == CampaignStatuses.Ready)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(campaign => campaign.ScheduledAt, now.AddDays(CampaignDemoSpecs.ScheduledOffsetDays).UtcDateTime),
+                cancellationToken);
+    }
+
+    private async Task<Guid> EnsureSegmentAsync(
+        Guid organizationId,
+        string label,
+        string name,
+        SegmentDefinition definition,
+        CancellationToken cancellationToken)
+    {
+        var segmentId = CampaignDemoSpecs.StableId(label);
+        if (await dbContext.Segments.AnyAsync(segment => segment.Id == segmentId, cancellationToken))
+        {
+            return segmentId;
+        }
+
+        dbContext.Segments.Add(new Segment
+        {
+            Id = segmentId,
+            OrganizationId = organizationId,
+            Name = name,
+            Definition = definition,
+        });
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return segmentId;
+    }
+
+    /// <summary>A share of the A/A audience unsubscribed after the campaign, so the suppression path has demo data.</summary>
+    private async Task EnsureSuppressionsAsync(Guid organizationId, Guid campaignId, CancellationToken cancellationToken)
+    {
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var suppressions = "\"" + CampaignsSchemaNames.Schema + "\".\"" + CampaignsSchemaNames.SuppressionsTable + "\"";
+        var recipients = "\"" + CampaignsSchemaNames.Schema + "\".\"" + CampaignsSchemaNames.RecipientsTable + "\"";
+        var sql = $$"""
+            INSERT INTO {{suppressions}}
+                (id, organization_id, contact_id, email_normalized, reason, suppressed_at, created_at, updated_at)
+            SELECT gen_random_uuid(), {0}, r.contact_id, lower(trim(r.email_snapshot)), '{1}', {2}, {2}, {2}
+            FROM {{recipients}} r
+            WHERE r.organization_id = {0} AND r.campaign_id = {3} AND r.arm = '{{HoldoutArms.Treatment}}'
+              AND r.email_snapshot IS NOT NULL
+              AND (abs(hashtext(r.contact_id::text)) % 50) = 0
+            ON CONFLICT (organization_id, email_normalized) DO NOTHING
+            """;
+        await dbContext.Database.ExecuteSqlRawAsync(
+            sql,
+            [organizationId, SuppressionReasons.Unsubscribed, now, campaignId],
+            cancellationToken);
+    }
+
+    public async Task WipeAsync(Guid organizationId, CancellationToken cancellationToken)
+    {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await dbContext.Sends.IgnoreQueryFilters().Where(row => row.OrganizationId == organizationId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.RecipientOutcomes.IgnoreQueryFilters().Where(row => row.OrganizationId == organizationId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.CampaignResults.IgnoreQueryFilters().Where(row => row.OrganizationId == organizationId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Recipients.IgnoreQueryFilters().Where(row => row.OrganizationId == organizationId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Campaigns.IgnoreQueryFilters().Where(row => row.OrganizationId == organizationId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Templates.IgnoreQueryFilters().Where(row => row.OrganizationId == organizationId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Segments.IgnoreQueryFilters().Where(row => row.OrganizationId == organizationId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Suppressions.IgnoreQueryFilters().Where(row => row.OrganizationId == organizationId).ExecuteDeleteAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     private async Task EnsureCampaignAsync(

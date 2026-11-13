@@ -8,7 +8,6 @@ using Parley.Crm.Domain.Contacts;
 using Parley.Crm.Domain.Deals;
 using Parley.Crm.Domain.Orders;
 using Parley.Identity.Contracts.DemoSeed;
-using Parley.IntegrationTests.Crm.DemoSeed.Support;
 using Parley.IntegrationTests.Crm.Support;
 using Parley.IntegrationTests.Infrastructure.Auth;
 using Parley.IntegrationTests.Infrastructure.Fixtures;
@@ -25,6 +24,8 @@ namespace Parley.IntegrationTests.Crm.DemoSeed;
 public sealed class RoleVisibilityTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private const int CustomerCount = 60;
+
+    private const string SharedPassword = "test1234";
 
     private const int PageSize = 25;
 
@@ -52,8 +53,6 @@ public sealed class RoleVisibilityTests(PostgresFixture postgres, MailpitFixture
 
     private IdentityApiFactory _factory = null!;
 
-    private string _directory = null!;
-
     private IReadOnlyList<DemoAccount> _accounts = [];
 
     private Guid _organizationId;
@@ -62,9 +61,6 @@ public sealed class RoleVisibilityTests(PostgresFixture postgres, MailpitFixture
     {
         await postgres.ResetDataAsync(TestContext.Current.CancellationToken);
         _factory = new IdentityApiFactory(postgres, mailpit);
-        _directory = DemoExportFiles.WriteWorkspace(
-            Path.Combine(Path.GetTempPath(), "parley-roles-" + Guid.CreateVersion7().ToString("N")),
-            CustomerCount);
 
         var token = TestContext.Current.CancellationToken;
         var organizationId = Guid.CreateVersion7();
@@ -75,14 +71,24 @@ public sealed class RoleVisibilityTests(PostgresFixture postgres, MailpitFixture
             "parley-demo-" + organizationId.ToString("N")[..8],
             "Europe/Kyiv",
             CultureCodes.Ukrainian,
-            CrmDemoContract.ExportCurrency);
-        var identity = await scope.ServiceProvider.GetRequiredService<IIdentityDemoDataImporter>()
-            .ImportAsync(profile, resetPasswords: false, token);
+            CrmDemoContract.DemoCurrency);
+        var identity = await scope.ServiceProvider.GetRequiredService<IIdentityDemoSeeder>()
+            .EnsureAsync(profile, SharedPassword, token);
         _accounts = identity.Accounts;
 
         var owners = _accounts.Where(account => account.RoleCode == "sales_rep").Select(account => account.UserId).ToArray();
-        await scope.ServiceProvider.GetRequiredService<ICrmDemoDataImporter>().ImportAsync(
-            new CrmDemoImportRequest(organizationId, _directory, CrmDemoContract.ExportCurrency, CultureCodes.Ukrainian, owners),
+        var crmProfile = new CrmDemoProfile
+        {
+            Contacts = CustomerCount,
+            OrderMonths = 12,
+            DealSharePercent = 60,
+            TaskSharePercent = 40,
+            NoteSharePercent = 25,
+            TagSharePercent = 45,
+            NoOrdersPercent = 0,
+        };
+        await scope.ServiceProvider.GetRequiredService<ICrmDemoSeeder>().SeedAsync(
+            new CrmDemoImportRequest(organizationId, CrmDemoContract.DemoCurrency, CultureCodes.Ukrainian, owners, 7, _factory.Clock.GetUtcNow(), crmProfile),
             token);
         _organizationId = organizationId;
     }
@@ -90,11 +96,6 @@ public sealed class RoleVisibilityTests(PostgresFixture postgres, MailpitFixture
     public ValueTask DisposeAsync()
     {
         _factory.Dispose();
-        if (Directory.Exists(_directory))
-        {
-            Directory.Delete(_directory, recursive: true);
-        }
-
         return ValueTask.CompletedTask;
     }
 

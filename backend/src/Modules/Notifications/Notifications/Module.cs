@@ -7,7 +7,9 @@ using Parley.Campaigns.Contracts.Events;
 using Parley.Crm.Contracts.Events;
 using Parley.Identity.Contracts.Events;
 using Parley.Insights.Contracts.Events;
+using Parley.Notifications.Contracts.DemoSeed;
 using Parley.Notifications.Contracts.Email;
+using Parley.Notifications.Features.DemoSeed;
 using Parley.Notifications.Features.Telegram.LinkCode;
 using Parley.Notifications.Features.Telegram.Updates;
 using Parley.Notifications.Inbox;
@@ -89,6 +91,7 @@ public static class Module
             .AddInterceptors(provider.GetRequiredService<AuditStampingInterceptor>()));
 
         services.AddScoped<InAppNotificationWriter>();
+        services.AddScoped<IDemoNotificationSeeder, DemoNotificationSeeder>();
         services.AddHostedService<NotificationsMigrationsHostedService>();
         services.AddOutbox<NotificationsDbContext>(configuration);
         services.AddIntegrationEventConsumer<TaskAssigned, NotificationsDbContext, TaskAssignedConsumer>();

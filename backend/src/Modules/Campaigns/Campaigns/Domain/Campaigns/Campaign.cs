@@ -51,6 +51,9 @@ public sealed class Campaign : BusinessEntity
 
     public string? TargetingProvenance { get; set; }
 
+    /// <summary>Planned send instant of a prepared campaign; null when no send is planned.</summary>
+    public DateTime? ScheduledAt { get; set; }
+
     public DateTime? StartedAt { get; set; }
 
     public DateTime? CompletedAt { get; set; }

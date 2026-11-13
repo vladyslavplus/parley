@@ -561,6 +561,9 @@
   <data name="telegram.action.nurture" xml:space="preserve">
     <value>Підтримуйте контакт.</value>
   </data>
+  <data name="telegram.action.hold" xml:space="preserve">
+    <value>Не турбувати зараз.</value>
+  </data>
   <data name="telegram.notification.task_assigned" xml:space="preserve">
     <value>Вам призначено завдання.</value>
   </data>

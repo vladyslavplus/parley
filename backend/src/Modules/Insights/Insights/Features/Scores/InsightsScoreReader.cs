@@ -56,8 +56,8 @@ public sealed class InsightsScoreReader(InsightsDbContext dbContext) : IScoreRea
         Guid? scoringRunId,
         CancellationToken cancellationToken)
     {
-        var ids = contactIds.ToArray();
-        if (ids.Length == 0)
+        var ids = contactIds.ToList();
+        if (ids.Count == 0)
         {
             return new Dictionary<Guid, ContactScore>();
         }
@@ -92,8 +92,8 @@ public sealed class InsightsScoreReader(InsightsDbContext dbContext) : IScoreRea
         DateOnly? rfmDay,
         CancellationToken cancellationToken)
     {
-        var ids = contactIds.ToArray();
-        if (ids.Length == 0 || rfmDay is not { } day)
+        var ids = contactIds.ToList();
+        if (ids.Count == 0 || rfmDay is not { } day)
         {
             return new Dictionary<Guid, string>();
         }
@@ -105,7 +105,7 @@ public sealed class InsightsScoreReader(InsightsDbContext dbContext) : IScoreRea
         return segments.ToDictionary(row => row.ContactId, row => row.Segment);
     }
 
-    private async Task<IReadOnlyDictionary<Guid, ContactScore>> ReadRfmScoresAsync(Guid[] ids, DateOnly? rfmDay, CancellationToken cancellationToken)
+    private async Task<IReadOnlyDictionary<Guid, ContactScore>> ReadRfmScoresAsync(List<Guid> ids, DateOnly? rfmDay, CancellationToken cancellationToken)
     {
         if (rfmDay is not { } day)
         {

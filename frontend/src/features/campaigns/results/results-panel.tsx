@@ -7,6 +7,8 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { LoadingBlock } from "@/components/layout/loading-block";
 import { PERMISSIONS } from "@/constants/permissions";
+import { CampaignTargetingModel } from "@/features/campaigns/components/targeting-model";
+import type { CampaignModelSnapshot } from "@/features/campaigns/components/targeting-model";
 import { useOrganizationCurrency } from "@/features/deals/hooks/use-organization-currency";
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
 import { useCampaignResults } from "@/features/campaigns/hooks/use-campaign-delivery";
@@ -156,9 +158,12 @@ function VerdictText({
 export function ResultsPanel({
   campaignId,
   enabled,
+  snapshot = null,
 }: {
   campaignId: string;
   enabled: boolean;
+  // The ranking model pinned with the audience; null when not targeted by score.
+  snapshot?: CampaignModelSnapshot | null;
 }) {
   const t = useTranslations("campaigns.results");
   const locale = useLocale();
@@ -215,48 +220,51 @@ export function ResultsPanel({
         : t("window.notStarted");
 
   const header = (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2
-          id="results-title"
-          className="text-base font-semibold text-foreground"
-        >
-          {t("title")}
-        </h2>
-        {view.demo ? (
-          <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[11px] font-medium text-foreground">
-            {t("demo")}
-          </span>
-        ) : null}
-        {view.simulated ? (
-          <span className="inline-flex h-5 items-center rounded-full bg-warning/10 px-2 text-[11px] font-medium text-warning">
-            {t("simulated")}
-          </span>
-        ) : null}
-        {view.calculated ? (
-          <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[11px] font-medium text-muted-foreground">
-            {view.provisional ? t("provisional") : t("final")}
-          </span>
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2
+            id="results-title"
+            className="text-base font-semibold text-foreground"
+          >
+            {t("title")}
+          </h2>
+          {view.demo ? (
+            <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[11px] font-medium text-foreground">
+              {t("demo")}
+            </span>
+          ) : null}
+          {view.simulated ? (
+            <span className="inline-flex h-5 items-center rounded-full bg-warning/10 px-2 text-[11px] font-medium text-warning">
+              {t("simulated")}
+            </span>
+          ) : null}
+          {view.calculated ? (
+            <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[11px] font-medium text-muted-foreground">
+              {view.provisional ? t("provisional") : t("final")}
+            </span>
+          ) : null}
+        </div>
+        {canManage ? (
+          <Button
+            type="button"
+            variant="secondary"
+            className="gap-1.5 px-3 text-xs"
+            disabled={query.refreshing}
+            onClick={() => void refresh()}
+          >
+            <RefreshCw
+              className={
+                query.refreshing
+                  ? "h-3.5 w-3.5 animate-spin motion-reduce:animate-none"
+                  : "h-3.5 w-3.5"
+              }
+            />
+            <span>{query.refreshing ? t("refreshing") : t("refresh")}</span>
+          </Button>
         ) : null}
       </div>
-      {canManage ? (
-        <Button
-          type="button"
-          variant="secondary"
-          className="gap-1.5 px-3 text-xs"
-          disabled={query.refreshing}
-          onClick={() => void refresh()}
-        >
-          <RefreshCw
-            className={
-              query.refreshing
-                ? "h-3.5 w-3.5 animate-spin motion-reduce:animate-none"
-                : "h-3.5 w-3.5"
-            }
-          />
-          <span>{query.refreshing ? t("refreshing") : t("refresh")}</span>
-        </Button>
-      ) : null}
+      <CampaignTargetingModel snapshot={snapshot} />
     </div>
   );
 

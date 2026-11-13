@@ -72,14 +72,20 @@ public sealed class CampaignSendRunner(
             cancellationToken.ThrowIfCancellationRequested();
             await claimer.ExpireLeasesAsync(campaignId, cancellationToken);
             var batch = await claimer.ClaimBatchAsync(campaignId, cancellationToken);
-            if (batch.Count == 0)
+            if (batch.Claimed == 0)
             {
                 break;
             }
 
-            var profileRows = await profiles.ReadBatchAsync(batch.Select(send => send.ContactId).Distinct().ToList(), cancellationToken);
+            // The loop continues on the claimed count, not the sendable one: a batch of suppressed recipients is progress.
+            if (batch.Sendable.Count == 0)
+            {
+                continue;
+            }
+
+            var profileRows = await profiles.ReadBatchAsync(batch.Sendable.Select(send => send.ContactId).Distinct().ToList(), cancellationToken);
             var profilesByContact = profileRows.ToDictionary(row => row.ContactId);
-            foreach (var send in batch)
+            foreach (var send in batch.Sendable)
             {
                 await SendOneAsync(campaignId, send, profilesByContact, compiled.Value!, demo, cancellationToken);
             }
@@ -125,9 +131,9 @@ public sealed class CampaignSendRunner(
             await pacer.WaitTurnAsync(cancellationToken);
         }
 
-        // The lease is renewed right before submission. The batch may have waited long on the pacer or the server; a claim
-        // whose lease already ended is left for the expiry sweep and is never submitted.
-        if (!await claimer.RenewLeaseAsync(send.SendId, cancellationToken))
+        // The renewal is the submission stamp: a claim whose lease already ended is not submitted, and the expiry sweep
+        // returns it to the pool because no submission was stamped.
+        if (!await claimer.RenewLeaseAsync(send, cancellationToken))
         {
             return;
         }

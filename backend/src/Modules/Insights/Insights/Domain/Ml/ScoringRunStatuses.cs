@@ -11,6 +11,9 @@ public static class ScoringRunStatuses
 
     public const string Failed = "failed";
 
-    /// <summary>Statuses of a run that still holds the organization's slot for its kind.</summary>
-    public static readonly string[] Active = [Queued, Running];
+    /// <summary>
+    /// Statuses of a run that still holds the organization's slot for its kind. A list, not an array: an array inside an EF
+    /// query binds the span overload of <c>Contains</c>, which the provider cannot translate.
+    /// </summary>
+    public static readonly IReadOnlyList<string> Active = [Queued, Running];
 }

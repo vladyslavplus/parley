@@ -36,7 +36,8 @@ public sealed class ListScoringModelsQueryHandler(InsightsDbContext dbContext)
                 model.TrainedAt,
                 model.SyncedAt,
                 JsonDocument.Parse(model.Metrics).RootElement.Clone(),
-                IsActive(model, effective)))
+                model.IsAvailable,
+                model.IsAvailable && IsActive(model, effective)))
             .ToList();
         return Result<IReadOnlyList<ScoringModelView>>.Success(views);
     }

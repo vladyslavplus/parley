@@ -15,7 +15,8 @@ Committed configuration holds placeholders only (`<db_host>`, `<auth_signing_key
 and so on). The API refuses to start until every placeholder is replaced. Local
 values live in git-ignored files that the tracked examples describe.
 
-1. Create the Compose environment file and set the local values from its comments:
+1. Create the Compose environment file and set the local values from its comments. Set `PARLEY_ML_KEY` too, even
+   when the `ml` profile stays off: Compose interpolates the base file before it applies profiles:
 
    ```powershell
    Copy-Item .env.example .env
@@ -74,65 +75,34 @@ an ingress that appends the real client address and `TRUSTED_INGRESS=true` is se
 
 ## Demo workspace
 
-The demo creates the organization "Parley Demo" with about 5,900 generated customers,
-their orders, deals, tasks, notes and timeline. The customers come from the Online
-Retail II dataset (CC BY 4.0, attribution in `ml/datacards/online_retail_ii.md`). The
-demo uses its own database, `parley_demo`, never your everyday database.
+A Development API start generates the "Parley Demo" organization on whatever database
+`Database:ConnectionString` points to. The C# generator creates about 5,000 contacts with mixed
+English and Ukrainian names, 24 months of orders, companies, deals, tasks, notes, tags, two teams
+and the demo accounts, then the RFM snapshot, the priority list and (when the scoring service
+answers) the uplift and CLV scores with ML mode. It runs in the background after the migrations,
+so `/health` answers while it works. The seed is deterministic for a fixed `RandomSeed` and
+reference instant.
 
-1. Start the support services, then a throwaway database container on a free port:
+Enable it in the git-ignored `appsettings.Development.json`; the committed configuration keeps it
+off, and a host that is not Development refuses to seed even when the switch is on:
 
-   ```powershell
-   docker compose up -d
-   docker run -d --name parley-demo-db -e POSTGRES_PASSWORD=<choose-a-password> -p 127.0.0.1:55440:5432 pgvector/pgvector:0.8.7-pg17
-   ```
-
-2. Build the demo export (the ML environment is described in the ML section):
-
-   ```powershell
-   uv run --directory ml python -m parley_ml.datasets.online_retail --config configs/online_retail.yaml
-   uv run --directory ml python -m parley_ml.datasets.demo_export --config configs/demo_export.yaml
-   ```
-
-3. Set the connection string for the demo database. Keep it in the environment, not on the command line:
-
-   ```powershell
-   $env:PARLEY_DEMO_CONNECTION_STRING = "Host=127.0.0.1;Port=55440;Database=parley_demo;Username=postgres;Password=<choose-a-password>"
-   ```
-
-4. Drop and recreate `parley_demo`, apply the migrations and seed it. The script refuses any
-   database that is not named `parley_demo` or `parley_demo_<suffix>`, any host other than
-   the local machine, and the port of the compose database (5433):
-
-   ```powershell
-   scripts\reset-demo.ps1 -ConfirmReset
-   ```
-
-5. Start the API on the demo database. The variable overrides the Development setting, and the
-   API applies any pending migrations when it starts:
-
-   ```powershell
-   $env:Database__ConnectionString = $env:PARLEY_DEMO_CONNECTION_STRING
-   dotnet run --project backend/src/Parley.Api
-   ```
-
-6. Start the web app. Its API address is set in `frontend/.env.local` (`API_BASE_URL`):
-
-   ```powershell
-   pnpm --dir frontend dev
-   ```
-
-The demo accounts are written to `artifacts/demo-accounts.txt` in the repository root. That
-folder is git-ignored, so the passwords are never committed. Do not copy them into tracked
-files. The accounts are `admin`, `marketer`, `viewer`, two managers (`manager.north`,
-`manager.south`), and six sales reps (`rep.north.1` to `rep.north.3`, `rep.south.1` to
-`rep.south.3`), all on the domain `demo.parley.test`. If the file is lost, issue new
-passwords with the same seed command and `--reset-passwords`:
-
-```powershell
-$env:ASPNETCORE_ENVIRONMENT = 'Development'
-$env:Database__ConnectionString = $env:PARLEY_DEMO_CONNECTION_STRING
-dotnet run --project backend/src/Parley.Api --no-launch-profile -- seed-demo --input ml/artifacts/demo_export --confirm-target-database --reset-passwords
+```json
+"Demo": {
+  "Seed": {
+    "Enabled": true,
+    "AccountPassword": "test1234",
+    "RefreshAfterDays": 7
+  }
+}
 ```
+
+Every demo account (`test@gmail.com`, `admin`, `marketer`, `viewer`, two managers and six reps on
+`demo.parley.test`) signs in with `Demo:Seed:AccountPassword`; no password file is written. A
+workspace older than `RefreshAfterDays` is wiped and generated again on the next start, and a
+failed start leaves the marker unchanged so the next start retries. To force a refresh sooner,
+stop the API, delete the `identity.demo_seed_states` row of the demo organization, and start
+again. The volumes and shares are defaults on `CrmDemoProfile`; a small profile through
+`Demo:Seed:Profile` is useful for tests.
 
 ## Build and test
 
@@ -234,3 +204,47 @@ uv run --directory ml pytest
 docker build -f ml/Dockerfile.train -t parley-ml-train ml
 docker run --rm --gpus all parley-ml-train python -m parley_ml.gpu_check
 ```
+
+### Scoring service
+
+The API scores contacts through the optional FastAPI service in the compose profile `ml`. The service reads
+artifacts from `ml/artifacts/models` (git-ignored) and requires a shared key:
+
+```powershell
+# .env: PARLEY_ML_KEY=<long random value, for example from openssl rand -hex 32>
+docker compose --profile ml up -d
+$env:Insights__Scoring__BaseUrl = "http://127.0.0.1:8090/"
+$env:Insights__Scoring__ApiKey = $env:PARLEY_ML_KEY
+dotnet run --project backend/src/Parley.Api
+```
+
+`PARLEY_ML_KEY` and `Insights:Scoring:ApiKey` must hold the same value; the key is never committed. The API validates
+`Insights:Scoring:BaseUrl` at start, so a missing address stops it. Without an API key the API runs, but every scoring
+call and model sync fails with a stable code.
+
+Write the stub when no trained artifact exists (provenance `stub`, pipeline validation only, never an effect estimate):
+
+```powershell
+uv run --directory ml python scripts/write_stub_artifacts.py
+```
+
+Train the semi-synthetic demo `crm_uplift` model:
+
+```powershell
+uv run --directory ml --group train python -m parley_ml.uplift.train_crm_demo --config configs/crm_uplift_demo.yaml
+```
+
+After adding or removing artifacts, sync the registry with `POST /insights/models/sync` as a user holding
+`insights.ml.manage`, then choose the active version in ML settings. A version the last successful sync no longer reports
+is marked unavailable: it stays as history and cannot be activated.
+
+### Campaign sending
+
+Campaign email needs these settings (`Campaigns:Send`); the API validates them at start:
+
+| Environment variable | Purpose |
+| --- | --- |
+| `Campaigns__Send__UnsubscribeTokenKey` | HMAC key of the unsubscribe links, at least 32 characters |
+| `Campaigns__Send__PublicApiBaseUrl` | Absolute API address for the one-click unsubscribe POST |
+| `Campaigns__Send__PublicWebBaseUrl` | Absolute web address for the unsubscribe page |
+| `Campaigns__Send__MessageIdDomain` | Domain of the deterministic `Message-ID` of each mail |

@@ -181,7 +181,12 @@ export function MlSettingsPanel() {
             { value: NEWEST, label: t("model.newest") },
             ...uplift.map((model) => ({
               value: model.version,
-              label: `${model.version}${model.isActive ? ` · ${t("model.inUse")}` : ""}`,
+              label: `${model.version}${model.isActive ? ` · ${t("model.inUse")}` : ""}${
+                model.isAvailable ? "" : ` · ${t("model.unavailable")}`
+              }`,
+              // An unavailable version stays visible as history but cannot be
+              // chosen; the server refuses it too.
+              disabled: !model.isAvailable,
             })),
           ]}
         />

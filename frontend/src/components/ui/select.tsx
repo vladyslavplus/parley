@@ -156,6 +156,8 @@ const EMPTY_OPTION_VALUE = "__empty__";
 export interface SelectOptionItem {
   value: string;
   label: string;
+  // An option that is listed for context but cannot be chosen.
+  disabled?: boolean;
 }
 
 interface SimpleSelectProps {
@@ -204,7 +206,11 @@ export function SimpleSelect({
       </SelectTrigger>
       <SelectContent>
         {options.map((option) => (
-          <SelectItem key={option.value} value={toRadix(option.value)}>
+          <SelectItem
+            key={option.value}
+            value={toRadix(option.value)}
+            disabled={option.disabled}
+          >
             {option.label}
           </SelectItem>
         ))}

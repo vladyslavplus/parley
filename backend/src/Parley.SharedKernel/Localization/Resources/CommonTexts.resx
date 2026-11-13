@@ -561,6 +561,9 @@
   <data name="telegram.action.nurture" xml:space="preserve">
     <value>Nurture the contact.</value>
   </data>
+  <data name="telegram.action.hold" xml:space="preserve">
+    <value>Do not contact now.</value>
+  </data>
   <data name="telegram.notification.task_assigned" xml:space="preserve">
     <value>A task was assigned to you.</value>
   </data>

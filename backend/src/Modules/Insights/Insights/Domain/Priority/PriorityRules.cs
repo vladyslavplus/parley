@@ -5,8 +5,9 @@ namespace Parley.Insights.Domain.Priority;
 
 /// <summary>
 /// The priority of one contact with the reason codes that explain it. Pure functions; the weights and bonuses come from the
-/// caller's options. The RFM mode ranks by the segment weight and the CRM bonuses; the ML mode ranks by the uplift and the
-/// same RFM and CRM terms, and excludes the contacts the uplift model marks do-not-disturb.
+/// caller's options. The RFM mode ranks by the segment weight and the CRM bonuses. The ML mode puts the uplift and the
+/// normalized segment weight on the scale of the segment weights, so both terms and the CRM bonuses compare like the RFM
+/// mode; a contact without an uplift score uses the same formula with an uplift of zero.
 /// </summary>
 public static class PriorityRules
 {
@@ -29,11 +30,12 @@ public static class PriorityRules
     }
 
     /// <summary>
-    /// Score of a contact in the ML mode. Null when the uplift model marks the contact do-not-disturb: such a contact is not
-    /// on the list at all, whatever its RFM segment. The value is the uplift weighted with the normalized segment weight,
-    /// plus the CRM bonuses; the segment weight is divided by the largest weight, so both terms are on the same scale.
+    /// Score of a contact in the ML mode, on the scale of the segment weights: the largest segment weight times the weighted
+    /// uplift and the normalized segment weight, plus the CRM bonuses. A contact without an uplift score passes a zero
+    /// uplift and gets the same scale. A contact the uplift model marks do-not-disturb stays on the list with a caution
+    /// reason and a value of zero, so every contact with a positive value ranks above it; it is never dropped.
     /// </summary>
-    public static PriorityScore? ScoreMl(
+    public static PriorityScore ScoreMl(
         string rfmSegment,
         RfmTiers? tiers,
         PriorityFacts facts,
@@ -42,30 +44,35 @@ public static class PriorityRules
         PriorityMlOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        if (upliftSegment == PriorityUpliftSegments.DoNotDisturb)
-        {
-            return null;
-        }
-
+        var caution = upliftSegment == PriorityUpliftSegments.DoNotDisturb;
         var segmentWeight = options.Weights.TryGetValue(rfmSegment, out var weight) ? weight : 0m;
         var largest = options.Weights.Values.DefaultIfEmpty(0m).Max();
         var normalized = largest > 0m ? segmentWeight / largest : 0m;
-        var value = options.UpliftWeight * uplift
-            + options.RfmWeight * normalized
+        var value = largest * (options.UpliftWeight * uplift + options.RfmWeight * normalized)
             + CrmBonuses(facts, options.TaskDueBonus, options.StaleDealBonus);
 
-        var extra = new List<string>(2);
+        var extra = new List<string>(3);
+        if (caution)
+        {
+            extra.Add(PriorityReasons.DoNotDisturb);
+
+            // The list keeps the contact, ranked below every contact with a positive value.
+            value = 0m;
+        }
+
         if (upliftSegment == PriorityUpliftSegments.Persuadable)
         {
             extra.Add(PriorityReasons.Persuadable);
         }
 
-        if (uplift >= options.UpliftHighThreshold)
+        if (!caution && uplift >= options.UpliftHighThreshold)
         {
             extra.Add(PriorityReasons.UpliftHigh);
         }
 
-        return new PriorityScore(value, Reasons(rfmSegment, tiers, facts, extra), ActionFor(rfmSegment, facts));
+        // A caution carries a hold action: contacting the contact now is exactly what the model advises against.
+        var action = caution ? PrioritySuggestedActions.Hold : ActionFor(rfmSegment, facts);
+        return new PriorityScore(value, Reasons(rfmSegment, tiers, facts, extra), action);
     }
 
     /// <summary>The next action: a stale deal is reviewed first, then a due task is called; otherwise the segment decides.</summary>

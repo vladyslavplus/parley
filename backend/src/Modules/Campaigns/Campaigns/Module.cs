@@ -1,3 +1,4 @@
+using System.Globalization;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -98,6 +99,15 @@ public static class Module
         return services;
     }
 
+    /// <summary>The SMTP timeout the lease rule must cover, from the same <c>Email</c> section the mail options bind.</summary>
+    private static TimeSpan ReadMailTimeout(IConfiguration configuration)
+    {
+        var text = configuration[$"{CampaignsMailOptions.SectionName}:{nameof(CampaignsMailOptions.Timeout)}"];
+        return TimeSpan.TryParse(text, CultureInfo.InvariantCulture, out var timeout)
+            ? timeout
+            : new CampaignsMailOptions().Timeout;
+    }
+
     private static bool IsAbsoluteWebAddress(string value) =>
         ConfigurationPlaceholders.IsSet(value)
         && Uri.TryCreate(value, UriKind.Absolute, out var uri)
@@ -105,6 +115,7 @@ public static class Module
 
     private static void AddCampaignOptions(IServiceCollection services, IConfiguration configuration)
     {
+        var mailTimeout = ReadMailTimeout(configuration);
         services.AddOptions<CampaignsHoldoutOptions>()
             .Bind(configuration.GetSection(CampaignsHoldoutOptions.SectionName))
             .Validate(
@@ -158,6 +169,9 @@ public static class Module
             .Validate(
                 options => TimeSpan.FromSeconds((double)options.BatchSize / options.RatePerSecond) <= options.LeaseDuration / 2,
                 "Campaigns:Send needs BatchSize / RatePerSecond below half of LeaseDuration, so a batch's pacing fits inside its lease.")
+            .Validate(
+                options => CampaignSendLeaseRules.BatchFitsLease(options, mailTimeout),
+                "Campaigns:Send needs BatchSize * (Email Timeout + 1/RatePerSecond) at or below LeaseDuration, so a slow mail server cannot outlive a batch's lease.")
             .Validate(
                 options => options.LeaseDuration >= CampaignsSendOptions.MinimumLeaseDuration && options.LeaseDuration <= CampaignsSendOptions.MaximumLeaseDuration,
                 "Campaigns:Send LeaseDuration is out of range.")

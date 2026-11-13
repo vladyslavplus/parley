@@ -33,6 +33,9 @@ public static class TestHostSettings
     /// <summary>Queue no test host polls. Campaign send jobs are run by the tests, never by a worker.</summary>
     public const string UnpolledCampaignSendQueue = "campaigns-send-unpolled";
 
+    /// <summary>Address of the scoring service for hosts that never call it; the committed configuration has a placeholder.</summary>
+    public const string ScoringBaseUrl = "http://127.0.0.1:8090/";
+
     /// <summary>Send rate of tests: effectively unlimited, so a send costs no measurable wait.</summary>
     public const string TestRatePerSecond = "1000";
 
@@ -57,6 +60,15 @@ public static class TestHostSettings
         ["Email:Port"] = smtpPort.ToString(CultureInfo.InvariantCulture),
         ["Email:FromAddress"] = FromAddress,
         ["Email:FromName"] = FromName,
+        ["Insights:Scoring:BaseUrl"] = ScoringBaseUrl,
+        // A local Development file may hold real keys; the tests must never call Telegram or the scoring service unless a
+        // test supplies its own values. The demo seed stays off; its own test builds the runner with explicit options.
+        ["Insights:Scoring:ApiKey"] = string.Empty,
+        ["Telegram:BotToken"] = string.Empty,
+        ["Telegram:BotUsername"] = string.Empty,
+        ["Telegram:WebhookSecret"] = string.Empty,
+        ["Demo:Seed:Enabled"] = "false",
+        ["Demo:Seed:AccountPassword"] = string.Empty,
         ["Campaigns:Send:QueueName"] = UnpolledCampaignSendQueue,
         ["Campaigns:Send:MessageIdDomain"] = MessageIdDomain,
         ["Campaigns:Send:UnsubscribeTokenKey"] = UnsubscribeTokenKey,

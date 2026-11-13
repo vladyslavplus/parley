@@ -18,14 +18,17 @@ import xgboost as xgb
 
 from parley_ml.datasets.checksums import sha256_file
 from parley_ml.serving.clv import BetaGeoParameters, GammaGammaParameters
+from parley_ml.serving.schemas import UPLIFT_FEATURE_ORDER
 
 MANIFEST_FILE: Final = "manifest.json"
 MANIFEST_SCHEMA_VERSION: Final = 2
 KIND_CLV: Final = "clv"
 KIND_UPLIFT: Final = "uplift"
 KINDS: Final[tuple[str, ...]] = (KIND_CLV, KIND_UPLIFT)
+# Provenance of the generated placeholder. It is served only when no trained model is available for the kind.
+PROVENANCE_STUB: Final = "stub"
 # Research-only provenance is never served. Criteo-trained models stay out of the service by rule, not by convention.
-SERVED_PROVENANCES: Final[tuple[str, ...]] = ("public_dataset", "semi_synthetic", "stub")
+SERVED_PROVENANCES: Final[tuple[str, ...]] = ("public_dataset", "semi_synthetic", PROVENANCE_STUB)
 REQUIRED_MANIFEST_KEYS: Final[tuple[str, ...]] = (
     "schema_version",
     "model_name",
@@ -54,6 +57,7 @@ CODE_FILE_MISSING: Final = "ml.model.file_missing"
 CODE_CHECKSUM_MISMATCH: Final = "ml.model.checksum_mismatch"
 CODE_LOAD_FAILED: Final = "ml.model.load_failed"
 CODE_PROVENANCE_NOT_SERVED: Final = "ml.model.provenance_not_served"
+CODE_FEATURE_ORDER_MISMATCH: Final = "ml.model.feature_order_mismatch"
 
 
 class ArtifactError(Exception):
@@ -107,11 +111,13 @@ class Registry:
         return next((m for m in self.models if m.version == version), None)
 
     def default(self, kind: str) -> ModelInfo | None:
-        """Newest available model of the kind (by trained_at, then version)."""
+        """Newest trained model of the kind (by trained_at, then version); a stub only when nothing trained exists."""
         candidates = self.available(kind)
         if not candidates:
             return None
-        return max(candidates, key=lambda m: (m.trained_at, m.version))
+        trained = [m for m in candidates if m.provenance != PROVENANCE_STUB]
+        pool = trained or candidates
+        return max(pool, key=lambda m: (m.trained_at, m.version))
 
     def loaded_count(self) -> int:
         return sum(1 for m in self.models if m.available)
@@ -175,6 +181,12 @@ def _load_clv(directory: Path, manifest: dict[str, Any]) -> ClvPayload:
 
 def _load_uplift(directory: Path, manifest: dict[str, Any]) -> UpliftPayload:
     files = _listed_files(manifest, UPLIFT_FILES)
+    feature_order = manifest.get("feature_order")
+    if not isinstance(feature_order, list) or [str(name) for name in feature_order] != list(UPLIFT_FEATURE_ORDER):
+        raise ArtifactError(
+            CODE_FEATURE_ORDER_MISMATCH,
+            f"feature_order must be {list(UPLIFT_FEATURE_ORDER)}",
+        )
     rules = manifest.get("segment_rules")
     if not isinstance(rules, dict) or any(key not in rules for key in UPLIFT_RULE_KEYS):
         raise ArtifactError(CODE_MANIFEST_INVALID, f"segment_rules must define {list(UPLIFT_RULE_KEYS)}")

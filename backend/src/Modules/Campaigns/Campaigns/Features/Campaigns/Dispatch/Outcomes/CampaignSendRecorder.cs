@@ -10,8 +10,9 @@ namespace Parley.Campaigns.Features.Campaigns.Dispatch.Outcomes;
 
 /// <summary>
 /// Records the outcome of one send. Each outcome is one short transaction that moves the claim out of <c>claimed</c>.
-/// The update is conditional on <c>claimed</c>, so an outcome that arrives after the lease expired cannot overwrite
-/// <c>unknown</c>. The sent event is written to the outbox in the same commit as the status change.
+/// The update is conditional on <c>claimed</c> and on the attempt number of the writer, so a stale holder cannot write over
+/// a claim another worker re-claimed, and an outcome that arrives after the lease expired cannot overwrite <c>unknown</c>.
+/// The sent event is written to the outbox in the same commit as the status change.
 /// </summary>
 public sealed class CampaignSendRecorder(
     CampaignsDbContext dbContext,
@@ -24,7 +25,9 @@ public sealed class CampaignSendRecorder(
         {
             var now = timeProvider.GetUtcNow();
             var updated = await dbContext.Sends
-                .Where(row => row.Id == send.SendId && row.Status == SendStatuses.Claimed)
+                .Where(row => row.Id == send.SendId
+                    && row.Status == SendStatuses.Claimed
+                    && row.AttemptCount == send.AttemptCount)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(row => row.Status, SendStatuses.Sent)
                     .SetProperty(row => row.SentAt, now.UtcDateTime)
@@ -64,7 +67,9 @@ public sealed class CampaignSendRecorder(
         {
             var now = timeProvider.GetUtcNow().UtcDateTime;
             var updated = await dbContext.Sends
-                .Where(row => row.Id == send.SendId && row.Status == SendStatuses.Claimed)
+                .Where(row => row.Id == send.SendId
+                    && row.Status == SendStatuses.Claimed
+                    && row.AttemptCount == send.AttemptCount)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(row => row.Status, status)
                     .SetProperty(row => row.ErrorCode, errorCode)

@@ -61,7 +61,7 @@ public static class Module
         services.AddScoped<ICrmAudienceReader, CrmAudienceReader>();
         services.AddScoped<ICrmRecipientProfileReader, CrmRecipientProfileReader>();
         services.AddScoped<ICrmOutcomeReader, CrmOutcomeReader>();
-        services.AddScoped<ICrmDemoDataImporter, CrmDemoDataImporter>();
+        services.AddScoped<ICrmDemoSeeder, CrmDemoSeeder>();
         services.AddScoped<ICrmDemoSimulatedOrderWriter, CrmDemoSimulatedOrderWriter>();
         services.AddIdempotencyStore<CrmDbContext>();
 

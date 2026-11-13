@@ -147,15 +147,19 @@ export function ModelRegistryView() {
                       {formatDateTime(model.syncedAt, locale)}
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={
-                          model.isActive
-                            ? "whitespace-nowrap font-semibold text-foreground"
-                            : "whitespace-nowrap text-muted-foreground"
-                        }
-                      >
-                        {model.isActive ? t("activeYes") : t("activeNo")}
-                      </span>
+                      {model.isActive ? (
+                        <span className="whitespace-nowrap font-semibold text-foreground">
+                          {t("activeYes")}
+                        </span>
+                      ) : model.isAvailable ? (
+                        <span className="whitespace-nowrap text-muted-foreground">
+                          {t("activeNo")}
+                        </span>
+                      ) : (
+                        <span className="whitespace-nowrap text-muted-foreground">
+                          {t("unavailable")}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       {lines.length === 0 ? (

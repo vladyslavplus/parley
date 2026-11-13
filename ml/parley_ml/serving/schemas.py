@@ -66,6 +66,11 @@ class UpliftFeatures(_Strict):
     has_open_deal: int = Field(ge=0, le=1)
 
 
+# The positional order of the booster inputs: the manifest must list exactly this order, because the boosters are
+# positional and a reordered schema with the same version would score silently wrong.
+UPLIFT_FEATURE_ORDER: Final[tuple[str, ...]] = tuple(UpliftFeatures.model_fields)
+
+
 class UpliftItem(_Strict):
     subject_id: UUID
     features: UpliftFeatures

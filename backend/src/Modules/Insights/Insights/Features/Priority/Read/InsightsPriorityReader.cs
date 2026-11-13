@@ -20,10 +20,12 @@ public sealed class InsightsPriorityReader(InsightsDbContext dbContext) : IPrior
             return [];
         }
 
-        var items = dbContext.PriorityItems.AsNoTracking().Where(item => item.AsOf == day.Value);
+        // A caution the model says not to act on is not a suggested action for a notification channel.
+        var items = dbContext.PriorityItems.AsNoTracking()
+            .Where(item => item.AsOf == day.Value && !Enumerable.Contains(item.ReasonCodes, PriorityReasonCodes.DoNotDisturb));
         if (ownerUserIds is not null)
         {
-            var owners = ownerUserIds.ToArray();
+            var owners = ownerUserIds.ToList();
             items = items.Where(item => item.OwnerUserId != null && owners.Contains(item.OwnerUserId.Value));
         }
 

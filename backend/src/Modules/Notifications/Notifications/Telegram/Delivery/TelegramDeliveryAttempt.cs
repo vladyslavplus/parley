@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Parley.Identity.Contracts.Authorization;
+using Parley.Notifications.Contracts.Errors;
 using Parley.Notifications.Domain.Telegram;
 using Parley.Notifications.Options;
 using Parley.Notifications.Persistence;
@@ -12,9 +13,15 @@ using Parley.SharedKernel.Tenancy.Abstractions;
 namespace Parley.Notifications.Telegram.Delivery;
 
 /// <summary>
-/// One send of one claimed delivery. The text is read, the message is sent outside any transaction, and only then is the outcome
-/// saved in a short write. A blocked chat loses its links. The tenant is set for this unit only and cleared when it ends.
+/// One send of one claimed delivery. The attempt is counted and saved before the text is built and the message is sent, so a
+/// row that crashes before its outcome is still counted: after <c>DeliveryMaxAttempts</c> such attempts the row fails instead
+/// of retrying for ever. The message is sent outside any transaction, and only then is the outcome saved in a short write.
+/// A blocked chat loses its links. The tenant is set for this unit only and cleared when it ends.
 /// </summary>
+/// <remarks>
+/// Delivery stays at-least-once: a crash after Telegram accepted the message and before the outcome was saved resends it after
+/// the lease. The unique key stops duplicate rows, not duplicate sends, and this class does not claim otherwise.
+/// </remarks>
 public sealed class TelegramDeliveryAttempt(
     NotificationsDbContext dbContext,
     IMutableTenantContext tenantContext,
@@ -39,6 +46,16 @@ public sealed class TelegramDeliveryAttempt(
                 return;
             }
 
+            if (delivery.Attempts >= telegramOptions.Value.DeliveryMaxAttempts)
+            {
+                // Every allowed attempt was taken and none reached an outcome: a crash loop ends here, not never.
+                delivery.Status = TelegramDeliveryStatuses.Failed;
+                delivery.ErrorCode = TelegramErrorCodes.DeliveryUnavailable;
+                delivery.ClaimedUntil = null;
+                await dbContext.SaveChangesAsync(cancellationToken);
+                return;
+            }
+
             var link = await dbContext.TelegramLinks
                 .AsNoTracking()
                 .FirstOrDefaultAsync(candidate => candidate.UserId == claimed.UserId
@@ -57,6 +74,10 @@ public sealed class TelegramDeliveryAttempt(
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return;
             }
+
+            // Counted before the text is built and the message is sent: a crash after this save uses the attempt up.
+            delivery.Attempts += 1;
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             var text = TelegramNotificationText.Compose(
                 notification.Type,
@@ -98,7 +119,6 @@ public sealed class TelegramDeliveryAttempt(
     {
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var settings = telegramOptions.Value;
-        delivery.Attempts += 1;
         delivery.ClaimedUntil = null;
         delivery.ErrorCode = TelegramDeliveryRules.ErrorCodeOf(outcome);
 

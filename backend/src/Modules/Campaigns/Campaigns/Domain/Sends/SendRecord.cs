@@ -24,6 +24,12 @@ public sealed class SendRecord : BusinessEntity
     /// <summary>End of the lease of a <c>claimed</c> row; null once the row has an outcome.</summary>
     public DateTime? LeaseExpiresAt { get; set; }
 
+    /// <summary>
+    /// When this claim was last handed to the mail server, stamped right before submission. A claim that expires without
+    /// this stamp never reached the server, so the sweep returns it to the pool; a stamped one has an unknown outcome.
+    /// </summary>
+    public DateTime? SubmittedAt { get; set; }
+
     public DateTime? SentAt { get; set; }
 
     public string MessageId { get; set; } = string.Empty;

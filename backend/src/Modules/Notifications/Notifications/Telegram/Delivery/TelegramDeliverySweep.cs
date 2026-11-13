@@ -38,7 +38,8 @@ public sealed class TelegramDeliverySweep(
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
-                // The lease ends on its own, so the delivery comes back for another attempt.
+                // The attempt was counted before the crash; the lease ends on its own and the delivery comes back, until the
+                // attempts run out and the next attempt fails the row.
                 logger.LogError("Telegram delivery attempt crashed. ExceptionType={ExceptionType}", exception.GetType().Name);
             }
         }

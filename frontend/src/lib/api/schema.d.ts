@@ -10434,13 +10434,16 @@ export interface components {
         /**
          * @description One keyset page of the priority list, with the mode the list was built in and the ML status that explains it. The
          *     `items` and `nextCursor` keys are those of a keyset page; `mode` is `ml` or `rfm`, and
-         *     `mlStatus` is one of the values of the priority ML status.
+         *     `mlStatus` is one of the values of the priority ML status. `modelProvenance` is the provenance of the uplift
+         *     model the list ranked with; null in the RFM mode and when no uplift model is in use, so the UI never labels a list with a
+         *     model that did not produce it.
          */
         PriorityListPageView: {
             items: components["schemas"]["PriorityItemView"][];
             nextCursor: null | string;
             mode: string;
             mlStatus: string;
+            modelProvenance: null | string;
         };
         ProblemDetails: {
             type?: null | string;
@@ -10514,7 +10517,10 @@ export interface components {
              */
             synced: number | string;
         };
-        /** @description One registry entry. The metrics are the evaluation numbers of the model's manifest, as the service reports them. */
+        /**
+         * @description One registry entry. The metrics are the evaluation numbers of the model's manifest, as the service reports them.
+         *     `IsAvailable` is false for a row the last successful sync no longer saw: it stays as history and can never be used.
+         */
         ScoringModelView: {
             modelName: string;
             version: string;
@@ -10527,6 +10533,7 @@ export interface components {
             /** Format: date-time */
             syncedAt: string;
             metrics: components["schemas"]["JsonElement"];
+            isAvailable: boolean;
             isActive: boolean;
         };
         /** @description Body of a scoring run start. */

@@ -1,0 +1,122 @@
+name: Contract CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "ml/contracts/**"
+      - ".github/workflows/contracts.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "ml/contracts/**"
+      - ".github/workflows/contracts.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+
+jobs:
+  frontend-api-types:
+    # The committed types must be exactly what the backend OpenAPI document generates. The API runs in Development so
+    # that /openapi/v1.json is mapped, against a throwaway database from the service container.
+    name: Frontend API types match the backend OpenAPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg17@sha256:7d0a41464797aeb9862dfdc0bbf1526b82cfd324cdd8036df19e3545f4a9ccb8
+        env:
+          POSTGRES_USER: parley
+          POSTGRES_PASSWORD: contract-ci-only
+          POSTGRES_DB: parley_contract
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U parley -d parley_contract"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+          cache: true
+          cache-dependency-path: backend/**/packages.lock.json
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.node-version
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Restore and build the API
+        run: |
+          dotnet restore backend/src/Parley.Api/Parley.Api.csproj --locked-mode
+          dotnet build backend/src/Parley.Api/Parley.Api.csproj --no-restore --nologo -p:TreatWarningsAsErrors=true
+
+      - name: Start the API
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5055
+          Database__ConnectionString: Host=127.0.0.1;Port=5432;Database=parley_contract;Username=parley;Password=contract-ci-only
+          Telemetry__OtlpEndpoint: http://127.0.0.1:4317
+          Auth__SigningKey: contract-ci-signing-key-at-least-32-bytes-long
+          Auth__PublicBaseUrl: http://localhost:3000
+          Email__Host: 127.0.0.1
+          Email__Port: 25
+          Email__FromAddress: no-reply@parley.test
+          Insights__Scoring__BaseUrl: http://127.0.0.1:8090/
+          Notifications__PublicWebBaseUrl: http://localhost:3000
+          Campaigns__Send__MessageIdDomain: parley.test
+          Campaigns__Send__UnsubscribeTokenKey: contract-ci-unsubscribe-token-key-0123456789
+          Campaigns__Send__PublicApiBaseUrl: http://localhost:5000
+          Campaigns__Send__PublicWebBaseUrl: http://localhost:3000
+          IdentityStorage__ApplyMigrationsOnStartup: "true"
+          CrmStorage__ApplyMigrationsOnStartup: "true"
+          CampaignsStorage__ApplyMigrationsOnStartup: "true"
+          InsightsStorage__ApplyMigrationsOnStartup: "true"
+          NotificationsStorage__ApplyMigrationsOnStartup: "true"
+        run: |
+          dotnet run --project backend/src/Parley.Api --no-build --no-launch-profile > "$RUNNER_TEMP/api.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/api.pid"
+
+      - name: Wait for the OpenAPI document
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error http://127.0.0.1:5055/openapi/v1.json --output "$RUNNER_TEMP/openapi.json"; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/api.log"
+          exit 1
+
+      - name: Install the frontend dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Regenerate the API types
+        run: pnpm --dir frontend api:generate "$RUNNER_TEMP/openapi.json"
+
+      - name: Require the committed types to match
+        run: git diff --exit-code -- frontend/src/lib/api/schema.d.ts

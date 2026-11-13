@@ -19,5 +19,9 @@ public sealed class ModelVersion
 
     public string Metrics { get; set; } = "{}";
 
+    /// <summary>When the last successful sync saw this version. Rows older than that are history only.</summary>
     public DateTime SyncedAt { get; set; }
+
+    /// <summary>True when the last successful sync reported the version as available; only such rows are scored with.</summary>
+    public bool IsAvailable { get; set; } = true;
 }

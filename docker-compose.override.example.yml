@@ -21,3 +21,10 @@ services:
   redis:
     ports:
       - "127.0.0.1:6379:6379"
+
+  # Scoring service, profile `ml`. The API reaches it on the compose network; the port is published for direct checks.
+  # Set PARLEY_ML_KEY in the git-ignored .env to any long random value and give the API the same value as
+  # Insights__Scoring__ApiKey. The base file has no fallback key.
+  ml:
+    ports:
+      - "127.0.0.1:8090:8000"

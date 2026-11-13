@@ -16,10 +16,10 @@ public sealed class DemoEffectTests
     private static readonly Guid Contact = Guid.Parse("0192f5a0-7b1c-7000-8000-0000000000c2");
 
     [Theory]
-    [InlineData(10, 1, 1, 40, DemoEffect.DoNotDisturb, -0.03)]
+    [InlineData(10, 1, 1, 40, DemoEffect.DoNotDisturb, -0.30)]
     [InlineData(400, 0, 3, 0, DemoEffect.LostCause, 0.01)]
     [InlineData(5, 8, 9, 2000, DemoEffect.SureThing, 0d)]
-    [InlineData(90, 2, 2, 120, DemoEffect.Persuadable, 0.15)]
+    [InlineData(90, 2, 2, 120, DemoEffect.Persuadable, 0.30)]
     [InlineData(90, 1, 2, 60, DemoEffect.Other, 0d)]
     [InlineData(200, 2, 2, 120, DemoEffect.Other, 0d)]
     public void EachSegment_HasItsDocumentedEffect(double recency, double orders365, double orderCount, double value365, string segment, double effect)
@@ -37,7 +37,7 @@ public sealed class DemoEffectTests
         var features = Features(recency: 5, orders365: 6, orderCount: 1, value365: 2000);
 
         DemoEffect.SegmentOf(features).Should().Be(DemoEffect.DoNotDisturb);
-        DemoEffect.Tau(features).Should().BeApproximately(-0.03, 1e-12);
+        DemoEffect.Tau(features).Should().BeApproximately(-0.30, 1e-12);
     }
 
     [Fact]

@@ -34,7 +34,7 @@
     },
     "ml": {
       "title": "ML ranking",
-      "body": "The ranking uses uplift scores from a demo model. The reasons say why a contact is listed. The scores are estimates, not proof of an effect."
+      "body": "The ranking uses uplift scores from the active model. The reasons say why a contact is listed. The scores are estimates, not proof of an effect."
     }
   },
   "filters": {
@@ -100,6 +100,7 @@
       "help": "The model that scores contacts for uplift. Newest is picked automatically when you do not choose one.",
       "newest": "Use newest automatically",
       "inUse": "in use",
+      "unavailable": "Unavailable",
       "effective": "In use now: {version}",
       "none": "No uplift model is available yet. Sync the models from the registry."
     },
@@ -114,7 +115,8 @@
     "taskDue": "Task due",
     "dealStale": "Stale deal",
     "persuadable": "Persuadable",
-    "upliftHigh": "High uplift"
+    "upliftHigh": "High uplift",
+    "doNotDisturb": "Do not disturb"
   },
   "segments": {
     "champions": "Champions",
@@ -132,7 +134,8 @@
     "reviewDeal": "Review deal",
     "winBack": "Win back",
     "reward": "Reward",
-    "nurture": "Nurture"
+    "nurture": "Nurture",
+    "hold": "Hold off contact"
   },
   "scoring": {
     "errors": {
@@ -198,6 +201,7 @@
       },
       "activeYes": "In use",
       "activeNo": "Available",
+      "unavailable": "Unavailable",
       "empty": "No models are synced yet.",
       "noMetrics": "No metrics",
       "metricsCount": "{count, plural, one {# metric} other {# metrics}}",

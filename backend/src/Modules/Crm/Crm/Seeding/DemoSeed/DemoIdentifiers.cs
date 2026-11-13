@@ -23,4 +23,11 @@ public static class DemoIdentifiers
         var hash = MD5.HashData(Encoding.UTF8.GetBytes(decision + ":" + key));
         return (int)(BinaryPrimitives.ReadUInt32BigEndian(hash) & 0x7FFFFFFF) % modulo;
     }
+
+    /// <summary>A stable non-negative random seed for one generated row and purpose.</summary>
+    public static int Seed(long seed, int index, string purpose)
+    {
+        var hash = MD5.HashData(Encoding.UTF8.GetBytes($"{seed}:{index}:{purpose}"));
+        return BinaryPrimitives.ReadInt32LittleEndian(hash) & 0x7FFFFFFF;
+    }
 }

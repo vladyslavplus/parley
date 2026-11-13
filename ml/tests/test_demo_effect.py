@@ -1,4 +1,5 @@
-"""Demo effect tau(x): a few contacts per segment, the first-match order, the outcome rule and config validation."""
+"""Demo effect tau(x): a few contacts per segment, the first-match order, the outcome rule, the true effect and config
+validation."""
 
 from __future__ import annotations
 
@@ -8,6 +9,7 @@ import pytest
 
 from parley_ml.experiments.demo_effect import (
     ContactFeatures,
+    expected_effect,
     load_effect_config,
     segment_of,
     tau,
@@ -34,10 +36,11 @@ def _contact(recency: float, orders_365d: float, order_count: float, value_365d:
 @pytest.mark.parametrize(
     ("contact", "segment", "effect"),
     [
-        (_contact(recency=10, orders_365d=1, order_count=1, value_365d=40), "do_not_disturb", -0.03),
+        (_contact(recency=10, orders_365d=1, order_count=1, value_365d=40), "do_not_disturb", -0.30),
+        (_contact(recency=80, orders_365d=0, order_count=1, value_365d=40), "do_not_disturb", -0.30),
         (_contact(recency=400, orders_365d=0, order_count=3), "lost_cause", 0.01),
         (_contact(recency=5, orders_365d=8, order_count=9, value_365d=2000), "sure_thing", 0.0),
-        (_contact(recency=90, orders_365d=2, order_count=2, value_365d=120), "persuadable", 0.15),
+        (_contact(recency=90, orders_365d=2, order_count=2, value_365d=120), "persuadable", 0.30),
         (_contact(recency=90, orders_365d=1, order_count=2, value_365d=60), "other", 0.0),
         (_contact(recency=200, orders_365d=2, order_count=2, value_365d=120), "other", 0.0),
     ],
@@ -49,27 +52,43 @@ def test_each_segment_has_its_documented_effect(contact: ContactFeatures, segmen
 
 def test_the_first_matching_segment_wins() -> None:
     # Matches do_not_disturb (one order, recent) and sure_thing (six or more orders, recent, high value).
-    # The config lists do_not_disturb first, so it wins.
+    # The config lists do_not_disturb first, so it wins even though the contact has a high order count.
     contact = _contact(recency=5, orders_365d=6, order_count=1, value_365d=2000)
     assert segment_of(contact, CONFIG) == "do_not_disturb"
-    assert tau(contact, CONFIG) == pytest.approx(-0.03)
+    assert tau(contact, CONFIG) == pytest.approx(-0.30)
 
 
 def test_positive_effect_adds_a_conversion_only_to_non_buyers() -> None:
-    assert treated_outcome(0, 0.15, draw=0.10) == 1
-    assert treated_outcome(0, 0.15, draw=0.50) == 0
-    assert treated_outcome(1, 0.15, draw=0.99) == 1
+    assert treated_outcome(0, 0.30, draw=0.10) == 1
+    assert treated_outcome(0, 0.30, draw=0.50) == 0
+    assert treated_outcome(1, 0.30, draw=0.99) == 1
 
 
 def test_negative_effect_removes_a_conversion_only_from_buyers() -> None:
-    assert treated_outcome(1, -0.03, draw=0.01) == 0
-    assert treated_outcome(1, -0.03, draw=0.50) == 1
-    assert treated_outcome(0, -0.03, draw=0.01) == 0
+    assert treated_outcome(1, -0.30, draw=0.01) == 0
+    assert treated_outcome(1, -0.30, draw=0.50) == 1
+    assert treated_outcome(0, -0.30, draw=0.01) == 0
 
 
 def test_zero_effect_leaves_the_outcome_unchanged() -> None:
     assert treated_outcome(1, 0.0, draw=0.0) == 1
     assert treated_outcome(0, 0.0, draw=0.0) == 0
+
+
+@pytest.mark.parametrize(
+    ("baseline_rate", "effect", "true_effect"),
+    [
+        (0.20, 0.30, 0.24),
+        (0.20, -0.30, -0.06),
+        (0.0, 0.30, 0.30),
+        (1.0, -0.30, -0.30),
+        (0.20, 0.0, 0.0),
+    ],
+)
+def test_the_true_effect_uses_the_baseline_rate_and_the_sign(
+    baseline_rate: float, effect: float, true_effect: float
+) -> None:
+    assert expected_effect(baseline_rate, effect) == pytest.approx(true_effect)
 
 
 def test_config_rejects_an_unknown_feature_field(tmp_path: Path) -> None:

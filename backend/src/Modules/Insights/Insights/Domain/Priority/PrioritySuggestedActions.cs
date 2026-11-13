@@ -12,4 +12,7 @@ public static class PrioritySuggestedActions
     public const string Reward = "action.reward";
 
     public const string Nurture = "action.nurture";
+
+    /// <summary>The uplift model says not to contact the contact now: a caution, never an active sales action.</summary>
+    public const string Hold = "action.hold";
 }
