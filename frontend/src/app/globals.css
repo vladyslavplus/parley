@@ -5,6 +5,33 @@
 @theme {
   --color-*: initial;
 
+  /* Radius tokens per 06: controls 6px, cards/popovers 10px */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-control: 6px;
+  --radius-card: 10px;
+  /* Large landing blocks per 06: 16-24px */
+  --radius-landing: 16px;
+  --radius-landing-lg: 24px;
+
+  /* Transitions & Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* One height for every toolbar and form control */
+  --control-height: 2.25rem;
+  --scrollbar-size: 0.625rem;
+}
+
+/* Inline: colour utilities read the variables where they are used, so a
+   scoped `.dark` (the landing field panel) switches them too. */
+@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -32,7 +59,7 @@
   --color-info-foreground: var(--info-foreground);
   --color-highlight: var(--highlight);
   --color-highlight-foreground: var(--highlight-foreground);
-
+  --color-landing-lit-edge: var(--landing-lit-edge);
   /* Pastel tags */
   --color-tag-1: var(--tag-1);
   --color-tag-1-foreground: var(--tag-1-foreground);
@@ -44,7 +71,6 @@
   --color-tag-4-foreground: var(--tag-4-foreground);
   --color-tag-5: var(--tag-5);
   --color-tag-5-foreground: var(--tag-5-foreground);
-
   /* Pipeline stage ramp */
   --color-stage-1: var(--stage-1);
   --color-stage-1-foreground: var(--stage-1-foreground);
@@ -56,26 +82,6 @@
   --color-stage-4-foreground: var(--stage-4-foreground);
   --color-stage-5: var(--stage-5);
   --color-stage-5-foreground: var(--stage-5-foreground);
-
-  /* Radius tokens per 06: controls 6px, cards/popovers 10px */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 16px;
-  --radius-control: 6px;
-  --radius-card: 10px;
-
-  /* Transitions & Animation */
-  --duration-fast: 150ms;
-  --duration-normal: 200ms;
-  --duration-slow: 300ms;
-  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-
-  /* One height for every toolbar and form control */
-  --control-height: 2.25rem;
-  --scrollbar-size: 0.625rem;
 }
 
 @theme inline {
@@ -131,6 +137,20 @@
     --info-foreground: #ffffff;
     --highlight: #9bb4e6;
     --highlight-foreground: #101113;
+    --landing-lit-edge: #2f5fd0;
+
+    /* Brand mark: graphite plates and one lit block. Flat tier uses ink and
+       lit; the full tier grades plate and lit through the stops below. */
+    --logo-ink: #1c1d1f;
+    --logo-lit: #2f5fd0;
+    --logo-plate-high: #4a4f57;
+    --logo-plate-low: #2a2d33;
+    --logo-plate-edge: #1c1d1f;
+    --logo-lit-high: #9bb4e6;
+    --logo-lit-mid: #4a74d6;
+    --logo-lit-low: #2f5fd0;
+    --logo-shade: #000000;
+    --logo-sheen: #ffffff;
 
     --tag-1: #d6e2ea;
     --tag-1-foreground: #1c1d1f;
@@ -192,6 +212,18 @@
     --info-foreground: #101113;
     --highlight: #9bb4e6;
     --highlight-foreground: #101113;
+    --landing-lit-edge: #d5e0f6;
+
+    --logo-ink: #ecedef;
+    --logo-lit: #9bb4e6;
+    --logo-plate-high: #8a9099;
+    --logo-plate-low: #555b64;
+    --logo-plate-edge: #41464e;
+    --logo-lit-high: #e3eaf9;
+    --logo-lit-mid: #9bb4e6;
+    --logo-lit-low: #7397de;
+    --logo-shade: #000000;
+    --logo-sheen: #ffffff;
 
     --tag-1: #1b2631;
     --tag-1-foreground: #ecedef;

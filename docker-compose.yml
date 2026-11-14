@@ -13,14 +13,42 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1g
 
+  # The mailbox of the demo and of local development. The ports are published on loopback only and follow the environment,
+  # so a second compose project can run beside the first. No mail leaves the machine.
   mailpit:
     image: axllent/mailpit:v1.27.8@sha256:6abc8e633df15eaf785cfcf38bae48e66f64beecdc03121e249d0f9ec15f0707
+    ports:
+      - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "127.0.0.1:${MAILPIT_HTTP_PORT:-8025}:8025"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256m
 
   aspire-dashboard:
     image: mcr.microsoft.com/dotnet/aspire-dashboard:13.1@sha256:d3ed5afb812d4fcacf14e88d1bc70eb2102d4729c5e032c8b4ec21afe4352a07
     environment:
       DOTNET_RESMON__IS_GET_ULIMIT_SUPPORTED: "false"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
 
   redis:
     profiles:
@@ -29,10 +57,16 @@ services:
     command: ["valkey-server", "--appendonly", "yes", "--requirepass", "${VALKEY_PASSWORD:?Set VALKEY_PASSWORD in .env}"]
     volumes:
       - valkey-data:/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256m
 
   # Scoring service (profile `ml`). Internal network for service-to-service calls. Artifacts are mounted read-only;
   # no training data is mounted. The key is required: the service and this file have no fallback. Local development
-  # publishes the port and sets the key in docker-compose.override.yml (see docker-compose.override.example.yml).
+  # publishes the port in docker-compose.override.yml (see docker-compose.override.example.yml).
   ml:
     profiles:
       - ml
@@ -53,9 +87,139 @@ services:
       timeout: 3s
       retries: 3
       start_period: 20s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1g
 
-  # Profile `app` is reserved for the deployment containers (API + web). The
-  # API and frontend run on the host in development.
+  # The production-like API settings of the `app` profile. The seed is off and the environment is Production by default;
+  # scripts/demo-up.ps1 turns the Development demo seed on explicitly. Secrets have no committed value: they come from
+  # the environment (`.env` for Compose), and the API refuses to start when one is missing or still a placeholder.
+  api:
+    profiles:
+      - app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment: &api-environment
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_HTTP_PORTS: "8080"
+      Database__ConnectionString: "Host=db;Port=5432;Database=${POSTGRES_DB:?Set POSTGRES_DB in .env};Username=${POSTGRES_USER:?Set POSTGRES_USER in .env};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      Telemetry__OtlpEndpoint: ${TELEMETRY_OTLP_ENDPOINT:-http://aspire-dashboard:18889}
+      Auth__SigningKey: ${AUTH_SIGNING_KEY:-}
+      Auth__PublicBaseUrl: ${PUBLIC_WEB_BASE_URL:-}
+      Email__Host: ${EMAIL_HOST:-mailpit}
+      Email__Port: ${EMAIL_PORT:-1025}
+      Email__FromAddress: ${EMAIL_FROM_ADDRESS:-no-reply@parley.test}
+      Email__SecureSocketOption: None
+      Notifications__PublicWebBaseUrl: ${PUBLIC_WEB_BASE_URL:-}
+      Campaigns__Send__MessageIdDomain: ${CAMPAIGN_MESSAGE_ID_DOMAIN:-parley.test}
+      Campaigns__Send__UnsubscribeTokenKey: ${UNSUBSCRIBE_TOKEN_KEY:-}
+      Campaigns__Send__PublicApiBaseUrl: ${PUBLIC_API_BASE_URL:-}
+      Campaigns__Send__PublicWebBaseUrl: ${PUBLIC_WEB_BASE_URL:-}
+      Insights__Scoring__BaseUrl: ${ML_SCORING_BASE_URL:-http://ml:8000/}
+      Insights__Scoring__ApiKey: ${PARLEY_ML_KEY:?Set PARLEY_ML_KEY in .env or the environment}
+      Demo__Seed__Enabled: ${DEMO_SEED_ENABLED:-false}
+      Demo__Seed__AccountPassword: ${DEMO_SEED_ACCOUNT_PASSWORD:-}
+      IdentityStorage__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS_ON_STARTUP:-false}
+      CrmStorage__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS_ON_STARTUP:-false}
+      CampaignsStorage__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS_ON_STARTUP:-false}
+      InsightsStorage__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS_ON_STARTUP:-false}
+      NotificationsStorage__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS_ON_STARTUP:-false}
+    ports:
+      - "127.0.0.1:${API_PORT:-5000}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - default
+      # The scoring service listens here; without the `ml` profile the address resolves to nothing and scoring falls back.
+      - ml-edge
+    healthcheck:
+      # The ASP.NET runtime image has no HTTP client, so the check speaks HTTP over bash's /dev/tcp.
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080 && printf \"GET /health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3 && head -n 1 <&3 | grep -q \" 200 \"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    init: true
+    stop_grace_period: 30s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1500m
+
+  # The one-shot migration step: outside Development the API never changes the schema on its own, so this container
+  # applies every module's migrations and exits before the API starts. It speaks the same settings as the API and
+  # changes nothing when every schema is current.
+  migrate:
+    profiles:
+      - app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: ["dotnet", "Parley.Api.dll", "--migrate"]
+    environment: *api-environment
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512m
+
+  web:
+    profiles:
+      - app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      # Server-side BFF address of the API inside the compose network; never inlined into browser bundles.
+      API_BASE_URL: http://api:8080
+      TRUSTED_INGRESS: ${TRUSTED_INGRESS:-false}
+      SITE_URL: ${SITE_URL:-http://127.0.0.1:3000}
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      NODE_ENV: production
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/en/login').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    init: true
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768m
 
 networks:
   ml-internal:

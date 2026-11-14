@@ -57,8 +57,10 @@ describe("NotFoundView", () => {
     ).toBeDefined();
 
     // Primary action for unauthenticated is returnHome only
-    const loginLink = screen.getByRole("link", { name: "Return to sign in" });
-    expect(loginLink.getAttribute("href")).toBe("/en/login");
+    const homeLink = screen.getByRole("link", {
+      name: "Go to the home page",
+    });
+    expect(homeLink.getAttribute("href")).toBe("/en");
 
     // Signed out users must NEVER be offered a workspace link
     expect(screen.queryByRole("link", { name: /workspace/i })).toBeNull();
@@ -120,9 +122,9 @@ describe("NotFoundView", () => {
 
     // Secondary action is returnHome
     const homeLink = screen.getByRole("link", {
-      name: /Повернутися до входу/i,
+      name: /На головну сторінку/i,
     });
-    expect(homeLink.getAttribute("href")).toBe("/uk/login");
+    expect(homeLink.getAttribute("href")).toBe("/uk");
   });
 
   it("renders in-app 404 inside shell section", () => {

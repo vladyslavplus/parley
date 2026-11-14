@@ -10,7 +10,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Stepper, type AutosaveStatus } from "@/components/ui/stepper";
 import { PERMISSIONS } from "@/constants/permissions";
 import { queryKeys } from "@/constants/query-keys";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES, campaignRoute } from "@/constants/routes";
 import { AudienceStep } from "@/features/campaigns/components/builder/audience-step";
 import { ExperimentStep } from "@/features/campaigns/components/builder/experiment-step";
 import { ReviewStep } from "@/features/campaigns/components/builder/review-step";
@@ -29,7 +29,7 @@ import {
 } from "@/features/campaigns/lib/campaign-draft";
 import { CAMPAIGN_STATUSES, type Campaign } from "@/features/campaigns/types";
 import { useCan } from "@/features/session/components/can";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
 const STATUS_BY_STATE: Record<string, AutosaveStatus> = {
   idle: "idle",
@@ -49,6 +49,7 @@ export function CampaignBuilder({ initial }: Props) {
   const errorText = useErrorText();
   const canRank = useCan(PERMISSIONS.insightsMlRun);
   const queryClient = useQueryClient();
+  const router = useRouter();
   const api = useCampaignApi();
 
   const [draft, setDraft] = useState<CampaignDraft>(() =>
@@ -199,6 +200,12 @@ export function CampaignBuilder({ initial }: Props) {
             campaignId={autosave.campaignId}
             flush={autosave.flush}
             onEditTargeting={() => setStepIndex(STEP_IDS.indexOf("targeting"))}
+            // A new campaign gets its own page once the audience is frozen; that page offers "Start sending".
+            onPrepared={
+              initial
+                ? undefined
+                : (campaignId) => router.replace(campaignRoute(campaignId))
+            }
           />
         ) : null}
       </Stepper>

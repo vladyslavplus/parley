@@ -1,30 +1,26 @@
 # Local development overrides. Copy to docker-compose.override.yml; Compose merges it
 # with docker-compose.yml automatically. Publishes the services on 127.0.0.1 only.
+# Mailpit is published by the base file already, because the demo needs it.
 services:
   db:
     ports:
-      - "127.0.0.1:5433:5432"
-
-  mailpit:
-    ports:
-      - "127.0.0.1:1025:1025"
-      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:${DB_PORT:-5433}:5432"
 
   aspire-dashboard:
     environment:
       # Unsecured is acceptable only because the dashboard is bound to localhost.
       DASHBOARD__FRONTEND__AUTHMODE: Unsecured
     ports:
-      - "127.0.0.1:4317:18889"
-      - "127.0.0.1:18888:18888"
+      - "127.0.0.1:${ASPIRE_OTLP_PORT:-4317}:18889"
+      - "127.0.0.1:${ASPIRE_UI_PORT:-18888}:18888"
 
   redis:
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
 
   # Scoring service, profile `ml`. The API reaches it on the compose network; the port is published for direct checks.
   # Set PARLEY_ML_KEY in the git-ignored .env to any long random value and give the API the same value as
   # Insights__Scoring__ApiKey. The base file has no fallback key.
   ml:
     ports:
-      - "127.0.0.1:8090:8000"
+      - "127.0.0.1:${ML_PORT:-8090}:8000"

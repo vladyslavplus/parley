@@ -1,9 +1,10 @@
 "use client";
 
-import { Compass, FileQuestion } from "lucide-react";
+import { Compass } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
+import { LogoMark } from "@/components/brand/logo-mark";
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
@@ -23,7 +24,7 @@ export function NotFoundView({
   const locale = useLocale();
 
   const appHref = `/${locale}${ROUTES.settingsProfile}`;
-  const homeHref = `/${locale}${ROUTES.login}`;
+  const homeHref = `/${locale}`;
 
   if (inApp) {
     return (
@@ -35,9 +36,6 @@ export function NotFoundView({
           className,
         )}
       >
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <FileQuestion className="h-6 w-6" aria-hidden="true" />
-        </div>
         <div className="mb-2">
           <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs font-mono font-medium text-muted-foreground">
             {t("badge")}
@@ -77,24 +75,19 @@ export function NotFoundView({
         className,
       )}
     >
-      <div className="w-full max-w-md rounded-[var(--radius-card)] border border-border bg-card p-8 shadow-floating space-y-6">
-        <div className="flex justify-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground font-mono font-bold text-lg select-none">
-            P
-          </div>
-        </div>
-
-        <div className="space-y-2">
+      <div className="w-full max-w-md space-y-6">
+        <div className="space-y-3">
+          <LogoMark size={32} className="mx-auto mb-4" />
           <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs font-mono font-medium text-muted-foreground">
             {t("badge")}
           </span>
           <h1
             id="not-found-title"
-            className="text-xl font-semibold tracking-tight text-foreground"
+            className="font-display text-4xl font-medium tracking-[-0.02em] text-balance text-foreground"
           >
             {t("title")}
           </h1>
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {t("description")}
           </p>
         </div>

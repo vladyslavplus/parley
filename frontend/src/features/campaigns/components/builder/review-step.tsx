@@ -35,6 +35,8 @@ interface Props {
   canAct?: boolean;
   // The model the campaign's scores were taken from; null until the audience is frozen.
   snapshot?: CampaignModelSnapshot | null;
+  // Called once the freeze is accepted, so a builder page can open the campaign where sending starts.
+  onPrepared?: (campaignId: string) => void;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
@@ -55,6 +57,7 @@ export function ReviewStep({
   onEditTargeting,
   canAct = true,
   snapshot = null,
+  onPrepared,
 }: Props) {
   const t = useTranslations("campaigns.builder.review");
   const locale = useLocale();
@@ -111,6 +114,8 @@ export function ReviewStep({
         return;
       }
       await api.prepareCampaign(campaignId);
+      // The campaign page owns the rest of the flow: it polls the freeze and then offers "Start sending".
+      onPrepared?.(campaignId);
       await review.refetch();
     } catch (error) {
       setPrepareError(error);

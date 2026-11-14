@@ -1,8 +1,9 @@
 "use client";
 
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 
 export default function LocaleError({
@@ -18,11 +19,11 @@ export default function LocaleError({
       role="alert"
       className="flex min-h-[50vh] flex-col items-center justify-center p-6 text-center"
     >
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-        <AlertTriangle className="h-6 w-6" aria-hidden="true" />
-      </div>
-      <h2 className="text-lg font-semibold text-foreground">{t("title")}</h2>
-      <p className="mt-1 max-w-md text-sm text-muted-foreground">
+      <LogoMark size={32} className="mb-4" />
+      <h2 className="font-display text-3xl font-medium tracking-[-0.02em] text-balance text-foreground">
+        {t("title")}
+      </h2>
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
         {t("description")}
       </p>
       <Button
@@ -30,7 +31,7 @@ export default function LocaleError({
         onClick={reset}
         className="mt-6 gap-2 text-sm"
       >
-        <RotateCcw className="h-4 w-4" />
+        <RotateCcw className="h-4 w-4" aria-hidden="true" />
         {t("retry")}
       </Button>
     </div>

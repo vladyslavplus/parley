@@ -14,6 +14,7 @@ export const MESSAGE_NAMESPACES = [
   "campaigns",
   "insights",
   "notifications",
+  "landing",
 ] as const;
 
 export type MessageNamespace = (typeof MESSAGE_NAMESPACES)[number];
@@ -44,6 +45,7 @@ import type crm from "../../messages/en/crm.json";
 import type campaigns from "../../messages/en/campaigns.json";
 import type insights from "../../messages/en/insights.json";
 import type notifications from "../../messages/en/notifications.json";
+import type landing from "../../messages/en/landing.json";
 
 export type Messages = {
   common: typeof common;
@@ -59,4 +61,5 @@ export type Messages = {
   campaigns: typeof campaigns;
   insights: typeof insights;
   notifications: typeof notifications;
+  landing: typeof landing;
 };

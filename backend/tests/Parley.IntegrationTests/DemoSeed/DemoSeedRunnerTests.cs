@@ -49,6 +49,11 @@ public sealed class DemoSeedRunnerTests(PostgresFixture postgres, MailpitFixture
         first.Status.Should().Be(DemoSeedOutcome.Seeded);
         first.Crm!.ContactsInserted.Should().Be(SmallOptions().Profile.Contacts);
         first.Crm.OrdersInserted.Should().BeGreaterThan(0);
+        first.Campaigns!.InjectedResults.Simulated.Should().BeTrue("the injected orders stay labeled simulated");
+        first.Campaigns.AaResults.Simulated.Should().BeFalse("the A/A campaign has no injected order");
+        first.Campaigns.InjectedResults.HoldoutShareBps.Should().BeGreaterThan(
+            first.Campaigns.AaResults.HoldoutShareBps,
+            "the injected campaign reserves a larger control arm than the A/A campaign");
         first.Insights!.RfmBuilt.Should().BeTrue();
         first.Insights.PriorityBuilt.Should().BeTrue();
         first.Insights.MlEnabled.Should().BeFalse("the test host has no scoring service key");

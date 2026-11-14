@@ -1,0 +1,14 @@
+# Everything the API image does not need: build output, test results, local exports and IDE state.
+**/bin/
+**/obj/
+**/TestResults/
+**/crm-exports/
+**/*.user
+**/*.suo
+.vs/
+.idea/
+
+# Environment-specific settings are git-ignored and never go into an image. The published appsettings.json holds
+# placeholders only; every real value arrives through the environment at run time.
+**/appsettings.*.json
+!**/appsettings.json

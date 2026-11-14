@@ -1,0 +1,13 @@
+# Everything the web image does not need: installed and generated output, test reports, local env files and editor state.
+node_modules/
+.next/
+out/
+coverage/
+test-results/
+playwright-report/
+e2e/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+.git/

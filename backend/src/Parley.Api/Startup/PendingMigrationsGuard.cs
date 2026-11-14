@@ -45,8 +45,8 @@ public sealed class PendingMigrationsGuard(IServiceScopeFactory scopeFactory, IH
         if (pending.Count > 0)
         {
             throw new InvalidOperationException(
-                $"Database migrations are pending for: {string.Join(", ", pending)}. Apply them with the deployment migration step "
-                + "before starting the API outside the Development environment.");
+                $"Database migrations are pending for: {string.Join(", ", pending)}. Run the deployment migration step "
+                + "(dotnet Parley.Api.dll --migrate) before starting the API outside the Development environment.");
         }
     }
 
