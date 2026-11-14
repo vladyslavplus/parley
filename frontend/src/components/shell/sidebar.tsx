@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect } from "react";
 
+import { LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 import { PERMISSIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
@@ -23,6 +24,8 @@ import {
   SETTINGS_NAV_ITEMS,
   type NavItemConfig,
 } from "./nav-items";
+
+const LOGO_SIZE = 28;
 
 interface Props {
   collapsed: boolean;
@@ -130,17 +133,15 @@ export function Sidebar({
   const sidebarContent = (
     <div className="flex h-full w-56 flex-col justify-between p-3 select-none shrink-0">
       <div className="space-y-6">
-        {/* Brand Monogram pointing to /app */}
+        {/* Brand mark pointing to /app */}
         <Link
           href={ROUTES.app}
           className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-control)] hover:opacity-80 transition-opacity"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground font-semibold text-xs tracking-tight shrink-0">
-            P
-          </div>
+          <LogoMark size={LOGO_SIZE} />
           <span
             className={cn(
-              "font-semibold text-sm tracking-tight text-foreground whitespace-nowrap transition-opacity duration-150",
+              "font-display font-semibold text-base tracking-[-0.01em] text-foreground whitespace-nowrap transition-opacity duration-150",
               collapsed
                 ? "opacity-0 pointer-events-none md:w-0"
                 : "opacity-100",

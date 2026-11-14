@@ -11,6 +11,22 @@ internal static class CampaignDemoSpecs
 {
     public const int HoldoutShareBps = 1000;
 
+    /// <summary>
+    /// Holdout share of the injected campaign. Above the standard share on purpose: this is the campaign that has to show
+    /// a measurable lift, and a 10 % holdout of the seeded audience detects only lifts above roughly five percentage
+    /// points, which is more than the injected effect produces.
+    /// </summary>
+    public const int InjectedHoldoutShareBps = 2000;
+
+    /// <summary>
+    /// Multiplier on the documented effect of the injected campaign. The effect function gives the conversion gain of one
+    /// contact; the campaign sends to the whole seeded audience and most of it matches no positive segment, so the
+    /// documented effect alone lands under the minimum detectable effect of this audience. The multiplier calibrates the
+    /// single demo campaign to a clearly measurable lift. The semi-synthetic ML fixture keeps the documented effect, and
+    /// every order the campaign adds stays labeled simulated.
+    /// </summary>
+    public const double InjectedEffectMultiplier = 2d;
+
     public const int WindowDays = 30;
 
     public const int AaSendOffsetDays = 60;

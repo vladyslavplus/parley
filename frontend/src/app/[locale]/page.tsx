@@ -1,18 +1,30 @@
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-import { ROUTES } from "@/constants/routes";
 import { SESSION_COOKIES } from "@/constants/session";
-import type { AppLocale } from "@/i18n/routing";
+import { LandingPage } from "@/features/landing/components/landing-page";
+import { publicPageMetadata } from "@/features/landing/lib/landing-metadata";
+import { isAppLocale } from "@/i18n/routing";
 
-export default async function HomePage({
+type Params = Promise<{ locale: string }>;
+
+export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: AppLocale }>;
-}) {
+  params: Params;
+}): Promise<Metadata> {
   const { locale } = await params;
+  if (!isAppLocale(locale)) notFound();
+  return publicPageMetadata(locale, "home");
+}
+
+export default async function HomePage({ params }: { params: Params }) {
+  const { locale } = await params;
+  if (!isAppLocale(locale)) notFound();
   const jar = await cookies();
   const signedIn =
     jar.has(SESSION_COOKIES.access) || jar.has(SESSION_COOKIES.refresh);
-  redirect(`/${locale}${signedIn ? ROUTES.settingsProfile : ROUTES.login}`);
+
+  return <LandingPage signedIn={signedIn} />;
 }

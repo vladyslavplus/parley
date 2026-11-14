@@ -1,10 +1,11 @@
 "use client";
 
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 
 import { fontDisplay, fontMono, fontSans } from "@/app/fonts";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { THEME_STORAGE_KEY } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 
@@ -65,27 +66,16 @@ export function GlobalStatusPage({ status, onRetry }: GlobalStatusPageProps) {
         {!is404 && <ClientThemeSync />}
         <main
           role={is404 ? "main" : "alert"}
-          className="max-w-md w-full rounded-[var(--radius-card)] border border-border bg-card p-8 shadow-floating space-y-5"
+          className="max-w-md w-full space-y-5"
         >
-          <div className="flex justify-center">
-            {is404 ? (
-              <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground font-mono font-bold text-lg select-none">
-                P
-              </div>
-            ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-                <AlertTriangle className="h-6 w-6" aria-hidden="true" />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
+          <div className="space-y-3">
+            <LogoMark size={32} className="mx-auto mb-4" />
             {is404 && (
               <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs font-mono font-medium text-muted-foreground">
                 {errorsEn.notFound.badge}
               </span>
             )}
-            <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            <h1 className="font-display text-3xl font-medium tracking-[-0.02em] text-balance text-foreground">
               {is404 ? (
                 <>
                   {errorsEn.notFound.title} /{" "}
@@ -98,7 +88,7 @@ export function GlobalStatusPage({ status, onRetry }: GlobalStatusPageProps) {
                 </>
               )}
             </h1>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {is404 ? (
                 <>
                   {errorsEn.notFound.description} /{" "}
@@ -128,7 +118,7 @@ export function GlobalStatusPage({ status, onRetry }: GlobalStatusPageProps) {
                 onClick={() => onRetry?.()}
                 className="inline-flex h-9 items-center justify-center gap-2 rounded-[var(--radius-control)] bg-primary px-4 text-xs font-medium text-primary-foreground shadow-sm hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-opacity cursor-pointer"
               >
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="h-4 w-4" aria-hidden="true" />
                 <span>
                   {errorsEn.global.reload} /{" "}
                   <span lang="uk">{errorsUk.global.reload}</span>

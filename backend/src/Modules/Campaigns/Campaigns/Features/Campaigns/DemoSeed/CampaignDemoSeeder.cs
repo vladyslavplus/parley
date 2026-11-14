@@ -22,8 +22,9 @@ namespace Parley.Campaigns.Features.Campaigns.DemoSeed;
 /// Creates the historic demo campaigns of the demo seed (domain model 11). Both run through the production code: the
 /// audience freeze, the send job and the attribution job. The send job routes <c>demo_seed</c> campaigns to the demo
 /// sender, so nothing reaches SMTP. The injected-effect campaign also gets its simulated orders, written before its
-/// attribution from the effect function of <c>ml/configs/crm_uplift_demo.yaml</c>, with every feature taken as of its send
-/// time. Both campaigns are dated back to the dataset timeline: they start at the dataset end minus the send offset.
+/// attribution from the campaign effect (the documented effect function of <c>ml/configs/crm_uplift_demo.yaml</c> times
+/// the multiplier of <see cref="CampaignDemoSpecs"/>), with every feature taken as of its send time. Both campaigns are
+/// dated back to the dataset timeline: they start at the dataset end minus the send offset.
 /// </summary>
 public sealed class CampaignDemoSeeder(
     CampaignsDbContext dbContext,
@@ -44,14 +45,26 @@ public sealed class CampaignDemoSeeder(
 
         var aaId = CampaignDemoSpecs.StableId(CampaignDemoSpecs.AaLabel);
         var aaStart = datasetEnd.AddDays(-CampaignDemoSpecs.AaSendOffsetDays);
-        await EnsureCampaignAsync(organizationId, templateId, aaId, CampaignDemoSpecs.AaName, cancellationToken);
+        await EnsureCampaignAsync(
+            organizationId,
+            templateId,
+            aaId,
+            CampaignDemoSpecs.AaName,
+            CampaignDemoSpecs.HoldoutShareBps,
+            cancellationToken);
         await RunHistoricCampaignAsync(organizationId, aaId, aaStart, cancellationToken);
         await attributionJob.ExecuteAsync(organizationId, aaId, cancellationToken);
         var aaResults = await ReadResultsAsync(aaId, cancellationToken);
 
         var injectedId = CampaignDemoSpecs.StableId(CampaignDemoSpecs.InjectedLabel);
         var injectedStart = datasetEnd.AddDays(-CampaignDemoSpecs.InjectedSendOffsetDays);
-        await EnsureCampaignAsync(organizationId, templateId, injectedId, CampaignDemoSpecs.InjectedName, cancellationToken);
+        await EnsureCampaignAsync(
+            organizationId,
+            templateId,
+            injectedId,
+            CampaignDemoSpecs.InjectedName,
+            CampaignDemoSpecs.InjectedHoldoutShareBps,
+            cancellationToken);
         await RunHistoricCampaignAsync(organizationId, injectedId, injectedStart, cancellationToken);
         var effect = await WriteSimulatedEffectAsync(organizationId, injectedId, injectedStart, cancellationToken);
         await attributionJob.ExecuteAsync(organizationId, injectedId, cancellationToken);
@@ -261,6 +274,7 @@ public sealed class CampaignDemoSeeder(
         Guid templateId,
         Guid campaignId,
         string name,
+        int holdoutShareBps,
         CancellationToken cancellationToken)
     {
         if (await dbContext.Campaigns.AnyAsync(campaign => campaign.Id == campaignId, cancellationToken))
@@ -276,7 +290,7 @@ public sealed class CampaignDemoSeeder(
             TemplateId = templateId,
             SegmentId = null,
             Status = CampaignStatuses.Draft,
-            HoldoutShareBps = CampaignDemoSpecs.HoldoutShareBps,
+            HoldoutShareBps = holdoutShareBps,
             TargetingMode = CampaignTargetingModes.All,
             TargetingShareBps = null,
             AttributionWindowDays = CampaignDemoSpecs.WindowDays,
@@ -343,8 +357,9 @@ public sealed class CampaignDemoSeeder(
 
     /// <summary>
     /// Writes the simulated orders of the injected campaign. For each treatment-arm targeted contact: the baseline is whether a
-    /// real order falls in the window, the effect comes from the segment rules as of the send time, and the treated outcome
-    /// follows the documented rule. A negative effect would remove a real order, which the demo never does; it is counted.
+    /// real order falls in the window, the effect comes from the campaign effect of the segment rules as of the send time, and
+    /// the treated outcome follows the documented rule. A negative effect would remove a real order, which the demo never
+    /// does; it is counted.
     /// </summary>
     private async Task<SimulatedEffect> WriteSimulatedEffectAsync(
         Guid organizationId,
@@ -380,7 +395,7 @@ public sealed class CampaignDemoSeeder(
                     throw new InvalidOperationException("A treated contact has no customer metrics as of the send time.");
                 }
 
-                var tau = DemoEffect.Tau(CampaignDemoFeatures.From(profile, startedAt));
+                var tau = CampaignDemoEffect.Tau(CampaignDemoFeatures.From(profile, startedAt));
                 var baseline = byContact.TryGetValue(contactId, out var outcome) && outcome.FirstPurchaseAt is not null ? 1 : 0;
                 var draw = DemoEffect.Draw(campaignId, contactId, CampaignDemoSpecs.OutcomeDrawPurpose);
 

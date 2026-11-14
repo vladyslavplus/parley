@@ -1,0 +1,265 @@
+{
+  "meta": {
+    "title": "Parley: email the customers your message actually changes",
+    "description": "A CRM for small sales teams. Contacts, deals and orders in one place, a priority list for every morning, and email campaigns measured against a random holdout.",
+    "ogAlt": "Parley, a CRM with honest campaign results"
+  },
+  "nav": {
+    "label": "Main",
+    "home": "Parley, home page",
+    "skip": "Skip to content",
+    "signIn": "Sign in",
+    "createWorkspace": "Create a workspace",
+    "openApp": "Open the app"
+  },
+  "hero": {
+    "title": "Email the customers your message actually changes.",
+    "lead": "Parley keeps contacts, deals and orders in one place, tells you who to call this morning, and runs campaigns with a holdout group, so you see what the email really did.",
+    "signedInNote": "You are signed in."
+  },
+  "mock": {
+    "list": {
+      "title": "Today",
+      "subtitle": "Priority list",
+      "sortedBy": "By expected effect",
+      "columnContact": "Contact",
+      "columnWhy": "Why",
+      "columnNext": "Next step",
+      "updated": "Recalculated this morning"
+    },
+    "rows": {
+      "first": {
+        "name": "Olena Kovalenko",
+        "why": "Bought twice in spring, quiet for seven weeks",
+        "next": "Call"
+      },
+      "second": {
+        "name": "Marko Petrenko",
+        "why": "Deal idle in Proposal for 12 days",
+        "next": "Follow up"
+      },
+      "third": {
+        "name": "Iryna Bondar",
+        "why": "Three orders this year, high value",
+        "next": "Send offer"
+      },
+      "fourth": {
+        "name": "Dmytro Shevchuk",
+        "why": "Task due today: send the contract",
+        "next": "Task"
+      },
+      "fifth": {
+        "name": "Sofia Lysenko",
+        "why": "Ordered last week, buys every month",
+        "next": "Check in"
+      }
+    },
+    "record": {
+      "label": "Contact",
+      "why": "Why she is on the list",
+      "reasonOne": "Last order 49 days ago",
+      "reasonTwo": "Three orders this year",
+      "reasonThree": "Likely to respond to outreach",
+      "next": "Call before Friday"
+    },
+    "note": {
+      "title": "Holdout 10%",
+      "body": "Gets no email. Used to measure the effect."
+    },
+    "persuadable": "Likely to be persuaded"
+  },
+  "sameEmail": {
+    "title": "Everyone gets the same email.",
+    "body": "A usual campaign goes to the whole list. Some of those people would have bought anyway. Some never will. A few get annoyed and unsubscribe. Somewhere in the list are the people the email actually moves, and the order count after the campaign cannot tell them apart from the rest.",
+    "aside": "An order after the email is not proof that the email caused it.",
+    "subject": "Autumn sale: 20% off for everyone",
+    "fieldLabel": "A list of identical emails, one for every customer"
+  },
+  "field": {
+    "title": "Light up only the people who change their mind.",
+    "body": "Each dot is a customer. As the campaign passes over the list, an uplift model estimates who would buy because of the email, not anyway. Those are the persuadables. The rest stay quiet, and a random holdout gets nothing at all, so the difference can be measured afterwards.",
+    "alt": "An illustration: a field of dots, one per customer. A wave crosses it from left to right, and only the persuadables light up. Dots in the holdout stay outlined and untouched.",
+    "legendLabel": "Groups in the illustration",
+    "legend": {
+      "persuadable": {
+        "term": "Persuadables",
+        "detail": "Buy when they hear from you. The only people worth the email."
+      },
+      "sureThing": {
+        "term": "Sure things",
+        "detail": "Buy either way. The email takes credit it did not earn."
+      },
+      "lostCause": {
+        "term": "Lost causes",
+        "detail": "Will not buy either way. The email is noise to them."
+      },
+      "sleepingDog": {
+        "term": "Do not disturb",
+        "detail": "Less likely to buy after an email. Better left alone."
+      },
+      "holdout": {
+        "term": "Holdout",
+        "detail": "A random group that gets nothing, so the effect can be measured."
+      }
+    }
+  },
+  "priority": {
+    "title": "A short list for the morning, with reasons.",
+    "body": "The Today page ranks contacts from recent orders, order history, open tasks and stale deals. With the ML module switched on, it ranks by expected uplift instead. Every row says why it is there, so you can disagree with it.",
+    "modeLabel": "Ranking",
+    "modeRfm": "Orders and activity",
+    "modeUplift": "Uplift model",
+    "reasonsLabel": "Reasons Parley gives",
+    "reasonOrder": "Last order 49 days ago",
+    "reasonDeal": "Deal idle for 12 days",
+    "reasonTask": "Task due today",
+    "reasonUplift": "Likely to respond to outreach"
+  },
+  "campaign": {
+    "title": "Campaigns with the holdout built in.",
+    "body": "Pick an audience and a template, choose who to target, and set the holdout size. Parley splits the audience at random before anything is sent and then freezes the split, so nobody can quietly move people between groups.",
+    "steps": {
+      "label": "Campaign steps",
+      "audience": "Audience",
+      "template": "Template",
+      "targeting": "Targeting",
+      "holdout": "Holdout",
+      "review": "Review"
+    },
+    "holdoutLabel": "Holdout size",
+    "holdoutValue": "10%",
+    "treated": "Receive the email",
+    "kept": "Kept as holdout",
+    "tradeoff": "A larger holdout gives a firmer answer but reaches fewer people now."
+  },
+  "results": {
+    "title": "Results that admit what they do not know.",
+    "body": "After the campaign, Parley compares the people who got the email with the holdout. You see the difference in percentage points and a 95% interval around it. When the interval includes zero, the page says so plainly instead of dressing the number up.",
+    "example": "Example",
+    "treated": "Got the email",
+    "holdout": "Holdout",
+    "treatedValue": "6.1% bought",
+    "holdoutValue": "4.3% bought",
+    "difference": "Difference",
+    "differenceValue": "+1.8 pp",
+    "interval": "95% interval: 0.4 to 3.2 pp",
+    "zero": "0",
+    "chartLabel": "Example result: a difference of 1.8 percentage points with a 95% interval from 0.4 to 3.2, which does not include zero.",
+    "caption": "The numbers in this example are made up to show the layout."
+  },
+  "telegram": {
+    "title": "Your list, in the chat you already read.",
+    "body": "Connect Telegram and the same notifications reach you there: tasks assigned to you, deals handed over, campaigns that finished. Send /today and the bot replies with your priority list.",
+    "command": "/today",
+    "reply": "Today's priority list",
+    "items": {
+      "call": "Call the contact.",
+      "reviewDeal": "Review the stale deal.",
+      "winBack": "Win the contact back."
+    },
+    "openRecord": "Open in Parley",
+    "openInsights": "Open the insights page",
+    "notice": "A campaign has finished sending.",
+    "chatLabel": "An example Telegram chat with the Parley bot"
+  },
+  "roles": {
+    "title": "Roles that fit a small team.",
+    "body": "Five roles, from administrator to viewer, and teams to group people. Everyone sees what their role allows, and changes to members, roles and settings are written to the audit log.",
+    "listLabel": "Roles",
+    "admin": "Administrator",
+    "salesManager": "Sales manager",
+    "salesRep": "Sales representative",
+    "marketer": "Marketer",
+    "viewer": "Viewer"
+  },
+  "honest": {
+    "title": "What the numbers mean, and what they do not.",
+    "holdout": {
+      "term": "Measured against a holdout",
+      "detail": "Every campaign result compares people who received the email with a random group that did not. Without that group, a lift figure is a guess."
+    },
+    "history": {
+      "term": "Uplift needs a history",
+      "detail": "An uplift model learns from past campaigns that had a holdout. A new workspace has none, so Parley starts with ranking by orders and activity and uses a model only when there is something to learn from."
+    },
+    "demo": {
+      "term": "The demo model is a demo",
+      "detail": "The model that ships with the demo was trained on semi-synthetic data. It shows how the feature works. It says nothing about your customers."
+    },
+    "claims": {
+      "term": "No logos, no testimonials",
+      "detail": "Parley is a working product still in development. There are no customers to quote yet, so this page does not quote any."
+    }
+  },
+  "cta": {
+    "title": "Start with your contacts. The list fills in from there.",
+    "body": "Create a workspace, add or import contacts, and the priority list appears after the first daily calculation.",
+    "signedInBody": "Your workspace is waiting."
+  },
+  "footer": {
+    "label": "Footer",
+    "note": "Parley is a demo product.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "signIn": "Sign in",
+    "language": "Language",
+    "home": "Home"
+  },
+  "legal": {
+    "back": "Back to the home page",
+    "privacy": {
+      "metaTitle": "Privacy",
+      "title": "Privacy",
+      "intro": "Parley is a demo product. This page describes what this installation stores and why, in plain words.",
+      "sections": {
+        "stored": {
+          "title": "What is stored",
+          "body": "Your account: name, email address, language, time zone and password hash. The CRM data your workspace adds: contacts, companies, deals, orders, tasks, notes, campaigns and their results."
+        },
+        "cookies": {
+          "title": "Cookies and browser storage",
+          "body": "Two session cookies keep you signed in. They cannot be read by page scripts and are not used for tracking. A language cookie remembers your language, and your theme choice is kept in the browser's local storage."
+        },
+        "email": {
+          "title": "Campaign email",
+          "body": "Campaign emails carry an unsubscribe link. The link opens a page that asks the person to confirm, and only that confirmation records the unsubscribe, so a mail scanner that opens the link unsubscribes nobody. Later campaigns skip that contact."
+        },
+        "telegram": {
+          "title": "Telegram",
+          "body": "If you connect Telegram, the chat identifier is stored so the bot can send you notifications. Disconnecting removes the link."
+        },
+        "analytics": {
+          "title": "No analytics or advertising",
+          "body": "This site loads no third-party analytics, advertising or tracking scripts."
+        },
+        "removal": {
+          "title": "Removing data",
+          "body": "Ask the owner of your workspace, or the person who runs this installation, to delete your data. Demo installations may be reset at any time."
+        }
+      }
+    },
+    "terms": {
+      "metaTitle": "Terms",
+      "title": "Terms of use",
+      "intro": "Parley is a demo product under development. By using this installation you accept the points below.",
+      "sections": {
+        "asIs": {
+          "title": "Provided as it is",
+          "body": "There is no guarantee of availability, accuracy or support. Data in a demo installation may be reset without notice."
+        },
+        "data": {
+          "title": "Your data",
+          "body": "Do not store personal data you are not allowed to process. You are responsible for the contacts you add and for having their consent before you email them."
+        },
+        "email": {
+          "title": "Sending email",
+          "body": "Do not use Parley to send unsolicited email. Every campaign email includes an unsubscribe link; do not remove or hide it."
+        },
+        "scores": {
+          "title": "Scores and models",
+          "body": "Priority rankings and uplift scores are estimates. They are not advice and do not guarantee any result."
+        }
+      }
+    }
+  }
+}

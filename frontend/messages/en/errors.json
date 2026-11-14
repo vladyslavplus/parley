@@ -22,7 +22,7 @@
     "inAppTitle": "Section not found",
     "inAppDescription": "This section does not exist or may have been relocated.",
     "returnApp": "Go to workspace",
-    "returnHome": "Return to sign in"
+    "returnHome": "Go to the home page"
   },
   "global": {
     "badge": "Error",

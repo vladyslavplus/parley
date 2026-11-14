@@ -32,6 +32,12 @@ builder.Services.AddDemoSeed(builder.Configuration);
 
 var app = builder.Build();
 
+// The deployment migration step: apply every module's migrations and exit instead of starting the web host.
+if (args.Contains(MigrationCommand.Argument, StringComparer.Ordinal))
+{
+    return await MigrationCommand.RunAsync(app.Services);
+}
+
 app.UseRequestPipeline();
 app.MapDevelopmentEndpoints();
 

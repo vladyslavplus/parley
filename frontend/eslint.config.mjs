@@ -9,6 +9,7 @@ export default defineConfig([
   {
     files: [
       "scripts/**/*.mjs",
+      "e2e/**/*.ts",
       "*.config.ts",
       "*.config.mts",
       "vitest.setup.ts",
