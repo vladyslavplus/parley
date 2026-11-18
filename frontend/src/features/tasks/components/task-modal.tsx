@@ -1,7 +1,6 @@
 "use client";
 
-import * as Dialog from "@radix-ui/react-dialog";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useWatch } from "react-hook-form";
@@ -10,6 +9,8 @@ import { useApiForm } from "@/components/forms/use-api-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
+import { Modal, ModalFooter } from "@/components/ui/modal";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ERROR_CODES } from "@/constants/error-codes";
 import { LIMITS } from "@/constants/limits";
 import { CompanyPicker } from "@/features/crm/components/company-picker";
@@ -21,6 +22,13 @@ import {
   taskFormSchema,
   type TaskFormValues,
 } from "@/features/tasks/schemas/task-schema";
+import {
+  DEFAULT_TASK_TYPE,
+  TASK_TYPES,
+  TASK_TYPE_ICONS,
+  TASK_TYPE_LABEL_KEYS,
+  taskTypeOf,
+} from "@/features/tasks/lib/task-types";
 import type { Task } from "@/features/tasks/types";
 import { useMe } from "@/lib/api/hooks/use-api";
 import {
@@ -29,6 +37,8 @@ import {
   utcIsoToLocalDateTimeString,
 } from "@/lib/time-zones";
 import { showSuccessToast } from "@/lib/toasts";
+
+const TASK_FORM_ID = "task-form";
 
 interface Props {
   open: boolean;
@@ -72,7 +82,6 @@ function TaskModalFormBody({
   onSaved,
 }: FormBodyProps) {
   const t = useTranslations("crm.tasks");
-  const tCommon = useTranslations("common");
   const { createTask, updateTask } = useTaskMutations();
   const isEdit = Boolean(task);
 
@@ -93,6 +102,7 @@ function TaskModalFormBody({
     schema: taskFormSchema,
     defaultValues: {
       title: task?.title ?? "",
+      type: task ? taskTypeOf(task.type) : DEFAULT_TASK_TYPE,
       notes: task?.notes ?? "",
       dueAt: task?.dueAt
         ? utcIsoToLocalDateTimeString(task.dueAt, timeZone)
@@ -104,6 +114,7 @@ function TaskModalFormBody({
     },
     fields: [
       "title",
+      "type",
       "notes",
       "dueAt",
       "assigneeUserId",
@@ -124,6 +135,7 @@ function TaskModalFormBody({
         const updated = await updateTask(task.id, {
           version: task.version,
           title: data.title,
+          type: data.type,
           notes: data.notes || null,
           dueAt: dueAtUtc,
           assigneeUserId: data.assigneeUserId,
@@ -136,6 +148,7 @@ function TaskModalFormBody({
       } else {
         const created = await createTask({
           title: data.title,
+          type: data.type,
           notes: data.notes || null,
           dueAt: dueAtUtc,
           assigneeUserId: data.assigneeUserId,
@@ -156,6 +169,7 @@ function TaskModalFormBody({
     formState: { errors, isSubmitting, isDirty },
   } = form;
 
+  const selectedType = useWatch({ control: form.control, name: "type" });
   const selectedAssignee = useWatch({
     control: form.control,
     name: "assigneeUserId",
@@ -175,22 +189,7 @@ function TaskModalFormBody({
 
   return (
     <>
-      <div className="flex items-center justify-between pb-4 border-b border-border">
-        <Dialog.Title className="text-base font-semibold text-foreground">
-          {isEdit ? t("editTask") : t("newTask")}
-        </Dialog.Title>
-        <Dialog.Close asChild>
-          <button
-            type="button"
-            aria-label={tCommon("cancel")}
-            className="rounded-xs p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </Dialog.Close>
-      </div>
-
-      <form onSubmit={onSubmit} className="mt-4 space-y-4">
+      <form id={TASK_FORM_ID} onSubmit={onSubmit} className="space-y-4">
         {formError ? (
           <Alert ref={alertRef} tone="error">
             {formError}
@@ -217,6 +216,26 @@ function TaskModalFormBody({
               {t(`errors.${errors.title.message}` as Parameters<typeof t>[0])}
             </p>
           )}
+        </div>
+
+        {/* Type */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-foreground">
+            {t("form.type")}
+          </p>
+          <SegmentedControl
+            value={selectedType}
+            ariaLabel={t("form.type")}
+            options={TASK_TYPES.map((code) => {
+              const Icon = TASK_TYPE_ICONS[code];
+              return {
+                value: code,
+                label: t(TASK_TYPE_LABEL_KEYS[code]),
+                icon: <Icon className="h-3.5 w-3.5" aria-hidden="true" />,
+              };
+            })}
+            onChange={(next) => setValue("type", next, { shouldDirty: true })}
+          />
         </div>
 
         {/* Due Date & Time */}
@@ -326,18 +345,12 @@ function TaskModalFormBody({
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 pt-4 border-t border-border">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
-            {tCommon("cancel")}
-          </Button>
+        <ModalFooter>
           <Button
             type="submit"
+            form={TASK_FORM_ID}
             variant="primary"
+            className="w-full"
             disabled={isSubmitting || (isEdit && !isDirty)}
           >
             {isSubmitting ? (
@@ -345,7 +358,7 @@ function TaskModalFormBody({
             ) : null}
             {isEdit ? t("save") : t("create")}
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </>
   );
@@ -358,33 +371,31 @@ export function TaskModal({
   initialSubject,
   onSaved,
 }: Props) {
+  const t = useTranslations("crm.tasks");
   const { data: me } = useMe();
   const timeZone = displayTimeZone(me);
   const currentUserId = me?.user.id ?? "";
   const currentUserName = me?.user.displayName ?? null;
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-xs transition-opacity duration-150 data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
-        <Dialog.Content
-          aria-describedby={undefined}
-          className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-[var(--shadow-floating)] max-h-[90vh] overflow-y-auto"
-        >
-          {open ? (
-            <TaskModalFormBody
-              key={`${task?.id ?? "new"}:${task?.version ?? 0}:${currentUserId}`}
-              task={task}
-              initialSubject={initialSubject}
-              timeZone={timeZone}
-              currentUserId={currentUserId}
-              currentUserName={currentUserName}
-              onClose={() => onOpenChange(false)}
-              onSaved={onSaved}
-            />
-          ) : null}
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={task ? t("editTask") : t("newTask")}
+      size="lg"
+    >
+      {open ? (
+        <TaskModalFormBody
+          key={`${task?.id ?? "new"}:${task?.version ?? 0}:${currentUserId}`}
+          task={task}
+          initialSubject={initialSubject}
+          timeZone={timeZone}
+          currentUserId={currentUserId}
+          currentUserName={currentUserName}
+          onClose={() => onOpenChange(false)}
+          onSaved={onSaved}
+        />
+      ) : null}
+    </Modal>
   );
 }

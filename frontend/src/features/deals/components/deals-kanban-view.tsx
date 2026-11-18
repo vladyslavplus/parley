@@ -20,18 +20,20 @@ export function DealsKanbanView() {
   const t = useTranslations("crm.deals");
   const tToolbar = useTranslations("crm.deals.toolbar");
   const router = useRouter();
-  const { board, isLoading } = useDefaultPipeline();
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
 
   const filters = useDealFilters();
   const organizationCurrency = useOrganizationCurrency();
 
+  // The same filters drive the columns' deal lists and the totals in their
+  // headers, so a header never counts deals the column hides.
   const boardFilters = {
     q: filters.q,
     ownerUserId: filters.ownerUserId,
     companyId: filters.companyId,
     status: filters.status === "all" ? undefined : filters.status,
   };
+  const { board, isLoading } = useDefaultPipeline(boardFilters);
 
   return (
     <div className="space-y-4">

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Parley.Insights.Contracts.Scores;
+using Parley.Insights.Domain.Ml;
 using Parley.Insights.Domain.Rfm;
 using Parley.Insights.Features.Daily;
 using Parley.Insights.Features.Scoring.Shared;
@@ -16,8 +17,6 @@ namespace Parley.Insights.Features.Scores;
 /// </summary>
 public sealed class InsightsScoreReader(InsightsDbContext dbContext) : IScoreReader
 {
-    private const string SegmentKey = "segment";
-
     /// <summary>ML kinds count only while ML is on and a run of the version in use has completed; RFM counts from its complete day.</summary>
     public async Task<bool> HasScoresAsync(string scoreKind, CancellationToken cancellationToken) =>
         scoreKind == ScoreKinds.Rfm
@@ -127,7 +126,7 @@ public sealed class InsightsScoreReader(InsightsDbContext dbContext) : IScoreRea
     private static string? ReadSegment(string payload)
     {
         using var document = JsonDocument.Parse(payload);
-        return document.RootElement.TryGetProperty(SegmentKey, out var value) && value.ValueKind == JsonValueKind.String
+        return document.RootElement.TryGetProperty(ScorePayloadKeys.Segment, out var value) && value.ValueKind == JsonValueKind.String
             ? value.GetString()
             : null;
     }

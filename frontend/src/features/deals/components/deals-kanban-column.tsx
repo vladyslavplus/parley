@@ -19,15 +19,8 @@ import type {
 } from "@/features/deals/types";
 import { useStageDeals } from "@/features/deals/hooks/use-deals";
 import { formatCurrency } from "@/lib/formatters";
+import { stageColorStyle } from "@/lib/stage-color";
 import { cn } from "@/lib/utils";
-
-const STAGE_DOT_CLASSES = [
-  "bg-stage-1 border border-border/50",
-  "bg-stage-2 border border-border/50",
-  "bg-stage-3",
-  "bg-stage-4",
-  "bg-stage-5",
-] as const;
 
 interface Props {
   stage: PipelineBoardStage;
@@ -67,12 +60,6 @@ export function DealsKanbanColumn({
     },
   });
 
-  const colorIndex =
-    typeof stage.colorIndex === "number"
-      ? stage.colorIndex % STAGE_DOT_CLASSES.length
-      : 0;
-  const dotClass = STAGE_DOT_CLASSES[colorIndex] ?? STAGE_DOT_CLASSES[0];
-
   const totalAmountNum =
     typeof stage.totalAmount === "number"
       ? stage.totalAmount
@@ -96,8 +83,9 @@ export function DealsKanbanColumn({
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 truncate">
             <span
-              className={cn("h-2.5 w-2.5 shrink-0 rounded-full", dotClass)}
               aria-hidden="true"
+              className="h-2.5 w-2.5 shrink-0 rounded-full border border-border/60"
+              style={stageColorStyle(stage.color)}
             />
             <h3 className="text-xs font-semibold text-foreground truncate">
               {stage.name}

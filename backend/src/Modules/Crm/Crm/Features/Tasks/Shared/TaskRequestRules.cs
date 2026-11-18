@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using FluentValidation;
+using Parley.Crm.Domain.Tasks;
 using Parley.Crm.Shared;
 using Parley.SharedKernel.Errors;
 
@@ -8,12 +9,15 @@ namespace Parley.Crm.Features.Tasks.Shared;
 /// <summary>Validation rules shared by the task create and update commands.</summary>
 public static class TaskRequestRules
 {
-    /// <summary>Applies the title and notes rules to the properties of a task command.</summary>
+    /// <summary>Applies the title, type and notes rules to the properties of a task command.</summary>
     public static void ApplyTo<TCommand>(
         AbstractValidator<TCommand> validator,
         Expression<Func<TCommand, string>> title,
+        Expression<Func<TCommand, string?>> type,
         Expression<Func<TCommand, string?>> notes)
     {
+        validator.RuleFor(type)
+            .Must(value => value is null || TaskTypes.IsValid(value)).WithErrorCode(ErrorCodes.ValidationFailed);
         validator.RuleFor(title)
             .Must(value => !string.IsNullOrWhiteSpace(value)).WithErrorCode(ErrorCodes.ValidationFailed)
             .MaximumLength(CrmLimits.TaskTitleMaximumLength).WithErrorCode(ErrorCodes.ValidationFailed);

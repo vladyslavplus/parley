@@ -181,7 +181,7 @@ public sealed class CrmDemoSeeder(NpgsqlDataSource dataSource) : ICrmDemoSeeder
                 ("position", index),
                 ("kind", template.Kind),
                 ("probability_bps", template.ProbabilityBps),
-                ("color_index", template.ColorIndex),
+                ("color", template.Color),
             ]);
         }
 
@@ -218,8 +218,10 @@ public sealed class CrmDemoSeeder(NpgsqlDataSource dataSource) : ICrmDemoSeeder
             await WriteNullableAsync(importer, contact.DealLostReason, NpgsqlDbType.Text, cancellationToken);
             await WriteNullableAsync(importer, expectedCloseOn, NpgsqlDbType.Date, cancellationToken);
             await WriteNullableAsync(importer, contact.TaskTitle, NpgsqlDbType.Text, cancellationToken);
+            await WriteNullableAsync(importer, contact.TaskType, NpgsqlDbType.Text, cancellationToken);
             await WriteNullableAsync(importer, taskDueAt, NpgsqlDbType.TimestampTz, cancellationToken);
             await WriteNullableAsync(importer, taskCompleted, NpgsqlDbType.Boolean, cancellationToken);
+            await WriteNullableAsync(importer, contact.TaskAssigneeUserId, NpgsqlDbType.Uuid, cancellationToken);
             await WriteNullableAsync(importer, contact.NoteBody, NpgsqlDbType.Text, cancellationToken);
         }
 

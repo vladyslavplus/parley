@@ -47,6 +47,10 @@ public static class CrmRoutes
 
     public const string TasksMine = "tasks/mine";
 
+    public const string TasksOverdueCount = "tasks/overdue-count";
+
+    public const string TasksMineOverdueCount = "tasks/mine/overdue-count";
+
     public const string TaskById = "tasks/{id:guid}";
 
     public const string TaskComplete = "tasks/{id:guid}/complete";

@@ -1,4 +1,5 @@
 using FluentValidation;
+using Parley.Crm.Domain.Tasks;
 using Parley.Crm.Shared;
 using Parley.Crm.Shared.Tasks;
 using Parley.SharedKernel.Errors;
@@ -18,6 +19,8 @@ public sealed class ListTasksQueryValidator : AbstractValidator<ListTasksQuery>
             .Must(TaskSortFields.IsValid).WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(query => query.Order)
             .Must(SortDirections.IsValid).WithErrorCode(ErrorCodes.ValidationFailed);
+        RuleFor(query => query.Type)
+            .Must(value => value is null || TaskTypes.IsValid(value)).WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(query => query.Status)
             .Must(value => value is null || TaskStatuses.All.Contains(value))
             .WithErrorCode(ErrorCodes.ValidationFailed);

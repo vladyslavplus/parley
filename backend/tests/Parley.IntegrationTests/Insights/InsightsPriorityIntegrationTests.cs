@@ -12,6 +12,7 @@ using Parley.Campaigns.Contracts.Errors;
 using Parley.Crm.Contracts.DemoSeed;
 using Parley.Crm.Contracts.Errors;
 using Parley.Crm.Domain.Orders;
+using Parley.Crm.Domain.Pipelines;
 using Parley.Crm.Shared;
 using Parley.Identity.Authorization.Seed;
 using Parley.Insights.Contracts.Errors;
@@ -129,6 +130,10 @@ public sealed class InsightsPriorityIntegrationTests(PostgresFixture postgres, M
     private const string CountProperty = "count";
 
     private const string StagesProperty = "stages";
+
+    private const string ColorProperty = "color";
+
+    private const string OpenDealTitle = "Open deal";
 
     private const string OpenDealsProperty = "openDeals";
 
@@ -263,6 +268,23 @@ public sealed class InsightsPriorityIntegrationTests(PostgresFixture postgres, M
 
         var viewerResponse = await CrmApi.Client(_factory, viewer.AccessToken).GetAsync(DashboardsRoutes.Overview, token);
         viewerResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task Dashboard_PipelineStages_CarryTheStageColor()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var pipelineId = await PipelineApi.DefaultPipelineIdAsync(admin, token);
+        var stage = (await PipelineApi.StagesAsync(admin, pipelineId, token)).First(candidate => candidate.Kind == PipelineStageKinds.Open);
+        await DealApi.CreateAsync(admin, OpenDealTitle, OrderAmount, stage.Id, null, token);
+
+        var overview = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(DashboardsRoutes.Overview, token), token);
+
+        var stages = overview.GetProperty(StagesProperty).EnumerateArray().ToList();
+        stages.Should().ContainSingle();
+        stages[0].GetProperty(ColorProperty).GetString().Should().Be(stage.Color);
     }
 
     [Fact]

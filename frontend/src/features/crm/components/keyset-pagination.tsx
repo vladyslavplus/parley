@@ -2,7 +2,9 @@
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRef } from "react";
 
+import { scrollToTableTop } from "@/components/data-table/scroll-to-table-top";
 import { Button } from "@/components/ui/button";
 import { SimpleSelect } from "@/components/ui/select";
 import { LIMITS } from "@/constants/limits";
@@ -28,9 +30,20 @@ export function KeysetPagination({
 }: Props) {
   const tCrm = useTranslations("crm");
   const tTable = useTranslations("table");
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  function withScroll(action: () => void) {
+    return () => {
+      action();
+      scrollToTableTop(rootRef.current);
+    };
+  }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 w-full">
+    <div
+      ref={rootRef}
+      className="flex flex-wrap items-center justify-between gap-4 w-full"
+    >
       <div className="flex items-center gap-3">
         {onPageSizeChange && (
           <div className="flex items-center gap-2">
@@ -40,7 +53,9 @@ export function KeysetPagination({
             <SimpleSelect
               ariaLabel={tTable("pagination.rowsPerPage")}
               value={String(pageSize)}
-              onValueChange={(val) => onPageSizeChange(Number(val))}
+              onValueChange={(val) =>
+                withScroll(() => onPageSizeChange(Number(val)))()
+              }
               options={LIMITS.tablePageSizes.map((size) => ({
                 value: String(size),
                 label: String(size),
@@ -60,7 +75,7 @@ export function KeysetPagination({
       <div className="flex items-center gap-2 ml-auto">
         <Button
           variant="secondary"
-          onClick={onPreviousPage}
+          onClick={withScroll(onPreviousPage)}
           disabled={!hasPreviousPage}
           className="gap-1 text-xs px-2.5"
         >
@@ -69,7 +84,7 @@ export function KeysetPagination({
         </Button>
         <Button
           variant="secondary"
-          onClick={onNextPage}
+          onClick={withScroll(onNextPage)}
           disabled={!hasNextPage}
           className="gap-1 text-xs px-2.5"
         >

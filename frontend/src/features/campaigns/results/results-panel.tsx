@@ -2,9 +2,11 @@
 
 import { Info, RefreshCw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { InfoHint } from "@/components/ui/info-hint";
 import { LoadingBlock } from "@/components/layout/loading-block";
 import { PERMISSIONS } from "@/constants/permissions";
 import { CampaignTargetingModel } from "@/features/campaigns/components/targeting-model";
@@ -68,10 +70,21 @@ function ArmRow({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: ReactNode;
+}) {
   return (
     <div>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dt className="flex items-center gap-1 text-xs text-muted-foreground">
+        <span>{label}</span>
+        {hint}
+      </dt>
       <dd className="text-sm font-semibold tabular-nums text-foreground">
         {value}
       </dd>
@@ -166,6 +179,7 @@ export function ResultsPanel({
   snapshot?: CampaignModelSnapshot | null;
 }) {
   const t = useTranslations("campaigns.results");
+  const tHints = useTranslations("hints");
   const locale = useLocale();
   const errorText = useErrorText();
   const currency = useOrganizationCurrency();
@@ -235,8 +249,11 @@ export function ResultsPanel({
             </span>
           ) : null}
           {view.simulated ? (
-            <span className="inline-flex h-5 items-center rounded-full bg-warning/10 px-2 text-[11px] font-medium text-warning">
-              {t("simulated")}
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-flex h-5 items-center rounded-full bg-warning/10 px-2 text-[11px] font-medium text-warning">
+                {t("simulated")}
+              </span>
+              <InfoHint>{tHints("simulated")}</InfoHint>
             </span>
           ) : null}
           {view.calculated ? (
@@ -349,6 +366,7 @@ export function ResultsPanel({
         {withheld ? null : (
           <Stat
             label={t("stats.difference")}
+            hint={<InfoHint>{tHints("lift")}</InfoHint>}
             value={
               lift === null
                 ? "—"
@@ -388,12 +406,14 @@ export function ResultsPanel({
         )}
         <Stat
           label={t("stats.mde")}
+          hint={<InfoHint>{tHints("mde")}</InfoHint>}
           value={
             mde === null ? "—" : `${plain.format(mde)} ${t("stats.points")}`
           }
         />
         <Stat
           label={t("stats.srm")}
+          hint={<InfoHint>{tHints("srm")}</InfoHint>}
           value={view.unreliable ? t("srm.alarm") : t("srm.ok")}
         />
         <Stat label={t("stats.window")} value={windowText} />

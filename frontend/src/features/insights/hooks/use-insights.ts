@@ -20,7 +20,7 @@ import type {
   DashboardOverview,
   MlSettings,
   PriorityPage,
-  RfmSegmentCount,
+  PrioritySegmentCounts,
 } from "@/features/insights/types";
 
 // One keyset page of the priority list. The previous page stays on screen while
@@ -41,12 +41,17 @@ export function usePriority(
   });
 }
 
-export function useRfmSegments(enabled: boolean) {
+// Both segment taxonomies around the latest priority day: how many contacts of
+// each segment are on the list and how many exist in the caller's scope. Every
+// segment comes back, including the empty ones, so a filter can say "0 з 827".
+export function usePrioritySegments(enabled: boolean) {
   const locale = useLocale();
   return useQuery({
-    queryKey: queryKeys.insightsRfmSegments(),
+    queryKey: queryKeys.insightsPrioritySegments(),
     queryFn: () =>
-      insightsJson<RfmSegmentCount[]>("/insights/rfm/segments", { locale }),
+      insightsJson<PrioritySegmentCounts>("/insights/priority/segments", {
+        locale,
+      }),
     enabled,
     staleTime: LIMITS.queryStaleTimeMs,
   });

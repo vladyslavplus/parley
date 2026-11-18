@@ -3,10 +3,11 @@
 import { CheckCircle2, Loader2, TriangleAlert } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { InfoHint } from "@/components/ui/info-hint";
 import { ERROR_CODES } from "@/constants/error-codes";
 import { LIMITS } from "@/constants/limits";
 import { queryKeys } from "@/constants/query-keys";
@@ -39,10 +40,21 @@ interface Props {
   onPrepared?: (campaignId: string) => void;
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: ReactNode;
+}) {
   return (
     <div>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dt className="flex items-center gap-1 text-xs text-muted-foreground">
+        <span>{label}</span>
+        {hint}
+      </dt>
       <dd className="text-lg font-semibold tabular-nums text-foreground">
         {value}
       </dd>
@@ -60,6 +72,7 @@ export function ReviewStep({
   onPrepared,
 }: Props) {
   const t = useTranslations("campaigns.builder.review");
+  const tHints = useTranslations("hints");
   const locale = useLocale();
   const errorText = useErrorText();
   const api = useCampaignApi();
@@ -135,6 +148,7 @@ export function ReviewStep({
         <Stat
           label={t("holdout")}
           value={`${bpsToPercent(draft.holdoutShareBps)}%`}
+          hint={<InfoHint>{tHints("holdout")}</InfoHint>}
         />
         <Stat
           label={t("targeting")}
@@ -224,8 +238,9 @@ export function ReviewStep({
             />
           </dl>
           {mdePercent !== null ? (
-            <p className="text-sm text-foreground">
-              {t("mdeLine", { percent: mdePercent })}
+            <p className="flex items-center gap-1.5 text-sm text-foreground">
+              <span>{t("mdeLine", { percent: mdePercent })}</span>
+              <InfoHint>{tHints("mde")}</InfoHint>
             </p>
           ) : null}
           {data.srmWarning ? (
@@ -233,6 +248,7 @@ export function ReviewStep({
               <span className="flex items-start gap-2">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{t("srmWarning")}</span>
+                <InfoHint>{tHints("srm")}</InfoHint>
               </span>
             </Alert>
           ) : null}

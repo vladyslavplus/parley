@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PERMISSIONS } from "@/constants/permissions";
 import { TaskModal } from "@/features/tasks/components/task-modal";
+import { TaskTypeLabel } from "@/features/tasks/components/task-type-label";
 import { TaskStatusCheckbox } from "@/features/tasks/components/task-status-checkbox";
 import { useTaskMutations } from "@/features/tasks/hooks/use-task-mutations";
 import { useSubjectTasks } from "@/features/tasks/hooks/use-tasks";
@@ -105,6 +106,7 @@ export function TasksPanel({ subject }: Props) {
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <TaskStatusCheckbox task={task} />
+                  <TaskTypeLabel type={task.type} iconOnly />
                   <div className="min-w-0 flex-1 space-y-0.5">
                     <button
                       type="button"

@@ -3,7 +3,15 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { scanDirectory, scanFile } from "../../scripts/detect-raw-tokens.mjs";
-import { computeContrastRatio, STAGE_INDICES, TAG_INDICES } from "./tokens";
+import {
+  computeContrastRatio,
+  STAGE_DEFAULT_COLORS,
+  STAGE_INDICES,
+  STAGE_INK,
+  STAGE_PAPER,
+  TAG_INDICES,
+  THEME_PAGE_BACKGROUNDS,
+} from "./tokens";
 
 function extractCssBlock(
   css: string,
@@ -156,5 +164,20 @@ describe("Token Contrast Verification from globals.css", () => {
     expect(
       computeContrastRatio(darkVars["--input"], darkVars["--background"]),
     ).toBeGreaterThanOrEqual(3.0);
+  });
+
+  it("copies the stage colors, page backgrounds and stage text colors from the stylesheet", () => {
+    expect(
+      STAGE_DEFAULT_COLORS.map(
+        (_color, index) => lightVars[`--stage-${index + 1}`],
+      ),
+    ).toEqual([...STAGE_DEFAULT_COLORS]);
+    expect(lightVars["--background"]).toBe(THEME_PAGE_BACKGROUNDS.light);
+    expect(darkVars["--background"]).toBe(THEME_PAGE_BACKGROUNDS.dark);
+    expect(lightVars["--stage-ink"]).toBe(STAGE_INK);
+    expect(lightVars["--stage-paper"]).toBe(STAGE_PAPER);
+    // These two stay constant, so the dark block must not override them.
+    expect(darkVars["--stage-ink"]).toBeUndefined();
+    expect(darkVars["--stage-paper"]).toBeUndefined();
   });
 });

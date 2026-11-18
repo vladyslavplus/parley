@@ -251,7 +251,7 @@
   },
   "pipeline": {
     "title": "Pipeline settings",
-    "subtitle": "Configure deal stages, probabilities and color ramps",
+    "subtitle": "Configure deal stages, their colors and win probabilities",
     "noPipeline": "No pipeline found for this organization.",
     "pipelineName": "Pipeline name",
     "saved": "Pipeline renamed successfully.",
@@ -276,6 +276,28 @@
     "stageName": "Stage name",
     "stageNamePlaceholder": "e.g. Qualification",
     "stageColor": "Stage color",
+    "baseColors": "Base colors",
+    "customColor": "Custom color",
+    "hexValue": "Hex color code",
+    "previewLight": "Light theme",
+    "previewDark": "Dark theme",
+    "previewStage": "Stage",
+    "lowContrastLight": "This color nearly blends into the light page background.",
+    "lowContrastDark": "This color nearly blends into the dark page background.",
+    "colorNames": {
+      "mist": "Mist",
+      "sky": "Sky",
+      "steel": "Steel",
+      "ocean": "Ocean",
+      "cobalt": "Cobalt",
+      "sage": "Sage",
+      "fern": "Fern",
+      "sand": "Sand",
+      "clay": "Clay",
+      "rose": "Rose",
+      "teal": "Teal",
+      "violet": "Violet"
+    },
     "errors": {
       "stageHasDeals": "Cannot delete this stage because it still contains active deals. Move or delete the deals first."
     }

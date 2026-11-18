@@ -10,6 +10,7 @@ import type {
   PipelineBoardStage,
 } from "@/features/deals/types";
 
+import { pipelineBoardQueryKey } from "@/features/deals/hooks/use-pipelines";
 import {
   stageDealsQueryKey,
   stageDealsQueryOptions,
@@ -28,6 +29,19 @@ describe("deals kanban filters and positions", () => {
     const keyWithoutFilters = stageDealsQueryKey("stage-1", undefined);
 
     expect(keyWithEmpty).toEqual(keyWithoutFilters);
+  });
+
+  it("keys the board totals by the same normalized filters", () => {
+    expect(
+      pipelineBoardQueryKey("p-1", {
+        q: "  ",
+        ownerUserId: "",
+        status: undefined,
+      }),
+    ).toEqual(pipelineBoardQueryKey("p-1"));
+    expect(pipelineBoardQueryKey("p-1", { status: "won" })).not.toEqual(
+      pipelineBoardQueryKey("p-1"),
+    );
   });
 
   it("calculates 0-based index correctly for card drop and column drop", () => {

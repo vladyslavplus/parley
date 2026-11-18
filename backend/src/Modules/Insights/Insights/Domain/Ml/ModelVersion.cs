@@ -19,6 +19,12 @@ public sealed class ModelVersion
 
     public string Metrics { get; set; } = "{}";
 
+    /// <summary>
+    /// Segment thresholds of an uplift manifest as the service reported them; null for a model without them or an older
+    /// service that does not publish the field.
+    /// </summary>
+    public string? SegmentRules { get; set; }
+
     /// <summary>When the last successful sync saw this version. Rows older than that are history only.</summary>
     public DateTime SyncedAt { get; set; }
 

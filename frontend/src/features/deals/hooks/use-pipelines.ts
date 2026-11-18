@@ -10,6 +10,7 @@ import { useLocale } from "next-intl";
 import { LIMITS } from "@/constants/limits";
 import { queryKeys } from "@/constants/query-keys";
 import type {
+  DealFilters,
   Pipeline,
   PipelineBoard,
   PipelineSummary,
@@ -54,14 +55,39 @@ export function pipelineQueryOptions(id: string, locale: string) {
   });
 }
 
-export function pipelineBoardQueryOptions(id: string, locale: string) {
+export type BoardFilters = Pick<
+  DealFilters,
+  "status" | "q" | "ownerUserId" | "companyId"
+>;
+
+// The deal filters the board totals follow. Empty values are dropped, so the
+// query key and the request match what the columns' own deal lists ask for.
+export function normalizeBoardFilters(filters?: BoardFilters): BoardFilters {
+  return {
+    status: filters?.status || undefined,
+    q: filters?.q?.trim() || undefined,
+    ownerUserId: filters?.ownerUserId || undefined,
+    companyId: filters?.companyId || undefined,
+  };
+}
+
+export function pipelineBoardQueryKey(id: string, filters?: BoardFilters) {
+  return queryKeys.pipelineBoardFiltered(id, normalizeBoardFilters(filters));
+}
+
+export function pipelineBoardQueryOptions(
+  id: string,
+  locale: string,
+  filters?: BoardFilters,
+) {
   return queryOptions({
-    queryKey: queryKeys.pipelineBoard(id),
+    queryKey: pipelineBoardQueryKey(id, filters),
     queryFn: () =>
       backendJson<PipelineBoard>(
         "/pipelines/{id}/board",
         {
           locale,
+          query: normalizeBoardFilters(filters),
         },
         `/pipelines/${encodeURIComponent(id)}/board`,
       ),
@@ -83,22 +109,25 @@ export function usePipeline(id: string | null | undefined) {
   });
 }
 
-export function usePipelineBoard(id: string | null | undefined) {
+export function usePipelineBoard(
+  id: string | null | undefined,
+  filters?: BoardFilters,
+) {
   const locale = useLocale();
   return useQuery({
-    ...pipelineBoardQueryOptions(id ?? "", locale),
+    ...pipelineBoardQueryOptions(id ?? "", locale, filters),
     enabled: Boolean(id),
   });
 }
 
-export function useDefaultPipeline() {
+export function useDefaultPipeline(boardFilters?: BoardFilters) {
   const pipelinesQuery = usePipelines();
   const defaultSummary: PipelineSummary | undefined =
     pipelinesQuery.data?.find((p) => p.isDefault) ?? pipelinesQuery.data?.[0];
 
   const pipelineId = defaultSummary?.id;
   const pipelineQuery = usePipeline(pipelineId);
-  const boardQuery = usePipelineBoard(pipelineId);
+  const boardQuery = usePipelineBoard(pipelineId, boardFilters);
 
   return {
     summary: defaultSummary,

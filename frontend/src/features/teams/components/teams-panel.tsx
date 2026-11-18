@@ -1,6 +1,5 @@
 "use client";
 
-import * as Dialog from "@radix-ui/react-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -18,6 +17,7 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { queryKeys } from "@/constants/query-keys";
 import { KeysetPagination } from "@/features/crm/components/keyset-pagination";
 import {
@@ -28,6 +28,8 @@ import { backendVoid } from "@/lib/api/bff-client";
 import { useInvalidate, useTeamsPage } from "@/lib/api/hooks/use-api";
 import type { Schemas } from "@/lib/api/schemas";
 import { showSuccessToast } from "@/lib/toasts";
+
+const TEAM_FORM_ID = "team-name-form";
 
 function TeamModalDialog({
   open,
@@ -49,7 +51,6 @@ function TeamModalDialog({
   onSubmitName: (name: string) => Promise<void>;
 }) {
   const t = useTranslations("settings.teams");
-  const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
   const schema = createTeamSchema(tValidation);
 
@@ -84,48 +85,34 @@ function TeamModalDialog({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-150" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-floating space-y-4 focus:outline-none">
-          <div>
-            <Dialog.Title className="text-base font-semibold text-foreground">
-              {title}
-            </Dialog.Title>
-            <Dialog.Description className="mt-1 text-xs text-muted-foreground">
-              {description}
-            </Dialog.Description>
-          </div>
-
-          <ApiForm
-            onSubmit={onSubmit}
-            formError={formError}
-            alertRef={alertRef}
-            pending={isSubmitting}
-            submitDisabled={requireDirty ? !isDirty : false}
-            submitLabel={submitLabel}
-          >
-            <FormField label={t("name")} error={errors.name?.message}>
-              <Input
-                className="text-xs bg-background"
-                {...form.register("name")}
-              />
-            </FormField>
-            <div className="flex justify-end pt-1">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => handleOpenChange(false)}
-                disabled={isSubmitting}
-                className="px-3 text-xs"
-              >
-                {tCommon("cancel")}
-              </Button>
-            </div>
-          </ApiForm>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <Modal
+      open={open}
+      onOpenChange={handleOpenChange}
+      title={title}
+      description={description}
+      footer={
+        <Button
+          type="submit"
+          form={TEAM_FORM_ID}
+          disabled={isSubmitting || (requireDirty ? !isDirty : false)}
+          className="w-full"
+        >
+          {submitLabel}
+        </Button>
+      }
+    >
+      <ApiForm
+        id={TEAM_FORM_ID}
+        onSubmit={onSubmit}
+        formError={formError}
+        alertRef={alertRef}
+        pending={isSubmitting}
+      >
+        <FormField label={t("name")} error={errors.name?.message}>
+          <Input className="text-xs bg-background" {...form.register("name")} />
+        </FormField>
+      </ApiForm>
+    </Modal>
   );
 }
 

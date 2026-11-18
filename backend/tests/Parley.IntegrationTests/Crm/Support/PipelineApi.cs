@@ -14,6 +14,7 @@ public static class PipelineApi
     private const string IdProperty = "id";
     private const string NameProperty = "name";
     private const string KindProperty = "kind";
+    private const string ColorProperty = "color";
     private const string StagesProperty = "stages";
     private const string PositionProperty = "position";
     private const string FirstPageLimit = "limit=1";
@@ -21,7 +22,7 @@ public static class PipelineApi
     private static readonly Regex GuidPlaceholder = new(@"\{\w+:guid\}");
 
     /// <summary>A stage as the tests read it.</summary>
-    public sealed record Stage(Guid Id, string Name, string Kind, int Position);
+    public sealed record Stage(Guid Id, string Name, string Kind, int Position, string Color);
 
     /// <summary>Fills the guid placeholders of a route template, in order.</summary>
     public static string Route(string template, params Guid[] ids)
@@ -54,7 +55,8 @@ public static class PipelineApi
                 stage.GetProperty(IdProperty).GetGuid(),
                 stage.GetProperty(NameProperty).GetString()!,
                 stage.GetProperty(KindProperty).GetString()!,
-                stage.GetProperty(PositionProperty).GetInt32()))
+                stage.GetProperty(PositionProperty).GetInt32(),
+                stage.GetProperty(ColorProperty).GetString()!))
             .ToList();
 
     /// <summary>The stage with the given name.</summary>

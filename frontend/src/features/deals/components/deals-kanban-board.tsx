@@ -29,6 +29,7 @@ import { DealsKanbanColumn } from "@/features/deals/components/deals-kanban-colu
 import { DealCard } from "@/features/deals/components/deal-card";
 import { DealWonLostDialog } from "@/features/deals/components/deal-won-lost-dialog";
 import { stageDealsQueryKey } from "@/features/deals/hooks/use-deals";
+import { stagesForStatus } from "@/features/deals/lib/stages-for-status";
 import type {
   Deal,
   DealFilters,
@@ -62,6 +63,8 @@ export function DealsKanbanBoard({ board, filters, currency }: Props) {
   const [terminalModalOpen, setTerminalModalOpen] = useState(false);
   const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
   const [settleDealId, setSettleDealId] = useState<string | null>(null);
+
+  const visibleStages = stagesForStatus(board.stages, filters?.status ?? "all");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -275,7 +278,7 @@ export function DealsKanbanBoard({ board, filters, currency }: Props) {
         data-kanban-board="true"
         className="flex h-[calc(100vh-14rem)] w-full items-start gap-4 overflow-x-auto pb-3"
       >
-        {board.stages.map((stage) => (
+        {visibleStages.map((stage) => (
           <DealsKanbanColumn
             key={stage.id}
             stage={stage}

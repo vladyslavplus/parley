@@ -25,7 +25,8 @@
     "development": "Development",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
-    "hasOverdueTasks": "Has overdue tasks",
+    "overdueTasks": "{count, plural, one {# of your tasks is overdue} other {# of your tasks are overdue}}",
+    "overdueTasksMany": "More than {count} of your tasks are overdue",
     "items": {
       "home": "Home",
       "deals": "Deals",

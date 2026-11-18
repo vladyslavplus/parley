@@ -51,7 +51,7 @@ describe("DealWonLostDialog", () => {
     position: 4,
     kind: "won",
     probabilityBps: 10000,
-    colorIndex: 4,
+    color: "#2453be",
     dealCount: 5,
     totalAmount: 50000,
   };
@@ -62,7 +62,7 @@ describe("DealWonLostDialog", () => {
     position: 5,
     kind: "lost",
     probabilityBps: 0,
-    colorIndex: 0,
+    color: "#e6ecf5",
     dealCount: 2,
     totalAmount: 15000,
   };

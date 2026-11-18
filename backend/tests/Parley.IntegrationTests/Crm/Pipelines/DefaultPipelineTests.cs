@@ -32,15 +32,17 @@ public sealed class DefaultPipelineTests(PostgresFixture postgres, MailpitFixtur
 
     private const string TypedStageName = "Discovery";
 
-    private const int TypedColorIndex = 2;
-
     private const int TypedProbabilityBps = 1500;
+
+    private const string TypedColor = "#A1B2C3";
 
     private static readonly string[] UkrainianStageNames = ["Нові", "Кваліфікація", "Пропозиція", "Переговори", "Виграно", "Програно"];
 
     private static readonly string[] EnglishStageNames = ["New", "Qualified", "Proposal", "Negotiation", "Won", "Lost"];
 
     private static readonly string[] StageKinds = ["open", "open", "open", "open", "won", "lost"];
+
+    private static readonly string[] StageColors = ["#e6ecf5", "#c9d7eb", "#93b2dc", "#3866a0", "#2453be", "#e6ecf5"];
 
     private IdentityApiFactory _factory = null!;
 
@@ -75,6 +77,7 @@ public sealed class DefaultPipelineTests(PostgresFixture postgres, MailpitFixtur
         var englishStages = await PipelineApi.StagesAsync(english, pipelineId, token);
         englishStages.Select(stage => stage.Name).Should().Equal(EnglishStageNames);
         englishStages.Select(stage => stage.Kind).Should().Equal(StageKinds);
+        englishStages.Select(stage => stage.Color).Should().Equal(StageColors);
 
         var ukrainianStages = await PipelineApi.StagesAsync(ukrainian, pipelineId, token);
         ukrainianStages.Select(stage => stage.Name).Should().Equal(UkrainianStageNames);
@@ -94,7 +97,7 @@ public sealed class DefaultPipelineTests(PostgresFixture postgres, MailpitFixtur
 
         var renamed = await english.PutAsJsonAsync(
             PipelineApi.Route(CrmRoutes.PipelineStageById, pipelineId, newStage.Id),
-            new { name = TypedStageName, colorIndex = TypedColorIndex, probabilityBps = TypedProbabilityBps },
+            new { name = TypedStageName, color = TypedColor, probabilityBps = TypedProbabilityBps },
             token);
         renamed.StatusCode.Should().Be(HttpStatusCode.OK);
 

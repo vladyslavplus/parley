@@ -7,6 +7,6 @@ public sealed class CreateTaskCommandValidator : AbstractValidator<CreateTaskCom
 {
     public CreateTaskCommandValidator()
     {
-        TaskRequestRules.ApplyTo(this, command => command.Title, command => command.Notes);
+        TaskRequestRules.ApplyTo(this, command => command.Title, command => command.Type, command => command.Notes);
     }
 }

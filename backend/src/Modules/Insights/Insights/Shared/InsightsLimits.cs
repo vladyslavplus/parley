@@ -29,4 +29,10 @@ public static class InsightsLimits
 
     /// <summary>How long a priority rebuild waits before it retries after its day was busy with another run.</summary>
     public static readonly TimeSpan PriorityRebuildRetryDelay = TimeSpan.FromMinutes(1);
+
+    /// <summary>How many times the demo seed tries to take the day lock before it gives up on the insights step.</summary>
+    public const int DemoSeedLockAttempts = 120;
+
+    /// <summary>Pause between two tries of the demo seed to take the day lock.</summary>
+    public static readonly TimeSpan DemoSeedLockRetryDelay = TimeSpan.FromSeconds(1);
 }

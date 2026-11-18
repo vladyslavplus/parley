@@ -65,11 +65,18 @@ public sealed class PipelinesController(IMediator mediator, ErrorTextLocalizer e
     [HttpGet(CrmRoutes.PipelineBoard)]
     [RequiresPermission(Permissions.DealsRead)]
     [ProducesResponseType<PipelineBoardView>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Board(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Board(
+        Guid id,
+        [FromQuery] string? status,
+        [FromQuery] string? q,
+        [FromQuery] Guid? ownerUserId,
+        [FromQuery] Guid? companyId,
+        CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetPipelineBoardQuery(id), cancellationToken);
+        var result = await mediator.Send(new GetPipelineBoardQuery(id, status, q, ownerUserId, companyId), cancellationToken);
         return FromResult(result, Ok);
     }
 
@@ -83,7 +90,7 @@ public sealed class PipelinesController(IMediator mediator, ErrorTextLocalizer e
     public async Task<IActionResult> CreateStage(Guid id, [FromBody] PipelineStageRequest? request, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new CreatePipelineStageCommand(id, request?.Name ?? string.Empty, request?.ColorIndex ?? default, request?.ProbabilityBps ?? default),
+            new CreatePipelineStageCommand(id, request?.Name ?? string.Empty, request?.Color ?? string.Empty, request?.ProbabilityBps ?? default),
             cancellationToken);
         return FromResult(result, Ok);
     }
@@ -98,7 +105,7 @@ public sealed class PipelinesController(IMediator mediator, ErrorTextLocalizer e
     public async Task<IActionResult> UpdateStage(Guid id, Guid stageId, [FromBody] PipelineStageRequest? request, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new UpdatePipelineStageCommand(id, stageId, request?.Name ?? string.Empty, request?.ColorIndex ?? default, request?.ProbabilityBps ?? default),
+            new UpdatePipelineStageCommand(id, stageId, request?.Name ?? string.Empty, request?.Color ?? string.Empty, request?.ProbabilityBps ?? default),
             cancellationToken);
         return FromResult(result, Ok);
     }

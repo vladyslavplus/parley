@@ -8,6 +8,8 @@ namespace Parley.Insights.Domain.Priority;
 /// <param name="ReasonCodes">Reason codes that explain the value.</param>
 /// <param name="SuggestedAction">Next action code.</param>
 /// <param name="Mode">The mode the value was computed in: ml when the uplift scores were used, rfm otherwise.</param>
+/// <param name="UpliftValue">Uplift the model estimated for the contact; null outside the ML mode and for an unscored contact.</param>
+/// <param name="UpliftSegment">Uplift segment the model gave the contact; null outside the ML mode and for an unscored contact.</param>
 public sealed record PriorityCandidate(
     Guid ContactId,
     Guid? OwnerUserId,
@@ -15,4 +17,6 @@ public sealed record PriorityCandidate(
     decimal Value,
     IReadOnlyList<string> ReasonCodes,
     string SuggestedAction,
-    string Mode = PriorityModes.Rfm);
+    string Mode = PriorityModes.Rfm,
+    decimal? UpliftValue = null,
+    string? UpliftSegment = null);

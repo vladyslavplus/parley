@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Shapes } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useState } from "react";
@@ -13,12 +13,23 @@ import {
   SegmentedControl,
   type SegmentedOption,
 } from "@/components/ui/segmented-control";
+import { useStaticFilter } from "@/components/filters/use-static-filter";
 import { PERMISSIONS } from "@/constants/permissions";
 import { KeysetPagination } from "@/features/crm/components/keyset-pagination";
 import { useOwnerDimension } from "@/features/crm/filters/use-filter-dimensions";
 import { TaskModal } from "@/features/tasks/components/task-modal";
 import { TasksTable } from "@/features/tasks/components/tasks-table";
-import { useMyTasks, useTasks } from "@/features/tasks/hooks/use-tasks";
+import {
+  useMyTasks,
+  useOverdueTasksCount,
+  useTasks,
+} from "@/features/tasks/hooks/use-tasks";
+import {
+  TASK_TYPES,
+  TASK_TYPE_LABEL_KEYS,
+  isTaskType,
+} from "@/features/tasks/lib/task-types";
+import { overdueBadgeText } from "@/features/tasks/lib/overdue-badge";
 import { Can, useCan } from "@/features/session/components/can";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +58,12 @@ export function TasksListView() {
     parseAsString.withDefault(""),
   );
 
+  const [typeParam, setTypeParam] = useQueryState(
+    "type",
+    parseAsString.withDefault(""),
+  );
+  const type = isTaskType(typeParam) ? typeParam : undefined;
+
   const tableState = useServerTableState({
     defaultSort: "due",
     defaultOrder: "asc",
@@ -66,11 +83,29 @@ export function TasksListView() {
     },
   });
 
+  const typeDimension = useStaticFilter({
+    key: "type",
+    label: t("typeFilter.label"),
+    icon: Shapes,
+    value: type ?? "",
+    onChange: (value) => {
+      void setTypeParam(value);
+      tableState.resetPaging();
+    },
+    options: TASK_TYPES.map((code) => ({
+      id: code,
+      label: t(TASK_TYPE_LABEL_KEYS[code]),
+    })),
+    searchPlaceholder: t("typeFilter.placeholder"),
+    emptyLabel: t("typeFilter.empty"),
+  });
+
   const queryFilters = {
     after: tableState.after,
     limit: tableState.pageSize,
     q: tableState.q || undefined,
     status: status === "all" ? undefined : status,
+    type,
     assigneeUserId: !isMine ? assigneeUserId || undefined : undefined,
     sort: (tableState.sort as "due" | "title" | "created") || "due",
     order: tableState.order,
@@ -88,6 +123,7 @@ export function TasksListView() {
     tableState.q ||
     tableState.after ||
     status !== "open" ||
+    type !== undefined ||
     (!isMine && assigneeUserId),
   );
 
@@ -95,6 +131,7 @@ export function TasksListView() {
     tableState.resetAll(() => {
       void setStatus("open");
       void setAssigneeUserId("");
+      void setTypeParam("");
     });
   }
 
@@ -104,9 +141,27 @@ export function TasksListView() {
     tableState.resetPaging();
   }
 
+  // The count follows the list: the same tab and the same search and assignee,
+  // without the status, sort and paging.
+  const overdueCount = useOverdueTasksCount({
+    scope: isMine ? "mine" : "all",
+    filters: {
+      q: tableState.q,
+      assigneeUserId: isMine ? undefined : assigneeUserId,
+      type,
+    },
+    enabled: isMine || canReadAll,
+  });
+  const overdueLabel =
+    overdueCount.data === undefined
+      ? t("status.overdue")
+      : t("status.overdueCount", {
+          count: overdueBadgeText(overdueCount.data),
+        });
+
   const statusOptions: SegmentedOption<TaskStatusFilter>[] = [
     { value: "open", label: t("status.open") },
-    { value: "overdue", label: t("status.overdue") },
+    { value: "overdue", label: overdueLabel },
     { value: "completed", label: t("status.completed") },
     { value: "all", label: t("status.all") },
   ];
@@ -172,7 +227,9 @@ export function TasksListView() {
           onSearchInputChange={tableState.setSearchInput}
           onClearSearch={tableState.clearSearch}
           searchPlaceholder={t("searchPlaceholder")}
-          filters={isMine ? undefined : [assigneeDimension]}
+          filters={
+            isMine ? [typeDimension] : [assigneeDimension, typeDimension]
+          }
           hasActiveFilters={hasActiveFilters}
           onResetFilters={handleResetFilters}
         >

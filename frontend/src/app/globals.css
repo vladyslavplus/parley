@@ -163,6 +163,11 @@
     --tag-5: #d9e6dc;
     --tag-5-foreground: #1c1d1f;
 
+    /* Text on a stored stage colour. Constant in both themes: the colour is
+       stored once, so its text colour cannot flip with the theme. */
+    --stage-ink: #1c1d1f;
+    --stage-paper: #ffffff;
+
     --stage-1: #e6ecf5;
     --stage-1-foreground: #1c1d1f;
     --stage-2: #c9d7eb;

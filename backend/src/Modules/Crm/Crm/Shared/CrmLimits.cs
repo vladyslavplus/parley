@@ -103,9 +103,14 @@ public static class CrmLimits
     /// <summary>Most open stages one pipeline holds: the maximum minus the won and lost stages.</summary>
     public const int PipelineOpenStageMaximumCount = PipelineStageMaximumCount - 2;
 
-    public const int StageColorMinimumIndex = 0;
+    /// <summary>Length of a stage colour: the number sign and six hex digits.</summary>
+    public const int StageColorMaximumLength = 7;
 
-    public const int StageColorMaximumIndex = 4;
+    /// <summary>Stage colour as the API accepts it: a number sign and six hex digits in either letter case.</summary>
+    public const string StageColorInputPattern = "^#[0-9a-fA-F]{6}$";
+
+    /// <summary>Stage colour as it is stored and checked by the database: lowercase digits only.</summary>
+    public const string StageColorStoredPattern = "^#[0-9a-f]{6}$";
 
     public const int StageProbabilityMaximumBps = 10000;
 
@@ -131,6 +136,9 @@ public static class CrmLimits
     public const int TaskTitleMaximumLength = 200;
 
     public const int TaskNotesMaximumLength = 2000;
+
+    /// <summary>Column length of the task type code.</summary>
+    public const int TaskTypeMaximumLength = 16;
 
     public const int NoteBodyMaximumLength = 4000;
 

@@ -11,7 +11,8 @@ public sealed class TaskConfiguration : IEntityTypeConfiguration<CrmTask>
 {
     public void Configure(EntityTypeBuilder<CrmTask> builder)
     {
-        builder.ToTable(CrmSchemaNames.TasksTable);
+        builder.ToTable(CrmSchemaNames.TasksTable, table => table.HasCheckConstraint(CrmSchemaNames.TaskTypeCheck, CrmSql.TaskTypeCheck));
+        builder.Property(task => task.Type).HasMaxLength(CrmLimits.TaskTypeMaximumLength).HasDefaultValue(TaskTypes.Default).IsRequired();
         builder.Property(task => task.Title).HasMaxLength(CrmLimits.TaskTitleMaximumLength).IsRequired();
         builder.Property(task => task.TitleNormalized).HasComputedColumnSql(CrmSql.TaskTitleNormalized, stored: true);
         builder.Property(task => task.Notes).HasMaxLength(CrmLimits.TaskNotesMaximumLength);

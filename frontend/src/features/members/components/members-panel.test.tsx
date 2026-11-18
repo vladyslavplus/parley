@@ -146,7 +146,7 @@ describe("MembersPanel", () => {
     // Invite member button opens modal
     fireEvent.click(screen.getByRole("button", { name: "invite.title" }));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "cancel" }));
+    fireEvent.click(screen.getByRole("button", { name: "close" }));
 
     // Edit member icon button opens edit modal
     fireEvent.click(screen.getByRole("button", { name: "editMember Alice" }));
@@ -155,7 +155,7 @@ describe("MembersPanel", () => {
     expect(
       within(editDialog).getByRole("button", { name: "save" }),
     ).toBeDisabled();
-    fireEvent.click(within(editDialog).getByRole("button", { name: "cancel" }));
+    fireEvent.click(within(editDialog).getByRole("button", { name: "close" }));
 
     // Bob is the only owner on this page, and still has a Deactivate button (server enforces last-owner on 409)
     expect(
@@ -221,7 +221,7 @@ describe("MembersPanel", () => {
     expect(invalidateMock).toHaveBeenCalledWith(queryKeys.me());
 
     // Close modal and open another member — error is cleared
-    fireEvent.click(within(editDialog).getByRole("button", { name: "cancel" }));
+    fireEvent.click(within(editDialog).getByRole("button", { name: "close" }));
     fireEvent.click(screen.getByRole("button", { name: "editMember Bob" }));
     await waitFor(() => {
       expect(

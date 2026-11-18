@@ -5,7 +5,7 @@
     "sectionDashboard": "Business at a glance",
     "priority": {
       "title": "Priority today",
-      "subtitle": "Ranked for you from recent orders, order history, open tasks and stale deals.",
+      "subtitle": "Ranked for you from recent orders, order history, open tasks and stale deals. Up to 100 contacts per owner.",
       "columns": {
         "contact": "Contact",
         "reasons": "Why",
@@ -17,7 +17,46 @@
       "empty": "Nobody needs a call today.",
       "preparingTitle": "The priority list is not ready yet",
       "preparingDescription": "It fills in after the first daily calculation of your contacts.",
-      "subtitleMl": "Ranked by the uplift model: contacts most likely to respond to outreach, with the reasons shown."
+      "subtitleMl": "Ranked by the uplift model: contacts most likely to respond to outreach, with the reasons shown. Up to 100 contacts per owner.",
+      "upliftColumn": "Uplift",
+      "pointsUnit": "pp",
+      "noReasons": "Ranked by segment",
+      "rfmSecondary": "RFM: {segment}",
+      "emptyFilteredTitle": "No contacts of this segment on today's list",
+      "emptyFilteredDescription": "The segment “{segment}” has {total} contacts, but the daily list only holds the highest by priority (up to 100 per owner).",
+      "emptyFilteredDescriptionUnknown": "The daily list only holds the highest by priority (up to 100 per owner). Clear the filter to see the whole list.",
+      "pointsUnitTitle": "percentage points",
+      "nextStep": {
+        "phone": "Phone",
+        "email": "Email",
+        "noPhone": "No phone number",
+        "noEmail": "No email address",
+        "copy": "Copy {what}",
+        "copied": "{what} copied",
+        "copyFailed": "Could not copy. Select the text instead.",
+        "loadFailed": "Contact details could not be loaded.",
+        "addInContact": "Add it on the contact page",
+        "reachOut": "Reach out",
+        "dueTasks": "Due tasks",
+        "tasksEmpty": "No open task is due any more.",
+        "tasksColleague": "A colleague's task may be hidden from you. Open the contact to check.",
+        "tasksLoadFailed": "Tasks could not be loaded.",
+        "assignedTo": "Assigned to {name}",
+        "advice": {
+          "winBack": "Used to buy, but not lately. Check in or make an offer.",
+          "reward": "A top customer. Thank them or offer a perk.",
+          "nurture": "Keep in touch. A short message is enough."
+        }
+      },
+      "upliftChances": {
+        "title": "Chance of a response",
+        "without": "Without contact",
+        "with": "With contact",
+        "change": "{points} pp from contacting.",
+        "none": "No estimate for this contact.",
+        "loadFailed": "The estimate could not be loaded.",
+        "open": "Show the chances for {name}"
+      }
     },
     "newOrganization": {
       "title": "Start with your contacts",
@@ -30,7 +69,7 @@
   "mode": {
     "rfm": {
       "title": "RFM mode",
-      "body": "The ranking uses only recency, frequency and value of orders, plus open tasks and stale deals. No machine learning is involved. The list shows who to contact; it does not predict what a contact will do."
+      "body": "The ranking uses only recency (how recently the customer bought), frequency (how often) and monetary value (how much they spend), plus open tasks and stale deals. No machine learning is involved. The list shows who to contact; it does not predict what a contact will do."
     },
     "ml": {
       "title": "ML ranking",
@@ -39,10 +78,14 @@
   },
   "filters": {
     "segment": "Segment",
+    "rfmSegment": "RFM segment",
+    "upliftSegment": "Uplift segment",
     "allSegments": "All segments",
     "searchSegments": "Find a segment",
+    "searchUpliftSegments": "Find an uplift segment",
     "noSegments": "No segment matches",
-    "help": "Segments compare each customer with the other customers of your organization.",
+    "countOfTotal": "{onList} of {total}",
+    "help": "The number next to a segment shows how many of its contacts are on today's list of how many exist.",
     "tooLarge": "This segment is too large to filter; narrow the list with another filter first"
   },
   "dashboard": {
@@ -52,12 +95,18 @@
       "total": "{amount} in {count, plural, one {# open deal} few {# open deals} many {# open deals} other {# open deals}}",
       "empty": "No open deals yet.",
       "stageRow": "{count, plural, one {# deal} few {# deals} many {# deals} other {# deals}}, {amount}",
-      "chartLabel": "Pipeline value by stage: {total}"
+      "chartLabel": "Pipeline value by stage: {total}",
+      "tooltipDeals": "{count, plural, one {# open deal} other {# open deals}}"
     },
     "tasks": {
       "title": "Tasks due",
       "count": "{count, plural, =0 {No tasks due} one {# task due} few {# tasks due} many {# tasks due} other {# tasks due}}",
       "description": "Open tasks due now or earlier.",
+      "scope": {
+        "org": "Across the whole organization",
+        "team": "In your team",
+        "own": "Assigned to you"
+      },
       "open": "Open tasks"
     },
     "campaign": {
@@ -65,8 +114,8 @@
       "name": "{name}",
       "empty": "No completed campaign yet.",
       "open": "Open campaign",
-      "lift": "{lift} percentage points",
-      "interval": "95% interval from {low} to {high} percentage points",
+      "lift": "{lift} percentage points of conversion vs. the holdout group",
+      "interval": "Likely range (95% interval): from {low} to {high} percentage points",
       "provisional": "Provisional: the window is still open",
       "finalizing": "The window has closed; final figures are being calculated.",
       "description": "Describes what happened in this campaign. It does not show what caused it.",
@@ -111,10 +160,8 @@
   "reasons": {
     "highValue": "High value",
     "recentOrder": "Recent order",
-    "atRisk": "At risk",
     "taskDue": "Task due",
     "dealStale": "Stale deal",
-    "persuadable": "Persuadable",
     "upliftHigh": "High uplift",
     "doNotDisturb": "Do not disturb"
   },
@@ -130,7 +177,7 @@
     "noOrders": "No orders"
   },
   "actions": {
-    "call": "Call",
+    "call": "Follow up",
     "reviewDeal": "Review deal",
     "winBack": "Win back",
     "reward": "Reward",
@@ -165,9 +212,9 @@
       "runLink": "Open the model registry to run scoring"
     },
     "upliftSegments": {
-      "persuadable": "Persuadable",
-      "sureThing": "Sure thing",
-      "lostCause": "Lost cause",
+      "persuadable": "Likely to respond",
+      "sureThing": "Would buy anyway",
+      "lostCause": "Unlikely to respond",
       "doNotDisturb": "Do not disturb"
     },
     "scores": {
@@ -175,12 +222,22 @@
       "notScored": "Not scored yet",
       "rfmSegment": "RFM segment",
       "upliftSegment": "Uplift segment",
-      "upliftValue": "Uplift score",
-      "clvValue": "Expected value (CLV)",
       "model": "Model {name} · {version}",
       "scoredAt": "Scored {when}",
+      "pointsUnit": "pp",
+      "upliftLine": "The model estimates the response probability to be {points} pp higher if the contact is approached.",
+      "probabilities": "{treated} with the message, {control} without it.",
+      "approxValue": "≈ {value}",
+      "clvValue": "≈ {amount} over {horizon}",
+      "horizonMonths": "{months, plural, one {# month} other {# months}}",
+      "horizonDays": "{days, plural, one {# day} other {# days}}",
+      "pAliveLabel": "Probability the customer is still active",
+      "expectedPurchasesLabel": "Expected repeat purchases",
+      "upliftRule": "Why: uplift ≥ {points} pp",
+      "sureThingRule": "Why: chance to buy without the message ≥ {percent}",
+      "doNotDisturbRule": "Why: uplift < {points} pp",
       "numbersHidden": "Numbers are visible to managers and marketers.",
-      "honestNote": "Scores estimate how a contact may respond, based on a demo model. They are not proof of an effect and do not show cause."
+      "honestNote": "An estimate of a demo model on semi-synthetic data. It shows that the pipeline works and is not proof of a real effect; an individual treatment effect is never observed."
     },
     "registry": {
       "title": "Model registry",
@@ -220,7 +277,7 @@
       "running": "Scoring...",
       "queued": "Waiting to start",
       "progress": "{scored} of {total} scored, {rejected} rejected",
-      "completed": "Scoring finished: {scored} contacts scored, {rejected} rejected.",
+      "completed": "{scored, plural, one {# contact} other {# contacts}} with orders were scored. {skipped, plural, one {# contact} other {# contacts}} without orders are not scored. Rejected: {rejected}.",
       "failed": "Scoring did not finish. Existing scores are unchanged.",
       "started": "Scoring started.",
       "disabledMlOff": "Turn ML on in ML settings first.",

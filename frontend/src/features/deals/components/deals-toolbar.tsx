@@ -50,10 +50,10 @@ export function DealsToolbar({
   });
 
   const statusOptions: SegmentedOption<DealStatusFilter>[] = [
+    { value: "all", label: t("statusAll") },
     { value: "open", label: t("statusOpen") },
     { value: "won", label: t("statusWon") },
     { value: "lost", label: t("statusLost") },
-    { value: "all", label: t("statusAll") },
   ];
 
   return (

@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Parley.Crm.Contracts.DemoSeed;
+using Parley.Crm.Domain.Tasks;
 using Parley.Crm.Seeding.DemoSeed;
 using Parley.Insights.Contracts.Rfm;
 using Parley.Insights.Domain.Rfm;
@@ -82,5 +83,37 @@ public sealed class DemoGeneratorTests
             segments.Should().Contain(expected);
         }
         contacts.Should().Contain(contact => !byContact.ContainsKey(contact.CustomerRef), "the no-orders segment is populated too");
+    }
+
+    [Fact]
+    public void Tasks_LookLive_AtTheReferenceInstant_AndReachTheLeadershipAccounts()
+    {
+        var teamManager = Guid.CreateVersion7();
+        var request = Request with
+        {
+            TaskLeadership =
+            [
+                new CrmDemoTaskAssignee(Guid.CreateVersion7(), null),
+                new CrmDemoTaskAssignee(teamManager, [Owners[0]]),
+            ],
+        };
+        var now = Reference.UtcDateTime;
+
+        var tasks = DemoGenerator.Contacts(request).Where(contact => contact.TaskDueAt is not null).ToList();
+
+        var completed = tasks.Where(task => task.TaskCompleted).ToList();
+        var open = tasks.Where(task => !task.TaskCompleted).ToList();
+        completed.Should().OnlyContain(task => task.TaskDueAt < now, "completed tasks stay in the past");
+        open.Count(task => task.TaskDueAt < now).Should().BeInRange(open.Count * 3 / 100, open.Count * 8 / 100, "about 5 % of open tasks are overdue");
+        open.Count(task => task.TaskDueAt >= now && task.TaskDueAt <= now.AddDays(2)).Should()
+            .BeInRange(open.Count * 7 / 100, open.Count * 18 / 100, "about 10 % fall due within two days, plus the first morning of the later spread");
+        open.Where(task => task.TaskDueAt > now.AddDays(2)).Should().OnlyContain(task => task.TaskDueAt <= now.AddDays(DemoWorkspaceRules.OpenTaskLaterToDays + 1));
+        tasks.Should().OnlyContain(task => TaskTypes.IsValid(task.TaskType), "every demo task carries a valid type");
+        tasks.Select(task => task.TaskType).Distinct().Should().BeEquivalentTo(TaskTypes.All, "the demo covers every task type");
+        tasks.Where(task => task.TaskTitle == SharedTexts.Get("crm.demo.task.send_price_list", CultureCodes.Ukrainian)).Should()
+            .OnlyContain(task => task.TaskType == TaskTypes.Email, "a task type fits its title");
+        tasks.Count(task => task.TaskAssigneeUserId != task.OwnerUserId).Should().BeGreaterThan(tasks.Count / 5);
+        tasks.Where(task => task.TaskAssigneeUserId == teamManager).Should()
+            .NotBeEmpty().And.OnlyContain(task => task.OwnerUserId == Owners[0], "a team manager only gets tasks on contacts of the team");
     }
 }

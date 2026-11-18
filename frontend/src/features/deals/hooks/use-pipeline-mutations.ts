@@ -13,7 +13,7 @@ import { showErrorToast, showSuccessToast } from "@/lib/toasts";
 
 export interface StageInput {
   name: string;
-  colorIndex: number;
+  color: string;
   probabilityBps: number;
 }
 
@@ -96,7 +96,7 @@ export function usePipelineMutations() {
   ): Promise<PipelineStage> {
     const body: Schemas["PipelineStageRequest"] = {
       name: input.name,
-      colorIndex: input.colorIndex,
+      color: input.color,
       probabilityBps: input.probabilityBps,
     };
 
@@ -141,7 +141,7 @@ export function usePipelineMutations() {
   ): Promise<PipelineStage> {
     const body: Schemas["PipelineStageRequest"] = {
       name: input.name,
-      colorIndex: input.colorIndex,
+      color: input.color,
       probabilityBps: input.probabilityBps,
     };
 

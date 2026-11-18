@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { LIMITS } from "@/constants/limits";
 
 const STATUS_VALUES = ["all", "open", "won", "lost"] as const;
+const DEFAULT_STATUS: DealStatusFilter = "all";
 export type DealStatusFilter = (typeof STATUS_VALUES)[number];
 
 export function useDealFilters() {
@@ -30,7 +31,7 @@ export function useDealFilters() {
 
   const [status, setStatus] = useQueryState(
     "status",
-    parseAsStringLiteral(STATUS_VALUES).withDefault("open"),
+    parseAsStringLiteral(STATUS_VALUES).withDefault(DEFAULT_STATUS),
   );
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export function useDealFilters() {
   }, [searchInput, q, setQ]);
 
   const hasActiveFilters = Boolean(
-    q || ownerUserId || companyId || (status && status !== "open"),
+    q || ownerUserId || companyId || status !== DEFAULT_STATUS,
   );
 
   function clearFilters() {
@@ -55,7 +56,7 @@ export function useDealFilters() {
     void setQ("");
     void setOwnerUserId("");
     void setCompanyId("");
-    void setStatus("open");
+    void setStatus(DEFAULT_STATUS);
   }
 
   return {

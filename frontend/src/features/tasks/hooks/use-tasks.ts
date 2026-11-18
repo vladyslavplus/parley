@@ -9,7 +9,14 @@ import { useLocale } from "next-intl";
 
 import { LIMITS } from "@/constants/limits";
 import { queryKeys } from "@/constants/query-keys";
-import type { Task, TaskFilters, TaskPage } from "@/features/tasks/types";
+import { toNumber } from "@/features/campaigns/types";
+import type {
+  OverdueCountFilters,
+  Task,
+  TaskFilters,
+  TaskOverdueCount,
+  TaskPage,
+} from "@/features/tasks/types";
 import { backendJson } from "@/lib/api/bff-client";
 
 export function tasksListQueryOptions(
@@ -30,6 +37,7 @@ export function tasksListQueryOptions(
           dealId: filters.dealId || undefined,
           companyId: filters.companyId || undefined,
           status: filters.status || undefined,
+          type: filters.type || undefined,
           sort: filters.sort || undefined,
           order: filters.order || undefined,
         },
@@ -56,6 +64,7 @@ export function tasksMineQueryOptions(
           dealId: filters.dealId || undefined,
           companyId: filters.companyId || undefined,
           status: filters.status || undefined,
+          type: filters.type || undefined,
           sort: filters.sort || undefined,
           order: filters.order || undefined,
         },
@@ -111,27 +120,56 @@ export function useTask(id: string | null | undefined) {
   });
 }
 
-export function overdueTasksQueryOptions(locale: string) {
+export type OverdueScope = "mine" | "all";
+
+// Empty values are left out, so the same filters always give the same key.
+function normalizeOverdueFilters(filters: OverdueCountFilters) {
+  return {
+    q: filters.q?.trim() || undefined,
+    assigneeUserId: filters.assigneeUserId || undefined,
+    contactId: filters.contactId || undefined,
+    dealId: filters.dealId || undefined,
+    companyId: filters.companyId || undefined,
+    type: filters.type || undefined,
+  };
+}
+
+// "mine" counts the caller's own overdue tasks; "all" counts every task the
+// caller may see. The endpoints take the filters of the list, nothing more.
+export function overdueTasksQueryOptions(
+  scope: OverdueScope,
+  filters: OverdueCountFilters,
+  locale: string,
+) {
+  const query = normalizeOverdueFilters(
+    scope === "mine" ? { ...filters, assigneeUserId: undefined } : filters,
+  );
   return queryOptions({
-    queryKey: queryKeys.tasksOverdueCount(),
+    queryKey: queryKeys.tasksOverdueCount(scope, query),
     queryFn: async () => {
-      const page = await backendJson<TaskPage>("/tasks/mine", {
-        locale,
-        query: {
-          status: "overdue",
-          limit: 1,
-        },
-      });
-      return page.items?.length ?? 0;
+      const view = await backendJson<TaskOverdueCount>(
+        scope === "mine" ? "/tasks/mine/overdue-count" : "/tasks/overdue-count",
+        { locale, query },
+      );
+      return toNumber(view.count);
     },
     staleTime: LIMITS.queryStaleTimeMs,
+    placeholderData: keepPreviousData,
   });
 }
 
-export function useOverdueTasksCount(options?: { enabled?: boolean }) {
+export function useOverdueTasksCount(options?: {
+  scope?: OverdueScope;
+  filters?: OverdueCountFilters;
+  enabled?: boolean;
+}) {
   const locale = useLocale();
   return useQuery({
-    ...overdueTasksQueryOptions(locale),
+    ...overdueTasksQueryOptions(
+      options?.scope ?? "mine",
+      options?.filters ?? {},
+      locale,
+    ),
     enabled: options?.enabled ?? true,
   });
 }
@@ -157,5 +195,24 @@ export function useSubjectTasks(
       locale,
     ),
     enabled: (options?.enabled ?? true) && hasSubject,
+  });
+}
+
+// The open tasks of a contact that are due now or late, soonest first: what the
+// "Follow up" step of the priority list points at. Read when the popover opens.
+export function useDueContactTasks(contactId: string, enabled: boolean) {
+  const locale = useLocale();
+  return useQuery({
+    ...tasksListQueryOptions(
+      {
+        contactId,
+        status: "overdue",
+        limit: LIMITS.nextStepTasksLimit,
+        sort: "due",
+        order: "asc",
+      },
+      locale,
+    ),
+    enabled,
   });
 }

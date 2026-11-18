@@ -330,6 +330,9 @@
   <data name="crm.demo.task.review_invoice" xml:space="preserve">
     <value>Review invoice</value>
   </data>
+  <data name="crm.demo.task.plan_meeting" xml:space="preserve">
+    <value>Schedule a meeting</value>
+  </data>
   <data name="crm.demo.note.delivery_times" xml:space="preserve">
     <value>Asked about delivery times.</value>
   </data>

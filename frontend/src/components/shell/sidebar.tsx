@@ -10,10 +10,15 @@ import { LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 import { PERMISSIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
+import { LIMITS } from "@/constants/limits";
 import { SHELL_SHORTCUTS } from "@/constants/shortcuts";
 import { companyListQueryOptions } from "@/features/crm/hooks/use-companies";
 import { contactListQueryOptions } from "@/features/crm/hooks/use-contacts";
 import { useOverdueTasksCount } from "@/features/tasks/hooks/use-tasks";
+import {
+  isOverdueCountCapped,
+  overdueBadgeText,
+} from "@/features/tasks/lib/overdue-badge";
 import { Can, useCan } from "@/features/session/components/can";
 import { Link, usePathname } from "@/i18n/navigation";
 import { shortcutRegistry } from "@/lib/shortcuts/registry";
@@ -50,6 +55,9 @@ export function Sidebar({
     enabled: canReadTasks,
   });
   const hasOverdue = overdueCount > 0;
+  const overdueText = isOverdueCountCapped(overdueCount)
+    ? tShell("sidebar.overdueTasksMany", { count: LIMITS.overdueBadgeCap })
+    : tShell("sidebar.overdueTasks", { count: overdueCount });
 
   useEffect(() => {
     const unregister = shortcutRegistry.register({
@@ -79,6 +87,15 @@ export function Sidebar({
       (item.id === "settings" && pathname.startsWith("/app/settings"));
 
     const label = tShell(item.titleKey as Parameters<typeof tShell>[0]);
+    const overdue = item.id === "tasks" && hasOverdue;
+    // The hover text names the number; collapsed, it also carries the label.
+    const linkTitle = overdue
+      ? collapsed
+        ? `${label}: ${overdueText}`
+        : overdueText
+      : collapsed
+        ? label
+        : undefined;
 
     const link = (
       <Link
@@ -89,7 +106,7 @@ export function Sidebar({
         onFocus={() => handlePrefetch(item)}
         onClick={() => onMobileOpenChange(false)}
         aria-current={active ? "page" : undefined}
-        title={collapsed ? label : undefined}
+        title={linkTitle}
         className={cn(
           "flex items-center gap-3 rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring overflow-hidden",
           active
@@ -97,7 +114,15 @@ export function Sidebar({
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
-        <Icon className="h-4 w-4 shrink-0" />
+        <span className="relative flex shrink-0">
+          <Icon className="h-4 w-4" />
+          {overdue && collapsed ? (
+            <span
+              className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-card"
+              aria-hidden="true"
+            />
+          ) : null}
+        </span>
         <span
           className={cn(
             "truncate whitespace-nowrap transition-opacity duration-150 flex-1",
@@ -106,17 +131,19 @@ export function Sidebar({
         >
           {label}
         </span>
-        {item.id === "tasks" && hasOverdue && (
-          <span
-            className={cn("ml-auto flex items-center", collapsed && "sr-only")}
-          >
-            <span
-              className="flex h-2 w-2 rounded-full bg-destructive"
-              aria-hidden="true"
-            />
-            <span className="sr-only">{tShell("sidebar.hasOverdueTasks")}</span>
-          </span>
-        )}
+        {overdue ? (
+          <>
+            {collapsed ? null : (
+              <span
+                aria-hidden="true"
+                className="ml-auto flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-destructive/10 px-1 text-[10px] font-semibold leading-none tabular-nums text-destructive"
+              >
+                {overdueBadgeText(overdueCount)}
+              </span>
+            )}
+            <span className="sr-only">{overdueText}</span>
+          </>
+        ) : null}
       </Link>
     );
 

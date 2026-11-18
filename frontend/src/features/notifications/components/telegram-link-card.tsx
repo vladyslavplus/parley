@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { InfoHint } from "@/components/ui/info-hint";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LIMITS } from "@/constants/limits";
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
@@ -32,6 +33,7 @@ import { showErrorToast, showSuccessToast } from "@/lib/toasts";
 // Telegram set up. A pending code is polled until the chat is linked.
 export function TelegramLinkCard() {
   const t = useTranslations("notifications.telegram");
+  const tHints = useTranslations("hints");
   const tNotifications = useTranslations("notifications");
   const locale = useLocale();
   const errorText = useErrorText();
@@ -125,7 +127,10 @@ export function TelegramLinkCard() {
         >
           {t("title")}
         </h2>
-        <p className="mt-0.5 text-xs text-muted-foreground">{t("subtitle")}</p>
+        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span>{t("subtitle")}</span>
+          <InfoHint>{tHints("telegram")}</InfoHint>
+        </p>
       </div>
 
       {isLinked && linkQuery.data?.linkedAt ? (

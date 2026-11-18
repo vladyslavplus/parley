@@ -11,8 +11,9 @@ public sealed class UpdatePipelineStageCommandValidator : AbstractValidator<Upda
         RuleFor(command => command.Name)
             .Must(value => !string.IsNullOrWhiteSpace(value)).WithErrorCode(ErrorCodes.ValidationFailed)
             .MaximumLength(CrmLimits.PipelineStageNameMaximumLength).WithErrorCode(ErrorCodes.ValidationFailed);
-        RuleFor(command => command.ColorIndex)
-            .InclusiveBetween(CrmLimits.StageColorMinimumIndex, CrmLimits.StageColorMaximumIndex).WithErrorCode(ErrorCodes.ValidationFailed);
+        RuleFor(command => command.Color)
+            .MaximumLength(CrmLimits.StageColorMaximumLength).WithErrorCode(ErrorCodes.ValidationFailed)
+            .Matches(CrmLimits.StageColorInputPattern).WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(command => command.ProbabilityBps)
             .InclusiveBetween(0, CrmLimits.StageProbabilityMaximumBps).WithErrorCode(ErrorCodes.ValidationFailed);
     }

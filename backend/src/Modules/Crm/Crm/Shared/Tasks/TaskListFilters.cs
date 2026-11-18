@@ -35,6 +35,11 @@ public static class TaskListFilters
             tasks = tasks.Where(task => task.CompanyId == companyId);
         }
 
+        if (filter.Type is { } type)
+        {
+            tasks = tasks.Where(task => task.Type == type);
+        }
+
         return filter.Status switch
         {
             TaskStatuses.Open => tasks.Where(task => task.CompletedAt == null),

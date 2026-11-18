@@ -39,6 +39,23 @@ class HealthResponse(_Strict):
     models_loaded: int = Field(ge=0, description="Number of models with status available.")
 
 
+class UpliftSegmentRules(_Strict):
+    """Segment thresholds of an uplift artifact, exactly as the manifest holds them."""
+
+    do_not_disturb_uplift_below: float = Field(
+        description="Uplift below this value labels a contact do_not_disturb."
+    )
+    persuadable_uplift_at_least: float = Field(
+        description="Uplift at or above this value labels a contact persuadable."
+    )
+    sure_thing_control_rate_at_least: float = Field(
+        description="Control response rate at or above this value labels a contact sure_thing."
+    )
+
+
+UPLIFT_RULE_KEYS: Final[tuple[str, ...]] = tuple(UpliftSegmentRules.model_fields)
+
+
 class ModelEntry(_Strict):
     model_name: str
     version: str
@@ -47,6 +64,12 @@ class ModelEntry(_Strict):
     provenance: str = Field(description="public_dataset, semi_synthetic, stub, or unknown when the manifest is unreadable.")
     trained_at: str
     metrics: dict[str, Any] = Field(description="Evaluation metrics from the manifest; empty when unavailable.")
+    segment_rules: UpliftSegmentRules | None = Field(
+        description=(
+            "Segment thresholds from the manifest; null for a model without segment rules (clv) and for an "
+            "unavailable model."
+        )
+    )
     status: Literal["available", "unavailable"]
     error_code: str | None = Field(description="Model status code (ml.model.*) when unavailable, else null.")
 

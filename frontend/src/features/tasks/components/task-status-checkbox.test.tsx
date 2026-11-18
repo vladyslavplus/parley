@@ -34,6 +34,7 @@ describe("TaskStatusCheckbox", () => {
   const openTask: Task = {
     id: "task-1",
     title: "Client meeting",
+    type: "meeting",
     dueAt: null,
     assigneeUserId: "u-1",
     assigneeDisplayName: "Alex",

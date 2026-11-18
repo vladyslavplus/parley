@@ -1,12 +1,12 @@
 "use client";
 
-import * as Dialog from "@radix-ui/react-dialog";
-import { AlertCircle, CheckCircle2, Loader2, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import type {
   Deal,
   PipelineBoardStage,
@@ -37,8 +37,6 @@ export function DealWonLostDialog({
   onConfirm,
 }: Props) {
   const t = useTranslations("crm.deals.terminalDialog");
-  const tCommon = useTranslations("common");
-  const descriptionId = useId();
   const reasonId = useId();
 
   const [lostReason, setLostReason] = useState("");
@@ -80,100 +78,79 @@ export function DealWonLostDialog({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xs transition-opacity" />
-        <Dialog.Content
-          aria-describedby={descriptionId}
-          className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-[var(--shadow-floating)] focus:outline-none"
+    <Modal
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) handleCancel();
+      }}
+      title={isLost ? t("lostTitle") : t("wonTitle")}
+      description={
+        isLost
+          ? t("lostDescription", { title: deal.title })
+          : t("wonDescription", { title: deal.title })
+      }
+      closeDisabled={submitting}
+      bodyClassName="empty:hidden"
+      icon={
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-[var(--radius-control)] ${
+            isLost
+              ? "bg-destructive/10 text-destructive"
+              : "bg-success/10 text-success"
+          }`}
         >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] ${
-                  isLost
-                    ? "bg-destructive/10 text-destructive"
-                    : "bg-success/10 text-success"
-                }`}
-              >
-                {isLost ? (
-                  <AlertCircle className="h-5 w-5" />
-                ) : (
-                  <CheckCircle2 className="h-5 w-5" />
-                )}
-              </div>
-              <div>
-                <Dialog.Title className="text-base font-semibold text-foreground">
-                  {isLost ? t("lostTitle") : t("wonTitle")}
-                </Dialog.Title>
-                <Dialog.Description
-                  id={descriptionId}
-                  className="text-xs text-muted-foreground mt-0.5"
-                >
-                  {isLost
-                    ? t("lostDescription", { title: deal.title })
-                    : t("wonDescription", { title: deal.title })}
-                </Dialog.Description>
-              </div>
-            </div>
-            <Dialog.Close asChild>
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={submitting}
-                className="rounded-xs p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">{tCommon("close")}</span>
-              </button>
-            </Dialog.Close>
-          </div>
-
-          {isLost && (
-            <div className="mt-4 space-y-2">
-              <label
-                htmlFor={reasonId}
-                className="block text-xs font-medium text-foreground"
-              >
-                {t("lostReasonLabel")}
-              </label>
-              <Textarea
-                id={reasonId}
-                value={lostReason}
-                onChange={(e) => setLostReason(e.target.value)}
-                rows={3}
-                placeholder={t("lostReasonPlaceholder")}
-                disabled={submitting}
-                autoFocus
-              />
-            </div>
+          {isLost ? (
+            <AlertCircle className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
           )}
-
-          <div className="mt-6 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleCancel}
-              disabled={submitting}
-              className="px-3 text-xs"
-            >
-              {t("cancel")}
-            </Button>
-            <Button
-              type="button"
-              variant={isLost ? "danger" : "primary"}
-              onClick={handleConfirm}
-              disabled={submitting}
-              className="px-3 text-xs"
-            >
-              {submitting && (
-                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-              )}
-              {isLost ? t("confirmLost") : t("confirmWon")}
-            </Button>
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </div>
+      }
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCancel}
+            disabled={submitting}
+            className="px-3 text-xs"
+          >
+            {t("cancel")}
+          </Button>
+          <Button
+            type="button"
+            variant={isLost ? "danger" : "primary"}
+            onClick={() => void handleConfirm()}
+            disabled={submitting}
+            className="px-3 text-xs"
+          >
+            {submitting && (
+              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            )}
+            {isLost ? t("confirmLost") : t("confirmWon")}
+          </Button>
+        </div>
+      }
+    >
+      {isLost && (
+        <div className="space-y-2">
+          <label
+            htmlFor={reasonId}
+            className="block text-xs font-medium text-foreground"
+          >
+            {t("lostReasonLabel")}
+          </label>
+          <Textarea
+            id={reasonId}
+            value={lostReason}
+            onChange={(e) => setLostReason(e.target.value)}
+            rows={3}
+            placeholder={t("lostReasonPlaceholder")}
+            disabled={submitting}
+            autoFocus
+          />
+        </div>
+      )}
+    </Modal>
   );
 }

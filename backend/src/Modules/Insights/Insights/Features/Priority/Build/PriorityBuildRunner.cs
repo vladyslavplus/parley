@@ -87,7 +87,7 @@ public sealed class PriorityBuildRunner(
                             uplift.Value,
                             uplift.Segment ?? string.Empty,
                             mlOptions);
-                        AddIfRankable(buckets, row, mlScore, PriorityModes.Ml);
+                        AddIfRankable(buckets, row, mlScore, PriorityModes.Ml, uplift.Value, uplift.Segment);
                         continue;
                     }
 
@@ -135,6 +135,8 @@ public sealed class PriorityBuildRunner(
                 ReasonCodes = entry.Candidate.ReasonCodes.ToArray(),
                 SuggestedAction = entry.Candidate.SuggestedAction,
                 Segment = entry.Candidate.Segment,
+                UpliftValue = entry.Candidate.UpliftValue,
+                UpliftSegment = entry.Candidate.UpliftSegment,
             })
             .ToList();
 
@@ -173,7 +175,13 @@ public sealed class PriorityBuildRunner(
     /// Adds a candidate when it ranks: a positive value, or a do-not-disturb caution that the list keeps at the bottom so the
     /// user sees why the contact should not be contacted now.
     /// </summary>
-    private static void AddIfRankable(PriorityBuckets buckets, PriorityInputRow row, PriorityScore score, string mode)
+    private static void AddIfRankable(
+        PriorityBuckets buckets,
+        PriorityInputRow row,
+        PriorityScore score,
+        string mode,
+        decimal? upliftValue = null,
+        string? upliftSegment = null)
     {
         if (score.Value <= 0 && !score.ReasonCodes.Contains(PriorityReasons.DoNotDisturb))
         {
@@ -187,7 +195,9 @@ public sealed class PriorityBuildRunner(
             score.Value,
             score.ReasonCodes,
             score.SuggestedAction,
-            mode));
+            mode,
+            upliftValue,
+            upliftSegment));
     }
 
     private async Task<List<PriorityInputRow>> ReadInputBatchAsync(DateOnly asOf, Guid? afterContactId, CancellationToken cancellationToken)

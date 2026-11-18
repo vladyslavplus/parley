@@ -5,6 +5,7 @@ using Parley.Crm.Domain.Deals;
 using Parley.Crm.Domain.Orders;
 using Parley.Crm.Domain.Pipelines;
 using Parley.Crm.Persistence;
+using Parley.Crm.Shared.Pipelines;
 using Parley.SharedKernel.Tenancy.Abstractions;
 
 namespace Parley.IntegrationTests.Crm.Metrics.Support;
@@ -46,6 +47,7 @@ public static class CustomerMetricsFixtureSeed
                 Name = FixtureStageName,
                 Position = 0,
                 Kind = PipelineStageKinds.Open,
+                Color = PipelineStageColors.Lightest,
             };
             db.Pipelines.Add(pipeline);
             db.PipelineStages.Add(stage);

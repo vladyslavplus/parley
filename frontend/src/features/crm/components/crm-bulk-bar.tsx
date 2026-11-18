@@ -1,6 +1,5 @@
 "use client";
 
-import * as Dialog from "@radix-ui/react-dialog";
 import { Trash2, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -8,6 +7,7 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Modal } from "@/components/ui/modal";
 import type { Permission } from "@/constants/permissions";
 import { OwnerPicker } from "@/features/crm/components/owner-picker";
 import { Can } from "@/features/session/components/can";
@@ -32,7 +32,6 @@ export function CrmBulkBar({
 }: Props) {
   const t = useTranslations("crm.bulk");
   const tErrors = useTranslations("errors.kinds");
-  const tCommon = useTranslations("common");
 
   const [assignOpen, setAssignOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -100,7 +99,7 @@ export function CrmBulkBar({
       </Can>
 
       {/* Assign Owner Dialog with shared OwnerPicker */}
-      <Dialog.Root
+      <Modal
         open={assignOpen}
         onOpenChange={(nextOpen) => {
           setAssignOpen(nextOpen);
@@ -109,49 +108,32 @@ export function CrmBulkBar({
             setSelectedOwner("");
           }
         }}
+        size="sm"
+        title={t("assignOwnerDialogTitle")}
+        footer={
+          <Button
+            variant="primary"
+            onClick={handleAssign}
+            disabled={!selectedOwner || isPending}
+            className="w-full"
+          >
+            {t("assign")}
+          </Button>
+        }
       >
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-150" />
-          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-5 shadow-floating space-y-4 focus:outline-none">
-            <Dialog.Title className="text-sm font-semibold text-foreground">
-              {t("assignOwnerDialogTitle")}
-            </Dialog.Title>
-            <Dialog.Description className="sr-only">
-              {t("selectOwner")}
-            </Dialog.Description>
+        <div className="space-y-4">
+          {assignError && <Alert tone="error">{assignError}</Alert>}
 
-            {assignError && <Alert tone="error">{assignError}</Alert>}
-
-            <OwnerPicker
-              variant="control"
-              allowClear={false}
-              value={selectedOwner || null}
-              placeholder={t("selectOwner")}
-              ariaLabel={t("selectOwner")}
-              onChange={(nextOwnerId) => setSelectedOwner(nextOwnerId ?? "")}
-            />
-
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setAssignOpen(false)}
-                disabled={isPending}
-                className="px-3 text-xs"
-              >
-                {tCommon("cancel")}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleAssign}
-                disabled={!selectedOwner || isPending}
-                className="px-3 text-xs"
-              >
-                {t("assign")}
-              </Button>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+          <OwnerPicker
+            variant="control"
+            allowClear={false}
+            value={selectedOwner || null}
+            placeholder={t("selectOwner")}
+            ariaLabel={t("selectOwner")}
+            onChange={(nextOwnerId) => setSelectedOwner(nextOwnerId ?? "")}
+          />
+        </div>
+      </Modal>
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog

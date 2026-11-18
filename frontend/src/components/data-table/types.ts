@@ -19,6 +19,8 @@ export interface DataTableProps<TData> {
   emptyDescription?: string;
   emptyAction?: ReactNode;
   onRowClick?: (row: TData) => void;
+  /** Extra classes for one body row, for a row-level cue such as an accent. */
+  getRowClassName?: (row: TData) => string | undefined;
   bulkActions?: (
     selectedRows: TData[],
     clearSelection: () => void,

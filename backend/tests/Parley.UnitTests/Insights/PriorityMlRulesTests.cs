@@ -14,7 +14,7 @@ public sealed class PriorityMlRulesTests
         [RfmSegmentNames.Champions] = 60m,
     };
 
-    private static readonly PriorityMlOptions Options = new(0.7m, 0.3m, 0.10m, Weights, 15m, 10m);
+    private static readonly PriorityMlOptions Options = new(0.7m, 0.3m, 0.20m, Weights, 15m, 10m);
 
     private static readonly PriorityFacts NoFacts = new(false, false);
 
@@ -86,11 +86,13 @@ public sealed class PriorityMlRulesTests
     }
 
     [Fact]
-    public void ScoreMl_AddsThePersuadableAndHighUpliftReasonsBeforeTheSegmentReasons()
+    public void ScoreMl_AddsTheHighUpliftReasonOnly()
     {
         var score = PriorityRules.ScoreMl(RfmSegmentNames.AtRisk, null, NoFacts, 0.25m, PriorityUpliftSegments.Persuadable, Options)!;
+        var belowTheMark = PriorityRules.ScoreMl(RfmSegmentNames.AtRisk, null, NoFacts, 0.15m, PriorityUpliftSegments.Persuadable, Options)!;
 
-        score.ReasonCodes.Should().Equal(PriorityReasons.Persuadable, PriorityReasons.UpliftHigh, PriorityReasons.AtRisk);
+        score.ReasonCodes.Should().Equal([PriorityReasons.UpliftHigh], "the RFM segment is a column, not a reason");
+        belowTheMark.ReasonCodes.Should().BeEmpty("the persuadable label is not a reason and 0.15 is below the high mark");
     }
 
     [Fact]
@@ -100,7 +102,6 @@ public sealed class PriorityMlRulesTests
 
         score.ReasonCodes.Should().BeEmpty();
     }
-
     [Fact]
     public void ScoreMl_AddsTheCrmBonusesToTheValue()
     {

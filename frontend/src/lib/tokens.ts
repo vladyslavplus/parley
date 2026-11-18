@@ -82,6 +82,45 @@ export const COLOR_TOKENS: ColorTokenMeta[] = [
 export const STAGE_INDICES = [1, 2, 3, 4, 5] as const;
 export const TAG_INDICES = [1, 2, 3, 4, 5] as const;
 
+// Page backgrounds, copied from `globals.css`. A custom stage colour is stored
+// once and shown in both themes, so the picker warns when it melts into either.
+export const THEME_PAGE_BACKGROUNDS = {
+  light: "#ffffff",
+  dark: "#101113",
+} as const;
+
+// Text ink and paper for an arbitrary stage colour. Unlike the stage ramp
+// foregrounds, these stay the same in both themes: a stored hex does not
+// change with the theme, so its text colour must not either.
+export const STAGE_INK = "#1c1d1f";
+export const STAGE_PAPER = "#ffffff";
+
+// The five default stage colours in position order, from `globals.css`.
+export const STAGE_DEFAULT_COLORS = [
+  "#e6ecf5",
+  "#c9d7eb",
+  "#93b2dc",
+  "#3866a0",
+  "#2453be",
+] as const;
+
+// The palette offered by the stage colour picker: the default ramp, then seven
+// muted hues chosen to stay readable against both page backgrounds.
+export const STAGE_COLOR_SWATCHES = [
+  { key: "mist", value: "#e6ecf5" },
+  { key: "sky", value: "#c9d7eb" },
+  { key: "steel", value: "#93b2dc" },
+  { key: "ocean", value: "#3866a0" },
+  { key: "cobalt", value: "#2453be" },
+  { key: "sage", value: "#628d71" },
+  { key: "fern", value: "#4f7a63" },
+  { key: "sand", value: "#b08a54" },
+  { key: "clay", value: "#b57a4e" },
+  { key: "rose", value: "#9c5568" },
+  { key: "teal", value: "#4f8f86" },
+  { key: "violet", value: "#8b7bb5" },
+] as const;
+
 export const RADIUS_TOKENS = [
   { name: "control", value: "6px", use: "Buttons, inputs, compact controls" },
   { name: "card", value: "10px", use: "Cards, modals, popovers, menus" },

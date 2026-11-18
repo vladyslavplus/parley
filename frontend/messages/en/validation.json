@@ -7,5 +7,6 @@
   "passwordMismatch": "Passwords do not match.",
   "currency": "Use a {length}-letter currency code.",
   "customFieldKey": "Use only lowercase letters, numbers, and underscores, starting with a letter.",
-  "invalidNumber": "Enter a valid non-negative number."
+  "invalidNumber": "Enter a valid non-negative number.",
+  "hexColor": "Enter a color as #rrggbb, for example #2453be."
 }

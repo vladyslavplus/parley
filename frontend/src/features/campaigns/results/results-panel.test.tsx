@@ -129,7 +129,9 @@ describe("ResultsPanel", () => {
     );
 
     expect(screen.getByText("scoreModel")).toBeInTheDocument();
-    expect(screen.getByText("provenance.stub")).toHaveClass("text-warning");
+    expect(screen.getByText("provenance.stub").parentElement).toHaveClass(
+      "text-warning",
+    );
   });
 
   it("never prints interval wording for a sample ratio alarm, and withholds the comparison", () => {

@@ -11,6 +11,7 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+import jsonschema
 import pytest
 from fastapi.testclient import TestClient
 
@@ -34,7 +35,7 @@ from parley_ml.serving.schemas import (
 )
 from parley_ml.serving.service import create_app
 from parley_ml.serving.settings import ServiceSettings, ServingConfig, load_settings
-from parley_ml.serving.stub import stub_version, write_clv_fixture, write_stub_into, write_stub_uplift
+from parley_ml.serving.stub import STUB_RULES, stub_version, write_clv_fixture, write_stub_into, write_stub_uplift
 
 KEY = "test-key-not-a-secret"
 KEY_HEADER = {"X-Parley-Ml-Key": KEY}
@@ -96,6 +97,10 @@ def _clv_version(stub_root: Path) -> str:
     return next(m.version for m in load_registry(stub_root).models if m.kind == "clv")
 
 
+def _committed_schema(name: str) -> dict[str, Any]:
+    return json.loads((CONTRACTS_DIR / f"{name}.schema.json").read_text(encoding="utf-8"))
+
+
 # Auth ------------------------------------------------------------------------------------------------------------
 
 
@@ -148,6 +153,35 @@ def test_models_lists_the_stub_with_provenance(client: TestClient, stub_root: Pa
     assert models["uplift"]["error_code"] is None
     assert models["uplift"]["feature_schema_version"] == 1
     ModelsResponse.model_validate(response.json())
+
+
+def test_models_publishes_the_segment_rules_of_an_uplift_artifact_and_none_for_clv(client: TestClient) -> None:
+    response = client.get("/models", headers=KEY_HEADER)
+
+    assert response.status_code == 200
+    models = {entry["kind"]: entry for entry in response.json()["models"]}
+    assert models["uplift"]["segment_rules"] == STUB_RULES
+    assert models["clv"]["segment_rules"] is None
+    ModelsResponse.model_validate(response.json())
+    jsonschema.validate(response.json(), _committed_schema("models_response"))
+
+
+def test_models_reads_the_segment_rules_from_the_manifest(stub_root: Path, tmp_path: Path) -> None:
+    root = tmp_path / "models"
+    shutil.copytree(stub_root, root)
+    uplift_dir = next(path for path in root.iterdir() if path.name.startswith("crm_uplift-"))
+    manifest = json.loads((uplift_dir / MANIFEST_FILE).read_text(encoding="utf-8"))
+    manifest["segment_rules"] = {
+        "do_not_disturb_uplift_below": -1.0,
+        "persuadable_uplift_at_least": 0.1,
+        "sure_thing_control_rate_at_least": 0.35,
+    }
+    (uplift_dir / MANIFEST_FILE).write_text(json.dumps(manifest), encoding="utf-8")
+
+    with _client(root) as test_client:
+        models = {entry["kind"]: entry for entry in test_client.get("/models", headers=KEY_HEADER).json()["models"]}
+
+    assert models["uplift"]["segment_rules"] == manifest["segment_rules"]
 
 
 # Uplift scoring --------------------------------------------------------------------------------------------------

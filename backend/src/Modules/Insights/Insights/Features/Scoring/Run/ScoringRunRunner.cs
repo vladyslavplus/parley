@@ -130,6 +130,7 @@ public sealed class ScoringRunRunner(
         var total = 0;
         var rejected = 0;
         var scored = 0;
+        var skipped = 0;
         Guid? after = null;
         while (true)
         {
@@ -139,8 +140,9 @@ public sealed class ScoringRunRunner(
                 break;
             }
 
-            // Contacts without an order have no features: they are neither sent nor counted.
+            // Contacts without an order have no features: they are neither sent nor counted as eligible, but the run reports them.
             var eligible = batch.Where(ScoringFeatureMapper.HasOrders).ToList();
+            skipped += batch.Count - eligible.Count;
             if (eligible.Count > 0)
             {
                 var outcome = kind == ScoreKinds.Uplift
@@ -163,7 +165,7 @@ public sealed class ScoringRunRunner(
             throw new ScoringServiceException(InsightsErrorCodes.ScoringTooManyRejected);
         }
 
-        await SwapAsync(runId, kind, startedBy, model.Version, total, scored, rejected, cancellationToken);
+        await SwapAsync(runId, kind, startedBy, model.Version, total, scored, rejected, skipped, cancellationToken);
     }
 
     private async Task<BatchOutcome> ScoreUpliftBatchAsync(
@@ -302,6 +304,7 @@ public sealed class ScoringRunRunner(
         int total,
         int scored,
         int rejected,
+        int skipped,
         CancellationToken cancellationToken)
     {
         var finishedAt = timeProvider.GetUtcNow().UtcDateTime;
@@ -314,6 +317,7 @@ public sealed class ScoringRunRunner(
                     .SetProperty(row => row.ContactsTotal, total)
                     .SetProperty(row => row.ContactsScored, scored)
                     .SetProperty(row => row.ContactsRejected, rejected)
+                    .SetProperty(row => row.ContactsSkipped, skipped)
                     .SetProperty(row => row.FinishedAt, finishedAt),
                 cancellationToken);
         if (completed != 1)

@@ -8,19 +8,23 @@ using Parley.IntegrationTests.Identity.Support;
 using Parley.IntegrationTests.Infrastructure.Auth;
 using Parley.IntegrationTests.Infrastructure.Fixtures;
 using Parley.IntegrationTests.Infrastructure.Hosting;
+using Parley.SharedKernel.Errors;
 using Xunit;
 
 namespace Parley.IntegrationTests.Crm.Pipelines;
 
 /// <summary>
 /// Stage settings keep the pipeline valid: names are unique, a stage holding deals cannot go, won and lost stay,
-/// the open stages keep their order, and the last open stage cannot be removed.
+/// the open stages keep their order, and the last open stage cannot be removed. A stage keeps any colour the user picks.
 /// </summary>
 public sealed class StageSettingsTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private const string DemoStageName = "Demo";
     private const string ChangedStageName = "demo";
-    private const int DemoColorIndex = 2;
+    private const string DemoColor = "#93b2dc";
+    private const string MixedCaseColor = "#A1B2C3";
+    private const string StoredMixedCaseColor = "#a1b2c3";
+    private const string UpdatedColor = "#7a3ea1";
     private const int DemoProbabilityBps = 3000;
 
     private IdentityApiFactory _factory = null!;
@@ -47,7 +51,7 @@ public sealed class StageSettingsTests(PostgresFixture postgres, MailpitFixture 
 
         var created = await admin.PostAsJsonAsync(
             PipelineApi.Route(CrmRoutes.PipelineStages, pipelineId),
-            new { name = DemoStageName, colorIndex = DemoColorIndex, probabilityBps = DemoProbabilityBps },
+            new { name = DemoStageName, color = DemoColor, probabilityBps = DemoProbabilityBps },
             token);
         created.StatusCode.Should().Be(HttpStatusCode.OK);
         var stages = PipelineApi.ParseStages(await AuthTestClient.ReadJsonAsync(created, token));
@@ -55,7 +59,7 @@ public sealed class StageSettingsTests(PostgresFixture postgres, MailpitFixture 
 
         var duplicate = await admin.PostAsJsonAsync(
             PipelineApi.Route(CrmRoutes.PipelineStages, pipelineId),
-            new { name = ChangedStageName, colorIndex = 0, probabilityBps = 0 },
+            new { name = ChangedStageName, color = DemoColor, probabilityBps = 0 },
             token);
         duplicate.StatusCode.Should().Be(HttpStatusCode.Conflict);
         (await CrmApi.ErrorCodeAsync(duplicate, token)).Should().Be(CrmErrorCodes.StageNameTaken);
@@ -91,7 +95,7 @@ public sealed class StageSettingsTests(PostgresFixture postgres, MailpitFixture 
 
         var created = await admin.PostAsJsonAsync(
             PipelineApi.Route(CrmRoutes.PipelineStages, pipelineId),
-            new { name = DemoStageName, colorIndex = DemoColorIndex, probabilityBps = DemoProbabilityBps },
+            new { name = DemoStageName, color = DemoColor, probabilityBps = DemoProbabilityBps },
             token);
         var demo = PipelineApi.Named(PipelineApi.ParseStages(await AuthTestClient.ReadJsonAsync(created, token)), DemoStageName);
         var deal = await DealApi.CreateAsync(admin, "Blocks removal", 100m, demo.Id, null, token);
@@ -115,5 +119,51 @@ public sealed class StageSettingsTests(PostgresFixture postgres, MailpitFixture 
         var lastOpen = await admin.DeleteAsync(PipelineApi.Route(CrmRoutes.PipelineStageById, pipelineId, newStage.Id), token);
         lastOpen.StatusCode.Should().Be(HttpStatusCode.Conflict);
         (await CrmApi.ErrorCodeAsync(lastOpen, token)).Should().Be(CrmErrorCodes.StageOpenRequired);
+    }
+
+    [Fact]
+    public async Task Stage_TakesAnyColour_AndReturnsTheStoredLowercaseForm()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var pipelineId = await PipelineApi.DefaultPipelineIdAsync(admin, token);
+
+        var created = await admin.PostAsJsonAsync(
+            PipelineApi.Route(CrmRoutes.PipelineStages, pipelineId),
+            new { name = DemoStageName, color = MixedCaseColor, probabilityBps = DemoProbabilityBps },
+            token);
+        created.StatusCode.Should().Be(HttpStatusCode.OK);
+        var demo = PipelineApi.Named(PipelineApi.ParseStages(await AuthTestClient.ReadJsonAsync(created, token)), DemoStageName);
+        demo.Color.Should().Be(StoredMixedCaseColor);
+
+        var updated = await admin.PutAsJsonAsync(
+            PipelineApi.Route(CrmRoutes.PipelineStageById, pipelineId, demo.Id),
+            new { name = DemoStageName, color = UpdatedColor, probabilityBps = DemoProbabilityBps },
+            token);
+        updated.StatusCode.Should().Be(HttpStatusCode.OK);
+        PipelineApi.Named(PipelineApi.ParseStages(await AuthTestClient.ReadJsonAsync(updated, token)), DemoStageName)
+            .Color.Should().Be(UpdatedColor);
+    }
+
+    [Theory]
+    [InlineData("blue")]
+    [InlineData("#12345")]
+    [InlineData("#12345g")]
+    [InlineData("")]
+    public async Task ColourOutsideTheHexTriplet_IsRejectedOnTheColourField(string color)
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var pipelineId = await PipelineApi.DefaultPipelineIdAsync(admin, token);
+
+        var refused = await admin.PostAsJsonAsync(
+            PipelineApi.Route(CrmRoutes.PipelineStages, pipelineId),
+            new { name = DemoStageName, color, probabilityBps = DemoProbabilityBps },
+            token);
+
+        refused.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await CrmApi.FieldErrorCodeAsync(refused, "color", token)).Should().Be(ErrorCodes.ValidationFailed);
     }
 }

@@ -9,6 +9,7 @@ using Parley.Insights.Features.MlSettings.Get;
 using Parley.Insights.Features.MlSettings.Shared;
 using Parley.Insights.Features.MlSettings.Update;
 using Parley.Insights.Features.Priority.List;
+using Parley.Insights.Features.Priority.Segments;
 using Parley.Insights.Features.Priority.Shared;
 using Parley.Insights.Features.Rfm.Segments;
 using Parley.Insights.Features.Scores.Read;
@@ -37,9 +38,24 @@ public sealed class InsightsController(IMediator mediator, ErrorTextLocalizer er
         [FromQuery] string? after,
         [FromQuery] int? limit,
         [FromQuery] string? segment,
+        [FromQuery] string? upliftSegment,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new ListPriorityQuery(after, limit, segment), cancellationToken);
+        var result = await mediator.Send(new ListPriorityQuery(after, limit, segment, upliftSegment), cancellationToken);
+        return FromResult(result, Ok);
+    }
+
+    [HttpGet(InsightsRoutes.PrioritySegments)]
+    [RequiresPermission(Permissions.InsightsView)]
+    [EndpointDescription(
+        "Counts of both segment taxonomies around the latest priority list: for each segment, how many of its contacts are "
+        + "on the day's list and how many exist in the caller's scope. The totals come from the latest RFM snapshot and the "
+        + "latest uplift scores, and the response names the days they use.")]
+    [ProducesResponseType<PrioritySegmentCountsView>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> PrioritySegments(CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetPrioritySegmentCountsQuery(), cancellationToken);
         return FromResult(result, Ok);
     }
 

@@ -1,4 +1,5 @@
 using Parley.Crm.Domain.Pipelines;
+using Parley.Crm.Domain.Tasks;
 using Parley.Crm.Shared.Pipelines;
 
 namespace Parley.Crm.Seeding.DemoSeed;
@@ -26,10 +27,32 @@ public static class DemoWorkspaceRules
     /// <summary>Length of the window before the seed instant in which a customer counts as recently active.</summary>
     public const int RecentActivityDays = 90;
 
-    /// <summary>Task due dates spread over this many days, centred on the seed instant: -30 to +30 days.</summary>
-    public const int TaskDueSpreadDays = 61;
+    /// <summary>Share of tasks that are already completed; their due dates lie in the past.</summary>
+    public const int TaskCompletedSharePercent = 25;
 
-    public const int TaskDueCenterDays = 30;
+    /// <summary>Completed tasks were due between one day and this many days before the seed instant.</summary>
+    public const int CompletedTaskMaximumAgeDays = 30;
+
+    /// <summary>Share of open tasks that are already overdue at the seed instant.</summary>
+    public const int OpenTaskOverduePercent = 5;
+
+    /// <summary>Overdue open tasks were due between one day and this many days before the seed instant.</summary>
+    public const int OverdueTaskMaximumAgeDays = 3;
+
+    /// <summary>Share of open tasks due soon, within <see cref="DueSoonWindowHours"/> after the seed instant.</summary>
+    public const int OpenTaskDueSoonPercent = 10;
+
+    /// <summary>Length of the due-soon window after the seed instant.</summary>
+    public const int DueSoonWindowHours = 48;
+
+    /// <summary>The remaining open tasks fall due from this many days after the seed instant...</summary>
+    public const int OpenTaskLaterFromDays = 2;
+
+    /// <summary>...to this many days after it.</summary>
+    public const int OpenTaskLaterToDays = 30;
+
+    /// <summary>Share of tasks given to the leadership accounts (admins, managers, marketer) instead of the contact owner.</summary>
+    public const int TaskLeadershipSharePercent = 35;
 
     /// <summary>Open deals set an expected close date from this many days before the seed instant...</summary>
     public const int ExpectedCloseDaysBefore = 30;
@@ -68,13 +91,14 @@ public static class DemoWorkspaceRules
         "crm.demo.lost_reason.budget",
     ];
 
-    public static IReadOnlyList<string> TaskTitleKeys { get; } =
+    public static IReadOnlyList<DemoTaskTemplate> TaskTemplates { get; } =
     [
-        "crm.demo.task.confirm_order",
-        "crm.demo.task.send_price_list",
-        "crm.demo.task.check_stock",
-        "crm.demo.task.follow_up_delivery",
-        "crm.demo.task.review_invoice",
+        new("crm.demo.task.confirm_order", TaskTypes.Call),
+        new("crm.demo.task.send_price_list", TaskTypes.Email),
+        new("crm.demo.task.check_stock", TaskTypes.Todo),
+        new("crm.demo.task.follow_up_delivery", TaskTypes.Call),
+        new("crm.demo.task.review_invoice", TaskTypes.Todo),
+        new("crm.demo.task.plan_meeting", TaskTypes.Meeting),
     ];
 
     public static IReadOnlyList<string> NoteBodyKeys { get; } =

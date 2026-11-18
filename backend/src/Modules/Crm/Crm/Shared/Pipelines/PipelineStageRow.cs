@@ -8,4 +8,4 @@ public sealed record PipelineStageRow(
     int Position,
     string Kind,
     int ProbabilityBps,
-    int ColorIndex);
+    string Color);

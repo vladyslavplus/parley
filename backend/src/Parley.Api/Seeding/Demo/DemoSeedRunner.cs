@@ -94,6 +94,10 @@ public sealed class DemoSeedRunner(
                 .Where(account => account.RoleCode == SystemRoles.SalesRep)
                 .Select(account => account.UserId)
                 .ToArray();
+            var leadership = identityResult.Accounts
+                .Where(account => account.RoleCode is SystemRoles.Admin or SystemRoles.SalesManager or SystemRoles.Marketer)
+                .Select(account => new CrmDemoTaskAssignee(account.UserId, VisibleContactOwners(account, identityResult.Accounts)))
+                .ToArray();
             logger.LogInformation("Demo seed step: CRM contacts and orders.");
             var crmResult = await crm.SeedAsync(
                 new CrmDemoImportRequest(
@@ -103,7 +107,8 @@ public sealed class DemoSeedRunner(
                     owners,
                     settings.RandomSeed,
                     now,
-                    settings.Profile),
+                    settings.Profile,
+                    leadership),
                 cancellationToken);
             logger.LogInformation(
                 "Demo CRM ready: {Contacts} contacts, {Orders} orders, {Deals} deals, {Tasks} tasks, {Notes} notes.",
@@ -171,4 +176,13 @@ public sealed class DemoSeedRunner(
             return new DemoSeedOutcome(DemoSeedOutcome.Failed, stopwatch.Elapsed);
         }
     }
+
+    /// <summary>
+    /// Owners of the contacts an account can see: everyone for an administrator and the marketer (organization scope), the
+    /// team's own members for a manager (team scope).
+    /// </summary>
+    private static IReadOnlyList<Guid>? VisibleContactOwners(DemoAccount account, IReadOnlyList<DemoAccount> accounts) =>
+        account.RoleCode == SystemRoles.SalesManager
+            ? accounts.Where(member => member.TeamName == account.TeamName).Select(member => member.UserId).ToArray()
+            : null;
 }

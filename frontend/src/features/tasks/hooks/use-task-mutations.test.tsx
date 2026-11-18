@@ -49,6 +49,7 @@ describe("useTaskMutations", () => {
   const sampleTask: Task = {
     id: "task-1",
     title: "Follow up with client",
+    type: "todo",
     dueAt: "2026-11-10T10:00:00Z",
     assigneeUserId: "user-1",
     assigneeDisplayName: "Alex Mercer",
@@ -202,6 +203,7 @@ describe("useTaskMutations", () => {
 
     const created = await result.current.createTask({
       title: "Follow up with client",
+      type: "todo",
       assigneeUserId: "user-1",
       notes: null,
       dueAt: null,

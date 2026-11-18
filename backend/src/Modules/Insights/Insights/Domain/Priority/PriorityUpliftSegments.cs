@@ -10,4 +10,10 @@ public static class PriorityUpliftSegments
     public const string LostCause = "lost_cause";
 
     public const string DoNotDisturb = "do_not_disturb";
+
+    /// <summary>Every uplift segment, in the order the scoring rules decide them.</summary>
+    public static IReadOnlyList<string> All { get; } =
+    [
+        Persuadable, SureThing, LostCause, DoNotDisturb,
+    ];
 }

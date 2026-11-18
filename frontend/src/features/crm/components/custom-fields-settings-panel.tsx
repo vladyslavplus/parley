@@ -1,6 +1,5 @@
 "use client";
 
-import * as Dialog from "@radix-ui/react-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Archive, Edit2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -17,7 +16,9 @@ import { useApiForm } from "@/components/forms/use-api-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { InfoHint } from "@/components/ui/info-hint";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import {
   Select,
   SelectContent,
@@ -46,8 +47,12 @@ import { cn } from "@/lib/utils";
 
 const FIELD_TYPES = ["text", "number", "boolean", "select", "date"] as const;
 
+const CREATE_FIELD_FORM_ID = "custom-field-create-form";
+const EDIT_FIELD_FORM_ID = "custom-field-edit-form";
+
 export function CustomFieldsSettingsPanel() {
   const t = useTranslations("settings.customFields");
+  const tHints = useTranslations("hints");
   const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
 
@@ -333,8 +338,9 @@ export function CustomFieldsSettingsPanel() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
+        <div className="flex items-center gap-1.5">
           <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+          <InfoHint>{tHints("customFields")}</InfoHint>
         </div>
 
         <Can permission={PERMISSIONS.customFieldsManage}>
@@ -464,7 +470,7 @@ export function CustomFieldsSettingsPanel() {
       />
 
       {/* Create Dialog */}
-      <Dialog.Root
+      <Modal
         open={createOpen}
         onOpenChange={(nextOpen) => {
           if (!nextOpen) {
@@ -480,232 +486,201 @@ export function CustomFieldsSettingsPanel() {
           }
           setCreateOpen(nextOpen);
         }}
+        title={t("create")}
+        footer={
+          <Button
+            type="submit"
+            form={CREATE_FIELD_FORM_ID}
+            variant="primary"
+            className="w-full"
+            disabled={createForm.formState.isSubmitting}
+          >
+            {tCommon("save")}
+          </Button>
+        }
       >
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-150" />
-          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-floating focus:outline-none">
-            <Dialog.Title className="text-base font-semibold text-foreground">
-              {t("create")}
-            </Dialog.Title>
-            <Dialog.Description className="sr-only">
-              {t("subtitle")}
-            </Dialog.Description>
+        <form
+          id={CREATE_FIELD_FORM_ID}
+          onSubmit={onCreateSubmit}
+          className="space-y-4"
+        >
+          {createFormError ? (
+            <Alert ref={createAlertRef}>{createFormError}</Alert>
+          ) : null}
 
-            <form onSubmit={onCreateSubmit} className="space-y-4 pt-4">
-              {createFormError ? (
-                <Alert ref={createAlertRef}>{createFormError}</Alert>
-              ) : null}
+          <FormField
+            label={t("fields.label")}
+            error={createForm.formState.errors.label?.message}
+            required
+          >
+            <Input
+              {...createForm.register("label")}
+              placeholder={t("fields.labelPlaceholder")}
+              className="text-xs bg-background"
+            />
+          </FormField>
 
-              <FormField
-                label={t("fields.label")}
-                error={createForm.formState.errors.label?.message}
-                required
-              >
-                <Input
-                  {...createForm.register("label")}
-                  placeholder={t("fields.labelPlaceholder")}
-                  className="text-xs bg-background"
-                />
-              </FormField>
+          <FormField
+            label={t("fields.key")}
+            hint={t("fields.keyHelp")}
+            error={createForm.formState.errors.key?.message}
+            required
+          >
+            <Input
+              {...createForm.register("key")}
+              placeholder={t("fields.keyPlaceholder")}
+              className="font-mono text-xs bg-background"
+            />
+          </FormField>
 
-              <FormField
-                label={t("fields.key")}
-                hint={t("fields.keyHelp")}
-                error={createForm.formState.errors.key?.message}
-                required
-              >
-                <Input
-                  {...createForm.register("key")}
-                  placeholder={t("fields.keyPlaceholder")}
-                  className="font-mono text-xs bg-background"
-                />
-              </FormField>
+          <FormField
+            label={t("fields.fieldType")}
+            error={createForm.formState.errors.fieldType?.message}
+            required
+          >
+            <Select
+              value={createForm.watch("fieldType")}
+              onValueChange={(val) =>
+                createForm.setValue(
+                  "fieldType",
+                  val as CreateCustomFieldValues["fieldType"],
+                )
+              }
+            >
+              <SelectTrigger className="text-xs bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {FIELD_TYPES.map((ft) => (
+                  <SelectItem key={ft} value={ft}>
+                    {t(`types.${ft}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
 
-              <FormField
-                label={t("fields.fieldType")}
-                error={createForm.formState.errors.fieldType?.message}
-                required
-              >
-                <Select
-                  value={createForm.watch("fieldType")}
-                  onValueChange={(val) =>
-                    createForm.setValue(
-                      "fieldType",
-                      val as CreateCustomFieldValues["fieldType"],
-                    )
-                  }
-                >
-                  <SelectTrigger className="text-xs bg-background">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FIELD_TYPES.map((ft) => (
-                      <SelectItem key={ft} value={ft}>
-                        {t(`types.${ft}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
+          {selectedFieldType === "select" && (
+            <FormField
+              label={t("fields.options")}
+              hint={t("fields.optionsHelp")}
+              error={createForm.formState.errors.options?.message}
+            >
+              <Input
+                {...createForm.register("options")}
+                placeholder={t("fields.optionsPlaceholder")}
+                className="text-xs bg-background"
+              />
+            </FormField>
+          )}
 
-              {selectedFieldType === "select" && (
-                <FormField
-                  label={t("fields.options")}
-                  hint={t("fields.optionsHelp")}
-                  error={createForm.formState.errors.options?.message}
-                >
-                  <Input
-                    {...createForm.register("options")}
-                    placeholder={t("fields.optionsPlaceholder")}
-                    className="text-xs bg-background"
-                  />
-                </FormField>
-              )}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="create-isRequired"
+              {...createForm.register("isRequired")}
+              className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
+            />
+            <label
+              htmlFor="create-isRequired"
+              className="text-xs font-medium text-foreground cursor-pointer"
+            >
+              {t("fields.isRequired")}
+            </label>
+          </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="create-isRequired"
-                  {...createForm.register("isRequired")}
-                  className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
-                />
-                <label
-                  htmlFor="create-isRequired"
-                  className="text-xs font-medium text-foreground cursor-pointer"
-                >
-                  {t("fields.isRequired")}
-                </label>
-              </div>
-
-              <FormField
-                label={t("fields.position")}
-                error={createForm.formState.errors.position?.message}
-              >
-                <Input
-                  type="number"
-                  {...createForm.register("position", { valueAsNumber: true })}
-                  className="text-xs bg-background"
-                />
-              </FormField>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setCreateOpen(false)}
-                  className="px-3 text-xs"
-                >
-                  {tCommon("cancel")}
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={createForm.formState.isSubmitting}
-                  className="px-3 text-xs"
-                >
-                  {tCommon("save")}
-                </Button>
-              </div>
-            </form>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+          <FormField
+            label={t("fields.position")}
+            error={createForm.formState.errors.position?.message}
+          >
+            <Input
+              type="number"
+              {...createForm.register("position", { valueAsNumber: true })}
+              className="text-xs bg-background"
+            />
+          </FormField>
+        </form>
+      </Modal>
 
       {/* Edit Dialog */}
-      <Dialog.Root
+      <Modal
         open={Boolean(editingField)}
         onOpenChange={(open) => !open && setEditingField(null)}
+        title={t("edit")}
+        footer={
+          <Button
+            type="submit"
+            form={EDIT_FIELD_FORM_ID}
+            variant="primary"
+            className="w-full"
+            disabled={
+              editForm.formState.isSubmitting || !editForm.formState.isDirty
+            }
+          >
+            {tCommon("save")}
+          </Button>
+        }
       >
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-150" />
-          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-floating focus:outline-none">
-            <Dialog.Title className="text-base font-semibold text-foreground">
-              {t("edit")}
-            </Dialog.Title>
-            <Dialog.Description className="sr-only">
-              {editingField?.key}
-            </Dialog.Description>
+        <form
+          id={EDIT_FIELD_FORM_ID}
+          onSubmit={onEditSubmit}
+          className="space-y-4"
+        >
+          {editFormError ? (
+            <Alert ref={editAlertRef}>{editFormError}</Alert>
+          ) : null}
 
-            <form onSubmit={onEditSubmit} className="space-y-4 pt-4">
-              {editFormError ? (
-                <Alert ref={editAlertRef}>{editFormError}</Alert>
-              ) : null}
+          <FormField
+            label={t("fields.label")}
+            error={editForm.formState.errors.label?.message}
+            required
+          >
+            <Input
+              {...editForm.register("label")}
+              className="text-xs bg-background"
+            />
+          </FormField>
 
-              <FormField
-                label={t("fields.label")}
-                error={editForm.formState.errors.label?.message}
-                required
-              >
-                <Input
-                  {...editForm.register("label")}
-                  className="text-xs bg-background"
-                />
-              </FormField>
+          {editingField?.fieldType === "select" && (
+            <FormField
+              label={t("fields.options")}
+              hint={t("fields.optionsHelp")}
+              error={editForm.formState.errors.options?.message}
+            >
+              <Input
+                {...editForm.register("options")}
+                className="text-xs bg-background"
+              />
+            </FormField>
+          )}
 
-              {editingField?.fieldType === "select" && (
-                <FormField
-                  label={t("fields.options")}
-                  hint={t("fields.optionsHelp")}
-                  error={editForm.formState.errors.options?.message}
-                >
-                  <Input
-                    {...editForm.register("options")}
-                    className="text-xs bg-background"
-                  />
-                </FormField>
-              )}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="edit-isRequired"
+              {...editForm.register("isRequired")}
+              className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
+            />
+            <label
+              htmlFor="edit-isRequired"
+              className="text-xs font-medium text-foreground cursor-pointer"
+            >
+              {t("fields.isRequired")}
+            </label>
+          </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="edit-isRequired"
-                  {...editForm.register("isRequired")}
-                  className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
-                />
-                <label
-                  htmlFor="edit-isRequired"
-                  className="text-xs font-medium text-foreground cursor-pointer"
-                >
-                  {t("fields.isRequired")}
-                </label>
-              </div>
-
-              <FormField
-                label={t("fields.position")}
-                error={editForm.formState.errors.position?.message}
-              >
-                <Input
-                  type="number"
-                  {...editForm.register("position", { valueAsNumber: true })}
-                  className="text-xs bg-background"
-                />
-              </FormField>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setEditingField(null)}
-                  className="px-3 text-xs"
-                >
-                  {tCommon("cancel")}
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={
-                    editForm.formState.isSubmitting ||
-                    !editForm.formState.isDirty
-                  }
-                  className="px-3 text-xs"
-                >
-                  {tCommon("save")}
-                </Button>
-              </div>
-            </form>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+          <FormField
+            label={t("fields.position")}
+            error={editForm.formState.errors.position?.message}
+          >
+            <Input
+              type="number"
+              {...editForm.register("position", { valueAsNumber: true })}
+              className="text-xs bg-background"
+            />
+          </FormField>
+        </form>
+      </Modal>
 
       {/* Archive confirmation dialog */}
       <ConfirmDialog

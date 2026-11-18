@@ -14,7 +14,7 @@ public static class PipelineStageViews
         stage.Position,
         stage.Kind,
         stage.ProbabilityBps,
-        stage.ColorIndex);
+        stage.Color);
 
     public static PipelineStageView ToView(PipelineStageRow row) => new(
         row.Id,
@@ -22,5 +22,5 @@ public static class PipelineStageViews
         row.Position,
         row.Kind,
         row.ProbabilityBps,
-        row.ColorIndex);
+        row.Color);
 }

@@ -5,6 +5,8 @@ public static class InsightsRoutes
 {
     public const string Priority = "insights/priority";
 
+    public const string PrioritySegments = "insights/priority/segments";
+
     public const string RfmSegments = "insights/rfm/segments";
 
     public const string MlSettings = "insights/ml-settings";

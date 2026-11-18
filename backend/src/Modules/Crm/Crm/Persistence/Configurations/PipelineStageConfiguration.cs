@@ -22,7 +22,7 @@ public sealed class PipelineStageConfiguration : IEntityTypeConfiguration<Pipeli
         builder.Property(stage => stage.NameNormalized)
             .HasComputedColumnSql(CrmSql.StageNameNormalized, stored: true);
         builder.Property(stage => stage.Kind).HasMaxLength(CrmLimits.SourceMaximumLength).IsRequired();
-        builder.Property(stage => stage.ColorIndex).HasColumnType("smallint");
+        builder.Property(stage => stage.Color).HasMaxLength(CrmLimits.StageColorMaximumLength).IsRequired();
 
         builder.HasTenantUniqueIndex(CrmSchemaNames.PipelineStageNameIndex, nameof(PipelineStage.PipelineId), nameof(PipelineStage.NameNormalized));
         builder.HasTenantUniqueIndex(CrmSchemaNames.PipelineStagePositionIndex, nameof(PipelineStage.PipelineId), nameof(PipelineStage.Position));

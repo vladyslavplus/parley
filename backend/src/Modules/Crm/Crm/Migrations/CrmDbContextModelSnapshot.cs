@@ -834,9 +834,11 @@ namespace Parley.Crm.Migrations
                 {
                     b.HasBaseType("Parley.SharedKernel.Persistence.Entities.BusinessEntity");
 
-                    b.Property<short>("ColorIndex")
-                        .HasColumnType("smallint")
-                        .HasColumnName("color_index");
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasColumnName("color");
 
                     b.Property<string>("Kind")
                         .IsRequired()
@@ -887,7 +889,7 @@ namespace Parley.Crm.Migrations
 
                     b.ToTable("pipeline_stages", "crm", t =>
                         {
-                            t.HasCheckConstraint("ck_pipeline_stages_color_index", "\"color_index\" BETWEEN 0 AND 4");
+                            t.HasCheckConstraint("ck_pipeline_stages_color", "\"color\" ~ '^#[0-9a-f]{6}$'");
 
                             t.HasCheckConstraint("ck_pipeline_stages_kind", "\"kind\" IN ('open', 'won', 'lost')");
 
@@ -984,6 +986,14 @@ namespace Parley.Crm.Migrations
                         .HasColumnName("title_normalized")
                         .HasComputedColumnSql("lower(\"title\")", true);
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("todo")
+                        .HasColumnName("type");
+
                     b.HasIndex("DueAt", "Id")
                         .HasDatabaseName("ix_tasks_due_at_id_open")
                         .HasFilter("\"completed_at\" IS NULL AND \"deleted_at\" IS NULL AND \"reminder_sent_at\" IS NULL");
@@ -997,7 +1007,10 @@ namespace Parley.Crm.Migrations
                     b.HasIndex("OrganizationId", "AssigneeUserId", "DueAt", "Id")
                         .HasDatabaseName("ix_tasks_organization_id_assignee_user_id_due_at_id");
 
-                    b.ToTable("tasks", "crm");
+                    b.ToTable("tasks", "crm", t =>
+                        {
+                            t.HasCheckConstraint("ck_tasks_type", "\"type\" IN ('call', 'email', 'meeting', 'todo')");
+                        });
                 });
 
             modelBuilder.Entity("Parley.SharedKernel.Idempotency.Persistence.IdempotencyKey", b =>

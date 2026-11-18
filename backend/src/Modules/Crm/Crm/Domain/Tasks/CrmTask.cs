@@ -13,6 +13,9 @@ public sealed class CrmTask : BusinessEntity
     /// <summary>Lowercase copy of <see cref="Title"/> that backs title sorting and search.</summary>
     public string TitleNormalized { get; private set; } = string.Empty;
 
+    /// <summary>One of <see cref="TaskTypes"/>.</summary>
+    public string Type { get; set; } = TaskTypes.Default;
+
     public string? Notes { get; set; }
 
     public DateTime? DueAt { get; set; }

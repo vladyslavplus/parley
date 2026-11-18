@@ -6,11 +6,12 @@ import { useState } from "react";
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
 import { useApiForm } from "@/components/forms/use-api-form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { LIMITS } from "@/constants/limits";
 import { CompanyPicker } from "@/features/crm/components/company-picker";
 import { OwnerPicker } from "@/features/crm/components/owner-picker";
-import { QuickCreateDialogShell } from "@/features/crm/components/quick-create-dialog-shell";
 import { ContactPicker } from "@/features/deals/components/contact-picker";
 import { useDealMutations } from "@/features/deals/hooks/use-deal-mutations";
 import {
@@ -19,6 +20,8 @@ import {
 } from "@/features/deals/schemas/deal-schema";
 import { useMe } from "@/lib/api/hooks/use-api";
 import { showSuccessToast } from "@/lib/toasts";
+
+const DEAL_FORM_ID = "deal-quick-create-form";
 
 interface Props {
   open: boolean;
@@ -93,18 +96,29 @@ export function DealQuickCreateDialog({
   } = form;
 
   return (
-    <QuickCreateDialogShell
+    <Modal
       open={open}
       onOpenChange={onOpenChange}
       title={t("title")}
       description={t("description")}
+      size="lg"
+      footer={
+        <Button
+          type="submit"
+          form={DEAL_FORM_ID}
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {t("submit")}
+        </Button>
+      }
     >
       <ApiForm
+        id={DEAL_FORM_ID}
         onSubmit={onSubmit}
         formError={formError}
         alertRef={alertRef}
         pending={isSubmitting}
-        submitLabel={t("submit")}
       >
         <FormField label={t("name")} error={errors.title?.message} required>
           <Input
@@ -173,6 +187,6 @@ export function DealQuickCreateDialog({
           />
         </FormField>
       </ApiForm>
-    </QuickCreateDialogShell>
+    </Modal>
   );
 }

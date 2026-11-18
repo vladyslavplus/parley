@@ -1,22 +1,15 @@
 // Backend codes and the message keys that explain them. A code without an
-// entry returns null, so an unknown code is hidden instead of printed raw.
+// entry returns null, so an unknown code is handled by the caller instead of
+// being printed raw.
 
 export const REASON_LABEL_KEYS = {
   "reason.high_value": "reasons.highValue",
   "reason.recent_order": "reasons.recentOrder",
-  "reason.at_risk": "reasons.atRisk",
   "reason.task_due": "reasons.taskDue",
   "reason.deal_stale": "reasons.dealStale",
-  "reason.persuadable": "reasons.persuadable",
   "reason.uplift_high": "reasons.upliftHigh",
   "reason.do_not_disturb": "reasons.doNotDisturb",
 } as const;
-
-// Reasons that warn about the next step instead of naming a positive signal.
-// They render as a calm caution chip, never as an error.
-export const CAUTION_REASON_CODES: ReadonlySet<string> = new Set([
-  "reason.do_not_disturb",
-]);
 
 export const SEGMENT_LABEL_KEYS = {
   champions: "segments.champions",
@@ -30,8 +23,8 @@ export const SEGMENT_LABEL_KEYS = {
   no_orders: "segments.noOrders",
 } as const;
 
-// Uplift segments come from the ML scores. They are shown next to the RFM
-// segment, never mixed into the RFM filter.
+// Uplift segments come from the ML scores. They are the primary segment in ML
+// mode and a separate filter dimension, never mixed into the RFM codes.
 export const UPLIFT_SEGMENT_LABEL_KEYS = {
   persuadable: "scoring.upliftSegments.persuadable",
   sure_thing: "scoring.upliftSegments.sureThing",
@@ -39,13 +32,23 @@ export const UPLIFT_SEGMENT_LABEL_KEYS = {
   do_not_disturb: "scoring.upliftSegments.doNotDisturb",
 } as const;
 
+// The codes the server sends as the suggested next step.
+export const ACTION_CODES = {
+  call: "action.call",
+  reviewDeal: "action.review_deal",
+  winBack: "action.win_back",
+  reward: "action.reward",
+  nurture: "action.nurture",
+  hold: "action.hold",
+} as const;
+
 export const ACTION_LABEL_KEYS = {
-  "action.call": "actions.call",
-  "action.review_deal": "actions.reviewDeal",
-  "action.win_back": "actions.winBack",
-  "action.reward": "actions.reward",
-  "action.nurture": "actions.nurture",
-  "action.hold": "actions.hold",
+  [ACTION_CODES.call]: "actions.call",
+  [ACTION_CODES.reviewDeal]: "actions.reviewDeal",
+  [ACTION_CODES.winBack]: "actions.winBack",
+  [ACTION_CODES.reward]: "actions.reward",
+  [ACTION_CODES.nurture]: "actions.nurture",
+  [ACTION_CODES.hold]: "actions.hold",
 } as const;
 
 export type ReasonLabelKey =
@@ -61,6 +64,10 @@ export const SEGMENT_CODES = Object.keys(SEGMENT_LABEL_KEYS) as Array<
   keyof typeof SEGMENT_LABEL_KEYS
 >;
 
+export const UPLIFT_SEGMENT_CODES = Object.keys(
+  UPLIFT_SEGMENT_LABEL_KEYS,
+) as Array<keyof typeof UPLIFT_SEGMENT_LABEL_KEYS>;
+
 function lookup<T extends Record<string, string>>(
   map: T,
   code: string,
@@ -72,10 +79,6 @@ function lookup<T extends Record<string, string>>(
 
 export function reasonLabelKey(code: string): ReasonLabelKey | null {
   return lookup(REASON_LABEL_KEYS, code);
-}
-
-export function isCautionReason(code: string): boolean {
-  return CAUTION_REASON_CODES.has(code);
 }
 
 export function segmentLabelKey(code: string): SegmentLabelKey | null {

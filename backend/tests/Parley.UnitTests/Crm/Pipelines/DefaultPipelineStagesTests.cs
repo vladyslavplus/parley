@@ -34,4 +34,14 @@ public sealed class DefaultPipelineStagesTests
 
         SharedTexts.Get(DefaultPipelineStages.PipelineNameKey, culture).Should().NotBe(DefaultPipelineStages.PipelineNameKey);
     }
+
+    [Fact]
+    public void DefaultPipeline_FollowsTheColourRamp_AndLostClosesOnTheLightest()
+    {
+        DefaultPipelineStages.All
+            .Take(PipelineStageColors.Defaults.Count)
+            .Select(stage => stage.Color)
+            .Should().Equal(PipelineStageColors.Defaults);
+        DefaultPipelineStages.All[^1].Color.Should().Be(PipelineStageColors.Lightest);
+    }
 }

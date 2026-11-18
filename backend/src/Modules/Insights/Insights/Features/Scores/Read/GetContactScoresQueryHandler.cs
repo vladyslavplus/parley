@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Parley.Crm.Contracts.Errors;
 using Parley.Crm.Contracts.Recipients;
 using Parley.Identity.Contracts.Authorization;
+using Parley.Identity.Contracts.Organizations;
 using Parley.Insights.Contracts.Scores;
+using Parley.Insights.Domain.Ml;
 using Parley.Insights.Persistence;
 using Parley.SharedKernel.Results;
 using Parley.SharedKernel.Tenancy.Abstractions;
@@ -18,10 +20,9 @@ public sealed class GetContactScoresQueryHandler(
     ICrmRecipientProfileReader profiles,
     IPermissionChecker permissions,
     ICurrentUser currentUser,
-    ITenantContext tenantContext) : IRequestHandler<GetContactScoresQuery, Result<ContactScoresView>>
+    ITenantContext tenantContext,
+    IOrganizationCurrencyReader organizationCurrency) : IRequestHandler<GetContactScoresQuery, Result<ContactScoresView>>
 {
-    private const string SegmentKey = "segment";
-
     public async ValueTask<Result<ContactScoresView>> Handle(GetContactScoresQuery query, CancellationToken cancellationToken)
     {
         var scope = await dataScope.ForPermissionAsync(Permissions.ContactsRead, cancellationToken);
@@ -54,17 +55,16 @@ public sealed class GetContactScoresQueryHandler(
 
         var mlViewer = currentUser.UserId is { } userId
             && await permissions.HasPermissionAsync(userId, tenantContext.OrganizationId, Permissions.InsightsMlView, cancellationToken);
+        var currency = mlViewer && rows.Exists(row => row.ScoreKind == ScoreKinds.Clv)
+            ? await organizationCurrency.ReadAsync(cancellationToken)
+            : null;
 
         var items = rows
             .Where(row => row.ScoreKind != ScoreKinds.Rfm && mlOn)
-            .Select(row => new ContactScoreItemView(
-                row.ScoreKind,
-                row.ModelName,
-                row.ModelVersion,
+            .Select(row => ToView(row.ScoreKind, row.ModelName, row.ModelVersion, row.Value, row.Payload, row.ScoredAt,
                 provenance.TryGetValue((row.ModelName, row.ModelVersion), out var origin) ? origin : null,
-                row.ScoredAt,
-                mlViewer ? row.Value : null,
-                mlViewer ? JsonDocument.Parse(row.Payload).RootElement.Clone() : null))
+                mlViewer,
+                currency))
             .ToList();
 
         var uplift = rows.FirstOrDefault(row => row.ScoreKind == ScoreKinds.Uplift);
@@ -76,10 +76,55 @@ public sealed class GetContactScoresQueryHandler(
             items));
     }
 
+    private static ContactScoreItemView ToView(
+        string kind,
+        string modelName,
+        string modelVersion,
+        decimal value,
+        string payload,
+        DateTime scoredAt,
+        string? provenance,
+        bool mlViewer,
+        string? currency)
+    {
+        if (!mlViewer)
+        {
+            return new ContactScoreItemView(
+                kind, modelName, modelVersion, provenance, scoredAt, null, null, null, null, null, null, null, null);
+        }
+
+        using var document = JsonDocument.Parse(payload);
+        var root = document.RootElement;
+        return new ContactScoreItemView(
+            kind,
+            modelName,
+            modelVersion,
+            provenance,
+            scoredAt,
+            value,
+            ReadDecimal(root, ScorePayloadKeys.PTreated),
+            ReadDecimal(root, ScorePayloadKeys.PControl),
+            ReadDecimal(root, ScorePayloadKeys.PAlive),
+            ReadDecimal(root, ScorePayloadKeys.ExpectedPurchases),
+            ReadDecimal(root, ScorePayloadKeys.ExpectedAverageValue),
+            ReadInt(root, ScorePayloadKeys.HorizonDays),
+            kind == ScoreKinds.Clv ? currency : null);
+    }
+
+    private static decimal? ReadDecimal(JsonElement root, string key) =>
+        root.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.Number && value.TryGetDecimal(out var number)
+            ? number
+            : null;
+
+    private static int? ReadInt(JsonElement root, string key) =>
+        root.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var number)
+            ? number
+            : null;
+
     private static string? ReadSegment(string payload)
     {
         using var document = JsonDocument.Parse(payload);
-        return document.RootElement.TryGetProperty(SegmentKey, out var value) && value.ValueKind == JsonValueKind.String
+        return document.RootElement.TryGetProperty(ScorePayloadKeys.Segment, out var value) && value.ValueKind == JsonValueKind.String
             ? value.GetString()
             : null;
     }

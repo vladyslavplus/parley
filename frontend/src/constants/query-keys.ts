@@ -2,8 +2,8 @@ export const queryKeys = {
   all: ["api"] as const,
   insightsPriority: (filters: Record<string, unknown>) =>
     [...queryKeys.all, "insights", "priority", filters] as const,
-  insightsRfmSegments: () =>
-    [...queryKeys.all, "insights", "rfm-segments"] as const,
+  insightsPrioritySegments: () =>
+    [...queryKeys.all, "insights", "priority-segments"] as const,
   notificationsList: (filters: Record<string, unknown>) =>
     [...queryKeys.all, "notifications", "list", filters] as const,
   notificationsUnreadCount: () =>
@@ -68,8 +68,12 @@ export const queryKeys = {
     [...queryKeys.all, "pipelines", "list", filters] as const,
   pipeline: (id: string) =>
     [...queryKeys.all, "pipelines", "detail", id] as const,
+  // Prefix of every board of the pipeline, whatever its filters: what a
+  // mutation invalidates.
   pipelineBoard: (id: string) =>
     [...queryKeys.all, "pipelines", "board", id] as const,
+  pipelineBoardFiltered: (id: string, filters: Record<string, unknown>) =>
+    [...queryKeys.all, "pipelines", "board", id, filters] as const,
   dealsAll: () => [...queryKeys.all, "deals"] as const,
   dealLists: () => [...queryKeys.all, "deals", "list"] as const,
   dealList: (filters?: Record<string, unknown>) =>
@@ -82,8 +86,21 @@ export const queryKeys = {
   tasksMine: (filters?: Record<string, unknown>) =>
     [...queryKeys.all, "tasks", "mine", filters] as const,
   task: (id: string) => [...queryKeys.all, "tasks", "detail", id] as const,
-  tasksOverdueCount: () =>
-    [...queryKeys.all, "tasks", "overdue-count"] as const,
+  // Without arguments this is the prefix every overdue count shares, so one
+  // invalidation or optimistic update reaches the sidebar and the tabs alike.
+  tasksOverdueCount: (
+    scope?: "mine" | "all",
+    filters?: Record<string, unknown>,
+  ) =>
+    scope
+      ? ([
+          ...queryKeys.all,
+          "tasks",
+          "overdue-count",
+          scope,
+          filters ?? {},
+        ] as const)
+      : ([...queryKeys.all, "tasks", "overdue-count"] as const),
   notesAll: () => [...queryKeys.all, "notes"] as const,
   notesList: (subject: Record<string, unknown>) =>
     [...queryKeys.all, "notes", "list", subject] as const,

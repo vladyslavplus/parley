@@ -45,7 +45,7 @@ public sealed class DefaultPipelineProvisioner(CrmDbContext dbContext, ITenantCo
                 Position = index,
                 Kind = template.Kind,
                 ProbabilityBps = template.ProbabilityBps,
-                ColorIndex = template.ColorIndex,
+                Color = template.Color,
             });
         }
 

@@ -26,6 +26,7 @@ public static class TaskViews
         task.Id,
         task.Title,
         task.TitleNormalized,
+        task.Type,
         task.Notes,
         task.DueAt,
         task.CompletedAt,
@@ -51,6 +52,7 @@ public static class TaskViews
         return new TaskView(
             row.Id,
             row.Title,
+            row.Type,
             row.Notes,
             row.DueAt,
             row.CompletedAt,

@@ -9,6 +9,7 @@
       },
       "model_name": "clv_bgnbd_gg",
       "provenance": "stub",
+      "segment_rules": null,
       "status": "available",
       "trained_at": "2026-11-10",
       "version": "clv_bgnbd_gg-20261110-8358355"
@@ -22,6 +23,11 @@
       },
       "model_name": "crm_uplift",
       "provenance": "stub",
+      "segment_rules": {
+        "do_not_disturb_uplift_below": -0.02,
+        "persuadable_uplift_at_least": 0.05,
+        "sure_thing_control_rate_at_least": 0.25
+      },
       "status": "available",
       "trained_at": "2026-11-10",
       "version": "crm_uplift-20261110-8a4e785"

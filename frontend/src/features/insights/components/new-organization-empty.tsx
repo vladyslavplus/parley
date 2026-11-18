@@ -4,10 +4,12 @@ import { useTranslations } from "next-intl";
 
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
+import { contactCreateHref } from "@/features/crm/hooks/use-contact-create-param";
 import { Link } from "@/i18n/navigation";
 
 // Shown when the organization has no contacts yet: the list has nothing to
-// rank, so the empty state offers the actions that start it.
+// rank, so the empty state offers the actions that start it. "Add contact"
+// opens the create dialog on the contacts list, not just the empty table.
 export function NewOrganizationEmpty() {
   const t = useTranslations("insights.home.newOrganization");
   return (
@@ -18,7 +20,7 @@ export function NewOrganizationEmpty() {
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
         <Link
-          href={ROUTES.contacts}
+          href={contactCreateHref(ROUTES.contacts)}
           className={buttonVariants({
             variant: "primary",
             className: "px-3 text-xs",

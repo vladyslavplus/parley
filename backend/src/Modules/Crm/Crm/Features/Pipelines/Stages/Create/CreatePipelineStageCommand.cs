@@ -11,11 +11,11 @@ namespace Parley.Crm.Features.Pipelines.Stages.Create;
 /// </summary>
 /// <param name="PipelineId">Pipeline identifier.</param>
 /// <param name="Name">Stage name.</param>
-/// <param name="ColorIndex">Index into the color ramp, 0 to 4.</param>
+/// <param name="Color">Stage colour as a six-digit hex triplet such as <c>#2453be</c>.</param>
 /// <param name="ProbabilityBps">Win probability in basis points.</param>
 [RequiresPermission(Permissions.PipelinesManage)]
 public sealed record CreatePipelineStageCommand(
     Guid PipelineId,
     string Name,
-    int ColorIndex,
+    string Color,
     int ProbabilityBps) : IRequest<Result<PipelineView>>;

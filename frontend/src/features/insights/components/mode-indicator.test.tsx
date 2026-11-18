@@ -3,12 +3,16 @@ import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it } from "vitest";
 
 import insightsEn from "../../../../messages/en/insights.json";
+import hintsEn from "../../../../messages/en/hints.json";
 import insightsUk from "../../../../messages/uk/insights.json";
 import { ModeIndicator } from "@/features/insights/components/mode-indicator";
 
 function renderIndicator(modelProvenance: string | null) {
   return render(
-    <NextIntlClientProvider locale="en" messages={{ insights: insightsEn }}>
+    <NextIntlClientProvider
+      locale="en"
+      messages={{ insights: insightsEn, hints: hintsEn }}
+    >
       <ModeIndicator
         mode="ml"
         mlStatus="ready"
@@ -25,9 +29,9 @@ describe("mode indicator", () => {
   it("badges the active model and marks a stub loudly", () => {
     renderIndicator("stub");
 
-    expect(screen.getByText(insightsEn.scoring.provenance.stub)).toHaveClass(
-      "text-warning",
-    );
+    expect(
+      screen.getByText(insightsEn.scoring.provenance.stub).parentElement,
+    ).toHaveClass("text-warning");
   });
 
   it("shows no badge when the list has no model to name", () => {

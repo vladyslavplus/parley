@@ -119,7 +119,7 @@ public static class CrmSchemaNames
 
     public const string PipelineStageKindCheck = "ck_pipeline_stages_kind";
 
-    public const string PipelineStageColorCheck = "ck_pipeline_stages_color_index";
+    public const string PipelineStageColorCheck = "ck_pipeline_stages_color";
 
     public const string PipelineStageProbabilityCheck = "ck_pipeline_stages_probability_bps";
 
@@ -146,6 +146,8 @@ public static class CrmSchemaNames
     public const string TasksTable = "tasks";
 
     public const string NotesTable = "notes";
+
+    public const string TaskTypeCheck = "ck_tasks_type";
 
     public const string TaskAssigneeIndex = "ix_tasks_organization_id_assignee_user_id_due_at_id";
 

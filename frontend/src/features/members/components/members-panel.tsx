@@ -1,6 +1,5 @@
 "use client";
 
-import * as Dialog from "@radix-ui/react-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit2, Plus, RefreshCw, Trash2, UserX } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -20,6 +19,7 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { SimpleSelect, type SelectOptionItem } from "@/components/ui/select";
 import { LIMITS } from "@/constants/limits";
 import {
@@ -50,6 +50,8 @@ import { showSuccessToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 
 type MembersTab = "active" | "pending";
+
+const INVITE_FORM_ID = "member-invite-form";
 
 const MEMBER_SORTS = ["name", "email", "role", "joinedAt"] as const;
 const INVITATION_SORTS = ["createdAt", "email", "expiresAt"] as const;
@@ -97,7 +99,6 @@ function InviteMemberDialog({
   pendingIds: ReadonlySet<string>;
 }) {
   const t = useTranslations("settings.members.invite");
-  const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
   const locale = useLocale();
   const invalidate = useInvalidate();
@@ -135,65 +136,55 @@ function InviteMemberDialog({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-150" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-floating space-y-4 focus:outline-none">
-          <div>
-            <Dialog.Title className="text-base font-semibold text-foreground">
-              {t("title")}
-            </Dialog.Title>
-            <Dialog.Description className="mt-1 text-xs text-muted-foreground">
-              {t("description")}
-            </Dialog.Description>
-          </div>
-
-          <ApiForm
-            onSubmit={onSubmit}
-            formError={formError}
-            alertRef={alertRef}
-            pending={isSubmitting}
-            submitLabel={t("submit")}
-          >
-            <FormField label={t("email")} error={errors.email?.message}>
-              <Input
-                type="email"
-                autoComplete="off"
-                className="text-xs bg-background"
-                {...form.register("email")}
-              />
-            </FormField>
-            <FormField label={t("role")} error={errors.roleCode?.message}>
-              <FormSelect
-                control={form.control}
-                name="roleCode"
-                options={roleOptions}
-              />
-            </FormField>
-            {canTeams ? (
-              <FormField label={t("team")} error={errors.teamId?.message}>
-                <FormSelect
-                  control={form.control}
-                  name="teamId"
-                  options={teamOptions}
-                />
-              </FormField>
-            ) : null}
-            <div className="flex justify-end pt-1">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => handleOpenChange(false)}
-                disabled={isSubmitting}
-                className="px-3 text-xs"
-              >
-                {tCommon("cancel")}
-              </Button>
-            </div>
-          </ApiForm>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <Modal
+      open={open}
+      onOpenChange={handleOpenChange}
+      title={t("title")}
+      description={t("description")}
+      footer={
+        <Button
+          type="submit"
+          form={INVITE_FORM_ID}
+          disabled={isSubmitting}
+          className="w-full"
+        >
+          {t("submit")}
+        </Button>
+      }
+    >
+      <ApiForm
+        id={INVITE_FORM_ID}
+        onSubmit={onSubmit}
+        formError={formError}
+        alertRef={alertRef}
+        pending={isSubmitting}
+      >
+        <FormField label={t("email")} error={errors.email?.message}>
+          <Input
+            type="email"
+            autoComplete="off"
+            className="text-xs bg-background"
+            {...form.register("email")}
+          />
+        </FormField>
+        <FormField label={t("role")} error={errors.roleCode?.message}>
+          <FormSelect
+            control={form.control}
+            name="roleCode"
+            options={roleOptions}
+          />
+        </FormField>
+        {canTeams ? (
+          <FormField label={t("team")} error={errors.teamId?.message}>
+            <FormSelect
+              control={form.control}
+              name="teamId"
+              options={teamOptions}
+            />
+          </FormField>
+        ) : null}
+      </ApiForm>
+    </Modal>
   );
 }
 
@@ -275,7 +266,7 @@ function EditMemberDialog({
   }
 
   return (
-    <Dialog.Root
+    <Modal
       open={Boolean(member)}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
@@ -283,70 +274,48 @@ function EditMemberDialog({
           onClose();
         }
       }}
+      title={t("editModal.title")}
+      description={member?.displayName ?? member?.email ?? ""}
+      footer={
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => void handleSave()}
+          disabled={!isDirty || pending}
+          className="w-full"
+        >
+          {tCommon("save")}
+        </Button>
+      }
     >
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-150" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-floating space-y-4 focus:outline-none">
-          <div>
-            <Dialog.Title className="text-base font-semibold text-foreground">
-              {t("editModal.title")}
-            </Dialog.Title>
-            <Dialog.Description className="mt-1 text-xs text-muted-foreground">
-              {member?.displayName ?? member?.email ?? ""}
-            </Dialog.Description>
-          </div>
+      {error ? <Alert tone="error">{error}</Alert> : null}
 
-          {error ? <Alert tone="error">{error}</Alert> : null}
+      <div className="space-y-4">
+        <FormField label={t("columns.role")}>
+          <SimpleSelect
+            ariaLabel={t("columns.role")}
+            value={roleCode}
+            disabled={pending}
+            onValueChange={setRoleCode}
+            options={roleOptions}
+            className="text-xs"
+          />
+        </FormField>
 
-          <div className="space-y-4">
-            <FormField label={t("columns.role")}>
-              <SimpleSelect
-                ariaLabel={t("columns.role")}
-                value={roleCode}
-                disabled={pending}
-                onValueChange={setRoleCode}
-                options={roleOptions}
-                className="text-xs"
-              />
-            </FormField>
-
-            {canTeams ? (
-              <FormField label={t("columns.team")}>
-                <SimpleSelect
-                  ariaLabel={t("columns.team")}
-                  value={teamId}
-                  disabled={pending}
-                  onValueChange={setTeamId}
-                  options={teamOptions}
-                  className="text-xs"
-                />
-              </FormField>
-            ) : null}
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
+        {canTeams ? (
+          <FormField label={t("columns.team")}>
+            <SimpleSelect
+              ariaLabel={t("columns.team")}
+              value={teamId}
               disabled={pending}
-              className="px-3 text-xs"
-            >
-              {tCommon("cancel")}
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={() => void handleSave()}
-              disabled={!isDirty || pending}
-              className="px-3 text-xs"
-            >
-              {tCommon("save")}
-            </Button>
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+              onValueChange={setTeamId}
+              options={teamOptions}
+              className="text-xs"
+            />
+          </FormField>
+        ) : null}
+      </div>
+    </Modal>
   );
 }
 

@@ -5,11 +5,16 @@ namespace Parley.Insights.Features.Priority.Shared;
 /// <c>items</c> and <c>nextCursor</c> keys are those of a keyset page; <c>mode</c> is <c>ml</c> or <c>rfm</c>, and
 /// <c>mlStatus</c> is one of the values of the priority ML status. <c>modelProvenance</c> is the provenance of the uplift
 /// model the list ranked with; null in the RFM mode and when no uplift model is in use, so the UI never labels a list with a
-/// model that did not produce it.
+/// model that did not produce it. <c>upliftHighThreshold</c> is the configured uplift mark (a fraction on the scale of
+/// <c>upliftValue</c>, 0.2 is 20 percentage points) at or above which a contact earns the high-uplift reason; it is
+/// configuration, not per-contact data, so every caller receives it. <c>staleDealDays</c> is the configured number of days
+/// without an update after which an open deal counts as stale, the rule behind the stale-deal reason and the review-deal step.
 /// </summary>
 public sealed record PriorityListPageView(
     IReadOnlyList<PriorityItemView> Items,
     string? NextCursor,
     string Mode,
     string MlStatus,
-    string? ModelProvenance);
+    string? ModelProvenance,
+    decimal UpliftHighThreshold,
+    int StaleDealDays);

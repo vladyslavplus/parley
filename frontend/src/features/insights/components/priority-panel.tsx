@@ -1,8 +1,8 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpRight, Layers, ListTodo } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Layers, Target } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 
@@ -13,8 +13,12 @@ import {
 } from "@/components/filters/filters-button";
 import { useStaticFilter } from "@/components/filters/use-static-filter";
 import { Alert } from "@/components/ui/alert";
+import { InfoHint } from "@/components/ui/info-hint";
 import { PERMISSIONS } from "@/constants/permissions";
 import { contactRecordRoute } from "@/constants/routes";
+import { useScoringModels } from "@/features/insights/hooks/use-scoring";
+import { readSegmentRules } from "@/features/insights/lib/segment-rules";
+import { formatThresholdPoints } from "@/features/insights/lib/score-format";
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
 import { toNumber } from "@/features/campaigns/types";
 import { TaskModal } from "@/features/tasks/components/task-modal";
@@ -23,49 +27,82 @@ import { useContacts } from "@/features/crm/hooks/use-contacts";
 import { useCan } from "@/features/session/components/can";
 import { ModeIndicator } from "@/features/insights/components/mode-indicator";
 import { NewOrganizationEmpty } from "@/features/insights/components/new-organization-empty";
+import { NextStepCell } from "@/features/insights/components/next-step-cell";
+import {
+  NextStepHint,
+  ReasonsHint,
+  SegmentColumnHint,
+  UpliftColumnHint,
+} from "@/features/insights/components/priority-hints";
+import { UpliftCell } from "@/features/insights/components/uplift-cell";
 import { ReasonChips } from "@/features/insights/components/reason-chips";
 import {
-  actionLabelKey,
+  RfmSegmentBadge,
+  UpliftSegmentBadge,
+} from "@/features/insights/components/segment-badge";
+import {
   SEGMENT_CODES,
+  UPLIFT_SEGMENT_CODES,
   segmentLabelKey,
   upliftSegmentLabelKey,
 } from "@/features/insights/lib/codes";
 import {
-  useRfmSegments,
   usePriority,
+  usePrioritySegments,
 } from "@/features/insights/hooks/use-insights";
 import { isStaleCursorError } from "@/features/insights/lib/priority-cursor";
-import type { PriorityItem } from "@/features/insights/types";
+import type {
+  PriorityItem,
+  PrioritySegmentCount,
+} from "@/features/insights/types";
 import { toApiError } from "@/lib/errors";
+import { formatNumber } from "@/lib/formatters";
 import { Link } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
 
-const ICON_BUTTON =
-  "inline-flex h-6 w-6 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+const POINTS_DIGITS = 1;
 
 // The priority list: who to contact today, ranked by the server for this user.
-// The server applies the scope; the list shows names, reasons and next steps.
+// The list names the segment the ranking uses, why each row is here and the
+// next step; the numbers stay behind the ML-view permission.
 export function PriorityPanel() {
   const t = useTranslations("insights");
+  const tHints = useTranslations("hints");
+  const locale = useLocale();
   const errorText = useErrorText();
   const [segment, setSegment] = useQueryState(
     "segment",
     parseAsString.withDefault(""),
   );
+  const [upliftSegment, setUpliftSegment] = useQueryState(
+    "upliftSegment",
+    parseAsString.withDefault(""),
+  );
   const paging = useKeysetPaging();
-  const counts = useRfmSegments(true);
+  const segments = usePrioritySegments(true);
   // Segment counts stay zero until the first RFM calculation, so whether any
   // contact exists decides between a new organization and a waiting list.
   const canReadContacts = useCan(PERMISSIONS.contactsRead);
   const canRunScoring = useCan(PERMISSIONS.insightsMlRun);
+  const canViewNumbers = useCan(PERMISSIONS.insightsMlView);
   const anyContact = useContacts({ limit: 1 }, { enabled: canReadContacts });
   const [taskFor, setTaskFor] = useState<PriorityItem | null>(null);
+  const models = useScoringModels(canViewNumbers);
+  // The thresholds come from the active model's own manifest, never typed here.
+  const segmentRules = readSegmentRules(
+    models.data?.find((model) => model.kind === "uplift" && model.isActive)
+      ?.segmentRules ?? null,
+  );
+  // The mode the last response reported, so a filter left in the URL from an
+  // ML list does not empty an RFM list after ML is switched off.
+  const [listMode, setListMode] = useState<string | undefined>(undefined);
 
   const query = usePriority(
-    { segment },
+    { segment, upliftSegment: listMode === "rfm" ? "" : upliftSegment },
     { after: paging.after, limit: paging.pageSize },
     true,
   );
+  const serverMode = query.data?.mode;
+  if (serverMode && serverMode !== listMode) setListMode(serverMode);
 
   // A stale cursor restarts the list from the first page (see priority-cursor.ts).
   const staleCursor =
@@ -76,58 +113,135 @@ export function PriorityPanel() {
     if (staleCursor) resetPaging();
   }, [staleCursor, resetPaging]);
 
-  function segmentText(code: string): string | null {
-    const key = segmentLabelKey(code);
-    return key ? t(key) : null;
+  function countOf(
+    taxonomy: "rfm" | "uplift",
+    code: string,
+  ): PrioritySegmentCount | undefined {
+    return segments.data?.[taxonomy].find((item) => item.segment === code);
   }
 
-  // ML mode ranks by uplift segments; they are labeled next to RFM codes.
-  function upliftText(code: string): string | null {
-    const key = upliftSegmentLabelKey(code);
-    return key ? t(key) : null;
+  function countLabel(count: PrioritySegmentCount | undefined): string | null {
+    if (!count) return null;
+    return t("filters.countOfTotal", {
+      onList: formatNumber(toNumber(count.onList), locale),
+      total: formatNumber(toNumber(count.total), locale),
+    });
   }
 
-  function countOf(code: string): number | null {
-    const row = counts.data?.find((item) => item.segment === code);
-    return row ? toNumber(row.count) : null;
+  function optionLabel(
+    taxonomy: "rfm" | "uplift",
+    code: string,
+    name: string,
+  ): string {
+    const counts = countLabel(countOf(taxonomy, code));
+    return counts ? `${name} · ${counts}` : name;
   }
 
-  const segmentFilter = useStaticFilter({
+  const upliftFilter = useStaticFilter({
+    key: "upliftSegment",
+    label: t("filters.upliftSegment"),
+    icon: Target,
+    value: upliftSegment,
+    onChange: (value) => {
+      void setUpliftSegment(value);
+      paging.resetPaging();
+    },
+    options: UPLIFT_SEGMENT_CODES.map((code) => ({
+      id: code,
+      label: optionLabel(
+        "uplift",
+        code,
+        t(upliftSegmentLabelKey(code) ?? "filters.upliftSegment"),
+      ),
+    })),
+    searchPlaceholder: t("filters.searchUpliftSegments"),
+    emptyLabel: t("filters.noSegments"),
+  });
+
+  const rfmFilter = useStaticFilter({
     key: "segment",
-    label: t("filters.segment"),
+    label: t("filters.rfmSegment"),
     icon: Layers,
     value: segment,
     onChange: (value) => {
       void setSegment(value);
       paging.resetPaging();
     },
-    options: SEGMENT_CODES.map((code) => {
-      const name = segmentText(code) ?? code;
-      const count = countOf(code);
-      return {
-        id: code,
-        label: count === null ? name : `${name} · ${count}`,
-      };
-    }),
+    options: SEGMENT_CODES.map((code) => ({
+      id: code,
+      label: optionLabel(
+        "rfm",
+        code,
+        t(segmentLabelKey(code) ?? "filters.segment"),
+      ),
+    })),
     searchPlaceholder: t("filters.searchSegments"),
     emptyLabel: t("filters.noSegments"),
   });
 
   const rows = query.data?.items ?? [];
-  const totalContacts = counts.data
-    ? counts.data.reduce((sum, row) => sum + toNumber(row.count), 0)
+  // A fraction of the uplift scale; the list reports the configured mark.
+  const highUpliftPoints = query.data
+    ? formatThresholdPoints(
+        toNumber(query.data.upliftHighThreshold) * 100,
+        locale,
+      )
+    : null;
+  const staleDealDays = query.data ? toNumber(query.data.staleDealDays) : null;
+  const totalContacts = segments.data
+    ? segments.data.rfm.reduce((sum, row) => sum + toNumber(row.total), 0)
     : null;
   const hasContacts = anyContact.data ? anyContact.data.items.length > 0 : null;
   const awaitingCalculation =
     !segment &&
+    !upliftSegment &&
     rows.length === 0 &&
     totalContacts === 0 &&
     hasContacts !== false;
   const newOrganization =
     !segment &&
+    !upliftSegment &&
     rows.length === 0 &&
     totalContacts === 0 &&
     hasContacts === false;
+
+  // In ML mode the model's segment is the row label; the RFM segment stays as
+  // the muted second line. The counts endpoint knows whether the uplift
+  // taxonomy exists for this organization, so it decides the same way the
+  // server's mode does.
+  const mlMode = query.data?.mode === "ml";
+  const dimensions = mlMode ? [upliftFilter, rfmFilter] : [rfmFilter];
+
+  const filtered = Boolean(segment || upliftSegment);
+  const filteredCount =
+    (upliftSegment ? countOf("uplift", upliftSegment) : undefined) ??
+    (segment ? countOf("rfm", segment) : undefined);
+  const filteredName = upliftSegment
+    ? t(upliftSegmentLabelKey(upliftSegment) ?? "filters.upliftSegment")
+    : segment
+      ? t(segmentLabelKey(segment) ?? "filters.segment")
+      : null;
+  const emptyFilteredTitle =
+    filtered && rows.length === 0
+      ? t("home.priority.emptyFilteredTitle")
+      : null;
+  const emptyFilteredDescription = filtered
+    ? filteredCount && filteredName
+      ? t("home.priority.emptyFilteredDescription", {
+          segment: filteredName,
+          total: formatNumber(toNumber(filteredCount.total), locale),
+        })
+      : t("home.priority.emptyFilteredDescriptionUnknown")
+    : undefined;
+
+  function upliftPoints(value: number | string | null): string | null {
+    if (value === null) return null;
+    return new Intl.NumberFormat(locale, {
+      signDisplay: "exceptZero",
+      minimumFractionDigits: POINTS_DIGITS,
+      maximumFractionDigits: POINTS_DIGITS,
+    }).format(toNumber(value) * 100);
+  }
 
   const columns: ColumnDef<PriorityItem, unknown>[] = [
     {
@@ -152,60 +266,90 @@ export function PriorityPanel() {
     },
     {
       id: "reasons",
-      header: t("home.priority.columns.reasons"),
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("home.priority.columns.reasons")}
+          <ReasonsHint
+            mlMode={mlMode}
+            highUpliftPoints={highUpliftPoints}
+            staleDealDays={staleDealDays}
+          />
+        </span>
+      ),
       enableSorting: false,
       cell: ({ row }) => <ReasonChips codes={row.original.reasonCodes} />,
     },
     {
       id: "segment",
-      header: t("home.priority.columns.segment"),
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("home.priority.columns.segment")}
+          <SegmentColumnHint mlMode={mlMode} rules={segmentRules} />
+        </span>
+      ),
       enableSorting: false,
-      cell: ({ row }) => {
-        const text =
-          segmentText(row.original.segment) ?? upliftText(row.original.segment);
-        return text ? (
-          <span className="text-xs text-foreground">{text}</span>
-        ) : (
-          <span className="text-muted-foreground/40">—</span>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="space-y-1">
+          {mlMode && row.original.upliftSegment ? (
+            <>
+              <UpliftSegmentBadge code={row.original.upliftSegment} />
+              <div>
+                <RfmSegmentBadge code={row.original.segment} withLabel />
+              </div>
+            </>
+          ) : (
+            <RfmSegmentBadge code={row.original.segment} />
+          )}
+        </div>
+      ),
     },
-    {
-      id: "next",
-      header: t("home.priority.columns.next"),
+  ];
+
+  if (mlMode && canViewNumbers) {
+    columns.push({
+      id: "upliftValue",
+      header: () => (
+        <span className="flex items-center justify-end gap-1">
+          {t("home.priority.upliftColumn")}
+          <UpliftColumnHint
+            rules={segmentRules}
+            highUpliftPoints={highUpliftPoints}
+          />
+        </span>
+      ),
       enableSorting: false,
       cell: ({ row }) => {
-        const actionKey = actionLabelKey(row.original.suggestedAction);
-        const name = row.original.displayName;
+        const points = upliftPoints(row.original.upliftValue);
+        if (!points) {
+          return <div className="text-right text-muted-foreground/40">—</div>;
+        }
         return (
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-medium text-foreground">
-              {actionKey ? t(actionKey) : ""}
-            </span>
-            <div className="flex items-center gap-1">
-              <Link
-                href={contactRecordRoute(row.original.contactId)}
-                aria-label={`${t("home.priority.openContact")}: ${name}`}
-                title={t("home.priority.openContact")}
-                className={ICON_BUTTON}
-              >
-                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-              </Link>
-              <button
-                type="button"
-                aria-label={`${t("home.priority.createTask")}: ${name}`}
-                title={t("home.priority.createTask")}
-                className={cn(ICON_BUTTON, "cursor-pointer")}
-                onClick={() => setTaskFor(row.original)}
-              >
-                <ListTodo className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </div>
+          <div className="text-right">
+            <UpliftCell
+              contactId={row.original.contactId}
+              displayName={row.original.displayName}
+              points={points}
+              negative={toNumber(row.original.upliftValue ?? 0) < 0}
+            />
           </div>
         );
       },
-    },
-  ];
+    });
+  }
+
+  columns.push({
+    id: "next",
+    header: () => (
+      <span className="inline-flex items-center gap-1">
+        {t("home.priority.columns.next")}
+        <NextStepHint mlMode={mlMode} staleDealDays={staleDealDays} />
+      </span>
+    ),
+    enableSorting: false,
+    cell: ({ row }) => (
+      <NextStepCell item={row.original} onCreateTask={setTaskFor} />
+    ),
+  });
 
   if (query.isError && !query.data && !staleCursor) {
     return <Alert tone="error">{errorText(query.error)}</Alert>;
@@ -238,7 +382,10 @@ export function PriorityPanel() {
         <NewOrganizationEmpty />
       ) : (
         <>
-          <p className="text-xs text-muted-foreground">{t("filters.help")}</p>
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span>{t("filters.help")}</span>
+            <InfoHint>{tHints("priorityCounts")}</InfoHint>
+          </p>
           <DataTable
             data={rows}
             columns={columns}
@@ -247,19 +394,22 @@ export function PriorityPanel() {
             isFetching={query.isFetching}
             manualPagination
             emptyTitle={
-              awaitingCalculation
+              emptyFilteredTitle ??
+              (awaitingCalculation
                 ? t("home.priority.preparingTitle")
-                : t("home.priority.empty")
+                : t("home.priority.empty"))
             }
             emptyDescription={
-              awaitingCalculation
-                ? t("home.priority.preparingDescription")
-                : undefined
+              emptyFilteredTitle
+                ? emptyFilteredDescription
+                : awaitingCalculation
+                  ? t("home.priority.preparingDescription")
+                  : undefined
             }
             toolbar={
               <div className="flex flex-wrap items-center gap-2">
-                <FiltersButton dimensions={[segmentFilter]} />
-                <FilterChips dimensions={[segmentFilter]} />
+                <FiltersButton dimensions={dimensions} />
+                <FilterChips dimensions={dimensions} />
               </div>
             }
             paginationSlot={
