@@ -14,7 +14,7 @@ describe("useDealFilters", () => {
     expect(result.current.searchInput).toBe("");
     expect(result.current.ownerUserId).toBe("");
     expect(result.current.companyId).toBe("");
-    expect(result.current.status).toBe("open");
+    expect(result.current.status).toBe("all");
     expect(result.current.hasActiveFilters).toBe(false);
   });
 

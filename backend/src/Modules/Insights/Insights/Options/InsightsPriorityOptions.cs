@@ -31,7 +31,7 @@ public sealed class InsightsPriorityOptions
     public decimal RfmWeight { get; set; } = 0.3m;
 
     /// <summary>ML mode: an uplift at or above this mark earns the uplift reason.</summary>
-    public decimal UpliftHighThreshold { get; set; } = 0.10m;
+    public decimal UpliftHighThreshold { get; set; } = 0.20m;
 
     /// <summary>The scored segments, in the order their weights must follow, from the highest weight to the lowest.</summary>
     public static IReadOnlyList<string> ScoredSegmentsInOrder { get; } =

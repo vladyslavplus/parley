@@ -27,6 +27,7 @@ import { DataTableProvider } from "./data-table-context";
 import { DataTableDensityToggle } from "./data-table-density-toggle";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { TABLE_ROOT_PROPS, TABLE_SCROLL_PROPS } from "./scroll-to-table-top";
 import { TableProgressBar } from "./table-progress-bar";
 import type { DataTableProps, TableDensity } from "./types";
 
@@ -40,6 +41,7 @@ export function DataTable<TData>({
   emptyDescription,
   emptyAction,
   onRowClick,
+  getRowClassName,
   bulkActions,
   initialPageSize = LIMITS.defaultTablePageSize,
   sorting: controlledSorting,
@@ -173,7 +175,10 @@ export function DataTable<TData>({
 
   return (
     <DataTableProvider value={contextValue}>
-      <div className={cn("space-y-2 relative", className)}>
+      <div
+        {...TABLE_ROOT_PROPS}
+        className={cn("scroll-mt-20 space-y-2 relative", className)}
+      >
         {hideToolbar ? null : (toolbar ?? <DataTableToolbar />)}
 
         {/* Table Container */}
@@ -183,7 +188,13 @@ export function DataTable<TData>({
           className="rounded-[var(--radius-card)] border border-border bg-card overflow-hidden relative min-h-[240px]"
         >
           <TableProgressBar active={Boolean(isFetching && !loading)} />
-          <div className="overflow-x-auto max-h-[650px] relative">
+          {/* With a mouse or trackpad the table keeps its own wheel at its ends, so a
+              scroll that reaches the last row does not drag the page along. Touch
+              keeps chaining: a tall table could otherwise fill the whole screen. */}
+          <div
+            {...TABLE_SCROLL_PROPS}
+            className="overflow-x-auto max-h-[min(650px,70dvh)] relative [@media(hover:hover)_and_(pointer:fine)]:overscroll-y-contain"
+          >
             <table
               ref={tableRef}
               role="grid"
@@ -298,6 +309,7 @@ export function DataTable<TData>({
                           isSelected
                             ? "bg-primary/5 hover:bg-primary/10"
                             : "hover:bg-muted/40",
+                          getRowClassName?.(row.original),
                         )}
                       >
                         {row.getVisibleCells().map((cell) => (

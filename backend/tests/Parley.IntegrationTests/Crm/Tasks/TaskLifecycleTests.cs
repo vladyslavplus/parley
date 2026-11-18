@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
 using Parley.Api.Controllers.Crm;
@@ -34,6 +35,43 @@ public sealed class TaskLifecycleTests(PostgresFixture postgres, MailpitFixture 
     {
         _factory.Dispose();
         return ValueTask.CompletedTask;
+    }
+
+    [Fact]
+    public async Task TaskType_DefaultsToTodo_IsSetAndKeptOnUpdate_AndFiltersTheListsAndTheOverdueCount()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var past = _factory.Clock.GetUtcNow().AddDays(-1);
+
+        var plain = await TaskApi.CreateAsync(admin, "Plain", past, null, null, token);
+        plain.GetProperty("type").GetString().Should().Be("todo", "a task created without a type is a to-do");
+        var typedResponse = await admin.PostAsJsonAsync(CrmRoutes.Tasks, new { title = "Send offer", type = "email", dueAt = past }, token);
+        typedResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        var typed = await ReadBodyAsync(typedResponse, token);
+        typed.GetProperty("type").GetString().Should().Be("email");
+        var invalid = await admin.PostAsJsonAsync(CrmRoutes.Tasks, new { title = "Bad", type = "fax" }, token);
+        invalid.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        (await TaskApi.ListIdsAsync(admin, CrmRoutes.Tasks, "type=email", token)).Should().Equal(TaskApi.IdOf(typed));
+        (await TaskApi.ListIdsAsync(admin, CrmRoutes.TasksMine, "type=todo", token)).Should().Equal(TaskApi.IdOf(plain));
+        (await TaskApi.OverdueCountAsync(admin, CrmRoutes.TasksMineOverdueCount, "type=email", token)).Should().Be(1);
+        (await TaskApi.OverdueCountAsync(admin, CrmRoutes.TasksOverdueCount, string.Empty, token)).Should().Be(2);
+        (await admin.GetAsync($"{CrmRoutes.Tasks}?type=fax", token)).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var kept = await admin.PutAsJsonAsync(
+            PipelineApi.Route(CrmRoutes.TaskById, TaskApi.IdOf(typed)),
+            new { version = TaskApi.VersionOf(typed), title = "Send offer again" },
+            token);
+        kept.StatusCode.Should().Be(HttpStatusCode.OK);
+        var keptView = await ReadBodyAsync(kept, token);
+        keptView.GetProperty("type").GetString().Should().Be("email", "an update without a type keeps the current one");
+        var changed = await admin.PutAsJsonAsync(
+            PipelineApi.Route(CrmRoutes.TaskById, TaskApi.IdOf(typed)),
+            new { version = TaskApi.VersionOf(keptView), title = "Send offer again", type = "meeting" },
+            token);
+        (await ReadBodyAsync(changed, token)).GetProperty("type").GetString().Should().Be("meeting");
     }
 
     [Fact]

@@ -649,6 +649,7 @@ export interface paths {
                     after?: string;
                     limit?: number | string;
                     segment?: string;
+                    upliftSegment?: string;
                 };
                 header?: never;
                 path?: never;
@@ -676,6 +677,55 @@ export interface paths {
                         "text/plain": components["schemas"]["ProblemDetails"];
                         "application/json": components["schemas"]["ProblemDetails"];
                         "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/insights/priority/segments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Counts of both segment taxonomies around the latest priority list: for each segment, how many of its contacts are on the day's list and how many exist in the caller's scope. The totals come from the latest RFM snapshot and the latest uplift scores, and the response names the days they use. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PrioritySegmentCountsView"];
+                        "application/json": components["schemas"]["PrioritySegmentCountsView"];
+                        "text/json": components["schemas"]["PrioritySegmentCountsView"];
                     };
                 };
                 /** @description Forbidden */
@@ -5469,7 +5519,12 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    status?: string;
+                    q?: string;
+                    ownerUserId?: string;
+                    companyId?: string;
+                };
                 header?: never;
                 path: {
                     id: string;
@@ -5487,6 +5542,17 @@ export interface paths {
                         "text/plain": components["schemas"]["PipelineBoardView"];
                         "application/json": components["schemas"]["PipelineBoardView"];
                         "text/json": components["schemas"]["PipelineBoardView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Forbidden */
@@ -6174,6 +6240,8 @@ export interface paths {
                     companyId?: string;
                     /** @description Task status to list: open, completed or overdue (open and past its due instant). */
                     status?: "open" | "completed" | "overdue";
+                    /** @description Only timeline entries of this type. */
+                    type?: string;
                     /** @description Field to sort by. The allowed values are listed per endpoint. */
                     sort?: "due" | "title" | "created";
                     /** @description Sort direction: asc or desc. */
@@ -6312,6 +6380,8 @@ export interface paths {
                     companyId?: string;
                     /** @description Task status to list: open, completed or overdue (open and past its due instant). */
                     status?: "open" | "completed" | "overdue";
+                    /** @description Only timeline entries of this type. */
+                    type?: string;
                     /** @description Field to sort by. The allowed values are listed per endpoint. */
                     sort?: "due" | "title" | "created";
                     /** @description Sort direction: asc or desc. */
@@ -6332,6 +6402,137 @@ export interface paths {
                         "text/plain": components["schemas"]["KeysetCursorPageOfTaskView"];
                         "application/json": components["schemas"]["KeysetCursorPageOfTaskView"];
                         "text/json": components["schemas"]["KeysetCursorPageOfTaskView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/overdue-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                    assigneeUserId?: string;
+                    contactId?: string;
+                    dealId?: string;
+                    companyId?: string;
+                    type?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TaskOverdueCountView"];
+                        "application/json": components["schemas"]["TaskOverdueCountView"];
+                        "text/json": components["schemas"]["TaskOverdueCountView"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/mine/overdue-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                    contactId?: string;
+                    dealId?: string;
+                    companyId?: string;
+                    type?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TaskOverdueCountView"];
+                        "application/json": components["schemas"]["TaskOverdueCountView"];
+                        "text/json": components["schemas"]["TaskOverdueCountView"];
                     };
                 };
                 /** @description Bad Request */
@@ -9446,7 +9647,11 @@ export interface components {
             ownerUserId: null | string;
             customFields: null | Record<string, never>;
         };
-        /** @description One score entry. Value and payload are null for a caller without the ML view. */
+        /**
+         * @description One score entry with the typed fields of its payload. The value, the payload fields and the currency are null for a
+         *     caller without the ML view. Uplift fills `PTreated` and `PControl`; CLV fills `PAlive`,
+         *     `ExpectedPurchases`, `ExpectedAverageValue` and `HorizonDays`, and carries the organization currency.
+         */
         ContactScoreItemView: {
             kind: string;
             modelName: string;
@@ -9456,7 +9661,19 @@ export interface components {
             scoredAt: string;
             /** Format: double */
             value: null | number | string;
-            payload: null | components["schemas"]["JsonElement"];
+            /** Format: double */
+            pTreated: null | number | string;
+            /** Format: double */
+            pControl: null | number | string;
+            /** Format: double */
+            pAlive: null | number | string;
+            /** Format: double */
+            expectedPurchases: null | number | string;
+            /** Format: double */
+            expectedAverageValue: null | number | string;
+            /** Format: int32 */
+            horizonDays: null | number | string;
+            currency: null | string;
         };
         /** @description The scores of a contact: its segments as chips, and the score entries the caller may see. */
         ContactScoresView: {
@@ -9633,6 +9850,8 @@ export interface components {
              * @description Order of the stage.
              */
             position: number | string;
+            /** @description Stage colour as `#rrggbb`. */
+            color: string;
             /**
              * Format: int32
              * @description Open deals in the stage.
@@ -10276,11 +10495,8 @@ export interface components {
              * @description Win probability in basis points.
              */
             probabilityBps: number | string;
-            /**
-             * Format: int32
-             * @description Index into the color ramp, 0 to 4.
-             */
-            colorIndex: number | string;
+            /** @description Colour chosen for the stage as a lowercase six-digit hex triplet such as `#2453be`. */
+            color: string;
             /**
              * Format: int32
              * @description Visible deals on the stage.
@@ -10317,11 +10533,10 @@ export interface components {
         PipelineStageOrderRequest: {
             stageIds: null | string[];
         };
-        /** @description Body of a stage create or update: name, color index and win probability in basis points. */
+        /** @description Body of a stage create or update: name, colour and win probability in basis points. */
         PipelineStageRequest: {
             name: null | string;
-            /** Format: int32 */
-            colorIndex: number | string;
+            color: null | string;
             /** Format: int32 */
             probabilityBps: number | string;
         };
@@ -10346,11 +10561,8 @@ export interface components {
              * @description Win probability in basis points (10000 = 100 %).
              */
             probabilityBps: number | string;
-            /**
-             * Format: int32
-             * @description Index into the color ramp, 0 to 4.
-             */
-            colorIndex: number | string;
+            /** @description Colour chosen for the stage as a lowercase six-digit hex triplet such as `#2453be`. */
+            color: string;
         };
         /** @description A pipeline in a list, without its stages. */
         PipelineSummaryView: {
@@ -10426,6 +10638,13 @@ export interface components {
             mode: string;
             /** @description RFM segment code. */
             segment: string;
+            /**
+             * Format: double
+             * @description Uplift the model estimated for the contact; null in the RFM mode, for a contact without a score, and for a caller without the ML view permission.
+             */
+            upliftValue: null | number | string;
+            /** @description Uplift segment the model gave the contact; visible to every caller with the insights permission, per DC-08. Null in the RFM mode and for a contact without a score. */
+            upliftSegment: null | string;
             /** @description Reason codes that explain the value. */
             reasonCodes: string[];
             /** @description Next action code. */
@@ -10436,7 +10655,10 @@ export interface components {
          *     `items` and `nextCursor` keys are those of a keyset page; `mode` is `ml` or `rfm`, and
          *     `mlStatus` is one of the values of the priority ML status. `modelProvenance` is the provenance of the uplift
          *     model the list ranked with; null in the RFM mode and when no uplift model is in use, so the UI never labels a list with a
-         *     model that did not produce it.
+         *     model that did not produce it. `upliftHighThreshold` is the configured uplift mark (a fraction on the scale of
+         *     `upliftValue`, 0.2 is 20 percentage points) at or above which a contact earns the high-uplift reason; it is
+         *     configuration, not per-contact data, so every caller receives it. `staleDealDays` is the configured number of days
+         *     without an update after which an open deal counts as stale, the rule behind the stale-deal reason and the review-deal step.
          */
         PriorityListPageView: {
             items: components["schemas"]["PriorityItemView"][];
@@ -10444,6 +10666,51 @@ export interface components {
             mode: string;
             mlStatus: string;
             modelProvenance: null | string;
+            /** Format: double */
+            upliftHighThreshold: number | string;
+            /** Format: int32 */
+            staleDealDays: number | string;
+        };
+        /**
+         * @description Counts of both segment taxonomies for the latest completed priority day, in the caller's scope. `asOf` is the day of
+         *     the list; `rfmAsOf` and `upliftAsOf` name the days the totals come from, so a caller sees when they differ. Every
+         *     segment is listed, even with zero contacts.
+         */
+        PrioritySegmentCountsView: {
+            /**
+             * Format: date
+             * @description Day of the priority list; null before the first complete day.
+             */
+            asOf: null | string;
+            /**
+             * Format: date
+             * @description Day of the latest complete RFM snapshot the RFM totals come from; null when there is none.
+             */
+            rfmAsOf: null | string;
+            /**
+             * Format: date
+             * @description Day of the latest uplift scores the uplift totals come from; null when there are none.
+             */
+            upliftAsOf: null | string;
+            /** @description RFM segments, in the documented segment order. */
+            rfm: components["schemas"]["PrioritySegmentCountView"][];
+            /** @description Uplift segments, in the order the scoring rules decide them. */
+            uplift: components["schemas"]["PrioritySegmentCountView"][];
+        };
+        /** @description One segment of one taxonomy: how many of its contacts are on the day's list, and how many exist in the caller's scope. */
+        PrioritySegmentCountView: {
+            /** @description Segment code. */
+            segment: string;
+            /**
+             * Format: int32
+             * @description Contacts of the segment on the latest priority list, in the caller's scope.
+             */
+            onList: number | string;
+            /**
+             * Format: int32
+             * @description Contacts of the segment in the caller's scope, from the day the taxonomy uses.
+             */
+            total: number | string;
         };
         ProblemDetails: {
             type?: null | string;
@@ -10519,7 +10786,8 @@ export interface components {
         };
         /**
          * @description One registry entry. The metrics are the evaluation numbers of the model's manifest, as the service reports them.
-         *     `IsAvailable` is false for a row the last successful sync no longer saw: it stays as history and can never be used.
+         *     `SegmentRules` are the uplift segment thresholds of the manifest; null for a model without them. `IsAvailable`
+         *     is false for a row the last successful sync no longer saw: it stays as history and can never be used.
          */
         ScoringModelView: {
             modelName: string;
@@ -10533,6 +10801,7 @@ export interface components {
             /** Format: date-time */
             syncedAt: string;
             metrics: components["schemas"]["JsonElement"];
+            segmentRules: null | components["schemas"]["JsonElement"];
             isAvailable: boolean;
             isActive: boolean;
         };
@@ -10541,7 +10810,11 @@ export interface components {
             /** @description The score kind to run: uplift or clv; required. */
             kind: null | string;
         };
-        /** @description One scoring run as the API shows it: its kind, the pinned model, its state and its counts. */
+        /**
+         * @description One scoring run as the API shows it: its kind, the pinned model, its state and its counts. `ContactsTotal` counts the
+         *     eligible contacts sent to the service; `ContactsSkipped` counts the contacts excluded before scoring because they
+         *     have no features, for example no orders.
+         */
         ScoringRunView: {
             /** Format: uuid */
             id: string;
@@ -10555,6 +10828,8 @@ export interface components {
             contactsScored: number | string;
             /** Format: int32 */
             contactsRejected: number | string;
+            /** Format: int32 */
+            contactsSkipped: number | string;
             errorCode: null | string;
             /** Format: date-time */
             startedAt: string;
@@ -10690,9 +10965,21 @@ export interface components {
              */
             colorIndex: number | string;
         };
-        /** @description Body of a task create: title, optional notes and due instant, assignee (the caller when absent) and links. */
+        /** @description How many open tasks are past their due instant, under the scope and filters of the request. */
+        TaskOverdueCountView: {
+            /**
+             * Format: int32
+             * @description Number of overdue tasks.
+             */
+            count: number | string;
+        };
+        /**
+         * @description Body of a task create: title, optional type (`call`, `email`, `meeting` or `todo`; `todo` when absent),
+         *     notes and due instant, assignee (the caller when absent) and links.
+         */
         TaskRequest: {
             title: null | string;
+            type: null | string;
             notes: null | string;
             /** Format: date-time */
             dueAt: null | string;
@@ -10717,6 +11004,8 @@ export interface components {
             id: string;
             /** @description Task title. */
             title: string;
+            /** @description Kind of task: `call`, `email`, `meeting` or `todo`. */
+            type: string;
             /** @description Free text, when set. */
             notes: null | string;
             /**
@@ -10955,11 +11244,12 @@ export interface components {
             defaultLocale: null | string;
             currency: null | string;
         };
-        /** @description Body of a task update: the row version the client read, then the editable fields. A null assignee keeps the current one. */
+        /** @description Body of a task update: the row version the client read, then the editable fields. A null assignee or type keeps the current one. */
         UpdateTaskRequest: {
             /** Format: uint32 */
             version: number | string;
             title: null | string;
+            type: null | string;
             notes: null | string;
             /** Format: date-time */
             dueAt: null | string;

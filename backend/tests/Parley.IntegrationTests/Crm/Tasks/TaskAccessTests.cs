@@ -61,6 +61,31 @@ public sealed class TaskAccessTests(PostgresFixture postgres, MailpitFixture mai
     }
 
     [Fact]
+    public async Task OverdueCount_FollowsTheListScopeAndFilters_AndIgnoresCompletedAndFutureTasks()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var rep = await CrmApi.AddMemberAsync(_factory, owner.OrganizationId, SystemRoleSeed.SalesRepRoleId, token);
+        using var repClient = CrmApi.Client(_factory, rep.AccessToken);
+        var past = DateTimeOffset.UtcNow.AddDays(-2);
+        var future = DateTimeOffset.UtcNow.AddDays(2);
+
+        await TaskApi.CreateAsync(admin, "Overdue admin", past, null, null, token);
+        await TaskApi.CreateAsync(admin, "Upcoming admin", future, null, null, token);
+        var finished = await TaskApi.CreateAsync(admin, "Finished admin", past, null, null, token);
+        (await TaskApi.CompleteAsync(admin, TaskApi.IdOf(finished), TaskApi.VersionOf(finished), token)).EnsureSuccessStatusCode();
+        await TaskApi.CreateAsync(repClient, "Overdue rep", past, null, null, token);
+
+        (await TaskApi.OverdueCountAsync(admin, CrmRoutes.TasksMineOverdueCount, string.Empty, token)).Should().Be(1);
+        (await TaskApi.OverdueCountAsync(admin, CrmRoutes.TasksOverdueCount, string.Empty, token)).Should().Be(2);
+        (await TaskApi.OverdueCountAsync(admin, CrmRoutes.TasksOverdueCount, "q=rep", token)).Should().Be(1, "the search filter narrows the count like the list");
+        (await TaskApi.OverdueCountAsync(admin, CrmRoutes.TasksOverdueCount, $"assigneeUserId={rep.UserId}", token)).Should().Be(1);
+        (await TaskApi.OverdueCountAsync(repClient, CrmRoutes.TasksOverdueCount, string.Empty, token)).Should().Be(1, "a rep counts only their own scope");
+        (await TaskApi.ListIdsAsync(admin, CrmRoutes.Tasks, "status=overdue&limit=100", token)).Should().HaveCount(2);
+    }
+
+    [Fact]
     public async Task Viewer_CannotCreateTasks()
     {
         var token = TestContext.Current.CancellationToken;

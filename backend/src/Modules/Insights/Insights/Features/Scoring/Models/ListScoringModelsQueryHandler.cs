@@ -36,6 +36,7 @@ public sealed class ListScoringModelsQueryHandler(InsightsDbContext dbContext)
                 model.TrainedAt,
                 model.SyncedAt,
                 JsonDocument.Parse(model.Metrics).RootElement.Clone(),
+                model.SegmentRules is null ? null : JsonDocument.Parse(model.SegmentRules).RootElement.Clone(),
                 model.IsAvailable,
                 model.IsAvailable && IsActive(model, effective)))
             .ToList();

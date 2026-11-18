@@ -56,6 +56,9 @@ public sealed class FakeScoringService : HttpMessageHandler
     /// <summary>When true, the registry answers with no models: the service no longer serves what it served before.</summary>
     public bool HideModels { get; set; }
 
+    /// <summary>When true, the uplift manifest entry omits <c>segment_rules</c>, as an older service would.</summary>
+    public bool OmitSegmentRules { get; set; }
+
     /// <summary>
     /// Runs once before the next uplift response. A test uses it to change the run while the runner works, for example to
     /// end the run as failed before the swap.
@@ -143,7 +146,7 @@ public sealed class FakeScoringService : HttpMessageHandler
 
     private static Dictionary<string, object?> EmptyModels() => new() { ["models"] = Array.Empty<object>() };
 
-    private static Dictionary<string, object?> Models() => new()
+    private Dictionary<string, object?> Models() => new()
     {
         ["models"] = new[]
         {
@@ -156,6 +159,14 @@ public sealed class FakeScoringService : HttpMessageHandler
                 ["provenance"] = ProvenanceTrained,
                 ["trained_at"] = "2026-11-01T00:00:00Z",
                 ["metrics"] = new Dictionary<string, object?>(),
+                ["segment_rules"] = OmitSegmentRules
+                    ? null
+                    : new Dictionary<string, object?>
+                    {
+                        ["do_not_disturb_uplift_below"] = -1.0m,
+                        ["persuadable_uplift_at_least"] = 0.1m,
+                        ["sure_thing_control_rate_at_least"] = 0.35m,
+                    },
                 ["status"] = "available",
                 ["error_code"] = null,
             },

@@ -33,7 +33,7 @@ public sealed class UpdatePipelineStageCommandHandler(CrmDbContext dbContext) : 
         }
 
         stage.Rename(name, PipelineNames.Display(stage.Name, stage.SystemKey));
-        stage.ColorIndex = command.ColorIndex;
+        stage.Color = PipelineStageColors.Normalize(command.Color);
         stage.ProbabilityBps = command.ProbabilityBps;
         try
         {

@@ -8,4 +8,5 @@ public sealed record TaskListFilter(
     Guid? DealId,
     Guid? CompanyId,
     string? Status,
+    string? Type,
     DateTime Now);

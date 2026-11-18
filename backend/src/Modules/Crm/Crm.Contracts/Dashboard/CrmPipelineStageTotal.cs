@@ -4,6 +4,7 @@ namespace Parley.Crm.Contracts.Dashboard;
 /// <param name="StageId">The stage.</param>
 /// <param name="StageName">Display name of the stage.</param>
 /// <param name="Position">Order of the stage in its pipeline; stages of several pipelines sort by position, then name.</param>
+/// <param name="Color">Stage colour as <c>#rrggbb</c>.</param>
 /// <param name="DealCount">Open deals in the stage.</param>
 /// <param name="Amount">Sum of their amounts.</param>
-public sealed record CrmPipelineStageTotal(Guid StageId, string StageName, int Position, int DealCount, decimal Amount);
+public sealed record CrmPipelineStageTotal(Guid StageId, string StageName, int Position, string Color, int DealCount, decimal Amount);

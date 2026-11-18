@@ -24,20 +24,13 @@ public static class DefaultPipelineStages
     private const int WonProbabilityBps = 10000;
     private const int LostProbabilityBps = 0;
 
-    private const int NewColorIndex = 0;
-    private const int QualifiedColorIndex = 1;
-    private const int ProposalColorIndex = 2;
-    private const int NegotiationColorIndex = 3;
-    private const int WonColorIndex = 4;
-    private const int LostColorIndex = 0;
-
     public static IReadOnlyList<DefaultPipelineStage> All { get; } =
     [
-        new(NewKey, PipelineStageKinds.Open, NewProbabilityBps, NewColorIndex),
-        new(QualifiedKey, PipelineStageKinds.Open, QualifiedProbabilityBps, QualifiedColorIndex),
-        new(ProposalKey, PipelineStageKinds.Open, ProposalProbabilityBps, ProposalColorIndex),
-        new(NegotiationKey, PipelineStageKinds.Open, NegotiationProbabilityBps, NegotiationColorIndex),
-        new(WonKey, PipelineStageKinds.Won, WonProbabilityBps, WonColorIndex),
-        new(LostKey, PipelineStageKinds.Lost, LostProbabilityBps, LostColorIndex),
+        new(NewKey, PipelineStageKinds.Open, NewProbabilityBps, PipelineStageColors.Lightest),
+        new(QualifiedKey, PipelineStageKinds.Open, QualifiedProbabilityBps, PipelineStageColors.Light),
+        new(ProposalKey, PipelineStageKinds.Open, ProposalProbabilityBps, PipelineStageColors.Medium),
+        new(NegotiationKey, PipelineStageKinds.Open, NegotiationProbabilityBps, PipelineStageColors.Deep),
+        new(WonKey, PipelineStageKinds.Won, WonProbabilityBps, PipelineStageColors.Strong),
+        new(LostKey, PipelineStageKinds.Lost, LostProbabilityBps, PipelineStageColors.Lightest),
     ];
 }

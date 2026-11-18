@@ -37,6 +37,7 @@ serve = [
 dev = [
     "pytest>=8",
     "httpx>=0.28",
+    "jsonschema>=4.26.0",
 ]
 
 [build-system]

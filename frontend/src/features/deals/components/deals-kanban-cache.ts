@@ -1,7 +1,7 @@
 import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 
-import { queryKeys } from "@/constants/query-keys";
 import { stageDealsQueryKey } from "@/features/deals/hooks/use-deals";
+import { pipelineBoardQueryKey } from "@/features/deals/hooks/use-pipelines";
 import type {
   Deal,
   DealFilters,
@@ -23,7 +23,7 @@ export interface MoveSnapshot {
   previousBoard: PipelineBoard | undefined;
   sourceKey: ReturnType<typeof stageDealsQueryKey>;
   targetKey: ReturnType<typeof stageDealsQueryKey>;
-  boardKey: ReturnType<typeof queryKeys.pipelineBoard>;
+  boardKey: ReturnType<typeof pipelineBoardQueryKey>;
 }
 
 // Writes the move into the query cache synchronously so the card lands in
@@ -38,7 +38,7 @@ export function applyOptimisticMove(
   const targetStageId = targetStage.id;
   const sourceKey = stageDealsQueryKey(sourceStageId, filters);
   const targetKey = stageDealsQueryKey(targetStageId, filters);
-  const boardKey = queryKeys.pipelineBoard(boardPipelineId);
+  const boardKey = pipelineBoardQueryKey(boardPipelineId, filters);
 
   void queryClient.cancelQueries({ queryKey: sourceKey });
   void queryClient.cancelQueries({ queryKey: targetKey });

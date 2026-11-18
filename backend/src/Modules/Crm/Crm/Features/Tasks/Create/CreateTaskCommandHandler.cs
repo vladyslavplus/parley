@@ -50,6 +50,7 @@ public sealed class CreateTaskCommandHandler(
         {
             OrganizationId = organizationId,
             Title = TextValues.Required(command.Title),
+            Type = command.Type ?? TaskTypes.Default,
             Notes = TextValues.Optional(command.Notes),
             DueAt = command.DueAt?.UtcDateTime,
             AssigneeUserId = assigneeId,

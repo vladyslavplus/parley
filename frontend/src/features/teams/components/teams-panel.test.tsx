@@ -69,7 +69,7 @@ describe("TeamsPanel", () => {
     const saveBtn = within(editDialog).getByRole("button", { name: "save" });
     expect(saveBtn).toBeDisabled();
 
-    fireEvent.click(within(editDialog).getByRole("button", { name: "cancel" }));
+    fireEvent.click(within(editDialog).getByRole("button", { name: "close" }));
 
     // Open Delete ConfirmDialog via icon button
     fireEvent.click(

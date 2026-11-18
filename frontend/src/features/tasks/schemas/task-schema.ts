@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { LIMITS } from "@/constants/limits";
+import { TASK_TYPES } from "@/features/tasks/lib/task-types";
 
 export const taskFormSchema = z.object({
   title: z
@@ -8,6 +9,7 @@ export const taskFormSchema = z.object({
     .trim()
     .min(1, "titleRequired")
     .max(LIMITS.taskTitleMaxLength, "titleTooLong"),
+  type: z.enum(TASK_TYPES),
   notes: z
     .string()
     .trim()

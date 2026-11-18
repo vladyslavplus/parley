@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { InfoHint } from "@/components/ui/info-hint";
 import { SimpleSelect } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ERROR_CODES } from "@/constants/error-codes";
@@ -31,6 +32,7 @@ const NEWEST = "__newest__";
 // it again on save.
 export function MlSettingsPanel() {
   const t = useTranslations("insights.ml");
+  const tHints = useTranslations("hints");
   const errorText = useErrorText();
   const query = useMlSettings(true);
   const models = useScoringModels(true);
@@ -120,7 +122,10 @@ export function MlSettingsPanel() {
         <h1 className="text-xl font-bold tracking-tight text-foreground">
           {t("title")}
         </h1>
-        <p className="mt-0.5 text-xs text-muted-foreground">{t("subtitle")}</p>
+        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span>{t("subtitle")}</span>
+          <InfoHint>{tHints("machineLearning")}</InfoHint>
+        </p>
       </div>
 
       <div className="space-y-4 rounded-[var(--radius-card)] border border-border bg-background p-4">

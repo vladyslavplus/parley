@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { InfoHint } from "@/components/ui/info-hint";
 import { queryKeys } from "@/constants/query-keys";
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
 import {
@@ -35,6 +36,7 @@ export function ScoringRunPanel({
   models: readonly ScoringModel[];
 }) {
   const tScoring = useTranslations("insights.scoring");
+  const tHints = useTranslations("hints");
   const errorText = useErrorText();
   const queryClient = useQueryClient();
   const start = useStartScoringRun();
@@ -64,6 +66,7 @@ export function ScoringRunPanel({
       showSuccessToast(
         tScoring("run.completed", {
           scored: formatNumber(Number(current.contactsScored)),
+          skipped: formatNumber(Number(current.contactsSkipped)),
           rejected: formatNumber(Number(current.contactsRejected)),
         }),
       );
@@ -109,17 +112,24 @@ export function ScoringRunPanel({
           });
           return (
             <div key={kind} className="space-y-1">
-              <Button
-                type="button"
-                variant="secondary"
-                className="px-3 text-xs"
-                disabled={reason !== null}
-                onClick={() => startRun(kind)}
-              >
-                {kind === "uplift"
-                  ? tScoring("run.uplift")
-                  : tScoring("run.clv")}
-              </Button>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="px-3 text-xs"
+                  disabled={reason !== null}
+                  onClick={() => startRun(kind)}
+                >
+                  {kind === "uplift"
+                    ? tScoring("run.uplift")
+                    : tScoring("run.clv")}
+                </Button>
+                <InfoHint>
+                  {kind === "uplift"
+                    ? tHints("upliftScore")
+                    : tHints("expectedValue")}
+                </InfoHint>
+              </div>
               {reason === "mlOff" ? (
                 <p className="text-[11px] text-muted-foreground">
                   {tScoring("run.disabledMlOff")}

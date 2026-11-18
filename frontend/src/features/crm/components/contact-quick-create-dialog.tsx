@@ -5,10 +5,11 @@ import { useTranslations } from "next-intl";
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
 import { useApiForm } from "@/components/forms/use-api-form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { ERROR_CODES } from "@/constants/error-codes";
 import { CompanyPicker } from "@/features/crm/components/company-picker";
-import { QuickCreateDialogShell } from "@/features/crm/components/quick-create-dialog-shell";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import {
   createContactQuickSchema,
@@ -16,6 +17,8 @@ import {
 } from "@/features/crm/schemas/contact-schema";
 import { useMe } from "@/lib/api/hooks/use-api";
 import { showSuccessToast } from "@/lib/toasts";
+
+const CONTACT_FORM_ID = "contact-quick-create-form";
 
 interface Props {
   open: boolean;
@@ -68,18 +71,28 @@ export function ContactQuickCreateDialog({
   const { errors, isSubmitting } = form.formState;
 
   return (
-    <QuickCreateDialogShell
+    <Modal
       open={open}
       onOpenChange={onOpenChange}
       title={t("title")}
       description={t("description")}
+      footer={
+        <Button
+          type="submit"
+          form={CONTACT_FORM_ID}
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {t("submit")}
+        </Button>
+      }
     >
       <ApiForm
+        id={CONTACT_FORM_ID}
         onSubmit={onSubmit}
         formError={formError}
         alertRef={alertRef}
         pending={isSubmitting}
-        submitLabel={t("submit")}
       >
         {/* Field 1: First name (required) */}
         <FormField
@@ -131,6 +144,6 @@ export function ContactQuickCreateDialog({
           />
         </FormField>
       </ApiForm>
-    </QuickCreateDialogShell>
+    </Modal>
   );
 }

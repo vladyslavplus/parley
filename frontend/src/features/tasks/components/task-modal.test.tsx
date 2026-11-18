@@ -122,6 +122,7 @@ describe("TaskModal", () => {
       expect(mockCreateTask).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "New Follow Up",
+          type: "todo",
           assigneeUserId: "u-me",
         }),
       );
@@ -135,6 +136,7 @@ describe("TaskModal", () => {
     const existingTask: Task = {
       id: "t-1",
       title: "Existing Task",
+      type: "todo",
       dueAt: null,
       assigneeUserId: "u-me",
       assigneeDisplayName: "Current User",
@@ -173,6 +175,7 @@ describe("TaskModal", () => {
     const existingTask: Task = {
       id: "t-1",
       title: "Existing Task",
+      type: "todo",
       dueAt: null,
       assigneeUserId: "u-me",
       assigneeDisplayName: "Current User",
@@ -214,6 +217,23 @@ describe("TaskModal", () => {
           version: 3,
           title: "Updated Task Title",
         }),
+      );
+    });
+  });
+
+  it("sends the type picked in the form", async () => {
+    mockCreateTask.mockResolvedValueOnce({ id: "t-new" });
+    render(<TaskModal open={true} onOpenChange={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText("form.titlePlaceholder"), {
+      target: { value: "Confirm order" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "types.call" }));
+    fireEvent.click(screen.getByRole("button", { name: "create" }));
+
+    await waitFor(() => {
+      expect(mockCreateTask).toHaveBeenCalledWith(
+        expect.objectContaining({ title: "Confirm order", type: "call" }),
       );
     });
   });

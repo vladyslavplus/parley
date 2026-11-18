@@ -18,7 +18,7 @@ import xgboost as xgb
 
 from parley_ml.datasets.checksums import sha256_file
 from parley_ml.serving.clv import BetaGeoParameters, GammaGammaParameters
-from parley_ml.serving.schemas import UPLIFT_FEATURE_ORDER
+from parley_ml.serving.schemas import UPLIFT_FEATURE_ORDER, UPLIFT_RULE_KEYS
 
 MANIFEST_FILE: Final = "manifest.json"
 MANIFEST_SCHEMA_VERSION: Final = 2
@@ -43,12 +43,7 @@ UPLIFT_FILES: Final[tuple[str, str]] = ("treated.ubj", "control.ubj")
 CLV_FILES: Final[tuple[str, ...]] = ("parameters.json",)
 # Segment thresholds, in the manifest. Mapping (first match): uplift below the do-not-disturb threshold ->
 # do_not_disturb; uplift at or above the persuadable threshold -> persuadable; control rate at or above the sure-thing
-# threshold -> sure_thing; otherwise lost_cause.
-UPLIFT_RULE_KEYS: Final[tuple[str, ...]] = (
-    "do_not_disturb_uplift_below",
-    "persuadable_uplift_at_least",
-    "sure_thing_control_rate_at_least",
-)
+# threshold -> sure_thing; otherwise lost_cause. The keys are published in /models as ``segment_rules``.
 
 # Stable model status codes (reported in /models, never in score errors).
 CODE_MANIFEST_INVALID: Final = "ml.model.manifest_invalid"
@@ -93,6 +88,7 @@ class ModelInfo:
     metrics: dict[str, Any]
     status: str  # "available" or "unavailable"
     error_code: str | None
+    segment_rules: dict[str, float] | None = None  # uplift only; None when the kind has no segment rules
     payload: UpliftPayload | ClvPayload | None = field(default=None, repr=False)
 
     @property
@@ -221,6 +217,7 @@ def load_model_directory(directory: Path) -> ModelInfo:
         metrics=dict(metrics),
         status="available",
         error_code=None,
+        segment_rules=payload.rules if isinstance(payload, UpliftPayload) else None,
         payload=payload,
     )
 

@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { InfoHint } from "@/components/ui/info-hint";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PERMISSIONS } from "@/constants/permissions";
 import { ProvenanceBadge } from "@/features/insights/components/provenance-badge";
@@ -29,6 +30,7 @@ export function ModelRegistryView() {
   const canManage = useCan(PERMISSIONS.insightsMlManage);
   const sync = useSyncScoringModels();
   const tScoring = useTranslations("insights.scoring");
+  const tHints = useTranslations("hints");
 
   // Re-reads the registry from the scoring service; a service that cannot be
   // reached gets its own friendly message.
@@ -65,8 +67,9 @@ export function ModelRegistryView() {
           <h1 className="text-xl font-bold tracking-tight text-foreground">
             {t("title")}
           </h1>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {t("subtitle")}
+          <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span>{t("subtitle")}</span>
+            <InfoHint>{tHints("modelRegistry")}</InfoHint>
           </p>
         </div>
         {canManage ? (
@@ -95,7 +98,10 @@ export function ModelRegistryView() {
                   {t("columns.model")}
                 </th>
                 <th scope="col" className="px-4 py-2.5 font-medium">
-                  {t("columns.provenance")}
+                  <span className="inline-flex items-center gap-1">
+                    {t("columns.provenance")}
+                    <InfoHint>{tHints("provenance")}</InfoHint>
+                  </span>
                 </th>
                 <th scope="col" className="px-4 py-2.5 font-medium">
                   {t("columns.trained")}

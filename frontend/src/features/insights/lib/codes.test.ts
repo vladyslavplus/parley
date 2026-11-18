@@ -6,24 +6,24 @@ import {
   ACTION_LABEL_KEYS,
   REASON_LABEL_KEYS,
   SEGMENT_LABEL_KEYS,
+  UPLIFT_SEGMENT_LABEL_KEYS,
   actionLabelKey,
-  isCautionReason,
   reasonLabelKey,
   segmentLabelKey,
+  upliftSegmentLabelKey,
 } from "@/features/insights/lib/codes";
 
-// Codes the backend emits (Insights domain constants). A new code must be added
-// here and to the maps, or the list would hide it.
+// Codes the backend emits for new days (Insights domain constants). A new code
+// must be added here and to the maps, or the list would hide it.
 const BACKEND_REASON_CODES = [
   "reason.high_value",
   "reason.recent_order",
-  "reason.at_risk",
   "reason.task_due",
   "reason.deal_stale",
-  "reason.persuadable",
   "reason.uplift_high",
   "reason.do_not_disturb",
 ];
+const RETIRED_REASON_CODES = ["reason.at_risk", "reason.persuadable"];
 const BACKEND_SEGMENT_CODES = [
   "champions",
   "loyal",
@@ -34,6 +34,12 @@ const BACKEND_SEGMENT_CODES = [
   "lost",
   "regular",
   "no_orders",
+];
+const BACKEND_UPLIFT_SEGMENT_CODES = [
+  "persuadable",
+  "sure_thing",
+  "lost_cause",
+  "do_not_disturb",
 ];
 const BACKEND_ACTION_CODES = [
   "action.call",
@@ -60,12 +66,15 @@ function leafValue(
 }
 
 describe("insights code labels", () => {
-  it("maps every backend reason, segment and action code", () => {
+  it("maps every current backend reason, segment, uplift segment and action code", () => {
     for (const code of BACKEND_REASON_CODES) {
       expect(reasonLabelKey(code), code).not.toBeNull();
     }
     for (const code of BACKEND_SEGMENT_CODES) {
       expect(segmentLabelKey(code), code).not.toBeNull();
+    }
+    for (const code of BACKEND_UPLIFT_SEGMENT_CODES) {
+      expect(upliftSegmentLabelKey(code), code).not.toBeNull();
     }
     for (const code of BACKEND_ACTION_CODES) {
       expect(actionLabelKey(code), code).not.toBeNull();
@@ -76,6 +85,9 @@ describe("insights code labels", () => {
     expect(Object.keys(SEGMENT_LABEL_KEYS)).toHaveLength(
       BACKEND_SEGMENT_CODES.length,
     );
+    expect(Object.keys(UPLIFT_SEGMENT_LABEL_KEYS)).toHaveLength(
+      BACKEND_UPLIFT_SEGMENT_CODES.length,
+    );
     expect(Object.keys(ACTION_LABEL_KEYS)).toHaveLength(
       BACKEND_ACTION_CODES.length,
     );
@@ -85,6 +97,7 @@ describe("insights code labels", () => {
     const keys = [
       ...Object.values(REASON_LABEL_KEYS),
       ...Object.values(SEGMENT_LABEL_KEYS),
+      ...Object.values(UPLIFT_SEGMENT_LABEL_KEYS),
       ...Object.values(ACTION_LABEL_KEYS),
     ];
     for (const key of keys) {
@@ -93,10 +106,10 @@ describe("insights code labels", () => {
     }
   });
 
-  it("marks do-not-disturb as a caution and the rest as facts", () => {
-    expect(isCautionReason("reason.do_not_disturb")).toBe(true);
-    expect(isCautionReason("reason.persuadable")).toBe(false);
-    expect(isCautionReason("reason.unknown_future")).toBe(false);
+  it("retires the reason codes whose content moved into the segment badge", () => {
+    for (const code of RETIRED_REASON_CODES) {
+      expect(reasonLabelKey(code), code).toBeNull();
+    }
   });
 
   it("maps the hold action of a do-not-disturb contact", () => {
@@ -106,6 +119,7 @@ describe("insights code labels", () => {
   it("hides a code it does not know instead of printing it", () => {
     expect(reasonLabelKey("reason.unknown_future")).toBeNull();
     expect(segmentLabelKey("unicorns")).toBeNull();
+    expect(upliftSegmentLabelKey("unicorns")).toBeNull();
     expect(actionLabelKey("action.guess")).toBeNull();
   });
 

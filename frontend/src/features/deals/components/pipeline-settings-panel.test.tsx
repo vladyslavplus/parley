@@ -24,7 +24,7 @@ const mockPipeline: Pipeline = {
       position: 1,
       kind: "open",
       probabilityBps: 2000,
-      colorIndex: 0,
+      color: "#e6ecf5",
     },
     {
       id: "stage-2",
@@ -32,7 +32,7 @@ const mockPipeline: Pipeline = {
       position: 2,
       kind: "open",
       probabilityBps: 4000,
-      colorIndex: 1,
+      color: "#c9d7eb",
     },
     {
       id: "stage-3",
@@ -40,7 +40,7 @@ const mockPipeline: Pipeline = {
       position: 3,
       kind: "won",
       probabilityBps: 10000,
-      colorIndex: 4,
+      color: "#2453be",
     },
   ],
 };
@@ -123,6 +123,27 @@ describe("PipelineSettingsPanel", () => {
 
     await waitFor(() => {
       expect(mockDeleteStage).toHaveBeenCalledWith("pipe-1", "stage-1");
+    });
+  });
+
+  it("sends the colour picked in the stage editor", async () => {
+    render(<PipelineSettingsPanel />, { wrapper });
+
+    fireEvent.click(screen.getAllByLabelText("editStage")[0]!);
+
+    const sageSwatch = await screen.findByRole("button", {
+      name: "colorNames.sage",
+    });
+    fireEvent.click(sageSwatch);
+
+    fireEvent.click(screen.getByRole("button", { name: "saveStage" }));
+
+    await waitFor(() => {
+      expect(mockUpdateStage).toHaveBeenCalledWith("pipe-1", "stage-1", {
+        name: "Lead",
+        color: "#628d71",
+        probabilityBps: 2000,
+      });
     });
   });
 });

@@ -46,7 +46,7 @@ public sealed class DealBoardTests(PostgresFixture postgres, MailpitFixture mail
         await DealApi.CreateAsync(admin, "Second", 250.50m, PipelineApi.Named(stages, NewStageName).Id, null, token);
         await DealApi.CreateAsync(admin, "Third", 50m, PipelineApi.Named(stages, QualifiedStageName).Id, null, token);
 
-        var board = await ReadBoardAsync(admin, pipelineId, token);
+        var board = await ReadBoardAsync(admin, pipelineId, null, token);
 
         var columns = board.GetProperty(StagesProperty).EnumerateArray().ToDictionary(stage => stage.GetProperty("name").GetString()!);
         columns[NewStageName].GetProperty(DealCountProperty).GetInt32().Should().Be(2);
@@ -55,6 +55,27 @@ public sealed class DealBoardTests(PostgresFixture postgres, MailpitFixture mail
         columns[QualifiedStageName].GetProperty(TotalAmountProperty).GetDecimal().Should().Be(50m);
         columns[WonStageName].GetProperty(DealCountProperty).GetInt32().Should().Be(0);
         columns[WonStageName].GetProperty(TotalAmountProperty).GetDecimal().Should().Be(0m);
+    }
+
+    [Fact]
+    public async Task Board_TotalsFollowTheDealFilters()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        using var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var pipelineId = await PipelineApi.DefaultPipelineIdAsync(admin, token);
+        var newStageId = PipelineApi.Named(await PipelineApi.StagesAsync(admin, pipelineId, token), NewStageName).Id;
+        await DealApi.CreateAsync(admin, "Alpha", 100m, newStageId, null, token);
+        await DealApi.CreateAsync(admin, "Beta", 200m, newStageId, null, token);
+
+        var unfiltered = await ReadBoardAsync(admin, pipelineId, null, token);
+        var searched = await ReadBoardAsync(admin, pipelineId, "q=alpha", token);
+        var won = await ReadBoardAsync(admin, pipelineId, "status=won", token);
+
+        NewColumn(unfiltered).GetProperty(DealCountProperty).GetInt32().Should().Be(2);
+        NewColumn(searched).GetProperty(DealCountProperty).GetInt32().Should().Be(1);
+        NewColumn(searched).GetProperty(TotalAmountProperty).GetDecimal().Should().Be(100m);
+        NewColumn(won).GetProperty(DealCountProperty).GetInt32().Should().Be(0);
     }
 
     [Fact]
@@ -77,9 +98,17 @@ public sealed class DealBoardTests(PostgresFixture postgres, MailpitFixture mail
         manyStatements.Should().Be(fewStatements);
     }
 
-    private static async Task<System.Text.Json.JsonElement> ReadBoardAsync(HttpClient client, Guid pipelineId, CancellationToken cancellationToken)
+    private static System.Text.Json.JsonElement NewColumn(System.Text.Json.JsonElement board) =>
+        board.GetProperty(StagesProperty).EnumerateArray().Single(stage => stage.GetProperty("name").GetString() == NewStageName);
+
+    private static async Task<System.Text.Json.JsonElement> ReadBoardAsync(
+        HttpClient client,
+        Guid pipelineId,
+        string? query,
+        CancellationToken cancellationToken)
     {
-        var response = await client.GetAsync(PipelineApi.Route(Parley.Api.Controllers.Crm.CrmRoutes.PipelineBoard, pipelineId), cancellationToken);
+        var route = PipelineApi.Route(Parley.Api.Controllers.Crm.CrmRoutes.PipelineBoard, pipelineId);
+        var response = await client.GetAsync(query is null ? route : $"{route}?{query}", cancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         return await AuthTestClient.ReadJsonAsync(response, cancellationToken);
     }
@@ -87,7 +116,7 @@ public sealed class DealBoardTests(PostgresFixture postgres, MailpitFixture mail
     private static async Task<int> CountBoardStatementsAsync(HttpClient client, Guid pipelineId, CancellationToken cancellationToken)
     {
         using var recorder = new SqlStatementRecorder();
-        await ReadBoardAsync(client, pipelineId, cancellationToken);
+        await ReadBoardAsync(client, pipelineId, null, cancellationToken);
         return recorder.Statements.Count;
     }
 }

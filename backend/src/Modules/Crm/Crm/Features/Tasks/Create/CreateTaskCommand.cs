@@ -10,6 +10,7 @@ namespace Parley.Crm.Features.Tasks.Create;
 /// Creates a task. The assignee defaults to the caller and must lie inside the caller's scope. Emits <c>TaskAssigned</c>.
 /// </summary>
 /// <param name="Title">Task title.</param>
+/// <param name="Type">Kind of task (<c>call</c>, <c>email</c>, <c>meeting</c> or <c>todo</c>); <c>todo</c> when null.</param>
 /// <param name="Notes">Free text, when given.</param>
 /// <param name="DueAt">Due instant, or null for no due date.</param>
 /// <param name="AssigneeUserId">Assignee; the caller when null.</param>
@@ -19,6 +20,7 @@ namespace Parley.Crm.Features.Tasks.Create;
 [RequiresPermission(Permissions.TasksWrite)]
 public sealed record CreateTaskCommand(
     string Title,
+    string? Type,
     string? Notes,
     DateTimeOffset? DueAt,
     Guid? AssigneeUserId,

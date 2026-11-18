@@ -1,19 +1,31 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { Bar, BarChart, ResponsiveContainer, XAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  type TooltipContentProps,
+} from "recharts";
 
 import { Alert } from "@/components/ui/alert";
+import { InfoHint } from "@/components/ui/info-hint";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ROUTES } from "@/constants/routes";
+import { PERMISSIONS } from "@/constants/permissions";
+import { ROUTES, tasksOverdueRoute } from "@/constants/routes";
 import { toPercentPoints } from "@/features/campaigns/results/verdict";
 import { CAMPAIGN_SOURCES, toNumber } from "@/features/campaigns/types";
 import { useOrganizationCurrency } from "@/features/deals/hooks/use-organization-currency";
 import { useDashboardOverview } from "@/features/insights/hooks/use-insights";
 import { latestCampaignState } from "@/features/insights/lib/latest-campaign";
+import { tasksScopeOf } from "@/features/insights/lib/tasks-scope";
 import type { DashboardOverview } from "@/features/insights/types";
 import { Link } from "@/i18n/navigation";
+import { useMe } from "@/lib/api/hooks/use-api";
 import { formatCurrency } from "@/lib/formatters";
+import { safeStageColor } from "@/lib/stage-color";
 import { cn } from "@/lib/utils";
 
 // Each widget reads the same cached overview, so the three share one request.
@@ -23,8 +35,6 @@ const PANEL =
   "rounded-[var(--radius-card)] border border-border bg-background p-4";
 const LINK =
   "mt-3 inline-block rounded-sm text-xs font-medium text-info underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
-// The pipeline uses the five stage tokens, so more stages cycle through them.
-const STAGE_TOKENS = 5;
 
 function WidgetSkeleton() {
   return (
@@ -36,16 +46,25 @@ function WidgetSkeleton() {
   );
 }
 
+interface PipelineDatum {
+  name: string;
+  amount: number;
+  dealCount: number;
+  fill: string;
+}
+
 function PipelineWidget({ data }: { data: DashboardOverview }) {
   const t = useTranslations("insights.dashboard.pipeline");
+  const tHints = useTranslations("hints");
   const locale = useLocale();
   const currency = useOrganizationCurrency();
   const openDeals = toNumber(data.openDeals);
   const total = formatCurrency(toNumber(data.openAmount), currency, locale);
-  const chartData = data.stages.map((stage, index) => ({
+  const chartData: PipelineDatum[] = data.stages.map((stage) => ({
     name: stage.stageName,
     amount: toNumber(stage.amount),
-    fill: `var(--stage-${(index % STAGE_TOKENS) + 1})`,
+    dealCount: toNumber(stage.dealCount),
+    fill: safeStageColor(stage.color),
   }));
 
   return (
@@ -58,8 +77,9 @@ function PipelineWidget({ data }: { data: DashboardOverview }) {
         <p className="mt-6 text-xs text-muted-foreground">{t("empty")}</p>
       ) : (
         <>
-          <p className="mt-3 text-sm font-semibold tabular-nums text-foreground">
-            {t("total", { amount: total, count: openDeals })}
+          <p className="mt-3 flex items-center gap-1 text-sm font-semibold tabular-nums text-foreground">
+            <span>{t("total", { amount: total, count: openDeals })}</span>
+            <InfoHint>{tHints("currency", { currency })}</InfoHint>
           </p>
           {/* The chart is drawn for sighted users; the list below carries the same numbers as text. */}
           <div
@@ -78,11 +98,25 @@ function PipelineWidget({ data }: { data: DashboardOverview }) {
                   axisLine={false}
                   tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                 />
+                <Tooltip
+                  cursor={{ fill: "var(--muted)", opacity: 0.4 }}
+                  content={(props: TooltipContentProps) => (
+                    <PipelineTooltip
+                      {...props}
+                      currency={currency}
+                      locale={locale}
+                    />
+                  )}
+                  isAnimationActive={false}
+                />
+                {/* A pale stage colour has little contrast on a light page, so the bar gets a hairline edge. */}
                 <Bar
                   dataKey="amount"
                   radius={[4, 4, 0, 0]}
+                  stroke="var(--muted-foreground)"
+                  strokeOpacity={0.35}
                   isAnimationActive={false}
-                ></Bar>
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -114,8 +148,35 @@ function PipelineWidget({ data }: { data: DashboardOverview }) {
   );
 }
 
+function PipelineTooltip({
+  active,
+  payload,
+  currency,
+  locale,
+}: TooltipContentProps & { currency: string; locale: string }) {
+  const t = useTranslations("insights.dashboard.pipeline");
+  const datum = payload?.[0]?.payload as PipelineDatum | undefined;
+  if (!active || !datum) return null;
+  return (
+    <div className="rounded-[var(--radius-card)] border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-[var(--shadow-floating)]">
+      <p className="font-medium">{datum.name}</p>
+      <p className="mt-0.5 tabular-nums text-muted-foreground">
+        {t("tooltipDeals", { count: datum.dealCount })}
+      </p>
+      <p className="tabular-nums">
+        {formatCurrency(datum.amount, currency, locale)}
+      </p>
+    </div>
+  );
+}
+
 function TasksDueWidget({ data }: { data: DashboardOverview }) {
   const t = useTranslations("insights.dashboard.tasks");
+  const { data: me } = useMe();
+  const scope = tasksScopeOf(
+    me?.permissions.find((grant) => grant.permission === PERMISSIONS.tasksRead)
+      ?.scope,
+  );
   return (
     <section aria-labelledby="tasks-due-title" className={PANEL}>
       <h3
@@ -124,6 +185,9 @@ function TasksDueWidget({ data }: { data: DashboardOverview }) {
       >
         {t("title")}
       </h3>
+      <p className="mt-0.5 text-xs text-muted-foreground">
+        {t(`scope.${scope}`)}
+      </p>
       <p className="mt-3 text-2xl font-semibold tabular-nums text-foreground">
         <span aria-hidden="true">{toNumber(data.tasksDue)}</span>
         <span className="sr-only">
@@ -131,7 +195,7 @@ function TasksDueWidget({ data }: { data: DashboardOverview }) {
         </span>
       </p>
       <p className="mt-2 text-xs text-muted-foreground">{t("description")}</p>
-      <Link href={ROUTES.tasks} className={LINK}>
+      <Link href={tasksOverdueRoute(scope !== "own")} className={LINK}>
         {t("open")}
       </Link>
     </section>
@@ -140,6 +204,7 @@ function TasksDueWidget({ data }: { data: DashboardOverview }) {
 
 function LatestCampaignWidget({ data }: { data: DashboardOverview }) {
   const t = useTranslations("insights.dashboard.campaign");
+  const tHints = useTranslations("hints");
   const locale = useLocale();
   const campaign = data.latestCampaign;
 
@@ -198,16 +263,20 @@ function LatestCampaignWidget({ data }: { data: DashboardOverview }) {
         <p className="mt-2 text-xs text-muted-foreground">{t("provisional")}</p>
       ) : null}
       {!state.withheld && lift !== null ? (
-        <p className="mt-3 text-sm font-semibold tabular-nums text-foreground">
-          {t("lift", { lift: points.format(lift) })}
+        <p className="mt-3 flex items-start gap-1 text-sm font-semibold tabular-nums text-foreground">
+          <span>{t("lift", { lift: points.format(lift) })}</span>
+          <InfoHint>{tHints("lift")}</InfoHint>
         </p>
       ) : null}
       {!state.withheld && low !== null && high !== null ? (
-        <p className="text-xs tabular-nums text-muted-foreground">
-          {t("interval", {
-            low: points.format(low),
-            high: points.format(high),
-          })}
+        <p className="flex items-start gap-1 text-xs tabular-nums text-muted-foreground">
+          <span>
+            {t("interval", {
+              low: points.format(low),
+              high: points.format(high),
+            })}
+          </span>
+          <InfoHint>{tHints("liftInterval")}</InfoHint>
         </p>
       ) : null}
       <p className="mt-3 text-xs text-muted-foreground">{t("description")}</p>

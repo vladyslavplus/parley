@@ -12,10 +12,13 @@ using Parley.Campaigns.Domain.Campaigns;
 using Parley.Crm.Contracts.DemoSeed;
 using Parley.Crm.Domain.Orders;
 using Parley.Identity.Authorization.Seed;
+using Parley.Identity.Domain.Organizations;
 using Parley.Insights.Contracts.Errors;
 using Parley.Insights.Contracts.Priority;
+using Parley.Insights.Contracts.Rfm;
 using Parley.Insights.Contracts.Scores;
 using Parley.Insights.Domain.Ml;
+using Parley.Insights.Domain.Priority;
 using Parley.Insights.Features.Daily;
 using Parley.Insights.Features.Priority.Rebuild;
 using Parley.Insights.Features.Scoring.Client;
@@ -29,6 +32,7 @@ using Parley.IntegrationTests.Infrastructure.Auth;
 using Parley.IntegrationTests.Infrastructure.Fixtures;
 using Parley.IntegrationTests.Infrastructure.Hosting;
 using Parley.IntegrationTests.Insights.Scoring.Support;
+using Parley.SharedKernel.Errors;
 using Parley.SharedKernel.Tenancy.Abstractions;
 using Xunit;
 
@@ -93,6 +97,28 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
 
     private const string UpliftSegmentProperty = "upliftSegment";
 
+    private const string UpliftValueProperty = "upliftValue";
+
+    private const string PTreatedProperty = "pTreated";
+
+    private const string PControlProperty = "pControl";
+
+    private const string PAliveProperty = "pAlive";
+
+    private const string ExpectedPurchasesProperty = "expectedPurchases";
+
+    private const string ExpectedAverageValueProperty = "expectedAverageValue";
+
+    private const string HorizonDaysProperty = "horizonDays";
+
+    private const string CurrencyProperty = "currency";
+
+    private const string SegmentRulesProperty = "segmentRules";
+
+    private const string ContactsSkippedProperty = "contactsSkipped";
+
+    private const string PayloadProperty = "payload";
+
     private const string ModelVersionProperty = "modelVersion";
 
     private const string ModelsProperty = "models";
@@ -119,15 +145,28 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
 
     private const string Persuadable = "persuadable";
 
+    private const string DoNotDisturbSegment = "do_not_disturb";
+
+    private const string ReasonAtRisk = "reason.at_risk";
+
     private const string ReasonPersuadable = "reason.persuadable";
+
+    private const string ReasonUpliftHigh = "reason.uplift_high";
 
     private const string ReasonDoNotDisturb = "reason.do_not_disturb";
 
     private const string ModelProvenanceProperty = "modelProvenance";
+    private const string UpliftHighThresholdProperty = "upliftHighThreshold";
+    private const decimal ConfiguredUpliftHighThreshold = 0.2m;
+    private const string StaleDealDaysProperty = "staleDealDays";
+    private const int ConfiguredStaleDealDays = 14;
 
     private const string RunSucceeded = "completed";
 
     private const string RunFailed = "failed";
+
+    private const string ClvPayload =
+        """{"p_alive":0.91,"expected_purchases":6.5,"expected_avg_value":120.25,"horizon_days":365}""";
 
     private static readonly TimeSpan ThirtyDays = TimeSpan.FromDays(30);
 
@@ -177,6 +216,7 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         run.GetProperty(StatusProperty).GetString().Should().Be(RunSucceeded);
         run.GetProperty("contactsScored").GetInt32().Should().Be(3, "the contact without an order has no features");
         run.GetProperty("contactsRejected").GetInt32().Should().Be(0);
+        run.GetProperty(ContactsSkippedProperty).GetInt32().Should().Be(1, "the contact without orders is counted as skipped");
         run.GetProperty(ModelVersionProperty).GetString().Should().Be(FakeScoringService.ModelVersion);
         _scoring.UpliftBatchSizes.Should().HaveCount(2, "three contacts in batches of two");
         _scoring.UpliftBatchSizes.Sum().Should().Be(3);
@@ -353,10 +393,21 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
 
         representativeView.GetProperty(UpliftSegmentProperty).GetString().Should().Be(Persuadable);
         representativeView.GetProperty(ScoresProperty).EnumerateArray()
-            .Should().OnlyContain(entry => entry.GetProperty(ValueProperty).ValueKind == JsonValueKind.Null,
+            .Should().OnlyContain(entry =>
+                entry.GetProperty(ValueProperty).ValueKind == JsonValueKind.Null
+                && entry.GetProperty(PTreatedProperty).ValueKind == JsonValueKind.Null
+                && entry.GetProperty(PControlProperty).ValueKind == JsonValueKind.Null
+                && entry.GetProperty(CurrencyProperty).ValueKind == JsonValueKind.Null,
                 "a rep sees the chips and the provenance, never the numbers");
-        adminView.GetProperty(ScoresProperty).EnumerateArray().Single().GetProperty(ValueProperty).ValueKind
-            .Should().Be(JsonValueKind.Number);
+        representativeView.GetProperty(ScoresProperty).EnumerateArray()
+            .SelectMany(entry => entry.EnumerateObject())
+            .Select(property => property.Name)
+            .Should().NotContain(PayloadProperty, "the raw payload is not part of the contract");
+        var adminItem = adminView.GetProperty(ScoresProperty).EnumerateArray().Single();
+        adminItem.GetProperty(ValueProperty).ValueKind.Should().Be(JsonValueKind.Number);
+        adminItem.GetProperty(PTreatedProperty).GetDecimal().Should().Be(0.3m);
+        adminItem.GetProperty(PControlProperty).GetDecimal().Should().Be(0.1m);
+        adminItem.GetProperty(CurrencyProperty).ValueKind.Should().Be(JsonValueKind.Null, "an uplift estimate is not money");
     }
 
     [Fact]
@@ -375,20 +426,50 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         await RunJobAsync(owner.OrganizationId, await StartRunAsync(admin, UpliftKind, token), token);
 
         await RunDailyJobAsync(owner.OrganizationId, token);
+        await SetSnapshotSegmentAsync(owner.OrganizationId, kept, "at_risk", token);
+        await SetSnapshotSegmentAsync(owner.OrganizationId, caution, "champions", token);
+        await RunRebuildJobAsync(owner.OrganizationId, token);
 
         var page = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Priority, token), token);
         page.GetProperty(ModeProperty).GetString().Should().Be("ml");
         page.GetProperty(MlStatusProperty).GetString().Should().Be("ready");
         page.GetProperty(ModelProvenanceProperty).GetString().Should().Be("semi_synthetic", "the list names the model that ranked it");
+        page.GetProperty(UpliftHighThresholdProperty).GetDecimal().Should().Be(ConfiguredUpliftHighThreshold, "the list carries the configured high-uplift mark");
+        page.GetProperty(StaleDealDaysProperty).GetInt32().Should().Be(ConfiguredStaleDealDays, "the list carries the configured stale-deal window");
         var items = page.GetProperty(ItemsProperty).EnumerateArray().ToList();
         var keptItem = items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == kept);
         var cautionItem = items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == caution);
-        keptItem.GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
-            .Should().Contain(ReasonPersuadable);
+        var keptReasons = keptItem.GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString()).ToList();
+        keptReasons.Should().Contain(ReasonUpliftHigh, "the uplift reaches the configured high mark")
+            .And.NotContain(ReasonPersuadable, "the uplift segment is a column now, not a reason")
+            .And.NotContain(ReasonAtRisk, "the RFM segment is a column, not a reason");
+        keptItem.GetProperty(UpliftSegmentProperty).GetString().Should().Be(Persuadable);
+        keptItem.GetProperty(UpliftValueProperty).GetDecimal().Should().Be(FakeScoringService.Uplift);
+        cautionItem.GetProperty(UpliftSegmentProperty).GetString().Should().Be(DoNotDisturbSegment);
+        cautionItem.GetProperty(UpliftValueProperty).GetDecimal().Should().Be(FakeScoringService.Uplift);
         cautionItem.GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
             .Should().Contain(ReasonDoNotDisturb, "the list keeps the contact and explains the caution");
         cautionItem.GetProperty(ValueProperty).GetDecimal().Should().Be(0m);
         cautionItem.GetProperty("rank").GetInt32().Should().BeGreaterThan(keptItem.GetProperty("rank").GetInt32());
+
+        // Both filter dimensions narrow the same list; the two may be combined.
+        var cautionOnly = await AuthTestClient.ReadJsonAsync(
+            await admin.GetAsync($"{InsightsRoutes.Priority}?upliftSegment={DoNotDisturbSegment}", token),
+            token);
+        cautionOnly.GetProperty(ItemsProperty).EnumerateArray().Select(item => item.GetProperty(ContactIdProperty).GetGuid())
+            .Should().Equal(caution);
+        var combined = await AuthTestClient.ReadJsonAsync(
+            await admin.GetAsync($"{InsightsRoutes.Priority}?segment=at_risk&upliftSegment={Persuadable}", token),
+            token);
+        combined.GetProperty(ItemsProperty).EnumerateArray().Select(item => item.GetProperty(ContactIdProperty).GetGuid())
+            .Should().Equal(kept);
+        var mismatch = await AuthTestClient.ReadJsonAsync(
+            await admin.GetAsync($"{InsightsRoutes.Priority}?segment=at_risk&upliftSegment={DoNotDisturbSegment}", token),
+            token);
+        mismatch.GetProperty(ItemsProperty).GetArrayLength().Should().Be(0);
+        var unknown = await admin.GetAsync($"{InsightsRoutes.Priority}?upliftSegment=loyal", token);
+        unknown.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await CrmApi.FieldErrorCodeAsync(unknown, "upliftSegment", token)).Should().Be(ErrorCodes.ValidationFailed);
 
         // The notification channel source leaves the caution out, so a chat is never told to call a do-not-disturb contact.
         using var scope = _factory.Services.CreateScope();
@@ -411,6 +492,10 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         page.GetProperty(ModeProperty).GetString().Should().Be("rfm");
         page.GetProperty(MlStatusProperty).GetString().Should().Be("disabled");
         page.GetProperty(ModelProvenanceProperty).ValueKind.Should().Be(JsonValueKind.Null);
+        page.GetProperty(ItemsProperty).EnumerateArray().Should().OnlyContain(item =>
+            item.GetProperty(UpliftValueProperty).ValueKind == JsonValueKind.Null
+            && item.GetProperty(UpliftSegmentProperty).ValueKind == JsonValueKind.Null,
+            "the RFM mode has no uplift numbers or segments to show");
     }
 
     [Fact]
@@ -433,8 +518,7 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         page.GetProperty(MlStatusProperty).GetString().Should().Be("ready");
         page.GetProperty(ItemsProperty).EnumerateArray()
             .Single(item => item.GetProperty(ContactIdProperty).GetGuid() == kept)
-            .GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
-            .Should().Contain(ReasonPersuadable);
+            .GetProperty(UpliftSegmentProperty).GetString().Should().Be(Persuadable);
     }
 
     [Fact]
@@ -694,8 +778,7 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
         var items = after.GetProperty(ItemsProperty).EnumerateArray().ToList();
         items.Select(item => item.GetProperty(ContactIdProperty).GetGuid()).Should().Contain([kept, caution]);
         items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == kept)
-            .GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
-            .Should().Contain(ReasonPersuadable);
+            .GetProperty(UpliftSegmentProperty).GetString().Should().Be(Persuadable);
         items.Single(item => item.GetProperty(ContactIdProperty).GetGuid() == caution)
             .GetProperty(ReasonCodesProperty).EnumerateArray().Select(code => code.GetString())
             .Should().Contain(ReasonDoNotDisturb);
@@ -840,6 +923,150 @@ public sealed class ScoringRunIntegrationTests(PostgresFixture postgres, Mailpit
 
         var latest = await reader.ReadLatestScoresAsync(ScoreKinds.Uplift, contacts, null, null, token);
         latest.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task ModelsSync_StoresTheUpliftSegmentRules_AndToleratesTheirAbsence()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var admin = CrmApi.Client(_factory, owner.AccessToken);
+        await SyncModelsAsync(token);
+
+        var synced = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Models, token), token);
+        var uplift = synced.EnumerateArray().Single(model => model.GetProperty("modelName").GetString() == FakeScoringService.ModelName);
+        uplift.GetProperty(SegmentRulesProperty).GetProperty("persuadable_uplift_at_least").GetDecimal().Should().Be(0.1m);
+        uplift.GetProperty(SegmentRulesProperty).GetProperty("sure_thing_control_rate_at_least").GetDecimal().Should().Be(0.35m);
+
+        // An older service omits the field: the sync still succeeds and the rules read as unknown.
+        _scoring.OmitSegmentRules = true;
+        try
+        {
+            await SyncModelsAsync(token);
+            var after = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(InsightsRoutes.Models, token), token);
+            after.EnumerateArray().Single(model => model.GetProperty("modelName").GetString() == FakeScoringService.ModelName)
+                .GetProperty(SegmentRulesProperty).ValueKind.Should().Be(JsonValueKind.Null);
+        }
+        finally
+        {
+            _scoring.OmitSegmentRules = false;
+        }
+    }
+
+    [Fact]
+    public async Task ContactScores_CarryTypedClvFields_AndTheOrganizationCurrency()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var admin = CrmApi.Client(_factory, owner.AccessToken);
+        await EnableMlAsync(admin, token);
+        var representative = await CrmApi.AddMemberAsync(_factory, owner.OrganizationId, SystemRoleSeed.SalesRepRoleId, token);
+        var contactId = await CreateContactAsync(admin, "Clv", representative.UserId, token);
+        await InsertLatestScoreAsync(owner.OrganizationId, contactId, "clv", 781.625m, ClvPayload, token);
+
+        var adminView = await AuthTestClient.ReadJsonAsync(await admin.GetAsync(ContactScoresRoute(contactId), token), token);
+        var clv = adminView.GetProperty(ScoresProperty).EnumerateArray().Single();
+        clv.GetProperty("kind").GetString().Should().Be("clv");
+        clv.GetProperty(PAliveProperty).GetDecimal().Should().Be(0.91m);
+        clv.GetProperty(ExpectedPurchasesProperty).GetDecimal().Should().Be(6.5m);
+        clv.GetProperty(ExpectedAverageValueProperty).GetDecimal().Should().Be(120.25m);
+        clv.GetProperty(HorizonDaysProperty).GetInt32().Should().Be(365);
+        clv.GetProperty(CurrencyProperty).GetString().Should().Be(OrganizationDefaults.Currency);
+        clv.TryGetProperty(PayloadProperty, out _).Should().BeFalse("the raw payload is replaced by typed fields");
+
+        using var representativeClient = CrmApi.Client(_factory, representative.AccessToken);
+        var representativeView = await AuthTestClient.ReadJsonAsync(
+            await representativeClient.GetAsync(ContactScoresRoute(contactId), token),
+            token);
+        var hidden = representativeView.GetProperty(ScoresProperty).EnumerateArray().Single();
+        hidden.GetProperty(PAliveProperty).ValueKind.Should().Be(JsonValueKind.Null);
+        hidden.GetProperty(ExpectedPurchasesProperty).ValueKind.Should().Be(JsonValueKind.Null);
+        hidden.GetProperty(ExpectedAverageValueProperty).ValueKind.Should().Be(JsonValueKind.Null);
+        hidden.GetProperty(HorizonDaysProperty).ValueKind.Should().Be(JsonValueKind.Null);
+        hidden.GetProperty(CurrencyProperty).ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Fact]
+    public async Task PrioritySegmentCounts_ListEverySegment_AndRespectTheScope()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var owner = await IdentitySetup.CreateOwnerAsync(_factory, mailpit, token);
+        var admin = CrmApi.Client(_factory, owner.AccessToken);
+        var representative = await CrmApi.AddMemberAsync(_factory, owner.OrganizationId, SystemRoleSeed.SalesRepRoleId, token);
+        await EnableMlAsync(admin, token);
+        await SyncModelsAsync(token);
+        var representativeChampion = await CreateContactAsync(admin, "RepChampion", representative.UserId, token);
+        var representativeLost = await CreateContactAsync(admin, "RepLost", representative.UserId, token);
+        var organizationRisk = await CreateContactAsync(admin, "OrgRisk", null, token);
+        foreach (var contactId in new[] { representativeChampion, representativeLost, organizationRisk })
+        {
+            await InsertOrderAsync(owner.OrganizationId, contactId, token);
+        }
+
+        await RunJobAsync(owner.OrganizationId, await StartRunAsync(admin, UpliftKind, token), token);
+        await RunDailyJobAsync(owner.OrganizationId, token);
+        await SetSnapshotSegmentAsync(owner.OrganizationId, representativeChampion, "champions", token);
+        await SetSnapshotSegmentAsync(owner.OrganizationId, representativeLost, "lost", token);
+        await SetSnapshotSegmentAsync(owner.OrganizationId, organizationRisk, "at_risk", token);
+        await RunRebuildJobAsync(owner.OrganizationId, token);
+
+        var today = TodayOf(_factory).ToString(InsightsLimits.DayFormat, CultureInfo.InvariantCulture);
+        var organizationCounts = await AuthTestClient.ReadJsonAsync(
+            await admin.GetAsync(InsightsRoutes.PrioritySegments, token),
+            token);
+        organizationCounts.GetProperty("asOf").GetString().Should().Be(today);
+        organizationCounts.GetProperty("rfmAsOf").GetString().Should().Be(today);
+        organizationCounts.GetProperty("upliftAsOf").GetString().Should().Be(today);
+        organizationCounts.GetProperty("rfm").GetArrayLength().Should().Be(RfmSegmentNames.All.Count);
+        organizationCounts.GetProperty("uplift").GetArrayLength().Should().Be(PriorityUpliftSegments.All.Count);
+        SegmentCount(organizationCounts, "rfm", RfmSegmentNames.Champions).Should().Be((1, 1));
+        SegmentCount(organizationCounts, "rfm", RfmSegmentNames.AtRisk).Should().Be((1, 1));
+        SegmentCount(organizationCounts, "rfm", RfmSegmentNames.NoOrders).Should().Be((0, 0));
+        SegmentCount(organizationCounts, "uplift", PriorityUpliftSegments.Persuadable).Should().Be((3, 3));
+        SegmentCount(organizationCounts, "uplift", PriorityUpliftSegments.SureThing).Should().Be((0, 0));
+
+        using var representativeClient = CrmApi.Client(_factory, representative.AccessToken);
+        var representativeCounts = await AuthTestClient.ReadJsonAsync(
+            await representativeClient.GetAsync(InsightsRoutes.PrioritySegments, token),
+            token);
+        SegmentCount(representativeCounts, "rfm", RfmSegmentNames.Champions).Should().Be((1, 1));
+        SegmentCount(representativeCounts, "rfm", RfmSegmentNames.AtRisk).Should().Be((0, 0));
+        SegmentCount(representativeCounts, "uplift", PriorityUpliftSegments.Persuadable).Should().Be((2, 2));
+    }
+
+    /// <summary>One row of a counts array: its on-list number and its total, or a failure naming the missing segment.</summary>
+    private static (int OnList, int Total) SegmentCount(JsonElement counts, string arrayName, string segment)
+    {
+        var row = counts.GetProperty(arrayName).EnumerateArray()
+            .Single(entry => entry.GetProperty(SegmentProperty).GetString() == segment);
+        return (row.GetProperty("onList").GetInt32(), row.GetProperty("total").GetInt32());
+    }
+
+    private async Task InsertLatestScoreAsync(
+        Guid organizationId,
+        Guid contactId,
+        string kind,
+        decimal value,
+        string payload,
+        CancellationToken cancellationToken)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new NpgsqlCommand(
+            """
+            INSERT INTO insights.latest_scores
+                (organization_id, contact_id, score_kind, score_id, value, payload, model_name, model_version, scored_at)
+            VALUES (@org, @contact, @kind, gen_random_uuid(), @value, CAST(@payload AS jsonb), @name, @version, now())
+            """,
+            connection);
+        command.Parameters.AddWithValue(ParameterOrganization, organizationId);
+        command.Parameters.AddWithValue(ParameterContact, contactId);
+        command.Parameters.AddWithValue("kind", kind);
+        command.Parameters.AddWithValue("value", value);
+        command.Parameters.AddWithValue("payload", payload);
+        command.Parameters.AddWithValue("name", "clv_bgnbd_gg");
+        command.Parameters.AddWithValue("version", "clv-test-v1");
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
     private static string ContactScoresRoute(Guid contactId) => $"contacts/{contactId:D}/scores";

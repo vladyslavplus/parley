@@ -157,15 +157,17 @@ public static class DemoGenerator
         }
 
         string? taskTitle = null;
+        string? taskType = null;
         DateTime? taskDueAt = null;
         var taskCompleted = false;
+        Guid? taskAssignee = null;
         if (DemoIdentifiers.Bucket(customerRef, "task", 100) < profile.TaskSharePercent)
         {
-            taskTitle = Text(Pick(DemoWorkspaceRules.TaskTitleKeys, customerRef, "task-title"), locale);
-            var offsetDays = DemoIdentifiers.Bucket(customerRef, "due", DemoWorkspaceRules.TaskDueSpreadDays)
-                - DemoWorkspaceRules.TaskDueCenterDays;
-            taskDueAt = DateTime.SpecifyKind(now.Date.AddDays(offsetDays).AddHours(OrderStartHour), DateTimeKind.Utc);
-            taskCompleted = taskDueAt < now;
+            var template = DemoWorkspaceRules.TaskTemplates[DemoIdentifiers.Bucket(customerRef, "task-title", DemoWorkspaceRules.TaskTemplates.Count)];
+            taskTitle = Text(template.TitleKey, locale);
+            taskType = template.Type;
+            (taskDueAt, taskCompleted) = TaskDue(customerRef, now);
+            taskAssignee = TaskAssignee(customerRef, owner, request.TaskLeadership);
         }
 
         string? noteBody = null;
@@ -194,10 +196,61 @@ public static class DemoGenerator
             lostReason,
             expectedCloseOn,
             taskTitle,
+            taskType,
             taskDueAt,
             taskCompleted,
+            taskAssignee,
             noteBody);
     }
+
+    /// <summary>
+    /// Due instant and completion of one task. Completed tasks lie in the past; of the open ones a few are overdue, some
+    /// fall due within the next two days and the rest are spread over the following weeks, so a fresh workspace looks live.
+    /// </summary>
+    private static (DateTime DueAt, bool Completed) TaskDue(string customerRef, DateTime now)
+    {
+        if (DemoIdentifiers.Bucket(customerRef, "task-state", 100) < DemoWorkspaceRules.TaskCompletedSharePercent)
+        {
+            var age = 1 + DemoIdentifiers.Bucket(customerRef, "due", DemoWorkspaceRules.CompletedTaskMaximumAgeDays);
+            return (AtWorkStart(now.Date.AddDays(-age)), true);
+        }
+
+        var slot = DemoIdentifiers.Bucket(customerRef, "task-slot", 100);
+        if (slot < DemoWorkspaceRules.OpenTaskOverduePercent)
+        {
+            var age = 1 + DemoIdentifiers.Bucket(customerRef, "due", DemoWorkspaceRules.OverdueTaskMaximumAgeDays);
+            return (AtWorkStart(now.Date.AddDays(-age)), false);
+        }
+
+        if (slot < DemoWorkspaceRules.OpenTaskOverduePercent + DemoWorkspaceRules.OpenTaskDueSoonPercent)
+        {
+            var hours = 1 + DemoIdentifiers.Bucket(customerRef, "due", DemoWorkspaceRules.DueSoonWindowHours);
+            return (DateTime.SpecifyKind(now.AddHours(hours), DateTimeKind.Utc), false);
+        }
+
+        var days = DemoWorkspaceRules.OpenTaskLaterFromDays
+            + DemoIdentifiers.Bucket(customerRef, "due", DemoWorkspaceRules.OpenTaskLaterToDays - DemoWorkspaceRules.OpenTaskLaterFromDays + 1);
+        return (AtWorkStart(now.Date.AddDays(days)), false);
+    }
+
+    /// <summary>
+    /// The contact owner, or for a share of tasks one of the leadership accounts that can see the contact, in a fixed rotation.
+    /// </summary>
+    private static Guid TaskAssignee(string customerRef, Guid owner, IReadOnlyList<CrmDemoTaskAssignee>? leadership)
+    {
+        if (leadership is not { Count: > 0 }
+            || DemoIdentifiers.Bucket(customerRef, "task-assignee", 100) >= DemoWorkspaceRules.TaskLeadershipSharePercent)
+        {
+            return owner;
+        }
+
+        var eligible = leadership.Where(account => account.VisibleOwnerUserIds is null || account.VisibleOwnerUserIds.Contains(owner)).ToList();
+        return eligible.Count == 0
+            ? owner
+            : eligible[DemoIdentifiers.Bucket(customerRef, "task-leader", eligible.Count)].UserId;
+    }
+
+    private static DateTime AtWorkStart(DateTime day) => DateTime.SpecifyKind(day.Date.AddHours(OrderStartHour), DateTimeKind.Utc);
 
     private static DateTime EndOfYesterday(DateTimeOffset reference)
     {

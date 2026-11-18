@@ -8,6 +8,7 @@ using Parley.Crm.Features.Tasks.Create;
 using Parley.Crm.Features.Tasks.Delete;
 using Parley.Crm.Features.Tasks.Get;
 using Parley.Crm.Features.Tasks.List;
+using Parley.Crm.Features.Tasks.OverdueCount;
 using Parley.Crm.Features.Tasks.Reopen;
 using Parley.Crm.Features.Tasks.Shared;
 using Parley.Crm.Features.Tasks.Update;
@@ -17,7 +18,7 @@ using Parley.SharedKernel.Paging;
 
 namespace Parley.Api.Controllers.Crm;
 
-/// <summary>Tasks: list, the caller's own list, read, create, update, complete, reopen and soft delete.</summary>
+/// <summary>Tasks: list, the caller's own list, overdue counts, read, create, update, complete, reopen and soft delete.</summary>
 public sealed class TasksController(IMediator mediator, ErrorTextLocalizer errorTexts) : ApiControllerBase(errorTexts)
 {
     [HttpGet(CrmRoutes.Tasks)]
@@ -34,12 +35,13 @@ public sealed class TasksController(IMediator mediator, ErrorTextLocalizer error
         [FromQuery] Guid? dealId,
         [FromQuery] Guid? companyId,
         [FromQuery] string? status,
+        [FromQuery] string? type,
         [FromQuery] string? sort,
         [FromQuery] string? order,
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new ListTasksQuery(after, limit, q, assigneeUserId, Mine: false, contactId, dealId, companyId, status, sort, order),
+            new ListTasksQuery(after, limit, q, assigneeUserId, Mine: false, contactId, dealId, companyId, status, type, sort, order),
             cancellationToken);
         return FromResult(result, Ok);
     }
@@ -57,12 +59,52 @@ public sealed class TasksController(IMediator mediator, ErrorTextLocalizer error
         [FromQuery] Guid? dealId,
         [FromQuery] Guid? companyId,
         [FromQuery] string? status,
+        [FromQuery] string? type,
         [FromQuery] string? sort,
         [FromQuery] string? order,
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new ListTasksQuery(after, limit, q, AssigneeUserId: null, Mine: true, contactId, dealId, companyId, status, sort, order),
+            new ListTasksQuery(after, limit, q, AssigneeUserId: null, Mine: true, contactId, dealId, companyId, status, type, sort, order),
+            cancellationToken);
+        return FromResult(result, Ok);
+    }
+
+    [HttpGet(CrmRoutes.TasksOverdueCount)]
+    [RequiresPermission(Permissions.TasksRead)]
+    [ProducesResponseType<TaskOverdueCountView>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CountOverdue(
+        [FromQuery] string? q,
+        [FromQuery] Guid? assigneeUserId,
+        [FromQuery] Guid? contactId,
+        [FromQuery] Guid? dealId,
+        [FromQuery] Guid? companyId,
+        [FromQuery] string? type,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(
+            new CountOverdueTasksQuery(q, assigneeUserId, Mine: false, contactId, dealId, companyId, type),
+            cancellationToken);
+        return FromResult(result, Ok);
+    }
+
+    [HttpGet(CrmRoutes.TasksMineOverdueCount)]
+    [RequiresPermission(Permissions.TasksRead)]
+    [ProducesResponseType<TaskOverdueCountView>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CountMineOverdue(
+        [FromQuery] string? q,
+        [FromQuery] Guid? contactId,
+        [FromQuery] Guid? dealId,
+        [FromQuery] Guid? companyId,
+        [FromQuery] string? type,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(
+            new CountOverdueTasksQuery(q, AssigneeUserId: null, Mine: true, contactId, dealId, companyId, type),
             cancellationToken);
         return FromResult(result, Ok);
     }
@@ -89,6 +131,7 @@ public sealed class TasksController(IMediator mediator, ErrorTextLocalizer error
         var result = await mediator.Send(
             new CreateTaskCommand(
                 request?.Title ?? string.Empty,
+                request?.Type,
                 request?.Notes,
                 request?.DueAt,
                 request?.AssigneeUserId,
@@ -113,6 +156,7 @@ public sealed class TasksController(IMediator mediator, ErrorTextLocalizer error
                 id,
                 request?.Version ?? default,
                 request?.Title ?? string.Empty,
+                request?.Type,
                 request?.Notes,
                 request?.DueAt,
                 request?.AssigneeUserId,

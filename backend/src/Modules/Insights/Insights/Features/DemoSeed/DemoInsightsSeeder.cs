@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Parley.Insights.Contracts.DemoSeed;
 using Parley.Insights.Contracts.Scores;
 using Parley.Insights.Domain.Ml;
+using Parley.Insights.Features.Daily;
 using Parley.Insights.Features.Priority.Build;
 using Parley.Insights.Features.Rfm.Compute;
 using Parley.Insights.Features.Scoring.Models;
@@ -10,6 +11,7 @@ using Parley.Insights.Features.Scoring.Run;
 using Parley.Insights.Features.Scoring.Shared;
 using Parley.Insights.Options;
 using Parley.Insights.Persistence;
+using Parley.Insights.Shared;
 using Parley.SharedKernel.Tenancy.Abstractions;
 
 namespace Parley.Insights.Features.DemoSeed;
@@ -17,7 +19,9 @@ namespace Parley.Insights.Features.DemoSeed;
 /// <summary>
 /// Builds the demo insights through the production runners: the RFM snapshot of the reference day, then the model sync and
 /// the uplift/CLV runs when the scoring service is reachable, then the priority list. A missing service never fails the seed:
-/// the workspace stays in RFM mode and the report says why.
+/// the workspace stays in RFM mode and the report says why. The seed holds the day lock for the whole build: a completed uplift
+/// run queues a priority rebuild, and without the lock that rebuild writes the same day at the same time and one of the two
+/// fails on the unique key. The rebuild finds the lock taken and queues itself again.
 /// </summary>
 public sealed class DemoInsightsSeeder(
     InsightsDbContext dbContext,
@@ -26,6 +30,7 @@ public sealed class DemoInsightsSeeder(
     PriorityBuildRunner priority,
     ScoringModelsSync modelsSync,
     ScoringRunRunner scoringRuns,
+    InsightsDailyLock locks,
     IOptions<InsightsScoringOptions> scoringOptions,
     TimeProvider timeProvider) : IDemoInsightsSeeder
 {
@@ -35,6 +40,7 @@ public sealed class DemoInsightsSeeder(
         try
         {
             var asOf = DateOnly.FromDateTime(reference.UtcDateTime);
+            await using var lease = await AcquireDayLockAsync(organizationId, asOf, cancellationToken);
             await rfm.RunAsync(asOf, cancellationToken);
             var (mlEnabled, failure) = await TryScoreAsync(cancellationToken);
             await priority.RunAsync(asOf, cancellationToken);
@@ -44,6 +50,21 @@ public sealed class DemoInsightsSeeder(
         {
             tenantContext.Clear();
         }
+    }
+
+    private async Task<IAsyncDisposable> AcquireDayLockAsync(Guid organizationId, DateOnly asOf, CancellationToken cancellationToken)
+    {
+        for (var attempt = 0; attempt < InsightsLimits.DemoSeedLockAttempts; attempt++)
+        {
+            if (await locks.TryAcquireAsync(organizationId, asOf, cancellationToken) is { } lease)
+            {
+                return lease;
+            }
+
+            await Task.Delay(InsightsLimits.DemoSeedLockRetryDelay, timeProvider, cancellationToken);
+        }
+
+        throw new InvalidOperationException("The insights day of the demo organization stayed locked by another run.");
     }
 
     public async Task WipeAsync(Guid organizationId, CancellationToken cancellationToken)

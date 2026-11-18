@@ -174,4 +174,36 @@ describe("ContactsListView", () => {
     // Table is not in skeleton loading state
     expect(screen.queryByTestId("table-skeleton")).toBeNull();
   });
+
+  it("opens the create dialog from the home empty-state deep link", async () => {
+    const { NewOrganizationEmpty } =
+      await import("@/features/insights/components/new-organization-empty");
+    const { contactCreateParser, CONTACT_CREATE_PARAM } =
+      await import("@/features/crm/hooks/use-contact-create-param");
+
+    // The home empty state renders the link; its query must be the one the
+    // contacts page reads as "dialog open", not a hand-written value.
+    render(
+      <NuqsTestingAdapter>
+        <NewOrganizationEmpty />
+      </NuqsTestingAdapter>,
+    );
+    const href = screen
+      .getByRole("link", { name: "addContact" })
+      .getAttribute("href");
+    cleanup();
+
+    const search = href?.slice(href.indexOf("?")) ?? "";
+    // The value is the one the parser in the hook reads; `?new=1` would be false.
+    const value = new URLSearchParams(search).get(CONTACT_CREATE_PARAM) ?? "";
+    expect(contactCreateParser.parse(value)).toBe(true);
+
+    render(
+      <NuqsTestingAdapter searchParams={search}>
+        <ContactsListView />
+      </NuqsTestingAdapter>,
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByLabelText(/firstName/)).toBeInTheDocument();
+  });
 });

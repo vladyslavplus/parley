@@ -28,7 +28,6 @@ public sealed class PriorityRulesTests
         var score = PriorityRules.Score("at_risk", new RfmTiers(5, 1, 5), new PriorityFacts(true, true), Weights, TaskDueBonus, StaleDealBonus);
 
         score.ReasonCodes.Should().Equal(
-            PriorityReasons.AtRisk,
             PriorityReasons.TaskDue,
             PriorityReasons.DealStale,
             PriorityReasons.HighValue,

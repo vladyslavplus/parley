@@ -35,9 +35,12 @@ export function Input({
   );
 }
 
+// Multi-line fields keep a fixed height set by `rows` (4 by default) and scroll
+// inside: dragging a handle used to break modal layouts.
 export function Textarea({
   className,
   invalid,
+  rows = 4,
   ref,
   ...props
 }: TextareaHTMLAttributes<HTMLTextAreaElement> & {
@@ -47,10 +50,11 @@ export function Textarea({
   return (
     <textarea
       ref={ref}
+      rows={rows}
       aria-invalid={invalid || undefined}
       className={cn(
         CONTROL_BASE,
-        "min-h-20 resize-y py-2",
+        "min-h-20 resize-none overflow-y-auto py-2",
         invalid ? "border-destructive text-destructive" : "border-input",
         className,
       )}

@@ -30,14 +30,14 @@ public sealed class CrmDashboardReader(CrmDbContext dbContext) : ICrmDashboardRe
         }
 
         var totals = await deals
-            .Join(dbContext.PipelineStages.AsNoTracking(), deal => deal.StageId, stage => stage.Id, (deal, stage) => new { stage.Id, stage.Name, stage.Position, deal.Amount })
-            .GroupBy(row => new { row.Id, row.Name, row.Position })
-            .Select(group => new { group.Key.Id, group.Key.Name, group.Key.Position, Count = group.Count(), Amount = group.Sum(row => row.Amount) })
+            .Join(dbContext.PipelineStages.AsNoTracking(), deal => deal.StageId, stage => stage.Id, (deal, stage) => new { stage.Id, stage.Name, stage.Position, stage.Color, deal.Amount })
+            .GroupBy(row => new { row.Id, row.Name, row.Position, row.Color })
+            .Select(group => new { group.Key.Id, group.Key.Name, group.Key.Position, group.Key.Color, Count = group.Count(), Amount = group.Sum(row => row.Amount) })
             .OrderBy(row => row.Position)
             .ThenBy(row => row.Name)
             .ToListAsync(cancellationToken);
 
-        return totals.Select(row => new CrmPipelineStageTotal(row.Id, row.Name, row.Position, row.Count, row.Amount)).ToArray();
+        return totals.Select(row => new CrmPipelineStageTotal(row.Id, row.Name, row.Position, row.Color, row.Count, row.Amount)).ToArray();
     }
 
     public async Task<int> CountTasksDueAsync(

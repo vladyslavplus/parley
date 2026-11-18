@@ -13,6 +13,8 @@ public sealed class PriorityItemConfiguration : IEntityTypeConfiguration<Priorit
         builder.ToTable(InsightsSchemaNames.PriorityItemsTable);
         builder.Property(item => item.Mode).HasMaxLength(InsightsLimits.CodeMaximumLength).IsRequired();
         builder.Property(item => item.Segment).HasMaxLength(InsightsLimits.CodeMaximumLength).IsRequired();
+        builder.Property(item => item.UpliftSegment).HasMaxLength(InsightsLimits.CodeMaximumLength);
+        builder.Property(item => item.UpliftValue).HasColumnType("numeric(18,6)");
         builder.Property(item => item.SuggestedAction).HasMaxLength(InsightsLimits.CodeMaximumLength).IsRequired();
         builder.Property(item => item.PriorityValue).HasColumnType("numeric(18,6)");
         builder.HasIndex(nameof(PriorityItem.OrganizationId), nameof(PriorityItem.AsOf), nameof(PriorityItem.ContactId))

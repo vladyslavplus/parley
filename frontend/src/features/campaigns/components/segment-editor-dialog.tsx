@@ -10,8 +10,8 @@ import { useApiForm } from "@/components/forms/use-api-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Modal, ModalFooter } from "@/components/ui/modal";
 import { LIMITS } from "@/constants/limits";
-import { LibraryDialog } from "@/features/campaigns/components/library-dialog";
 import { SegmentCount } from "@/features/campaigns/components/segment-count";
 import { SegmentFilterFields } from "@/features/campaigns/components/segment-filter-fields";
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
@@ -35,6 +35,8 @@ interface Props {
   onSaved?: (segment: Segment) => void;
 }
 
+const SEGMENT_FORM_ID = "segment-form";
+
 function EditorBody({
   initial,
   onClose,
@@ -45,7 +47,6 @@ function EditorBody({
   onSaved?: (segment: Segment) => void;
 }) {
   const t = useTranslations("campaigns.segments");
-  const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
   const { createSegment, updateSegment } = useLibraryMutations();
   const [saved, setSaved] = useState<Segment | null>(initial);
@@ -100,7 +101,12 @@ function EditorBody({
   );
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+    <form
+      id={SEGMENT_FORM_ID}
+      onSubmit={onSubmit}
+      noValidate
+      className="flex flex-col gap-4"
+    >
       {formError ? (
         <Alert ref={alertRef} tone="error">
           {formError}
@@ -120,17 +126,11 @@ function EditorBody({
 
       <SegmentCount definition={definition} />
 
-      <div className="flex justify-end gap-2 border-t border-border pt-4">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onClose}
-          disabled={isSubmitting}
-        >
-          {tCommon("cancel")}
-        </Button>
+      <ModalFooter>
         <Button
           type="submit"
+          form={SEGMENT_FORM_ID}
+          className="w-full"
           disabled={isSubmitting || (!!initial && !isDirty)}
         >
           {isSubmitting ? (
@@ -138,7 +138,7 @@ function EditorBody({
           ) : null}
           {initial ? t("save") : t("create")}
         </Button>
-      </div>
+      </ModalFooter>
     </form>
   );
 }
@@ -184,7 +184,7 @@ export function SegmentEditorDialog({
 }: Props) {
   const t = useTranslations("campaigns.segments");
   return (
-    <LibraryDialog
+    <Modal
       open={open}
       onOpenChange={onOpenChange}
       title={segmentId ? t("editTitle") : t("newTitle")}
@@ -195,6 +195,6 @@ export function SegmentEditorDialog({
         onClose={() => onOpenChange(false)}
         onSaved={onSaved}
       />
-    </LibraryDialog>
+    </Modal>
   );
 }

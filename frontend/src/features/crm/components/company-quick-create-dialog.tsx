@@ -5,8 +5,9 @@ import { useTranslations } from "next-intl";
 import { ApiForm } from "@/components/forms/api-form";
 import { FormField } from "@/components/forms/form-field";
 import { useApiForm } from "@/components/forms/use-api-form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { QuickCreateDialogShell } from "@/features/crm/components/quick-create-dialog-shell";
+import { Modal } from "@/components/ui/modal";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import {
   createCompanyQuickSchema,
@@ -14,6 +15,8 @@ import {
 } from "@/features/crm/schemas/company-schema";
 import { useMe } from "@/lib/api/hooks/use-api";
 import { showSuccessToast } from "@/lib/toasts";
+
+const COMPANY_FORM_ID = "company-quick-create-form";
 
 interface Props {
   open: boolean;
@@ -61,18 +64,28 @@ export function CompanyQuickCreateDialog({
   const { errors, isSubmitting } = form.formState;
 
   return (
-    <QuickCreateDialogShell
+    <Modal
       open={open}
       onOpenChange={onOpenChange}
       title={t("title")}
       description={t("description")}
+      footer={
+        <Button
+          type="submit"
+          form={COMPANY_FORM_ID}
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {t("submit")}
+        </Button>
+      }
     >
       <ApiForm
+        id={COMPANY_FORM_ID}
         onSubmit={onSubmit}
         formError={formError}
         alertRef={alertRef}
         pending={isSubmitting}
-        submitLabel={t("submit")}
       >
         {/* Field 1: Name (required) */}
         <FormField label={t("name")} error={errors.name?.message} required>
@@ -107,6 +120,6 @@ export function CompanyQuickCreateDialog({
           <Input {...form.register("industry")} className="bg-background" />
         </FormField>
       </ApiForm>
-    </QuickCreateDialogShell>
+    </Modal>
   );
 }

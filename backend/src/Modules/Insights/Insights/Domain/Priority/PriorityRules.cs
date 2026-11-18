@@ -26,7 +26,7 @@ public static class PriorityRules
         ArgumentNullException.ThrowIfNull(weights);
         var weight = weights.TryGetValue(segment, out var segmentWeight) ? segmentWeight : 0m;
         var value = weight + CrmBonuses(facts, taskDueBonus, staleDealBonus);
-        return new PriorityScore(value, Reasons(segment, tiers, facts, []), ActionFor(segment, facts));
+        return new PriorityScore(value, Reasons(tiers, facts, []), ActionFor(segment, facts));
     }
 
     /// <summary>
@@ -51,18 +51,13 @@ public static class PriorityRules
         var value = largest * (options.UpliftWeight * uplift + options.RfmWeight * normalized)
             + CrmBonuses(facts, options.TaskDueBonus, options.StaleDealBonus);
 
-        var extra = new List<string>(3);
+        var extra = new List<string>(2);
         if (caution)
         {
             extra.Add(PriorityReasons.DoNotDisturb);
 
             // The list keeps the contact, ranked below every contact with a positive value.
             value = 0m;
-        }
-
-        if (upliftSegment == PriorityUpliftSegments.Persuadable)
-        {
-            extra.Add(PriorityReasons.Persuadable);
         }
 
         if (!caution && uplift >= options.UpliftHighThreshold)
@@ -72,7 +67,7 @@ public static class PriorityRules
 
         // A caution carries a hold action: contacting the contact now is exactly what the model advises against.
         var action = caution ? PrioritySuggestedActions.Hold : ActionFor(rfmSegment, facts);
-        return new PriorityScore(value, Reasons(rfmSegment, tiers, facts, extra), action);
+        return new PriorityScore(value, Reasons(tiers, facts, extra), action);
     }
 
     /// <summary>The next action: a stale deal is reviewed first, then a due task is called; otherwise the segment decides.</summary>
@@ -99,15 +94,10 @@ public static class PriorityRules
     private static decimal CrmBonuses(PriorityFacts facts, decimal taskDueBonus, decimal staleDealBonus) =>
         (facts.HasDueTask ? taskDueBonus : 0m) + (facts.HasStaleDeal ? staleDealBonus : 0m);
 
-    /// <summary>The reasons in their fixed order: the model reasons first, then the segment, the CRM facts and the tiers.</summary>
-    private static List<string> Reasons(string segment, RfmTiers? tiers, PriorityFacts facts, IReadOnlyList<string> leading)
+    /// <summary>The reasons in their fixed order: the model reason first, then the CRM facts and the tiers.</summary>
+    private static List<string> Reasons(RfmTiers? tiers, PriorityFacts facts, IReadOnlyList<string> leading)
     {
         var reasons = new List<string>(leading);
-        if (segment == RfmSegmentNames.AtRisk)
-        {
-            reasons.Add(PriorityReasons.AtRisk);
-        }
-
         if (facts.HasDueTask)
         {
             reasons.Add(PriorityReasons.TaskDue);

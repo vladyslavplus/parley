@@ -14,6 +14,7 @@ public static class TaskApi
     private const string IdProperty = "id";
     private const string VersionProperty = "version";
     private const string AssigneeProperty = "assigneeUserId";
+    private const string CountProperty = "count";
 
     /// <summary>Creates a task; fails the test unless the response is 201.</summary>
     public static async Task<JsonElement> CreateAsync(
@@ -52,6 +53,15 @@ public static class TaskApi
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var page = await AuthTestClient.ReadJsonAsync(response, cancellationToken);
         return page.GetProperty(ItemsProperty).EnumerateArray().Select(item => item.GetProperty(IdProperty).GetGuid()).ToList();
+    }
+
+    /// <summary>The overdue count a count route returns for the given query string.</summary>
+    public static async Task<int> OverdueCountAsync(HttpClient client, string route, string query, CancellationToken cancellationToken)
+    {
+        var response = await client.GetAsync(query.Length == 0 ? route : $"{route}?{query}", cancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await AuthTestClient.ReadJsonAsync(response, cancellationToken);
+        return body.GetProperty(CountProperty).GetInt32();
     }
 
     public static Guid IdOf(JsonElement task) => task.GetProperty(IdProperty).GetGuid();

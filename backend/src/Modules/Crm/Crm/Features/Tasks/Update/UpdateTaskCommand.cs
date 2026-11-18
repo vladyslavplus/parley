@@ -8,12 +8,13 @@ namespace Parley.Crm.Features.Tasks.Update;
 
 /// <summary>
 /// Replaces the editable fields of a task. <paramref name="Version"/> is the row version the client read; a stale value
-/// returns 409. A null assignee keeps the current one. Changing the due instant re-arms the due-soon reminder. Emits
+/// returns 409. A null assignee or type keeps the current one. Changing the due instant re-arms the due-soon reminder. Emits
 /// <c>TaskAssigned</c> when the assignee changes.
 /// </summary>
 /// <param name="Id">Task identifier.</param>
 /// <param name="Version">Row version the client read.</param>
 /// <param name="Title">Task title.</param>
+/// <param name="Type">New kind of task, or null to keep the current one.</param>
 /// <param name="Notes">Free text, or null to clear it.</param>
 /// <param name="DueAt">Due instant, or null to clear it.</param>
 /// <param name="AssigneeUserId">New assignee, or null to keep the current one.</param>
@@ -25,6 +26,7 @@ public sealed record UpdateTaskCommand(
     Guid Id,
     uint Version,
     string Title,
+    string? Type,
     string? Notes,
     DateTimeOffset? DueAt,
     Guid? AssigneeUserId,

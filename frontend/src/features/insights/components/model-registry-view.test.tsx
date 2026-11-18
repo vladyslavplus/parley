@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import insightsEn from "../../../../messages/en/insights.json";
+import hintsEn from "../../../../messages/en/hints.json";
 
 const rows = vi.hoisted(() => [
   {
@@ -45,7 +46,10 @@ const { ModelRegistryView } =
 
 function renderRegistry() {
   return render(
-    <NextIntlClientProvider locale="en" messages={{ insights: insightsEn }}>
+    <NextIntlClientProvider
+      locale="en"
+      messages={{ insights: insightsEn, hints: hintsEn }}
+    >
       <ModelRegistryView />
     </NextIntlClientProvider>,
   );

@@ -10,6 +10,7 @@ namespace Parley.Insights.Features.Priority.List;
 /// <param name="After">Cursor of the previous page, or null for the first page.</param>
 /// <param name="Limit">Page size; clamped to the allowed range.</param>
 /// <param name="Segment">Only contacts in this RFM segment; null for every segment.</param>
+/// <param name="UpliftSegment">Only contacts in this uplift segment; null for every uplift segment. Both dimensions may be combined.</param>
 [RequiresPermission(Permissions.InsightsView)]
-public sealed record ListPriorityQuery(string? After, int? Limit, string? Segment)
+public sealed record ListPriorityQuery(string? After, int? Limit, string? Segment, string? UpliftSegment)
     : IRequest<Result<PriorityListPageView>>;

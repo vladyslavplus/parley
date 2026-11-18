@@ -2,11 +2,13 @@ using System.Globalization;
 using System.Linq.Expressions;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Parley.Crm.Contracts.Recipients;
 using Parley.Identity.Contracts.Authorization;
 using Parley.Insights.Domain.Priority;
 using Parley.Insights.Features.Daily;
 using Parley.Insights.Features.Priority.Shared;
+using Parley.Insights.Options;
 using Parley.Insights.Persistence;
 using Parley.Insights.Shared;
 using Parley.SharedKernel.Errors;
@@ -27,7 +29,8 @@ public sealed class ListPriorityQueryHandler(
     ICrmRecipientProfileReader profiles,
     IPermissionChecker permissions,
     ICurrentUser currentUser,
-    ITenantContext tenantContext) : IRequestHandler<ListPriorityQuery, Result<PriorityListPageView>>
+    ITenantContext tenantContext,
+    IOptions<InsightsPriorityOptions> options) : IRequestHandler<ListPriorityQuery, Result<PriorityListPageView>>
 {
     /// <summary>The cursor orders by rank, never by value: a cursor that carried the value would hand it to every caller.</summary>
     private const string RankSortField = "rank";
@@ -40,6 +43,8 @@ public sealed class ListPriorityQueryHandler(
         item.PriorityValue,
         item.Mode,
         item.Segment,
+        item.UpliftValue,
+        item.UpliftSegment,
         item.ReasonCodes,
         item.SuggestedAction);
 
@@ -72,6 +77,11 @@ public sealed class ListPriorityQueryHandler(
         if (query.Segment is { } segment)
         {
             items = items.Where(item => item.Segment == segment);
+        }
+
+        if (query.UpliftSegment is { } upliftSegment)
+        {
+            items = items.Where(item => item.UpliftSegment == upliftSegment);
         }
 
         var page = await KeysetPages.ReadAsync<PriorityItem, PriorityItemRow, int?>(
@@ -107,7 +117,9 @@ public sealed class ListPriorityQueryHandler(
         var provenance = mode == PriorityModes.Ml
             ? await PriorityMlStatusResolver.ReadActiveUpliftProvenanceAsync(dbContext, cancellationToken)
             : null;
-        return Result<PriorityListPageView>.Success(new PriorityListPageView(views, page.NextCursor, mode, mlStatus, provenance));
+        return Result<PriorityListPageView>.Success(
+            new PriorityListPageView(
+                views, page.NextCursor, mode, mlStatus, provenance, options.Value.UpliftHighThreshold, options.Value.StaleDealDays));
     }
 
     /// <summary>
@@ -129,6 +141,8 @@ public sealed class ListPriorityQueryHandler(
         showValue ? row.Value : null,
         row.Mode,
         row.Segment,
+        showValue ? row.UpliftValue : null,
+        row.UpliftSegment,
         row.ReasonCodes,
         row.SuggestedAction);
 
@@ -137,8 +151,10 @@ public sealed class ListPriorityQueryHandler(
 
     private static string FormatRank(int? rank) => rank?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
 
-    private static Result<PriorityListPageView> Empty((string Mode, string MlStatus) status) =>
-        Result<PriorityListPageView>.Success(new PriorityListPageView([], null, status.Mode, status.MlStatus, null));
+    private Result<PriorityListPageView> Empty((string Mode, string MlStatus) status) =>
+        Result<PriorityListPageView>.Success(
+            new PriorityListPageView(
+                [], null, status.Mode, status.MlStatus, null, options.Value.UpliftHighThreshold, options.Value.StaleDealDays));
 
     private static Result<PriorityListPageView> Invalid() =>
         Result<PriorityListPageView>.Failure(Error.Validation(ErrorCodes.ValidationFailed));

@@ -114,6 +114,10 @@ namespace Parley.Insights.Migrations
                         .HasColumnType("character varying(32)")
                         .HasColumnName("provenance");
 
+                    b.Property<string>("SegmentRules")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("segment_rules");
+
                     b.Property<DateTime>("SyncedAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("synced_at");
@@ -371,6 +375,10 @@ namespace Parley.Insights.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("contacts_scored");
 
+                    b.Property<int>("ContactsSkipped")
+                        .HasColumnType("integer")
+                        .HasColumnName("contacts_skipped");
+
                     b.Property<int>("ContactsTotal")
                         .HasColumnType("integer")
                         .HasColumnName("contacts_total");
@@ -477,6 +485,15 @@ namespace Parley.Insights.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
                         .HasColumnName("suggested_action");
+
+                    b.Property<string>("UpliftSegment")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("uplift_segment");
+
+                    b.Property<decimal?>("UpliftValue")
+                        .HasColumnType("numeric(18,6)")
+                        .HasColumnName("uplift_value");
 
                     b.HasIndex("OrganizationId", "AsOf", "ContactId")
                         .IsUnique()

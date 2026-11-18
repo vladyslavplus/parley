@@ -48,6 +48,7 @@ from parley_ml.serving.schemas import (
     UpliftScore,
     UpliftScoreRequest,
     UpliftScoreResponse,
+    UpliftSegmentRules,
 )
 from parley_ml.serving.settings import ServiceSettings, load_settings
 
@@ -138,6 +139,9 @@ def _model_entry(model: ModelInfo) -> ModelEntry:
         provenance=model.provenance,
         trained_at=model.trained_at,
         metrics=model.metrics,
+        segment_rules=(
+            UpliftSegmentRules.model_validate(model.segment_rules) if model.segment_rules is not None else None
+        ),
         status="available" if model.available else "unavailable",
         error_code=model.error_code,
     )

@@ -40,6 +40,7 @@ public sealed class ScoringModelsSync(ScoringServiceClient client, InsightsDbCon
             target.Provenance = entry.Provenance;
             target.TrainedAt = ParseInstant(entry.TrainedAt, syncedAt);
             target.Metrics = JsonSerializer.Serialize(entry.Metrics);
+            target.SegmentRules = SerializeRules(entry.SegmentRules);
             target.SyncedAt = syncedAt;
             target.IsAvailable = true;
             if (existing is null)
@@ -58,4 +59,13 @@ public sealed class ScoringModelsSync(ScoringServiceClient client, InsightsDbCon
         DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)
             ? parsed.UtcDateTime
             : fallback;
+
+    /// <summary>
+    /// The segment thresholds of an uplift manifest as stored JSON. An absent field, a null, or a model without the rules
+    /// stores nothing: an older service must not fail the sync.
+    /// </summary>
+    private static string? SerializeRules(JsonElement? rules) =>
+        rules is { } value && value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined)
+            ? JsonSerializer.Serialize(value)
+            : null;
 }

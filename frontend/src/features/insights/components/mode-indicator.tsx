@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { InfoHint } from "@/components/ui/info-hint";
 import { ROUTES } from "@/constants/routes";
 import { Link } from "@/i18n/navigation";
 import { ProvenanceBadge } from "@/features/insights/components/provenance-badge";
@@ -24,21 +25,24 @@ export function ModeIndicator({
 }) {
   const t = useTranslations("insights.mode");
   const tScoring = useTranslations("insights.scoring");
+  const tHints = useTranslations("hints");
   const statusKey = mlStatus ? mlStatusKey(mlStatus) : null;
   const ml = mode === "ml";
   const section = ml ? "ml" : "rfm";
   return (
     <div className="rounded-[var(--radius-card)] border border-border bg-card/40 px-4 py-3">
-      <p className="text-xs font-semibold text-foreground">
-        {t(`${section}.title`)}
+      <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+        <span>{t(`${section}.title`)}</span>
+        <InfoHint>{tHints("priorityMode")}</InfoHint>
       </p>
       <p className="mt-0.5 text-xs text-muted-foreground">
         {t(`${section}.body`)}
       </p>
       {ml && modelProvenance ? (
-        <div className="mt-1">
+        <p className="mt-1 flex items-center gap-1.5">
           <ProvenanceBadge provenance={modelProvenance} />
-        </div>
+          <InfoHint>{tHints("modelHonestNote")}</InfoHint>
+        </p>
       ) : null}
       {!ml && statusKey ? (
         <p className="mt-1 text-xs text-muted-foreground">

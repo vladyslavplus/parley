@@ -49,7 +49,7 @@ public sealed class CreatePipelineStageCommandHandler(CrmDbContext dbContext, IT
             Name = name,
             Kind = PipelineStageKinds.Open,
             ProbabilityBps = command.ProbabilityBps,
-            ColorIndex = command.ColorIndex,
+            Color = PipelineStageColors.Normalize(command.Color),
             Position = CrmLimits.TemporaryStagePosition,
         };
         dbContext.PipelineStages.Add(stage);

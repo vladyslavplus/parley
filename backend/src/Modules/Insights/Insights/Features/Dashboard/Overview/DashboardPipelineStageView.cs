@@ -4,6 +4,7 @@ namespace Parley.Insights.Features.Dashboard.Overview;
 /// <param name="StageId">The stage.</param>
 /// <param name="StageName">Display name of the stage.</param>
 /// <param name="Position">Order of the stage.</param>
+/// <param name="Color">Stage colour as <c>#rrggbb</c>.</param>
 /// <param name="DealCount">Open deals in the stage.</param>
 /// <param name="Amount">Sum of their amounts.</param>
-public sealed record DashboardPipelineStageView(Guid StageId, string StageName, int Position, int DealCount, decimal Amount);
+public sealed record DashboardPipelineStageView(Guid StageId, string StageName, int Position, string Color, int DealCount, decimal Amount);

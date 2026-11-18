@@ -41,7 +41,7 @@ public sealed class GetDashboardOverviewQueryHandler(
         }
 
         var stages = (await crmDashboard.ReadOpenPipelineAsync(deals.OwnerUserIds, cancellationToken))
-            .Select(stage => new DashboardPipelineStageView(stage.StageId, stage.StageName, stage.Position, stage.DealCount, stage.Amount))
+            .Select(stage => new DashboardPipelineStageView(stage.StageId, stage.StageName, stage.Position, stage.Color, stage.DealCount, stage.Amount))
             .ToList();
         var tasksDue = await crmDashboard.CountTasksDueAsync(timeProvider.GetUtcNow(), tasks.OwnerUserIds, cancellationToken);
 

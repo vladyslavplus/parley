@@ -1,10 +1,13 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 
 export interface SegmentedOption<T extends string> {
   value: T;
   label: string;
+  icon?: ReactNode;
 }
 
 interface Props<T extends string> {
@@ -41,12 +44,13 @@ export function SegmentedControl<T extends string>({
             aria-pressed={selected}
             onClick={() => onChange(option.value)}
             className={cn(
-              "inline-flex cursor-pointer items-center whitespace-nowrap rounded-sm px-2.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring",
+              "inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm px-2.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring",
               selected
                 ? "bg-background font-semibold text-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
+            {option.icon}
             {option.label}
           </button>
         );

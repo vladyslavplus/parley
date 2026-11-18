@@ -10,8 +10,8 @@ import { useApiForm } from "@/components/forms/use-api-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
+import { Modal, ModalFooter } from "@/components/ui/modal";
 import { LIMITS } from "@/constants/limits";
-import { LibraryDialog } from "@/features/campaigns/components/library-dialog";
 import { TemplatePreviewFrame } from "@/features/campaigns/components/template-preview-frame";
 import {
   useTemplate,
@@ -45,17 +45,16 @@ interface Props {
 
 type EditableField = "subjectLiquid" | "bodyLiquid";
 
+const TEMPLATE_FORM_ID = "template-form";
+
 function EditorBody({
   initial,
-  onClose,
   onSaved,
 }: {
   initial: Template | null;
-  onClose: () => void;
   onSaved?: (template: Template) => void;
 }) {
   const t = useTranslations("campaigns.templates");
-  const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
   const tProfile = useTranslations("settings.profile");
   const errorText = useErrorText();
@@ -136,7 +135,12 @@ function EditorBody({
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+      <form
+        id={TEMPLATE_FORM_ID}
+        onSubmit={onSubmit}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         {formError ? (
           <Alert ref={alertRef} tone="error">
             {formError}
@@ -246,17 +250,11 @@ function EditorBody({
           </details>
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-border pt-4">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
-            {tCommon("cancel")}
-          </Button>
+        <ModalFooter>
           <Button
             type="submit"
+            form={TEMPLATE_FORM_ID}
+            className="w-full"
             disabled={isSubmitting || (!!saved && !isDirty)}
           >
             {isSubmitting ? (
@@ -264,7 +262,7 @@ function EditorBody({
             ) : null}
             {saved ? t("save") : t("create")}
           </Button>
-        </div>
+        </ModalFooter>
       </form>
 
       <section
@@ -333,11 +331,9 @@ function PreviewPanel({
 
 function LoadedEditor({
   templateId,
-  onClose,
   onSaved,
 }: {
   templateId: string | null;
-  onClose: () => void;
   onSaved?: (template: Template) => void;
 }) {
   const query = useTemplate(templateId);
@@ -358,7 +354,6 @@ function LoadedEditor({
     <EditorBody
       key={query.data?.id ?? "new"}
       initial={query.data ?? null}
-      onClose={onClose}
       onSaved={onSaved}
     />
   );
@@ -372,18 +367,14 @@ export function TemplateEditorDialog({
 }: Props) {
   const t = useTranslations("campaigns.templates");
   return (
-    <LibraryDialog
+    <Modal
       open={open}
       onOpenChange={onOpenChange}
       size="xl"
       title={templateId ? t("editTitle") : t("newTitle")}
       description={t("dialogDescription")}
     >
-      <LoadedEditor
-        templateId={templateId}
-        onClose={() => onOpenChange(false)}
-        onSaved={onSaved}
-      />
-    </LibraryDialog>
+      <LoadedEditor templateId={templateId} onSaved={onSaved} />
+    </Modal>
   );
 }

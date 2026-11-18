@@ -41,7 +41,7 @@ public sealed class ListTasksQueryHandler(
         var visibleCompanies = await DealLookup.VisibleCompaniesAsync(dbContext, dataScope, cancellationToken);
         var visibleDeals = await DealLookup.VisibleDealsAsync(dbContext, dataScope, cancellationToken);
         var assignee = query.Mine ? currentUser.RequireUserId() : query.AssigneeUserId;
-        var filter = new TaskListFilter(query.Search, assignee, query.ContactId, query.DealId, query.CompanyId, query.Status, timeProvider.GetUtcNow().UtcDateTime);
+        var filter = new TaskListFilter(query.Search, assignee, query.ContactId, query.DealId, query.CompanyId, query.Status, query.Type, timeProvider.GetUtcNow().UtcDateTime);
         var tasks = TaskListFilters.Apply(TaskScopeFilter.Apply(dbContext.Tasks.AsNoTracking(), scope), filter);
         var projection = TaskViews.RowProjectionFor(visibleContacts, visibleCompanies, visibleDeals);
 

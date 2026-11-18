@@ -79,6 +79,12 @@ export function campaignRoute(id: string): string {
   return `${ROUTES.campaigns}/${id}`;
 }
 
+// The tasks page opens on "My tasks"; a caller whose tasks scope is wider than
+// their own sees the matching overdue list under "All tasks".
+export function tasksOverdueRoute(allTasks: boolean): string {
+  return `${ROUTES.tasks}?${allTasks ? "tab=all&" : ""}status=overdue`;
+}
+
 export function companyRecordRoute(id: string): string {
   return `${ROUTES.companies}/${id}`;
 }

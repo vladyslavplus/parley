@@ -7,6 +7,6 @@ public sealed class UpdateTaskCommandValidator : AbstractValidator<UpdateTaskCom
 {
     public UpdateTaskCommandValidator()
     {
-        TaskRequestRules.ApplyTo(this, command => command.Title, command => command.Notes);
+        TaskRequestRules.ApplyTo(this, command => command.Title, command => command.Type, command => command.Notes);
     }
 }

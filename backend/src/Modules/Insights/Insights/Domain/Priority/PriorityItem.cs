@@ -23,4 +23,10 @@ public sealed class PriorityItem : BusinessEntity
     public string SuggestedAction { get; set; } = string.Empty;
 
     public string Segment { get; set; } = string.Empty;
+
+    /// <summary>Uplift of the contact in ML mode, as the scoring run estimated it; null in RFM mode and for a contact without a score.</summary>
+    public decimal? UpliftValue { get; set; }
+
+    /// <summary>Uplift segment the model gave the contact in ML mode; null in RFM mode and for a contact without a score.</summary>
+    public string? UpliftSegment { get; set; }
 }

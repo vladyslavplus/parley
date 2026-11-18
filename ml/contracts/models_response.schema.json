@@ -40,6 +40,17 @@
           "title": "Provenance",
           "type": "string"
         },
+        "segment_rules": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UpliftSegmentRules"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Segment thresholds from the manifest; null for a model without segment rules (clv) and for an unavailable model."
+        },
         "status": {
           "enum": [
             "available",
@@ -65,10 +76,39 @@
         "provenance",
         "trained_at",
         "metrics",
+        "segment_rules",
         "status",
         "error_code"
       ],
       "title": "ModelEntry",
+      "type": "object"
+    },
+    "UpliftSegmentRules": {
+      "additionalProperties": false,
+      "description": "Segment thresholds of an uplift artifact, exactly as the manifest holds them.",
+      "properties": {
+        "do_not_disturb_uplift_below": {
+          "description": "Uplift below this value labels a contact do_not_disturb.",
+          "title": "Do Not Disturb Uplift Below",
+          "type": "number"
+        },
+        "persuadable_uplift_at_least": {
+          "description": "Uplift at or above this value labels a contact persuadable.",
+          "title": "Persuadable Uplift At Least",
+          "type": "number"
+        },
+        "sure_thing_control_rate_at_least": {
+          "description": "Control response rate at or above this value labels a contact sure_thing.",
+          "title": "Sure Thing Control Rate At Least",
+          "type": "number"
+        }
+      },
+      "required": [
+        "do_not_disturb_uplift_below",
+        "persuadable_uplift_at_least",
+        "sure_thing_control_rate_at_least"
+      ],
+      "title": "UpliftSegmentRules",
       "type": "object"
     }
   },

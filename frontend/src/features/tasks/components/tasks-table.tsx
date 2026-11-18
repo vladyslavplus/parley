@@ -18,6 +18,7 @@ import {
   dealRecordRoute,
 } from "@/constants/routes";
 import { TaskModal } from "@/features/tasks/components/task-modal";
+import { TaskTypeLabel } from "@/features/tasks/components/task-type-label";
 import { TaskStatusCheckbox } from "@/features/tasks/components/task-status-checkbox";
 import { useTaskMutations } from "@/features/tasks/hooks/use-task-mutations";
 import type { Task } from "@/features/tasks/types";
@@ -28,6 +29,11 @@ import { formatDateTime, formatRelativeAge } from "@/lib/formatters";
 import { displayTimeZone, isTaskOverdue } from "@/lib/time-zones";
 import { showSuccessToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
+
+// A quiet red edge on the first cell: the Due cell already says "Overdue", the
+// edge lets the eye find those rows while scanning.
+const OVERDUE_ROW_ACCENT =
+  "[&>td:first-child]:shadow-[inset_2px_0_0_0_var(--destructive)]";
 
 interface Props {
   tasks: Task[];
@@ -67,12 +73,24 @@ export function TasksTable({
     setDeletingTask(null);
   }
 
+  // The API sorts by due date, title and creation only (`TaskSortFields`), so
+  // only the Title and Due Date columns offer a sorter; the other columns state
+  // `enableSorting: false` instead of relying on a default.
   const columns: ColumnDef<Task, unknown>[] = [
     {
       id: "status",
       header: "",
+      enableSorting: false,
       size: 40,
       cell: ({ row }) => <TaskStatusCheckbox task={row.original} />,
+    },
+    {
+      id: "type",
+      accessorKey: "type",
+      header: t("table.type"),
+      enableSorting: false,
+      size: 110,
+      cell: ({ row }) => <TaskTypeLabel type={row.original.type} />,
     },
     {
       id: "title",
@@ -153,6 +171,7 @@ export function TasksTable({
       id: "assignee",
       accessorKey: "assigneeDisplayName",
       header: t("table.assignee"),
+      enableSorting: false,
       size: 160,
       cell: ({ row }) => {
         const task = row.original;
@@ -168,6 +187,7 @@ export function TasksTable({
     {
       id: "linked",
       header: t("table.linkedRecord"),
+      enableSorting: false,
       cell: ({ row }) => {
         const task = row.original;
         return (
@@ -213,6 +233,7 @@ export function TasksTable({
     {
       id: "actions",
       header: "",
+      enableSorting: false,
       size: 70,
       cell: ({ row }) => {
         const task = row.original;
@@ -264,6 +285,11 @@ export function TasksTable({
         onSortingChange={onSortingChange}
         paginationSlot={paginationSlot}
         hideToolbar
+        getRowClassName={(task) =>
+          isTaskOverdue(task.dueAt, task.isCompleted)
+            ? OVERDUE_ROW_ACCENT
+            : undefined
+        }
         emptyTitle={t("emptyTasks")}
       />
 

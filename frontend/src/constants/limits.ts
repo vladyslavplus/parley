@@ -4,6 +4,8 @@ export const LIMITS = {
   notificationsPollIntervalMs: 45_000,
   // The bell shows this many unread items as a count; above it, "99+".
   notificationsBellCountCap: 99,
+  // The sidebar shows this many overdue tasks as a count; above it, "99+".
+  overdueBadgeCap: 99,
   // Latest items shown in the bell dropdown.
   notificationsPopoverSize: 5,
   // A scoring run is polled this often while it is queued or running.
@@ -54,7 +56,6 @@ export const LIMITS = {
   companyPickerLimit: 20,
   contactPickerLimit: 20,
   tagColorCount: 5,
-  stageColorCount: 5,
   dealTitleMaxLength: 200,
   dealAmountMax: 1_000_000_000,
   stageNameMaxLength: 100,
@@ -67,6 +68,7 @@ export const LIMITS = {
   dealPickerLimit: 20,
   tasksPageSize: 20,
   maxTasksPageSize: 100,
+  nextStepTasksLimit: 3,
   activitiesPageSize: 20,
   maxNotesPageSize: 100,
   ordersPageSize: 20,

@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 
+import { InfoHint } from "@/components/ui/info-hint";
 import { LIMITS } from "@/constants/limits";
 import { ShareSlider } from "@/features/campaigns/components/builder/share-slider";
 import { useAudienceCount } from "@/features/campaigns/hooks/use-audience-count";
@@ -20,6 +21,7 @@ interface Props {
 
 export function ExperimentStep({ draft, onChange }: Props) {
   const t = useTranslations("campaigns.builder.experiment");
+  const tHints = useTranslations("hints");
   const locale = useLocale();
   const audience = useAudienceCount(draft.segmentId);
   const number = new Intl.NumberFormat(locale);
@@ -49,8 +51,9 @@ export function ExperimentStep({ draft, onChange }: Props) {
           onChange={(holdoutShareBps) => onChange({ holdoutShareBps })}
         />
         <div className="space-y-2 rounded-[var(--radius-card)] border border-border bg-card/40 p-4 text-xs text-muted-foreground">
-          <p className="text-sm font-semibold text-foreground">
-            {t("whyTitle")}
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+            <span>{t("whyTitle")}</span>
+            <InfoHint>{tHints("holdout")}</InfoHint>
           </p>
           <p>{t("whyBody")}</p>
           <p>{t("tradeoff")}</p>
@@ -85,8 +88,9 @@ export function ExperimentStep({ draft, onChange }: Props) {
                 </dd>
               </div>
             </dl>
-            <p className="text-sm text-foreground">
-              {t("mde", { percent: bpsToPercent(mdeBps) })}
+            <p className="flex items-center gap-1.5 text-sm text-foreground">
+              <span>{t("mde", { percent: bpsToPercent(mdeBps) })}</span>
+              <InfoHint>{tHints("mde")}</InfoHint>
             </p>
             <p className="text-xs text-muted-foreground">{t("mdeNote")}</p>
           </>

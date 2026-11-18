@@ -27,12 +27,14 @@ import { CrmBulkBar } from "@/features/crm/components/crm-bulk-bar";
 import { CrmTagBadge } from "@/features/crm/components/crm-tag-badge";
 import { KeysetPagination } from "@/features/crm/components/keyset-pagination";
 import { useContacts } from "@/features/crm/hooks/use-contacts";
+import { useContactCreateParam } from "@/features/crm/hooks/use-contact-create-param";
 import {
   useOwnerDimension,
   useTagDimension,
 } from "@/features/crm/filters/use-filter-dimensions";
 import { useCrmMutations } from "@/features/crm/hooks/use-crm-mutations";
 import { useTags } from "@/features/crm/hooks/use-tags";
+import { RfmSegmentBadge } from "@/features/insights/components/segment-badge";
 import { SEGMENT_CODES, segmentLabelKey } from "@/features/insights/lib/codes";
 import type { Contact } from "@/features/crm/types";
 import { Can } from "@/features/session/components/can";
@@ -92,7 +94,7 @@ export function ContactsListView() {
 
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
+  const [quickCreateOpen, setQuickCreateOpen] = useContactCreateParam();
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   // Debounce search input writes to URL
@@ -368,11 +370,7 @@ export function ContactsListView() {
             </span>
           );
         }
-        return (
-          <span className="text-xs text-foreground">
-            {segmentText(code) ?? code}
-          </span>
-        );
+        return <RfmSegmentBadge code={code} />;
       },
     },
     {

@@ -4,6 +4,7 @@ using Parley.Crm.Authorization.Scope;
 using Parley.Crm.Contracts.Errors;
 using Parley.Crm.Features.Pipelines.Shared;
 using Parley.Crm.Persistence;
+using Parley.Crm.Shared.Deals;
 using Parley.Crm.Shared.Pipelines;
 using Parley.Identity.Contracts.Authorization;
 using Parley.SharedKernel.Results;
@@ -12,7 +13,7 @@ namespace Parley.Crm.Features.Pipelines.Board;
 
 /// <summary>
 /// Three statements whatever the number of deals: the pipeline name, the stages, and one grouped aggregate of the
-/// deals the caller may see.
+/// deals the caller may see that match the deal-list filters.
 /// </summary>
 public sealed class GetPipelineBoardQueryHandler(CrmDbContext dbContext, IDataScope dataScope)
     : IRequestHandler<GetPipelineBoardQuery, Result<PipelineBoardView>>
@@ -37,7 +38,9 @@ public sealed class GetPipelineBoardQueryHandler(CrmDbContext dbContext, IDataSc
             .ToList();
 
         var scope = await dataScope.ForPermissionAsync(Permissions.DealsRead, cancellationToken);
-        var totals = await DealScopeFilter.Apply(dbContext.Deals.AsNoTracking().Where(deal => deal.PipelineId == query.PipelineId), scope)
+        var filter = new DealListFilter(query.Search, null, query.OwnerUserId, query.CompanyId, null, query.Status);
+        var deals = DealScopeFilter.Apply(dbContext.Deals.AsNoTracking().Where(deal => deal.PipelineId == query.PipelineId), scope);
+        var totals = await DealListFilters.Apply(deals, filter)
             .GroupBy(deal => deal.StageId)
             .Select(group => new { StageId = group.Key, Count = group.Count(), Total = group.Sum(deal => deal.Amount) })
             .ToListAsync(cancellationToken);
@@ -50,7 +53,7 @@ public sealed class GetPipelineBoardQueryHandler(CrmDbContext dbContext, IDataSc
                 stage.Position,
                 stage.Kind,
                 stage.ProbabilityBps,
-                stage.ColorIndex,
+                stage.Color,
                 totalsByStage.TryGetValue(stage.Id, out var total) ? total.Count : 0,
                 total?.Total ?? 0m))
             .ToList();

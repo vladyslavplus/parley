@@ -1,7 +1,6 @@
 "use client";
 
-import * as Dialog from "@radix-ui/react-dialog";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useWatch } from "react-hook-form";
 
@@ -9,6 +8,7 @@ import { useApiForm } from "@/components/forms/use-api-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
+import { Modal, ModalFooter } from "@/components/ui/modal";
 import { ERROR_CODES } from "@/constants/error-codes";
 import { LIMITS } from "@/constants/limits";
 import { useNoteMutations } from "@/features/timeline/hooks/use-note-mutations";
@@ -18,6 +18,8 @@ import {
 } from "@/features/timeline/schemas/note-schema";
 import type { Note, SubjectRef } from "@/features/timeline/types";
 import { showSuccessToast } from "@/lib/toasts";
+
+const NOTE_FORM_ID = "note-form";
 
 interface Props {
   open: boolean;
@@ -36,7 +38,6 @@ interface FormBodyProps {
 
 function NoteModalFormBody({ note, subject, onClose, onSaved }: FormBodyProps) {
   const t = useTranslations("crm.notes");
-  const tCommon = useTranslations("common");
   const { createNote, updateNote } = useNoteMutations();
   const isEdit = Boolean(note);
 
@@ -94,22 +95,7 @@ function NoteModalFormBody({ note, subject, onClose, onSaved }: FormBodyProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between pb-4 border-b border-border">
-        <Dialog.Title className="text-base font-semibold text-foreground">
-          {isEdit ? t("editNote") : t("addNote")}
-        </Dialog.Title>
-        <Dialog.Close asChild>
-          <button
-            type="button"
-            aria-label={tCommon("cancel")}
-            className="rounded-xs p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </Dialog.Close>
-      </div>
-
-      <form onSubmit={onSubmit} className="mt-4 space-y-4">
+      <form id={NOTE_FORM_ID} onSubmit={onSubmit} className="space-y-4">
         {formError ? (
           <Alert ref={alertRef} tone="error">
             {formError}
@@ -145,18 +131,12 @@ function NoteModalFormBody({ note, subject, onClose, onSaved }: FormBodyProps) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-border">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
-            {tCommon("cancel")}
-          </Button>
+        <ModalFooter>
           <Button
             type="submit"
+            form={NOTE_FORM_ID}
             variant="primary"
+            className="w-full"
             disabled={isSubmitting || (isEdit && !isDirty)}
           >
             {isSubmitting ? (
@@ -164,7 +144,7 @@ function NoteModalFormBody({ note, subject, onClose, onSaved }: FormBodyProps) {
             ) : null}
             {isEdit ? t("save") : t("create")}
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </>
   );
@@ -177,25 +157,22 @@ export function NoteModal({
   subject,
   onSaved,
 }: Props) {
+  const t = useTranslations("crm.notes");
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-xs transition-opacity duration-150 data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
-        <Dialog.Content
-          aria-describedby={undefined}
-          className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-[var(--shadow-floating)] max-h-[90vh] overflow-y-auto"
-        >
-          {open ? (
-            <NoteModalFormBody
-              key={`${note?.id ?? "new"}:${note?.version ?? 0}`}
-              note={note}
-              subject={subject}
-              onClose={() => onOpenChange(false)}
-              onSaved={onSaved}
-            />
-          ) : null}
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={note ? t("editNote") : t("addNote")}
+    >
+      {open ? (
+        <NoteModalFormBody
+          key={`${note?.id ?? "new"}:${note?.version ?? 0}`}
+          note={note}
+          subject={subject}
+          onClose={() => onOpenChange(false)}
+          onSaved={onSaved}
+        />
+      ) : null}
+    </Modal>
   );
 }

@@ -6,6 +6,7 @@ namespace Parley.Crm.Features.Tasks.Shared;
 /// </summary>
 /// <param name="Id">Task identifier.</param>
 /// <param name="Title">Task title.</param>
+/// <param name="Type">Kind of task: <c>call</c>, <c>email</c>, <c>meeting</c> or <c>todo</c>.</param>
 /// <param name="Notes">Free text, when set.</param>
 /// <param name="DueAt">Due instant in UTC, or null when the task has no due date.</param>
 /// <param name="CompletedAt">Instant the task was completed in UTC, or null while open.</param>
@@ -25,6 +26,7 @@ namespace Parley.Crm.Features.Tasks.Shared;
 public sealed record TaskView(
     Guid Id,
     string Title,
+    string Type,
     string? Notes,
     DateTime? DueAt,
     DateTime? CompletedAt,

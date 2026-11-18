@@ -1,5 +1,6 @@
 using Parley.Crm.Domain.Deals;
 using Parley.Crm.Domain.Pipelines;
+using Parley.Crm.Domain.Tasks;
 using Parley.Crm.Shared;
 
 namespace Parley.Crm.Persistence;
@@ -40,8 +41,11 @@ public static class CrmSql
     public static string StageKindCheck { get; } =
         $"\"kind\" IN ('{PipelineStageKinds.Open}', '{PipelineStageKinds.Won}', '{PipelineStageKinds.Lost}')";
 
+    public static string TaskTypeCheck { get; } =
+        $"\"type\" IN ({string.Join(", ", TaskTypes.All.Select(type => $"'{type}'"))})";
+
     public static string StageColorCheck { get; } =
-        $"\"color_index\" BETWEEN {CrmLimits.StageColorMinimumIndex} AND {CrmLimits.StageColorMaximumIndex}";
+        $"\"color\" ~ '{CrmLimits.StageColorStoredPattern}'";
 
     public static string StageProbabilityCheck { get; } =
         $"\"probability_bps\" BETWEEN 0 AND {CrmLimits.StageProbabilityMaximumBps}";

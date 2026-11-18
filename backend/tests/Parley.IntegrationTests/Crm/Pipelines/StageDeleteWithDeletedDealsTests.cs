@@ -20,7 +20,7 @@ public sealed class StageDeleteWithDeletedDealsTests(PostgresFixture postgres, M
 {
     private const string DemoStageName = "Archive demo";
     private const string FirstOpenStageName = "New";
-    private const int DemoColorIndex = 1;
+    private const string DemoColor = "#c9d7eb";
     private const int DemoProbabilityBps = 2000;
 
     private IdentityApiFactory _factory = null!;
@@ -78,7 +78,7 @@ public sealed class StageDeleteWithDeletedDealsTests(PostgresFixture postgres, M
     {
         var created = await client.PostAsJsonAsync(
             PipelineApi.Route(CrmRoutes.PipelineStages, pipelineId),
-            new { name = DemoStageName, colorIndex = DemoColorIndex, probabilityBps = DemoProbabilityBps },
+            new { name = DemoStageName, color = DemoColor, probabilityBps = DemoProbabilityBps },
             cancellationToken);
         created.StatusCode.Should().Be(HttpStatusCode.OK);
         return PipelineApi.Named(PipelineApi.ParseStages(await AuthTestClient.ReadJsonAsync(created, cancellationToken)), DemoStageName);

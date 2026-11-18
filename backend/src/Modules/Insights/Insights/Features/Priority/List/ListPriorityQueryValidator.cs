@@ -1,5 +1,6 @@
 using FluentValidation;
 using Parley.Insights.Contracts.Rfm;
+using Parley.Insights.Domain.Priority;
 using Parley.SharedKernel.Errors;
 using Parley.SharedKernel.Paging;
 
@@ -13,5 +14,7 @@ public sealed class ListPriorityQueryValidator : AbstractValidator<ListPriorityQ
             .Must(value => value is null || KeysetCursor.TryDecode(value, out _)).WithErrorCode(ErrorCodes.ValidationFailed);
         RuleFor(query => query.Segment)
             .Must(value => value is null || RfmSegmentNames.All.Contains(value)).WithErrorCode(ErrorCodes.ValidationFailed);
+        RuleFor(query => query.UpliftSegment)
+            .Must(value => value is null || PriorityUpliftSegments.All.Contains(value)).WithErrorCode(ErrorCodes.ValidationFailed);
     }
 }

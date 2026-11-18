@@ -61,6 +61,7 @@ public sealed class UpdateTaskCommandHandler(
         }
 
         task.Title = TextValues.Required(command.Title);
+        task.Type = command.Type ?? task.Type;
         task.Notes = TextValues.Optional(command.Notes);
         task.DueAt = dueAt;
         task.AssigneeUserId = assigneeId;

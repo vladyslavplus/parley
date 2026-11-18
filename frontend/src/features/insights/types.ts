@@ -3,7 +3,8 @@ import type { Schemas } from "@/lib/api/schemas";
 // Insights and dashboard contracts, generated from the OpenAPI document.
 export type PriorityItem = Schemas["PriorityItemView"];
 export type PriorityPage = Schemas["PriorityListPageView"];
-export type RfmSegmentCount = Schemas["RfmSegmentCountView"];
+export type PrioritySegmentCounts = Schemas["PrioritySegmentCountsView"];
+export type PrioritySegmentCount = Schemas["PrioritySegmentCountView"];
 export type MlSettings = Schemas["MlSettingsView"];
 export type MlSettingsRequest = Schemas["MlSettingsRequest"];
 export type PipelineStage = Schemas["DashboardPipelineStageView"];

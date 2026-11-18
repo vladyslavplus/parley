@@ -8,6 +8,7 @@ public sealed record TaskRow(
     Guid Id,
     string Title,
     string TitleNormalized,
+    string Type,
     string? Notes,
     DateTime? DueAt,
     DateTime? CompletedAt,

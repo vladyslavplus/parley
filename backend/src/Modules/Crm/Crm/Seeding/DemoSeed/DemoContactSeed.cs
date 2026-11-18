@@ -21,6 +21,8 @@ public sealed record DemoContactSeed(
     string? DealLostReason,
     DateTime? DealExpectedCloseOn,
     string? TaskTitle,
+    string? TaskType,
     DateTime? TaskDueAt,
     bool TaskCompleted,
+    Guid? TaskAssigneeUserId,
     string? NoteBody);

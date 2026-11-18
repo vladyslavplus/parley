@@ -20,6 +20,7 @@ namespace Parley.Crm.Features.Tasks.List;
 /// <param name="DealId">Only tasks linked to this deal.</param>
 /// <param name="CompanyId">Only tasks linked to this company.</param>
 /// <param name="Status">Only tasks with this status: <c>open</c>, <c>completed</c> or <c>overdue</c>.</param>
+/// <param name="Type">Only tasks of this type: <c>call</c>, <c>email</c>, <c>meeting</c> or <c>todo</c>.</param>
 /// <param name="Sort">Sort field: <c>due</c> (default), <c>title</c> or <c>created</c>.</param>
 /// <param name="Order">Sort direction: <c>asc</c> (default) or <c>desc</c>.</param>
 [RequiresPermission(Permissions.TasksRead)]
@@ -33,5 +34,6 @@ public sealed record ListTasksQuery(
     Guid? DealId,
     Guid? CompanyId,
     string? Status,
+    string? Type,
     string? Sort,
     string? Order) : IRequest<Result<KeysetCursorPage<TaskView>>>;

@@ -438,13 +438,15 @@
       "all": "All",
       "open": "Open",
       "completed": "Completed",
-      "overdue": "Overdue"
+      "overdue": "Overdue",
+      "overdueCount": "Overdue ({count})"
     },
     "table": {
       "title": "Title",
       "dueDate": "Due Date",
       "assignee": "Assignee",
-      "linkedRecord": "Linked Record"
+      "linkedRecord": "Linked Record",
+      "type": "Type"
     },
     "panel": {
       "title": "Tasks",
@@ -463,7 +465,8 @@
       "linkedCompany": "Company",
       "selectCompany": "Select company...",
       "notes": "Notes",
-      "notesPlaceholder": "Add notes or follow-up details..."
+      "notesPlaceholder": "Add notes or follow-up details...",
+      "type": "Type"
     },
     "errors": {
       "titleRequired": "Title is required",
@@ -472,7 +475,19 @@
       "assigneeRequired": "Assignee is required"
     },
     "deleteConfirmTitle": "Delete task",
-    "deleteConfirmDescription": "Are you sure you want to delete \"{title}\"? This action cannot be undone."
+    "deleteConfirmDescription": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+    "types": {
+      "call": "Call",
+      "email": "Email",
+      "meeting": "Meeting",
+      "todo": "To-do"
+    },
+    "typeTitle": "{type}: {title}",
+    "typeFilter": {
+      "label": "Type",
+      "placeholder": "Search types...",
+      "empty": "No types found"
+    }
   },
   "notes": {
     "title": "Notes",

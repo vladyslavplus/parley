@@ -26,8 +26,8 @@ public sealed class PipelineStage : BusinessEntity
     /// <summary>Win probability of a deal in this stage, in basis points (10000 = 100 %).</summary>
     public int ProbabilityBps { get; set; }
 
-    /// <summary>Index into the single cool color ramp of the interface.</summary>
-    public int ColorIndex { get; set; }
+    /// <summary>Colour the user picked, stored as a lowercase six-digit hex triplet such as <c>#2453be</c>.</summary>
+    public string Color { get; set; } = string.Empty;
 
     /// <summary>
     /// Renames the stage. A system name becomes a typed name only when the new text differs from both the stored

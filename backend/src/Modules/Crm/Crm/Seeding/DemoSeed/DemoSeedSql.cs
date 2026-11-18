@@ -46,7 +46,7 @@ public static class DemoSeedSql
         + "email text NOT NULL, phone text NOT NULL, job_title text NOT NULL, country text NULL, city text NULL, "
         + "owner_user_id uuid NOT NULL, company_id uuid NULL, company_name text NULL, "
         + "deal_stage_index integer NULL, deal_title text NULL, deal_lost_reason text NULL, deal_expected_close_on date NULL, "
-        + "task_title text NULL, task_due_at timestamptz NULL, task_completed boolean NULL, note_body text NULL) ON COMMIT DROP";
+        + "task_title text NULL, task_type text NULL, task_due_at timestamptz NULL, task_completed boolean NULL, task_assignee_user_id uuid NULL, note_body text NULL) ON COMMIT DROP";
 
     public const string CreateOrdersStaging =
         "CREATE TEMP TABLE " + DemoSeedConstants.OrdersStagingTable + " ("
@@ -56,7 +56,7 @@ public static class DemoSeedSql
     public const string CopyContacts =
         "COPY " + DemoSeedConstants.ContactsStagingTable
         + " (id, customer_ref, first_name, last_name, email, phone, job_title, country, city, owner_user_id, company_id, company_name, "
-        + "deal_stage_index, deal_title, deal_lost_reason, deal_expected_close_on, task_title, task_due_at, task_completed, note_body) "
+        + "deal_stage_index, deal_title, deal_lost_reason, deal_expected_close_on, task_title, task_type, task_due_at, task_completed, task_assignee_user_id, note_body) "
         + "FROM STDIN (FORMAT BINARY)";
 
     public const string CopyOrders =
@@ -75,8 +75,8 @@ public static class DemoSeedSql
 
     public static readonly string InsertPipelineStage = $"""
         INSERT INTO {PipelineStages}
-            (id, organization_id, created_at, updated_at, pipeline_id, name, system_key, position, kind, probability_bps, color_index)
-        VALUES (@id, @org, @now, @now, @pipeline_id, @name, @system_key, @position, @kind, @probability_bps, @color_index)
+            (id, organization_id, created_at, updated_at, pipeline_id, name, system_key, position, kind, probability_bps, color)
+        VALUES (@id, @org, @now, @now, @pipeline_id, @name, @system_key, @position, @kind, @probability_bps, @color)
         """;
 
     /// <summary>Inserts the companies of the staged contacts that do not exist yet.</summary>
@@ -197,13 +197,13 @@ public static class DemoSeedSql
         ON CONFLICT (id) DO NOTHING
         """;
 
-    /// <summary>One task per staged customer that has one, assigned to the customer's owner.</summary>
+    /// <summary>One task per staged customer that has one, assigned to the staged assignee (the customer's owner or a leadership account).</summary>
     public static readonly string InsertTasks = $"""
         INSERT INTO {Tasks}
-            (id, organization_id, created_at, updated_at, title, notes, due_at, completed_at, assignee_user_id,
+            (id, organization_id, created_at, updated_at, title, type, notes, due_at, completed_at, assignee_user_id,
              contact_id, deal_id, company_id, reminder_sent_at, deleted_at)
         SELECT md5('demo-task:' || s.id::text)::uuid, @org, LEAST(@now, s.task_due_at - INTERVAL '3 days'), @now, s.task_title,
-               NULL, s.task_due_at, CASE WHEN s.task_completed THEN s.task_due_at END, s.owner_user_id,
+               s.task_type, NULL, s.task_due_at, CASE WHEN s.task_completed THEN s.task_due_at END, s.task_assignee_user_id,
                c.id, NULL, NULL, NULL, NULL
         FROM {ContactsStaging} s
         JOIN {Contacts} c

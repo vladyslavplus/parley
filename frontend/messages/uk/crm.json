@@ -438,13 +438,15 @@
       "all": "Всі",
       "open": "Відкриті",
       "completed": "Виконані",
-      "overdue": "Прострочені"
+      "overdue": "Прострочені",
+      "overdueCount": "Прострочені ({count})"
     },
     "table": {
       "title": "Назва",
       "dueDate": "Термін",
       "assignee": "Виконавець",
-      "linkedRecord": "Пов'язаний запис"
+      "linkedRecord": "Пов'язаний запис",
+      "type": "Тип"
     },
     "panel": {
       "title": "Завдання",
@@ -463,7 +465,8 @@
       "linkedCompany": "Компанія",
       "selectCompany": "Оберіть компанію...",
       "notes": "Нотатки",
-      "notesPlaceholder": "Додайте коментар або деталі завдання..."
+      "notesPlaceholder": "Додайте коментар або деталі завдання...",
+      "type": "Тип"
     },
     "errors": {
       "titleRequired": "Назва обов'язкова",
@@ -472,7 +475,19 @@
       "assigneeRequired": "Виконавець обов'язковий"
     },
     "deleteConfirmTitle": "Видалити завдання",
-    "deleteConfirmDescription": "Ви дійсно бажаєте видалити \"{title}\"? Цю дію не можна скасувати."
+    "deleteConfirmDescription": "Ви дійсно бажаєте видалити \"{title}\"? Цю дію не можна скасувати.",
+    "types": {
+      "call": "Дзвінок",
+      "email": "Лист",
+      "meeting": "Зустріч",
+      "todo": "Справа"
+    },
+    "typeTitle": "{type}: {title}",
+    "typeFilter": {
+      "label": "Тип",
+      "placeholder": "Пошук типів...",
+      "empty": "Типів не знайдено"
+    }
   },
   "notes": {
     "title": "Нотатки",

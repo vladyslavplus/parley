@@ -9,5 +9,7 @@ public sealed record PriorityItemRow(
     decimal Value,
     string Mode,
     string Segment,
+    decimal? UpliftValue,
+    string? UpliftSegment,
     string[] ReasonCodes,
     string SuggestedAction);
