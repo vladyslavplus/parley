@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 
+import { VIEW_TRANSITION_CLASSES } from "@/constants/view-transitions";
 import { CompanyRecordView } from "@/features/crm/components/company-record-view";
 import { isAppLocale } from "@/i18n/routing";
 
@@ -26,5 +28,9 @@ export default async function CompanyDetailPage({
 }) {
   const { locale, id } = await params;
   if (!isAppLocale(locale)) notFound();
-  return <CompanyRecordView id={id} />;
+  return (
+    <ViewTransition enter={VIEW_TRANSITION_CLASSES.revealEnter} default="none">
+      <CompanyRecordView id={id} />
+    </ViewTransition>
+  );
 }

@@ -281,6 +281,7 @@ export function PriorityPanel() {
     },
     {
       id: "segment",
+      size: 190,
       header: () => (
         <span className="inline-flex items-center gap-1">
           {t("home.priority.columns.segment")}
@@ -308,6 +309,7 @@ export function PriorityPanel() {
   if (mlMode && canViewNumbers) {
     columns.push({
       id: "upliftValue",
+      size: 130,
       header: () => (
         <span className="flex items-center justify-end gap-1">
           {t("home.priority.upliftColumn")}
@@ -339,6 +341,7 @@ export function PriorityPanel() {
 
   columns.push({
     id: "next",
+    size: 240,
     header: () => (
       <span className="inline-flex items-center gap-1">
         {t("home.priority.columns.next")}

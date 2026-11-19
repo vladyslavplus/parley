@@ -81,7 +81,7 @@ export function TasksTable({
       id: "status",
       header: "",
       enableSorting: false,
-      size: 40,
+      size: 56,
       cell: ({ row }) => <TaskStatusCheckbox task={row.original} />,
     },
     {
@@ -186,6 +186,7 @@ export function TasksTable({
     },
     {
       id: "linked",
+      size: 200,
       header: t("table.linkedRecord"),
       enableSorting: false,
       cell: ({ row }) => {

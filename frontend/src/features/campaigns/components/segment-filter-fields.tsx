@@ -11,6 +11,7 @@ import { LIMITS } from "@/constants/limits";
 import { OwnerPicker } from "@/features/crm/components/owner-picker";
 import { useOwners } from "@/features/crm/hooks/use-owners";
 import { useTags } from "@/features/crm/hooks/use-tags";
+import { RfmSegmentsHint } from "@/features/insights/components/priority-hints";
 import { normalizeCountryCode } from "@/features/campaigns/lib/segment-definition";
 import type { SegmentFormValues } from "@/features/campaigns/schemas/segment-schema";
 import { cn } from "@/lib/utils";
@@ -239,7 +240,10 @@ export function SegmentFilterFields({ form, rfmSegments }: Props) {
       >
         <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <div className="space-y-0.5 text-xs">
-          <p className="font-medium text-foreground">{t("rfm.title")}</p>
+          <p className="flex items-center gap-1 font-medium text-foreground">
+            <span>{t("rfm.title")}</span>
+            <RfmSegmentsHint />
+          </p>
           <p className="text-muted-foreground">{t("rfm.unavailable")}</p>
           {rfmSegments.length > 0 ? (
             <p className="font-mono text-[11px] text-muted-foreground">

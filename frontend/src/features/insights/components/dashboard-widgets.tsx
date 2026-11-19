@@ -23,6 +23,10 @@ import { latestCampaignState } from "@/features/insights/lib/latest-campaign";
 import { tasksScopeOf } from "@/features/insights/lib/tasks-scope";
 import type { DashboardOverview } from "@/features/insights/types";
 import { Link } from "@/i18n/navigation";
+import {
+  DifferenceHint,
+  IntervalHint,
+} from "@/features/campaigns/components/campaign-hints";
 import { useMe } from "@/lib/api/hooks/use-api";
 import { formatCurrency } from "@/lib/formatters";
 import { safeStageColor } from "@/lib/stage-color";
@@ -204,7 +208,6 @@ function TasksDueWidget({ data }: { data: DashboardOverview }) {
 
 function LatestCampaignWidget({ data }: { data: DashboardOverview }) {
   const t = useTranslations("insights.dashboard.campaign");
-  const tHints = useTranslations("hints");
   const locale = useLocale();
   const campaign = data.latestCampaign;
 
@@ -265,7 +268,7 @@ function LatestCampaignWidget({ data }: { data: DashboardOverview }) {
       {!state.withheld && lift !== null ? (
         <p className="mt-3 flex items-start gap-1 text-sm font-semibold tabular-nums text-foreground">
           <span>{t("lift", { lift: points.format(lift) })}</span>
-          <InfoHint>{tHints("lift")}</InfoHint>
+          <DifferenceHint />
         </p>
       ) : null}
       {!state.withheld && low !== null && high !== null ? (
@@ -276,7 +279,7 @@ function LatestCampaignWidget({ data }: { data: DashboardOverview }) {
               high: points.format(high),
             })}
           </span>
-          <InfoHint>{tHints("liftInterval")}</InfoHint>
+          <IntervalHint />
         </p>
       ) : null}
       <p className="mt-3 text-xs text-muted-foreground">{t("description")}</p>

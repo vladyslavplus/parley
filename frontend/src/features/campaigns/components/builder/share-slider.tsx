@@ -2,10 +2,14 @@
 
 import { useId } from "react";
 
+import type { ReactNode } from "react";
+
 import { bpsToPercent } from "@/features/campaigns/lib/holdout-math";
 
 interface Props {
   label: string;
+  // The "what is this?" affordance next to the label.
+  hint?: ReactNode;
   valueBps: number;
   minBps: number;
   maxBps: number;
@@ -16,6 +20,7 @@ interface Props {
 // Percent slider over a basis-point value; arrow keys move one step.
 export function ShareSlider({
   label,
+  hint,
   valueBps,
   minBps,
   maxBps,
@@ -26,9 +31,12 @@ export function ShareSlider({
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-xs font-medium text-foreground">
-          {label}
-        </label>
+        <span className="flex items-center gap-1">
+          <label htmlFor={id} className="text-xs font-medium text-foreground">
+            {label}
+          </label>
+          {hint}
+        </span>
         <output
           htmlFor={id}
           className="text-sm font-semibold tabular-nums text-foreground"

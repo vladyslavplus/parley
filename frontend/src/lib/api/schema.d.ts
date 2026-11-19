@@ -10643,7 +10643,7 @@ export interface components {
              * @description Uplift the model estimated for the contact; null in the RFM mode, for a contact without a score, and for a caller without the ML view permission.
              */
             upliftValue: null | number | string;
-            /** @description Uplift segment the model gave the contact; visible to every caller with the insights permission, per DC-08. Null in the RFM mode and for a contact without a score. */
+            /** @description Uplift segment the model gave the contact; visible to every caller with the insights permission, unlike the uplift value. Null in the RFM mode and for a contact without a score. */
             upliftSegment: null | string;
             /** @description Reason codes that explain the value. */
             reasonCodes: string[];

@@ -3,7 +3,7 @@ using Parley.Campaigns.Shared;
 namespace Parley.Campaigns.Domain.Targeting;
 
 /// <summary>
-/// Score ranking of a campaign audience (CMP-08). The whole eligible audience is ranked across both arms, so the same
+/// Score ranking of a campaign audience. The whole eligible audience is ranked across both arms, so the same
 /// contacts are targeted in either arm and the arm-specific behavior comes after this step (domain model 7.4).
 /// Ties break on the contact id, so the order does not depend on the order the audience was read in.
 /// </summary>

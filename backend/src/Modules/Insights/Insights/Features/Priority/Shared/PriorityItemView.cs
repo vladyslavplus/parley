@@ -10,7 +10,7 @@ namespace Parley.Insights.Features.Priority.Shared;
 /// <param name="Mode">Scoring mode of the value.</param>
 /// <param name="Segment">RFM segment code.</param>
 /// <param name="UpliftValue">Uplift the model estimated for the contact; null in the RFM mode, for a contact without a score, and for a caller without the ML view permission.</param>
-/// <param name="UpliftSegment">Uplift segment the model gave the contact; visible to every caller with the insights permission, per DC-08. Null in the RFM mode and for a contact without a score.</param>
+/// <param name="UpliftSegment">Uplift segment the model gave the contact; visible to every caller with the insights permission, unlike the uplift value. Null in the RFM mode and for a contact without a score.</param>
 /// <param name="ReasonCodes">Reason codes that explain the value.</param>
 /// <param name="SuggestedAction">Next action code.</param>
 public sealed record PriorityItemView(

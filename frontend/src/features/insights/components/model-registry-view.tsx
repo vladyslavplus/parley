@@ -20,7 +20,7 @@ import { useCan } from "@/features/session/components/can";
 import { Alert } from "@/components/ui/alert";
 import { formatDateTime, formatNumber } from "@/lib/formatters";
 
-// The registry (INS-07): every synced scoring model, its source, when it was
+// The registry: every synced scoring model, its source, when it was
 // trained and synced, its metrics, and which one is in use. Running scoring sits
 // here too, for users who may run it.
 export function ModelRegistryView() {

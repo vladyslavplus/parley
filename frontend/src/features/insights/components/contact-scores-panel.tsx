@@ -32,7 +32,7 @@ import {
 import { useCan } from "@/features/session/components/can";
 import { formatNumber, formatRelativeAge } from "@/lib/formatters";
 
-// The scores of one contact (INS-05). Everyone sees the segment chips; the
+// The scores of one contact. Everyone sees the segment chips; the
 // numbers, their units and the model's own probabilities appear only with
 // `insights.ml.view`. Model, version and provenance are always shown next to
 // any score, and a demo model says what its estimate is and is not.

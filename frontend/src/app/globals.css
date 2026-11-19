@@ -2,6 +2,21 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* The sidebar as a narrow rail: chosen, or by default on a narrow screen. Driven
+   by CSS so the server's first paint already has the right width. The media
+   query matches SIDEBAR_RAIL_QUERY in constants/shell.ts. */
+@custom-variant rail {
+  &:where([data-sidebar="collapsed"], [data-sidebar="collapsed"] *) {
+    @slot;
+  }
+
+  @media (max-width: 1024px) {
+    &:where([data-sidebar="auto"], [data-sidebar="auto"] *) {
+      @slot;
+    }
+  }
+}
+
 @theme {
   --color-*: initial;
 
@@ -23,6 +38,7 @@
   --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-fade: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* One height for every toolbar and form control */
   --control-height: 2.25rem;
@@ -98,6 +114,16 @@
   html {
     background-color: var(--background);
     color: var(--foreground);
+    /* The page keeps its width whether or not it scrolls, so centred layouts
+       do not shift sideways when a taller page replaces a shorter one. */
+    scrollbar-gutter: stable;
+  }
+
+  /* The gutter above stays reserved while a dialog locks the page scroll, so
+     the margin the scroll lock adds for the vanished scrollbar would be a second
+     gutter and shift the page sideways. */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
   }
 
   html.dark,
@@ -373,10 +399,51 @@
     }
   }
 
-  ::view-transition-old(root),
+  /* View transitions. The page area is the only thing that animates: the root
+     stays live, so the sidebar, the top bar and any open menu keep responding,
+     and clicks pass through the overlay while a transition runs. */
+  ::view-transition {
+    pointer-events: none;
+  }
+
+  ::view-transition-old(root) {
+    display: none;
+  }
+
   ::view-transition-new(root) {
-    animation-duration: 150ms;
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation: none;
+  }
+
+  @keyframes view-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes view-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* Route change: a plain crossfade. Both sides share one duration and curve
+     and nothing moves, so the two snapshots add up to full opacity at every
+     frame and the page never dips or shifts. */
+  ::view-transition-old(.route-exit) {
+    animation: var(--duration-fast) var(--ease-fade) both view-fade-out;
+  }
+
+  ::view-transition-new(.route-enter) {
+    animation: var(--duration-fast) var(--ease-fade) both view-fade-in;
+  }
+
+  /* A loading skeleton gives way to the page it stood for. */
+  ::view-transition-old(.reveal-exit) {
+    animation: var(--duration-fast) var(--ease-fade) both view-fade-out;
+  }
+
+  ::view-transition-new(.reveal-enter) {
+    animation: var(--duration-fast) var(--ease-fade) both view-fade-in;
   }
 
   /* Responsive & accessible toast placement */

@@ -11,6 +11,11 @@ import { useServerTableState } from "@/components/data-table/use-server-table-st
 import { Button, buttonVariants } from "@/components/ui/button";
 import { PERMISSIONS } from "@/constants/permissions";
 import { ROUTES, campaignRoute } from "@/constants/routes";
+import {
+  HoldoutHint,
+  StatusHint,
+  TargetingHint,
+} from "@/features/campaigns/components/campaign-hints";
 import { CampaignStatusBadge } from "@/features/campaigns/components/campaign-status-badge";
 import { useCampaigns } from "@/features/campaigns/hooks/use-campaign-api";
 import { useStatusDimension } from "@/features/campaigns/hooks/use-status-dimension";
@@ -79,14 +84,24 @@ export function CampaignsList() {
     },
     {
       id: "status",
-      header: t("columns.status"),
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("columns.status")}
+          <StatusHint />
+        </span>
+      ),
       size: 140,
       cell: ({ row }) => <CampaignStatusBadge status={row.original.status} />,
     },
     {
       id: "holdout",
-      header: t("columns.holdout"),
-      size: 110,
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("columns.holdout")}
+          <HoldoutHint />
+        </span>
+      ),
+      size: 190,
       cell: ({ row }) => (
         <span className="text-xs tabular-nums text-muted-foreground">
           {toNumber(row.original.holdoutShareBps) / 100}%
@@ -95,7 +110,12 @@ export function CampaignsList() {
     },
     {
       id: "targeting",
-      header: t("columns.targeting"),
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("columns.targeting")}
+          <TargetingHint />
+        </span>
+      ),
       size: 180,
       cell: ({ row }) => {
         const mode = row.original.targetingMode;

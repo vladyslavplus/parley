@@ -14,6 +14,7 @@ import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
 import { AttemptKey } from "@/features/campaigns/lib/attempt-key";
 import { CAMPAIGN_STATUSES, toNumber } from "@/features/campaigns/types";
 import { useCan } from "@/features/session/components/can";
+import { StartSendingHint } from "@/features/campaigns/components/campaign-hints";
 import { toApiError } from "@/lib/errors";
 import { showErrorToast, showSuccessToast } from "@/lib/toasts";
 
@@ -87,6 +88,7 @@ export function SendControls({
           <Mail className="h-4 w-4" />
           <span>{testPending ? t("testSending") : t("test")}</span>
         </Button>
+        <StartSendingHint />
       </div>
       <p className="text-xs text-muted-foreground">{t("testHint")}</p>
 

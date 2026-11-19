@@ -126,6 +126,7 @@ export function CompaniesListView() {
   const columns: ColumnDef<Company, unknown>[] = [
     {
       id: "select",
+      size: 48,
       header: ({ table }) => (
         <input
           type="checkbox"
@@ -167,6 +168,7 @@ export function CompaniesListView() {
     },
     {
       id: "domain",
+      size: 170,
       accessorKey: "domain",
       header: t("columns.domain"),
       enableSorting: false,
@@ -197,6 +199,7 @@ export function CompaniesListView() {
     },
     {
       id: "country",
+      size: 120,
       accessorKey: "country",
       header: t("columns.country"),
       enableSorting: false,
@@ -211,6 +214,7 @@ export function CompaniesListView() {
     },
     {
       id: "industry",
+      size: 150,
       accessorKey: "industry",
       header: t("columns.industry"),
       enableSorting: false,
@@ -225,6 +229,7 @@ export function CompaniesListView() {
     },
     {
       id: "owner",
+      size: 170,
       header: t("columns.owner"),
       enableSorting: false,
       cell: ({ row }) => {
@@ -241,6 +246,7 @@ export function CompaniesListView() {
     },
     {
       id: "created",
+      size: 130,
       accessorKey: "createdAt",
       header: t("columns.created"),
       enableSorting: true,

@@ -50,20 +50,6 @@ services:
           cpus: "0.5"
           memory: 512m
 
-  redis:
-    profiles:
-      - redis
-    image: valkey/valkey:8-alpine@sha256:2602ace2be6569bc2bbb06f873776516ab9089821525be34f4305c67eb9db02a
-    command: ["valkey-server", "--appendonly", "yes", "--requirepass", "${VALKEY_PASSWORD:?Set VALKEY_PASSWORD in .env}"]
-    volumes:
-      - valkey-data:/data
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 256m
-
   # Scoring service (profile `ml`). Internal network for service-to-service calls. Artifacts are mounted read-only;
   # no training data is mounted. The key is required: the service and this file have no fallback. Local development
   # publishes the port in docker-compose.override.yml (see docker-compose.override.example.yml).
@@ -228,4 +214,3 @@ networks:
 
 volumes:
   pgdata:
-  valkey-data:

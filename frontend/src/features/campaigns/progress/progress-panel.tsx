@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { LoadingBlock } from "@/components/layout/loading-block";
 import { Alert } from "@/components/ui/alert";
+import { ProgressHint } from "@/features/campaigns/components/campaign-hints";
 import { useCampaignProgress } from "@/features/campaigns/hooks/use-campaign-delivery";
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
 import { summarizeProgress } from "@/features/campaigns/progress/progress-state";
@@ -38,9 +39,10 @@ export function ProgressPanel({
       <div className="flex items-center justify-between gap-3">
         <h2
           id="progress-title"
-          className="text-base font-semibold text-foreground"
+          className="flex items-center gap-1.5 text-base font-semibold text-foreground"
         >
-          {t("title")}
+          <span>{t("title")}</span>
+          <ProgressHint />
         </h2>
         <p
           role="status"

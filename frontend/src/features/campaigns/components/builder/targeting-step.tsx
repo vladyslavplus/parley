@@ -12,6 +12,7 @@ import {
 import { TARGETING_MODES } from "@/features/campaigns/types";
 import { ProvenanceBadge } from "@/features/insights/components/provenance-badge";
 import { useUpliftReadiness } from "@/features/insights/hooks/use-scoring";
+import { TargetingHint } from "@/features/campaigns/components/campaign-hints";
 import { useCan } from "@/features/session/components/can";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,10 @@ export function TargetingStep({ draft, onChange }: Props) {
 
   return (
     <div className="max-w-xl space-y-5">
+      <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+        <span>{t("title")}</span>
+        <TargetingHint />
+      </div>
       <div role="radiogroup" aria-label={t("title")} className="space-y-1.5">
         {TARGETING_MODES.map((mode) => {
           const isUplift = mode === "top_uplift";

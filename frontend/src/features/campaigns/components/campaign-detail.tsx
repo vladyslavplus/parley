@@ -17,6 +17,7 @@ import { RecipientsPanel } from "@/features/campaigns/recipients/recipients-pane
 import { ResultsPanel } from "@/features/campaigns/results/results-panel";
 import { ReviewStep } from "@/features/campaigns/components/builder/review-step";
 import { CampaignBuilder } from "@/features/campaigns/components/campaign-builder";
+import { StatusHint } from "@/features/campaigns/components/campaign-hints";
 import { CampaignStatusBadge } from "@/features/campaigns/components/campaign-status-badge";
 import { CampaignTargetingModel } from "@/features/campaigns/components/targeting-model";
 import { useCampaign } from "@/features/campaigns/hooks/use-campaign-api";
@@ -81,6 +82,7 @@ function CampaignReadOnly({ campaign }: { campaign: Campaign }) {
               {campaign.name}
             </h1>
             <CampaignStatusBadge status={campaign.status} />
+            <StatusHint />
             {isDemo ? (
               <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[11px] font-medium text-foreground">
                 {t("demoBadge")}

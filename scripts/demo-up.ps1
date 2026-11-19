@@ -176,7 +176,6 @@ $generated = @(
     @{ Key = "POSTGRES_USER"; Value = "parley" },
     @{ Key = "POSTGRES_PASSWORD"; Value = (New-RandomHex 24) },
     @{ Key = "POSTGRES_DB"; Value = "parley" },
-    @{ Key = "VALKEY_PASSWORD"; Value = (New-RandomHex 24) },
     @{ Key = "PARLEY_ML_KEY"; Value = (New-RandomHex 32) },
     @{ Key = "AUTH_SIGNING_KEY"; Value = (New-RandomHex 32) },
     @{ Key = "UNSUBSCRIBE_TOKEN_KEY"; Value = (New-RandomHex 32) },

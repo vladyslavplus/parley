@@ -12,6 +12,7 @@ import { PERMISSIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
 import { LIMITS } from "@/constants/limits";
 import { SHELL_SHORTCUTS } from "@/constants/shortcuts";
+import type { SIDEBAR_MODES } from "@/constants/shell";
 import { companyListQueryOptions } from "@/features/crm/hooks/use-companies";
 import { contactListQueryOptions } from "@/features/crm/hooks/use-contacts";
 import { useOverdueTasksCount } from "@/features/tasks/hooks/use-tasks";
@@ -33,6 +34,8 @@ import {
 const LOGO_SIZE = 28;
 
 interface Props {
+  /** What `data-sidebar` says, so CSS can pick the rail on the first paint. */
+  mode: (typeof SIDEBAR_MODES)[keyof typeof SIDEBAR_MODES];
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
   mobileOpen: boolean;
@@ -40,6 +43,7 @@ interface Props {
 }
 
 export function Sidebar({
+  mode,
   collapsed,
   onCollapsedChange,
   mobileOpen,
@@ -80,7 +84,7 @@ export function Sidebar({
     }
   }
 
-  function renderItem(item: NavItemConfig) {
+  function renderItem(item: NavItemConfig, collapsed: boolean) {
     const Icon = item.icon;
     const active =
       pathname === item.href ||
@@ -116,31 +120,28 @@ export function Sidebar({
       >
         <span className="relative flex shrink-0">
           <Icon className="h-4 w-4" />
-          {overdue && collapsed ? (
+          {overdue ? (
             <span
-              className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-card"
+              className="absolute -right-1 -top-1 hidden h-2 w-2 rounded-full bg-destructive ring-2 ring-card rail:block"
               aria-hidden="true"
             />
           ) : null}
         </span>
         <span
           className={cn(
-            "truncate whitespace-nowrap transition-opacity duration-150 flex-1",
-            collapsed ? "opacity-0 pointer-events-none md:w-0" : "opacity-100",
+            "truncate whitespace-nowrap transition-opacity duration-150 flex-1 rail:pointer-events-none rail:w-0 rail:opacity-0",
           )}
         >
           {label}
         </span>
         {overdue ? (
           <>
-            {collapsed ? null : (
-              <span
-                aria-hidden="true"
-                className="ml-auto flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-destructive/10 px-1 text-[10px] font-semibold leading-none tabular-nums text-destructive"
-              >
-                {overdueBadgeText(overdueCount)}
-              </span>
-            )}
+            <span
+              aria-hidden="true"
+              className="ml-auto flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-destructive/10 px-1 text-[10px] font-semibold leading-none tabular-nums text-destructive rail:hidden"
+            >
+              {overdueBadgeText(overdueCount)}
+            </span>
             <span className="sr-only">{overdueText}</span>
           </>
         ) : null}
@@ -157,103 +158,77 @@ export function Sidebar({
     return link;
   }
 
-  const sidebarContent = (
-    <div className="flex h-full w-56 flex-col justify-between p-3 select-none shrink-0">
-      <div className="space-y-6">
-        {/* Brand mark pointing to /app */}
-        <Link
-          href={ROUTES.app}
-          className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-control)] hover:opacity-80 transition-opacity"
-        >
-          <LogoMark size={LOGO_SIZE} />
-          <span
-            className={cn(
-              "font-display font-semibold text-base tracking-[-0.01em] text-foreground whitespace-nowrap transition-opacity duration-150",
-              collapsed
-                ? "opacity-0 pointer-events-none md:w-0"
-                : "opacity-100",
-            )}
+  // The drawer on a phone always shows the labels; only the desktop rail collapses.
+  function sidebarContent(collapsed: boolean) {
+    return (
+      <div className="flex h-full w-56 flex-col justify-between p-3 select-none shrink-0">
+        <div className="space-y-6">
+          {/* Brand mark pointing to /app */}
+          <Link
+            href={ROUTES.app}
+            className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-control)] hover:opacity-80 transition-opacity"
           >
-            {tCommon("appName")}
-          </span>
-        </Link>
+            <LogoMark size={LOGO_SIZE} />
+            <span className="font-display text-base font-semibold tracking-[-0.01em] text-foreground whitespace-nowrap transition-opacity duration-150 rail:pointer-events-none rail:w-0 rail:opacity-0">
+              {tCommon("appName")}
+            </span>
+          </Link>
 
-        {/* Main Section */}
-        <nav aria-label={tShell("sidebar.navigation")} className="space-y-1">
-          {MAIN_NAV_ITEMS.map(renderItem)}
-        </nav>
+          {/* Main Section */}
+          <nav aria-label={tShell("sidebar.navigation")} className="space-y-1">
+            {MAIN_NAV_ITEMS.map((item) => renderItem(item, collapsed))}
+          </nav>
 
-        {/* Settings Section */}
-        <nav aria-label={tShell("sidebar.settings")} className="space-y-1">
-          {SETTINGS_NAV_ITEMS.map(renderItem)}
-        </nav>
+          {/* Settings Section */}
+          <nav aria-label={tShell("sidebar.settings")} className="space-y-1">
+            {SETTINGS_NAV_ITEMS.map((item) => renderItem(item, collapsed))}
+          </nav>
 
-        {/* Development Section (dev only) */}
-        {process.env.NODE_ENV !== "production" && (
-          <div className="space-y-1">
-            <h3
-              className={cn(
-                "px-3 text-xs font-medium text-muted-foreground whitespace-nowrap transition-opacity duration-150",
-                collapsed
-                  ? "opacity-0 pointer-events-none md:w-0"
-                  : "opacity-100",
-              )}
-            >
-              {tShell("sidebar.development")}
-            </h3>
-            <nav
-              aria-label={tShell("sidebar.development")}
-              className="space-y-1"
-            >
-              {DEV_NAV_ITEMS.map(renderItem)}
-            </nav>
-          </div>
-        )}
-      </div>
-
-      {/* Collapse Toggle Footer (desktop only) */}
-      <div className="hidden border-t border-border pt-2 md:block">
-        <Button
-          variant="secondary"
-          onClick={() => onCollapsedChange(!collapsed)}
-          className={cn(
-            "h-8 text-xs text-muted-foreground hover:text-foreground overflow-hidden",
-            collapsed
-              ? "w-10 p-0 justify-center"
-              : "w-full justify-between px-3",
+          {/* Development Section (dev only) */}
+          {process.env.NODE_ENV !== "production" && (
+            <div className="space-y-1">
+              <h3 className="px-3 text-xs font-medium text-muted-foreground whitespace-nowrap transition-opacity duration-150 rail:pointer-events-none rail:w-0 rail:opacity-0">
+                {tShell("sidebar.development")}
+              </h3>
+              <nav
+                aria-label={tShell("sidebar.development")}
+                className="space-y-1"
+              >
+                {DEV_NAV_ITEMS.map((item) => renderItem(item, collapsed))}
+              </nav>
+            </div>
           )}
-          aria-label={
-            collapsed ? tShell("sidebar.expand") : tShell("sidebar.collapse")
-          }
-        >
-          <span
-            className={cn(
-              "whitespace-nowrap transition-opacity duration-150",
-              collapsed ? "opacity-0 pointer-events-none w-0" : "opacity-100",
-            )}
+        </div>
+
+        {/* Collapse Toggle Footer (desktop only) */}
+        <div className="hidden border-t border-border pt-2 md:block">
+          <Button
+            variant="secondary"
+            onClick={() => onCollapsedChange(!collapsed)}
+            className="h-8 w-full justify-between overflow-hidden px-3 text-xs text-muted-foreground hover:text-foreground rail:w-10 rail:justify-center rail:p-0"
+            aria-label={
+              collapsed ? tShell("sidebar.expand") : tShell("sidebar.collapse")
+            }
           >
-            {tShell("sidebar.collapse")}
-          </span>
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4 shrink-0" />
-          ) : (
-            <ChevronLeft className="h-4 w-4 shrink-0" />
-          )}
-        </Button>
+            <span className="whitespace-nowrap transition-opacity duration-150 rail:pointer-events-none rail:w-0 rail:opacity-0">
+              {tShell("sidebar.collapse")}
+            </span>
+            <ChevronRight className="hidden h-4 w-4 shrink-0 rail:block" />
+            <ChevronLeft className="h-4 w-4 shrink-0 rail:hidden" />
+          </Button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   return (
     <>
       {/* Desktop & Tablet Sidebar */}
       <aside
-        className={cn(
-          "hidden md:flex flex-col sticky top-0 h-dvh border-r border-border bg-card overflow-hidden transition-[width] duration-200 motion-reduce:transition-none shrink-0",
-          collapsed ? "w-16" : "w-56",
-        )}
+        data-sidebar={mode}
+        className="hidden md:flex flex-col sticky top-0 h-dvh w-56 border-r border-border bg-card overflow-hidden transition-[width] duration-200 motion-reduce:transition-none shrink-0 rail:w-16"
       >
-        {sidebarContent}
+        {sidebarContent(collapsed)}
       </aside>
 
       {/* Mobile Drawer Backdrop + Sheet (Radix Dialog) */}
@@ -264,7 +239,7 @@ export function Sidebar({
             <Dialog.Title className="sr-only">
               {tCommon("appName")}
             </Dialog.Title>
-            {sidebarContent}
+            {sidebarContent(false)}
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
