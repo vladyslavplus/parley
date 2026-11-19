@@ -14,6 +14,13 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { PERMISSIONS } from "@/constants/permissions";
 import { contactRecordRoute } from "@/constants/routes";
+import {
+  ConversionColumnHint,
+  HoldoutHint,
+  RecipientsHint,
+  SendStatusHint,
+  TargetedHint,
+} from "@/features/campaigns/components/campaign-hints";
 import { useOrganizationCurrency } from "@/features/deals/hooks/use-organization-currency";
 import { useCampaignRecipients } from "@/features/campaigns/hooks/use-campaign-recipients";
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
@@ -227,7 +234,13 @@ export function RecipientsPanel({
     },
     {
       id: "group",
-      header: t("columns.group"),
+      size: 140,
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("columns.group")}
+          <HoldoutHint />
+        </span>
+      ),
       enableSorting: false,
       cell: ({ row }) =>
         row.original.arm === "holdout" ? (
@@ -245,7 +258,13 @@ export function RecipientsPanel({
     },
     {
       id: "targeted",
-      header: t("columns.targeted"),
+      size: 120,
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("columns.targeted")}
+          <TargetedHint />
+        </span>
+      ),
       enableSorting: false,
       cell: ({ row }) => (
         <span className="text-xs text-foreground">
@@ -255,7 +274,13 @@ export function RecipientsPanel({
     },
     {
       id: "sendStatus",
-      header: t("columns.sendStatus"),
+      size: 150,
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("columns.sendStatus")}
+          <SendStatusHint />
+        </span>
+      ),
       enableSorting: false,
       cell: ({ row }) =>
         row.original.sendStatus ? (
@@ -270,7 +295,13 @@ export function RecipientsPanel({
     },
     {
       id: "conversion",
-      header: t("columns.conversion"),
+      size: 150,
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("columns.conversion")}
+          <ConversionColumnHint />
+        </span>
+      ),
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex flex-col gap-0.5">
@@ -287,7 +318,13 @@ export function RecipientsPanel({
     },
     {
       id: "revenue",
-      header: t("columns.revenue"),
+      size: 130,
+      header: () => (
+        <span className="inline-flex items-center gap-1">
+          {t("columns.revenue")}
+          <ConversionColumnHint />
+        </span>
+      ),
       enableSorting: false,
       cell: ({ row }) => {
         if (row.original.revenue === null) {
@@ -308,6 +345,7 @@ export function RecipientsPanel({
     },
     {
       id: "email",
+      size: 200,
       header: t("columns.email"),
       enableSorting: false,
       cell: ({ row }) => {
@@ -345,9 +383,10 @@ export function RecipientsPanel({
       <div>
         <h2
           id="recipients-title"
-          className="text-base font-semibold text-foreground"
+          className="flex items-center gap-1.5 text-base font-semibold text-foreground"
         >
-          {t("title")}
+          <span>{t("title")}</span>
+          <RecipientsHint />
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">{t("subtitle")}</p>
       </div>

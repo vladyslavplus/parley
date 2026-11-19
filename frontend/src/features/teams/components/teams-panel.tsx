@@ -198,6 +198,7 @@ export function TeamsPanel() {
     },
     {
       id: "id",
+      size: 300,
       accessorKey: "id",
       header: t("columns.id"),
       enableSorting: false,
@@ -209,6 +210,7 @@ export function TeamsPanel() {
     },
     {
       id: "actions",
+      size: 120,
       header: () => <span className="sr-only">{t("columns.actions")}</span>,
       enableSorting: false,
       cell: ({ row }) => {

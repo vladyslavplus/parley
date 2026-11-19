@@ -32,6 +32,7 @@ import {
 } from "@/features/campaigns/types";
 import { ERROR_CODES } from "@/constants/error-codes";
 import { toApiError } from "@/lib/errors";
+import { VariablesHint } from "@/features/campaigns/components/campaign-hints";
 import { showErrorToast, showSuccessToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 
@@ -207,8 +208,9 @@ function EditorBody({
           </FormField>
 
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-foreground">
-              {t("variables.title")}
+            <p className="flex items-center gap-1 text-xs font-medium text-foreground">
+              <span>{t("variables.title")}</span>
+              <VariablesHint />
             </p>
             <div className="flex flex-wrap gap-1.5">
               {TEMPLATE_VARIABLES.map((name) => (

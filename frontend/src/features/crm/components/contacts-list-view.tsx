@@ -206,6 +206,7 @@ export function ContactsListView() {
   const columns: ColumnDef<Contact, unknown>[] = [
     {
       id: "select",
+      size: 48,
       header: ({ table }) => (
         <input
           type="checkbox"
@@ -256,6 +257,7 @@ export function ContactsListView() {
     },
     {
       id: "email",
+      size: 230,
       accessorKey: "email",
       header: t("columns.email"),
       enableSorting: false,
@@ -270,6 +272,7 @@ export function ContactsListView() {
     },
     {
       id: "phone",
+      size: 170,
       accessorKey: "phone",
       header: t("columns.phone"),
       enableSorting: false,
@@ -284,6 +287,7 @@ export function ContactsListView() {
     },
     {
       id: "company",
+      size: 170,
       header: t("columns.company"),
       enableSorting: false,
       cell: ({ row }) => {
@@ -311,6 +315,7 @@ export function ContactsListView() {
     },
     {
       id: "owner",
+      size: 140,
       header: t("columns.owner"),
       enableSorting: false,
       cell: ({ row }) => {
@@ -327,6 +332,7 @@ export function ContactsListView() {
     },
     {
       id: "tags",
+      size: 110,
       header: t("columns.tags"),
       enableSorting: false,
       cell: ({ row }) => {
@@ -359,6 +365,7 @@ export function ContactsListView() {
     },
     {
       id: "segment",
+      size: 110,
       header: t("columns.segment"),
       enableSorting: false,
       cell: ({ row }) => {
@@ -375,6 +382,7 @@ export function ContactsListView() {
     },
     {
       id: "created",
+      size: 110,
       accessorKey: "createdAt",
       header: t("columns.created"),
       enableSorting: true,

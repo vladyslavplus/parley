@@ -30,6 +30,9 @@ export const LIMITS = {
   queryGcTimeMs: 5 * 60_000,
   tablePageSizes: [20, 50, 100] as const,
   defaultTablePageSize: 20,
+  // A table column without a `size` shares the leftover width; it never gets
+  // narrower than this, so a narrow screen scrolls the table sideways instead.
+  tableFlexColumnMinWidth: 180,
   toastDurationMs: 4000,
   toastErrorDurationMs: 8000,
   toastUndoDurationMs: 8000,

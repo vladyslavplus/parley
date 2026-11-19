@@ -88,6 +88,7 @@ export function OrdersPanel({ contactId }: Props) {
     },
     {
       id: "ordered",
+      size: 170,
       accessorKey: "orderedAt",
       header: t("columns.ordered"),
       enableSorting: true,
@@ -102,6 +103,7 @@ export function OrdersPanel({ contactId }: Props) {
     },
     {
       id: "lines",
+      size: 110,
       accessorKey: "lineCount",
       header: t("columns.lines"),
       enableSorting: false,
@@ -113,6 +115,7 @@ export function OrdersPanel({ contactId }: Props) {
     },
     {
       id: "amount",
+      size: 150,
       accessorKey: "totalAmount",
       header: t("columns.total"),
       enableSorting: true,

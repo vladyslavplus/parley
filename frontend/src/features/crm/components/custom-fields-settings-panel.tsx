@@ -244,6 +244,7 @@ export function CustomFieldsSettingsPanel() {
     },
     {
       id: "key",
+      size: 120,
       accessorKey: "key",
       header: t("fields.key"),
       enableSorting: false,
@@ -255,6 +256,7 @@ export function CustomFieldsSettingsPanel() {
     },
     {
       id: "fieldType",
+      size: 130,
       accessorKey: "fieldType",
       header: t("fields.fieldType"),
       enableSorting: false,
@@ -266,6 +268,7 @@ export function CustomFieldsSettingsPanel() {
     },
     {
       id: "isRequired",
+      size: 120,
       accessorKey: "isRequired",
       header: t("fields.isRequired"),
       enableSorting: false,
@@ -278,6 +281,7 @@ export function CustomFieldsSettingsPanel() {
     },
     {
       id: "position",
+      size: 150,
       accessorKey: "position",
       header: t("fields.position"),
       enableSorting: true,
@@ -289,6 +293,7 @@ export function CustomFieldsSettingsPanel() {
     },
     {
       id: "actions",
+      size: 110,
       header: () => <span className="block text-right">{t("actions")}</span>,
       enableSorting: false,
       cell: ({ row }) => {

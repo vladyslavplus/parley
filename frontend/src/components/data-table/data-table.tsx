@@ -88,6 +88,9 @@ export function DataTable<TData>({
   const table = useReactTable({
     data,
     columns,
+    // TanStack gives every column a default `size` of 150. Dropping it keeps
+    // "no size" meaning "share the leftover width" in the layout below.
+    defaultColumn: { size: undefined },
     getRowId,
     state: {
       sorting: activeSorting,
@@ -165,6 +168,18 @@ export function DataTable<TData>({
   const densityPadding =
     density === "compact" ? "py-2.5 px-4 text-xs" : "py-3.5 px-4 text-sm";
 
+  // Column widths come from the column definitions, never from the content, so
+  // the loading skeleton and the loaded rows share one layout and nothing
+  // shifts when data arrives. A column with a `size` is that wide; the others
+  // share what is left, down to a minimum that makes a narrow screen scroll.
+  const visibleColumns = table.getVisibleLeafColumns();
+  const tableMinWidth = visibleColumns.reduce(
+    (sum, column) =>
+      sum + (column.columnDef.size ?? LIMITS.tableFlexColumnMinWidth),
+    0,
+  );
+  const cellClassName = cn(densityPadding, "overflow-hidden wrap-anywhere");
+
   const contextValue = {
     table,
     density,
@@ -193,7 +208,7 @@ export function DataTable<TData>({
               keeps chaining: a tall table could otherwise fill the whole screen. */}
           <div
             {...TABLE_SCROLL_PROPS}
-            className="overflow-x-auto max-h-[min(650px,70dvh)] relative [@media(hover:hover)_and_(pointer:fine)]:overscroll-y-contain"
+            className="overflow-x-auto max-h-[min(650px,70dvh)] relative [scrollbar-gutter:stable] [@media(hover:hover)_and_(pointer:fine)]:overscroll-y-contain"
           >
             <table
               ref={tableRef}
@@ -202,8 +217,17 @@ export function DataTable<TData>({
               aria-activedescendant={activeRowId}
               tabIndex={0}
               onKeyDown={handleKeyDown}
-              className="w-full text-left border-collapse focus-visible:outline-2 focus-visible:outline-ring"
+              style={{ minWidth: tableMinWidth }}
+              className="w-full table-fixed text-left border-collapse focus-visible:outline-2 focus-visible:outline-ring"
             >
+              <colgroup>
+                {visibleColumns.map((column) => (
+                  <col
+                    key={column.id}
+                    style={{ width: column.columnDef.size }}
+                  />
+                ))}
+              </colgroup>
               <thead className="border-b border-border bg-muted/50 text-xs font-semibold text-muted-foreground sticky top-0 z-20 backdrop-blur-md">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
@@ -270,8 +294,8 @@ export function DataTable<TData>({
                 {loading ? (
                   Array.from({ length: 6 }).map((_, i) => (
                     <tr key={i}>
-                      {columns.map((_, colIdx) => (
-                        <td key={colIdx} className={densityPadding}>
+                      {visibleColumns.map((column) => (
+                        <td key={column.id} className={cellClassName}>
                           <Skeleton className="h-4 w-full" />
                         </td>
                       ))}
@@ -313,7 +337,7 @@ export function DataTable<TData>({
                         )}
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className={densityPadding}>
+                          <td key={cell.id} className={cellClassName}>
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext(),
@@ -325,7 +349,10 @@ export function DataTable<TData>({
                   })
                 ) : (
                   <tr>
-                    <td colSpan={columns.length} className="p-8 text-center">
+                    <td
+                      colSpan={visibleColumns.length}
+                      className="p-8 text-center"
+                    >
                       <EmptyState
                         title={emptyTitle ?? t("empty.title")}
                         description={emptyDescription ?? t("empty.description")}

@@ -13,11 +13,9 @@
     "mlModels": "Model registry"
   },
   "roles": {
-    "owner": "Owner",
     "admin": "Administrator",
     "sales_manager": "Sales manager",
     "sales_rep": "Sales representative",
-    "member": "Member",
     "marketer": "Marketer",
     "viewer": "Viewer"
   },

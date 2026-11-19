@@ -74,7 +74,7 @@ until every placeholder is replaced. Local values live in git-ignored files that
    `POSTGRES_*`, `AUTH_SIGNING_KEY`, `UNSUBSCRIBE_TOKEN_KEY`, `PARLEY_ML_KEY` and the demo password have no usable
    committed value; `scripts/demo-up.ps1` generates them, and the API refuses to start while one is a placeholder.
 
-2. Create the local port overrides. They publish PostgreSQL, the Aspire dashboard, Redis and the scoring service on
+2. Create the local port overrides. They publish PostgreSQL, the Aspire dashboard and the scoring service on
    `127.0.0.1` only (Mailpit and the `app` profile publish their ports already):
 
    ```powershell
@@ -96,8 +96,7 @@ until every placeholder is replaced. Local values live in git-ignored files that
 
 With the override in place, PostgreSQL with vector search is on `127.0.0.1:5433`, Mailpit is on `127.0.0.1:8025`
 (SMTP `127.0.0.1:1025`), and the Aspire dashboard is on `127.0.0.1:18888` (OpenTelemetry on `127.0.0.1:4317`).
-The `redis` profile starts a Valkey container, but the API does not connect to it: HybridCache keeps its entries in
-process memory, and no Redis client or connection setting exists in the API (recorded as a known issue).
+HybridCache keeps its entries in process memory; the API has no Redis client or connection setting.
 
 ## Run the API
 

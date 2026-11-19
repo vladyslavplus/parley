@@ -89,6 +89,7 @@ export function AuditPanel() {
   const columns: ColumnDef<Schemas["AuditEventView"], unknown>[] = [
     {
       id: "occurredAt",
+      size: 180,
       accessorKey: "occurredAt",
       header: t("columns.time"),
       enableSorting: true,
@@ -104,6 +105,7 @@ export function AuditPanel() {
     },
     {
       id: "action",
+      size: 200,
       accessorKey: "action",
       header: t("columns.action"),
       enableSorting: false,
@@ -148,6 +150,7 @@ export function AuditPanel() {
     },
     {
       id: "actor",
+      size: 200,
       accessorKey: "actorUserId",
       header: t("columns.actor"),
       enableSorting: false,

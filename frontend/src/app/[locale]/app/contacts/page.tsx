@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 
+import { VIEW_TRANSITION_CLASSES } from "@/constants/view-transitions";
 import { ContactsListView } from "@/features/crm/components/contacts-list-view";
 import { isAppLocale } from "@/i18n/routing";
 
@@ -27,5 +29,9 @@ export default async function ContactsPage({
   const { locale } = await params;
   if (!isAppLocale(locale)) notFound();
 
-  return <ContactsListView />;
+  return (
+    <ViewTransition enter={VIEW_TRANSITION_CLASSES.revealEnter} default="none">
+      <ContactsListView />
+    </ViewTransition>
+  );
 }

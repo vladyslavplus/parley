@@ -14,6 +14,7 @@ import { useAudienceCount } from "@/features/campaigns/hooks/use-audience-count"
 import { useErrorText } from "@/features/campaigns/hooks/use-error-text";
 import { useSegments } from "@/features/campaigns/hooks/use-library";
 import type { CampaignDraft } from "@/features/campaigns/lib/campaign-draft";
+import { AudienceHint } from "@/features/campaigns/components/campaign-hints";
 import { useCan } from "@/features/session/components/can";
 import { cn } from "@/lib/utils";
 
@@ -74,8 +75,9 @@ export function AudienceStep({ draft, onChange }: Props) {
       <div className="space-y-2">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">
-              {t("choose")}
+            <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <span>{t("choose")}</span>
+              <AudienceHint />
             </h2>
             <p className="text-xs text-muted-foreground">{t("chooseHint")}</p>
           </div>

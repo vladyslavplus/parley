@@ -6,9 +6,22 @@ import type { ReactNode } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { InfoHint } from "@/components/ui/info-hint";
 import { LoadingBlock } from "@/components/layout/loading-block";
 import { PERMISSIONS } from "@/constants/permissions";
+import {
+  AttributionWindowHint,
+  ConversionRateHint,
+  DifferenceHint,
+  HoldoutHint,
+  IntervalHint,
+  MdeHint,
+  PValueHint,
+  ProvisionalHint,
+  RevenueDifferenceHint,
+  SimulatedHint,
+  SrmHint,
+  TargetedHint,
+} from "@/features/campaigns/components/campaign-hints";
 import { CampaignTargetingModel } from "@/features/campaigns/components/targeting-model";
 import type { CampaignModelSnapshot } from "@/features/campaigns/components/targeting-model";
 import { useOrganizationCurrency } from "@/features/deals/hooks/use-organization-currency";
@@ -179,7 +192,6 @@ export function ResultsPanel({
   snapshot?: CampaignModelSnapshot | null;
 }) {
   const t = useTranslations("campaigns.results");
-  const tHints = useTranslations("hints");
   const locale = useLocale();
   const errorText = useErrorText();
   const currency = useOrganizationCurrency();
@@ -217,6 +229,7 @@ export function ResultsPanel({
     }
   }
 
+  const windowDays = toNumber(results.attributionWindowDays);
   const windowText =
     results.windowState === WINDOW_STATES.open
       ? t("window.open", {
@@ -253,12 +266,15 @@ export function ResultsPanel({
               <span className="inline-flex h-5 items-center rounded-full bg-warning/10 px-2 text-[11px] font-medium text-warning">
                 {t("simulated")}
               </span>
-              <InfoHint>{tHints("simulated")}</InfoHint>
+              <SimulatedHint />
             </span>
           ) : null}
           {view.calculated ? (
-            <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[11px] font-medium text-muted-foreground">
-              {view.provisional ? t("provisional") : t("final")}
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[11px] font-medium text-muted-foreground">
+                {view.provisional ? t("provisional") : t("final")}
+              </span>
+              <ProvisionalHint />
             </span>
           ) : null}
         </div>
@@ -313,16 +329,25 @@ export function ResultsPanel({
           <thead>
             <tr className="text-xs text-muted-foreground">
               <th scope="col" className="py-2 pr-3 text-left font-medium">
-                {t("table.group")}
+                <span className="inline-flex items-center gap-1">
+                  {t("table.group")}
+                  <HoldoutHint />
+                </span>
               </th>
               <th scope="col" className="py-2 pr-3 text-right font-medium">
-                {t("table.targeted")}
+                <span className="inline-flex items-center gap-1">
+                  {t("table.targeted")}
+                  <TargetedHint />
+                </span>
               </th>
               <th scope="col" className="py-2 pr-3 text-right font-medium">
                 {t("table.converted")}
               </th>
               <th scope="col" className="py-2 pr-3 text-right font-medium">
-                {t("table.rate")}
+                <span className="inline-flex items-center gap-1">
+                  {t("table.rate")}
+                  <ConversionRateHint days={windowDays} />
+                </span>
               </th>
               <th scope="col" className="py-2 text-right font-medium">
                 {t("table.revenue")}
@@ -366,7 +391,7 @@ export function ResultsPanel({
         {withheld ? null : (
           <Stat
             label={t("stats.difference")}
-            hint={<InfoHint>{tHints("lift")}</InfoHint>}
+            hint={<DifferenceHint />}
             value={
               lift === null
                 ? "—"
@@ -377,6 +402,7 @@ export function ResultsPanel({
         {withheld ? null : (
           <Stat
             label={t("stats.interval")}
+            hint={<IntervalHint />}
             value={
               low === null || high === null
                 ? "—"
@@ -387,12 +413,14 @@ export function ResultsPanel({
         {withheld ? null : (
           <Stat
             label={t("stats.pValue")}
+            hint={<PValueHint />}
             value={p === null ? "—" : formatPValue(p, locale)}
           />
         )}
         {withheld ? null : (
           <Stat
             label={t("stats.revenueDifference")}
+            hint={<RevenueDifferenceHint />}
             value={
               results.incrementalRevenue === null
                 ? "—"
@@ -406,17 +434,21 @@ export function ResultsPanel({
         )}
         <Stat
           label={t("stats.mde")}
-          hint={<InfoHint>{tHints("mde")}</InfoHint>}
+          hint={<MdeHint />}
           value={
             mde === null ? "—" : `${plain.format(mde)} ${t("stats.points")}`
           }
         />
         <Stat
           label={t("stats.srm")}
-          hint={<InfoHint>{tHints("srm")}</InfoHint>}
+          hint={<SrmHint />}
           value={view.unreliable ? t("srm.alarm") : t("srm.ok")}
         />
-        <Stat label={t("stats.window")} value={windowText} />
+        <Stat
+          label={t("stats.window")}
+          hint={<AttributionWindowHint days={windowDays} />}
+          value={windowText}
+        />
         <Stat
           label={t("stats.computed")}
           value={
@@ -426,13 +458,6 @@ export function ResultsPanel({
           }
         />
       </dl>
-
-      {withheld ? null : (
-        <p className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          <span>{t("revenueNote")}</span>
-        </p>
-      )}
 
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />

@@ -485,6 +485,7 @@ export function MembersPanel() {
     },
     {
       id: "role",
+      size: 150,
       accessorKey: "roleCode",
       header: t("columns.role"),
       enableSorting: true,
@@ -492,7 +493,7 @@ export function MembersPanel() {
         const code = row.original.roleCode;
         let roleLabel = code;
         try {
-          roleLabel = tRoles(code as "owner");
+          roleLabel = tRoles(code as "admin");
         } catch {
           roleLabel = code;
         }
@@ -505,6 +506,7 @@ export function MembersPanel() {
     },
     {
       id: "team",
+      size: 140,
       header: t("columns.team"),
       enableSorting: false,
       cell: ({ row }) => {
@@ -524,6 +526,7 @@ export function MembersPanel() {
     },
     {
       id: "status",
+      size: 100,
       accessorKey: "status",
       header: t("columns.status"),
       enableSorting: false,
@@ -545,6 +548,7 @@ export function MembersPanel() {
     },
     {
       id: "joinedAt",
+      size: 130,
       accessorKey: "joinedAt",
       header: t("columns.joinedAt"),
       enableSorting: true,
@@ -556,6 +560,7 @@ export function MembersPanel() {
     },
     {
       id: "actions",
+      size: 90,
       header: () => <span className="sr-only">{t("columns.actions")}</span>,
       enableSorting: false,
       cell: ({ row }) => {
@@ -609,6 +614,7 @@ export function MembersPanel() {
     },
     {
       id: "role",
+      size: 150,
       accessorKey: "roleCode",
       header: t("pending.columns.role"),
       enableSorting: false,
@@ -616,7 +622,7 @@ export function MembersPanel() {
         const code = row.original.roleCode;
         let roleLabel = code;
         try {
-          roleLabel = tRoles(code as "owner");
+          roleLabel = tRoles(code as "admin");
         } catch {
           roleLabel = code;
         }
@@ -629,6 +635,7 @@ export function MembersPanel() {
     },
     {
       id: "team",
+      size: 140,
       header: t("pending.columns.team"),
       enableSorting: false,
       cell: ({ row }) => {
@@ -646,6 +653,7 @@ export function MembersPanel() {
     },
     {
       id: "expiresAt",
+      size: 140,
       accessorKey: "expiresAt",
       header: t("pending.columns.expiresAt"),
       enableSorting: true,
@@ -657,6 +665,7 @@ export function MembersPanel() {
     },
     {
       id: "actions",
+      size: 90,
       header: () => <span className="sr-only">{t("columns.actions")}</span>,
       enableSorting: false,
       cell: ({ row }) => {

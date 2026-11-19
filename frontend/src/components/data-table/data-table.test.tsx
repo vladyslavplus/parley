@@ -101,6 +101,30 @@ describe("DataTable", () => {
     expect(screen.getByText("Row Three")).toBeInTheDocument();
   });
 
+  it("takes column widths from the definitions and gives the skeleton the same layout", () => {
+    const sized: ColumnDef<TestRow, unknown>[] = [
+      { ...columns[0], size: 48 },
+      columns[1],
+      { ...columns[2], size: 120 },
+    ];
+    const { container, rerender } = renderTable({ columns: sized });
+    const widths = () =>
+      Array.from(container.querySelectorAll("col")).map((c) => c.style.width);
+
+    // A column without a size is left to share the remaining width.
+    expect(widths()).toEqual(["48px", "", "120px"]);
+
+    rerender(
+      <NextIntlClientProvider locale="en" messages={{ table: tableEn }}>
+        <DataTable columns={sized} data={[]} getRowId={(r) => r.id} loading />
+      </NextIntlClientProvider>,
+    );
+    expect(widths()).toEqual(["48px", "", "120px"]);
+    expect(container.querySelectorAll("tbody tr:first-child td")).toHaveLength(
+      3,
+    );
+  });
+
   it("handles keyboard navigation: arrows navigate, Enter opens, Space selects", () => {
     const onRowClick = vi.fn();
     renderTable({ onRowClick });

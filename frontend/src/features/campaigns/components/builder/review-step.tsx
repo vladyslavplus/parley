@@ -7,7 +7,13 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { InfoHint } from "@/components/ui/info-hint";
+import {
+  HoldoutHint,
+  MdeHint,
+  PrepareHint,
+  SrmHint,
+  TargetedHint,
+} from "@/features/campaigns/components/campaign-hints";
 import { ERROR_CODES } from "@/constants/error-codes";
 import { LIMITS } from "@/constants/limits";
 import { queryKeys } from "@/constants/query-keys";
@@ -72,7 +78,6 @@ export function ReviewStep({
   onPrepared,
 }: Props) {
   const t = useTranslations("campaigns.builder.review");
-  const tHints = useTranslations("hints");
   const locale = useLocale();
   const errorText = useErrorText();
   const api = useCampaignApi();
@@ -148,7 +153,7 @@ export function ReviewStep({
         <Stat
           label={t("holdout")}
           value={`${bpsToPercent(draft.holdoutShareBps)}%`}
-          hint={<InfoHint>{tHints("holdout")}</InfoHint>}
+          hint={<HoldoutHint />}
         />
         <Stat
           label={t("targeting")}
@@ -226,21 +231,24 @@ export function ReviewStep({
             />
             <Stat
               label={t("treatmentTargeted")}
+              hint={<TargetedHint />}
               value={number.format(toNumber(data.treatment.targetedCount))}
             />
             <Stat
               label={t("holdoutCount")}
+              hint={<HoldoutHint />}
               value={number.format(toNumber(data.holdout.count))}
             />
             <Stat
               label={t("holdoutTargeted")}
+              hint={<TargetedHint />}
               value={number.format(toNumber(data.holdout.targetedCount))}
             />
           </dl>
           {mdePercent !== null ? (
             <p className="flex items-center gap-1.5 text-sm text-foreground">
               <span>{t("mdeLine", { percent: mdePercent })}</span>
-              <InfoHint>{tHints("mde")}</InfoHint>
+              <MdeHint />
             </p>
           ) : null}
           {data.srmWarning ? (
@@ -248,7 +256,7 @@ export function ReviewStep({
               <span className="flex items-start gap-2">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{t("srmWarning")}</span>
-                <InfoHint>{tHints("srm")}</InfoHint>
+                <SrmHint />
               </span>
             </Alert>
           ) : null}
@@ -273,7 +281,10 @@ export function ReviewStep({
 
       {canPrepare && canAct ? (
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">{t("prepareHint")}</p>
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span>{t("prepareHint")}</span>
+            <PrepareHint />
+          </p>
           <Button
             type="button"
             variant="primary"

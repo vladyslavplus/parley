@@ -7,8 +7,11 @@ import {
   type ReactNode,
 } from "react";
 
+import { SIDEBAR_MODES, SIDEBAR_RAIL_QUERY } from "@/constants/shell";
+import { writeSidebarPreference } from "@/lib/shell/sidebar-preference";
 import { shortcutRegistry } from "@/lib/shortcuts/registry";
 import { useRegisteredCreateTargets } from "@/lib/shortcuts/create-target";
+import { RouteTransition } from "./route-transition";
 import { CommandPalette } from "./command-palette";
 import { QuickCreateDialog } from "./quick-create-dialog";
 import { ShortcutHelpDialog } from "./shortcut-help-dialog";
@@ -17,30 +20,42 @@ import { TopBar } from "./top-bar";
 
 interface Props {
   children: ReactNode;
+  /** The saved choice, read from the cookie on the server; `null` if none. */
+  initialSidebarCollapsed: boolean | null;
 }
 
 function useIsTablet(): boolean {
   return useSyncExternalStore(
     (callback) => {
-      const mql = window.matchMedia("(max-width: 1024px)");
+      const mql = window.matchMedia(SIDEBAR_RAIL_QUERY);
       mql.addEventListener("change", callback);
       return () => mql.removeEventListener("change", callback);
     },
-    () => window.matchMedia("(max-width: 1024px)").matches,
+    () => window.matchMedia(SIDEBAR_RAIL_QUERY).matches,
     () => false,
   );
 }
 
-export function AppShell({ children }: Props) {
+export function AppShell({ children, initialSidebarCollapsed }: Props) {
   const isTablet = useIsTablet();
-  const [userCollapsed, setUserCollapsed] = useState<boolean | null>(null);
+  const [userCollapsed, setUserCollapsed] = useState<boolean | null>(
+    initialSidebarCollapsed,
+  );
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const targets = useRegisteredCreateTargets();
 
+  // The wording of the toggle follows this; the width itself is CSS (`mode`), so
+  // the server's first paint is already right and nothing moves after hydration.
   const isCollapsed = userCollapsed ?? isTablet;
+  const sidebarMode =
+    userCollapsed === null
+      ? SIDEBAR_MODES.auto
+      : userCollapsed
+        ? SIDEBAR_MODES.collapsed
+        : SIDEBAR_MODES.expanded;
 
   // Global keydown listener
   useEffect(() => {
@@ -55,8 +70,12 @@ export function AppShell({ children }: Props) {
   return (
     <div className="flex min-h-screen bg-background text-foreground antialiased">
       <Sidebar
+        mode={sidebarMode}
         collapsed={isCollapsed}
-        onCollapsedChange={(val) => setUserCollapsed(val)}
+        onCollapsedChange={(val) => {
+          setUserCollapsed(val);
+          writeSidebarPreference(val);
+        }}
         mobileOpen={mobileOpen}
         onMobileOpenChange={setMobileOpen}
       />
@@ -71,7 +90,7 @@ export function AppShell({ children }: Props) {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-          {children}
+          <RouteTransition depth={1}>{children}</RouteTransition>
         </main>
       </div>
 

@@ -10,7 +10,6 @@ flowchart TB
             api["api (profile app)<br/>ASP.NET Core, 8080<br/>healthcheck /health"]
             web["web (profile app)<br/>Next.js standalone, 3000<br/>healthcheck /en/login"]
             aspire["aspire-dashboard<br/>OTLP 18889, UI 18888"]
-            redis["redis (profile redis)<br/>Valkey 8, volume valkey-data<br/>not wired into the API"]
         end
         subgraph ml_edge["networks ml-edge (API side) and ml-internal (internal)"]
             ml["ml (profile ml)<br/>FastAPI scoring service, 8000"]
@@ -23,7 +22,6 @@ flowchart TB
     api -->|"SMTP mailpit:1025"| mailpit
     api -->|"HTTP ml:8000 with shared key"| ml
     api -->|"OTLP aspire:18889"| aspire
-    api -.->|"profile exists, no client configured"| redis
     migrate -->|"migrations before start"| db
     api -->|"depends_on healthy db and completed migrate"| migrate
     web -->|"depends_on healthy api"| api
